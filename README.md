@@ -59,6 +59,17 @@ across hover and pressed while its label *darkens* to compensate. Keeping a whit
 label there fails AA at the hover step — which is precisely the trap that makes
 the palette look incapable of a lighter dark-mode hover.
 
+## Running it
+
+```bash
+npm install
+npm run dev      # the documentation site at localhost:3000
+npm run check    # types, then every documented contrast ratio
+```
+
+The site is a static export, so it hosts anywhere. Set `DOCS_BASE` if it is
+served from a subpath.
+
 ## Licence
 
 MIT
