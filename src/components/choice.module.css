@@ -1,0 +1,151 @@
+/**
+ * Shared styling for Checkbox and Radio.
+ *
+ * These are the controls border/strong exists for. On a text input the border
+ * is one signal among several — there is a label, a placeholder, a height, a
+ * padded box. On an unchecked checkbox there is nothing else: the border IS the
+ * control, so it has to clear WCAG 1.4.11 at 3:1 against every surface it can
+ * sit on. That is why border/strong is the same primitive in both themes.
+ *
+ * Checked and disabled are exempt: a brand fill supplies the contrast, and
+ * WCAG 2.1 excludes inactive components.
+ */
+
+/* The description sits OUTSIDE the label and is wired with aria-describedby.
+   Inside it, a screen reader reads it as part of the control's name — so
+   "Send a reminder" becomes "Send a reminder They will get an email the day
+   before", which is a name, not a description. */
+.root {
+  display: inline-block;
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.main {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--ap-spacing-100);
+  cursor: pointer;
+  font: inherit;
+}
+
+.root:has(.control:disabled) {
+  color: var(--ap-color-text-disabled);
+}
+
+.root:has(.control:disabled) .main {
+  cursor: not-allowed;
+}
+
+/* One size only. A checkbox that changes size stops aligning with its
+   neighbours in a dense table, which is where these are read most. */
+.control {
+  appearance: none;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  /* Optical alignment: centre the box on the first line of the label. */
+  margin-top: calc((var(--ap-text-body-md-line-height) - 16px) / 2);
+
+  border: var(--ap-border-width-control) solid var(--ap-color-border-strong);
+  background: var(--ap-color-surface-raised);
+  cursor: inherit;
+
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control { transition: none; }
+}
+
+.checkbox { border-radius: var(--ap-radius-xs); }
+.radio { border-radius: var(--ap-radius-full); }
+
+.control:hover:not(:disabled) {
+  border-color: var(--ap-color-border-accent);
+}
+
+/* The ring is added outside; the border keeps its colour and width so a checked
+   box stays visibly checked while focused. */
+.control:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.control:checked,
+.control:indeterminate {
+  background-color: var(--ap-color-interactive-accent);
+  border-color: var(--ap-color-interactive-accent);
+}
+
+.control:checked:hover:not(:disabled),
+.control:indeterminate:hover:not(:disabled) {
+  background-color: var(--ap-color-interactive-accent-hover);
+  border-color: var(--ap-color-interactive-accent-hover);
+}
+
+/* The mark is painted with the on-accent token through a mask, so it follows
+   the theme — in dark the accent fill lightens and the mark goes dark with it. */
+.checkbox:checked::before,
+.checkbox:indeterminate::before,
+.radio:checked::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: var(--ap-color-interactive-on-accent);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.checkbox:checked::before {
+  -webkit-mask-image: var(--check);
+  mask-image: var(--check);
+}
+
+.checkbox:indeterminate::before {
+  -webkit-mask-image: var(--dash);
+  mask-image: var(--dash);
+}
+
+.radio:checked::before {
+  border-radius: var(--ap-radius-full);
+  transform: scale(0.5);
+}
+
+.control {
+  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2l2.6 2.6L10 3.4' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --dash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6h7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.control:disabled {
+  background: var(--ap-color-interactive-disabled);
+  border-color: var(--ap-color-border-subtle);
+}
+
+.control:disabled:checked,
+.control:disabled:indeterminate {
+  background: var(--ap-color-interactive-disabled);
+}
+
+.control:disabled::before {
+  background-color: var(--ap-color-interactive-on-disabled);
+}
+
+.label { min-width: 0; }
+
+.description {
+  display: block;
+  /* Aligned under the label text, past the box and its gap. */
+  margin-left: calc(16px + var(--ap-spacing-100));
+  margin-top: var(--ap-spacing-025);
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
