@@ -1,8 +1,10 @@
+'use client';
+
 import { useState } from 'react';
-import { Page } from '../ui/Page.js';
-import { Ratio } from '../ui/Ratio.js';
-import { Button } from '../../../src/components/Button/index.js';
-import { resolve } from '../../../src/tokens/contrast.js';
+import { DocPage } from '@ui/DocPage';
+import { Ratio } from '@ui/Ratio';
+import { Button } from '@/components/Button';
+import { resolve } from '@/tokens/contrast';
 
 const Check = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -10,11 +12,11 @@ const Check = () => (
   </svg>
 );
 
-export function ButtonPage() {
+export default function Page() {
   const [saving, setSaving] = useState(false);
 
   return (
-    <Page
+    <DocPage
       evidence={
         <>
           <p>on-accent</p>
@@ -166,6 +168,6 @@ export function ButtonPage() {
       <p className="alias" style={{ marginTop: 8 }}>
         All remaining button attributes are passed through.
       </p>
-    </Page>
+    </DocPage>
   );
 }

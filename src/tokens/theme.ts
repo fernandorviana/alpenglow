@@ -17,7 +17,7 @@
  *    Keeping a white label there would fail AA at the hover step.
  */
 
-import type { PrimitiveName, AlphaPrimitiveName } from './primitives.js';
+import type { PrimitiveName, AlphaPrimitiveName } from './primitives';
 
 type Alias = PrimitiveName | AlphaPrimitiveName;
 type ThemeEntry = { light: Alias; dark: Alias; use: string };

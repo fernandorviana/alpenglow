@@ -19,17 +19,27 @@ Three layers, mirrored in Figma as three variable collections.
 | **Theme** | Light / Dark | 49 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
 
-TypeScript is the source of truth. `src/styles/tokens.css` is generated from it,
-and the type system prevents a token from aliasing a primitive that does not exist.
+TypeScript is the source of truth. Both stylesheets are generated from it, and
+the type system prevents a token from aliasing a primitive that does not exist.
+
+| Artefact | Consumed by |
+|---|---|
+| `src/styles/tokens.css` | Anyone. Plain CSS custom properties. |
+| `src/styles/tailwind-theme.css` | Tailwind v4 projects, via `@theme`. Points at the variables above rather than restating the palette, so utilities follow light and dark. |
+| `src/components/*` | React, styled with CSS Modules. Nothing to configure. |
+
+The token layer is not tied to a styling choice — that is the point of shipping
+both, and tests assert the two stay in step.
 
 ```bash
-npm run build:css   # regenerate the CSS
-npm test            # verify every documented contrast ratio
+npm run dev          # the documentation site
+npm run build:css    # regenerate both stylesheets
+npm run check        # types, then every documented contrast ratio
 ```
 
 ## The contrast suite
 
-77 assertions covering what the design actually depends on: text clearing AA on
+97 assertions covering what the design actually depends on: text clearing AA on
 every surface it can appear on, status text clearing AA on its own subtle
 background, every button label clearing AA on all of its fill states, control
 borders clearing WCAG 1.4.11, the dark elevation ladder staying ordered and

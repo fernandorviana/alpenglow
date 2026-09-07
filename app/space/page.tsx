@@ -1,9 +1,9 @@
-import { Page } from '../ui/Page.js';
-import { spacing, radius, borderWidth } from '../../../src/tokens/scale.js';
+import { DocPage } from '@ui/DocPage';
+import { spacing, radius, borderWidth } from '@/tokens/scale';
 
-export function SpaceAndShape() {
+export default function Page() {
   return (
-    <Page
+    <DocPage
       evidence={
         <>
           <p>spacing/100 = 8px</p>
@@ -78,6 +78,6 @@ export function SpaceAndShape() {
           <span className="ratio">{px}px</span>
         </div>
       ))}
-    </Page>
+    </DocPage>
   );
 }

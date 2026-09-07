@@ -6,8 +6,8 @@
  * contrast.test.ts, so changing a token without recomputing fails the build.
  */
 
-import { primitives, alphaPrimitives } from './primitives.js';
-import { theme, type ThemeTokenName, type Mode } from './theme.js';
+import { primitives, alphaPrimitives } from './primitives';
+import { theme, type ThemeTokenName, type Mode } from './theme';
 
 export type Rgb = { r: number; g: number; b: number };
 

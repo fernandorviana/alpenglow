@@ -5,14 +5,15 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build:css": "tsx scripts/build-css.ts",
+    "build:css": "tsx scripts/build-css.ts && tsx scripts/build-tailwind.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm test",
-    "dev": "vite",
-    "build:docs": "npm run build:css && vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build:docs": "npm run build:css && next build",
+    "build:tailwind": "tsx scripts/build-tailwind.ts",
+    "start": "next start"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",
@@ -23,14 +24,15 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "jsdom": "^30.0.1",
+    "tailwindcss": "^4.3.3",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"
   },
   "dependencies": {
+    "next": "^16.3.4",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.3"
+    "react-dom": "^19.2.8"
   }
 }

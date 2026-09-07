@@ -1,4 +1,4 @@
-import { contrast } from '../../../src/tokens/contrast.js';
+import { contrast } from '@/tokens/contrast';
 
 type Props = {
   /** Resolved hex, foreground. */

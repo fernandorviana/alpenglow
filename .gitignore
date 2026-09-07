@@ -1,7 +1,8 @@
 node_modules/
+.next/
+out/
 dist/
 .DS_Store
 *.log
 coverage/
-.vite/
-dist-docs/
+next-env.d.ts

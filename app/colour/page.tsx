@@ -1,9 +1,9 @@
-import { Page } from '../ui/Page.js';
-import { Ratio } from '../ui/Ratio.js';
-import { Swatch } from '../ui/Swatch.js';
-import { primitives } from '../../../src/tokens/primitives.js';
-import { theme, type ThemeTokenName } from '../../../src/tokens/theme.js';
-import { resolve } from '../../../src/tokens/contrast.js';
+import { DocPage } from '@ui/DocPage';
+import { Ratio } from '@ui/Ratio';
+import { Swatch } from '@ui/Swatch';
+import { primitives } from '@/tokens/primitives';
+import { theme, type ThemeTokenName } from '@/tokens/theme';
+import { resolve } from '@/tokens/contrast';
 
 const RAMPS = ['gray-light', 'gray-dark', 'brand-1', 'brand-2', 'red', 'green', 'yellow', 'blue'] as const;
 const STEPS = ['050', '100', '200', '300', '400', '500', '600', '700', '800', '900'] as const;
@@ -67,9 +67,9 @@ function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold
   );
 }
 
-export function Colour() {
+export default function Page() {
   return (
-    <Page
+    <DocPage
       evidence={
         <>
           <p>81 primitives</p>
@@ -141,6 +141,6 @@ export function Colour() {
         that clears WCAG 1.4.11 — which is why every form control uses it.
       </p>
       <TokenTable tokens={group('border/')} threshold={3} />
-    </Page>
+    </DocPage>
   );
 }

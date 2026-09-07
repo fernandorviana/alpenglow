@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { theme, type ThemeTokenName, type Mode } from './theme.js';
-import { resolve, contrast, tokenContrast, AA_NORMAL, NON_TEXT } from './contrast.js';
+import { theme, type ThemeTokenName, type Mode } from './theme';
+import { resolve, contrast, tokenContrast, AA_NORMAL, NON_TEXT } from './contrast';
 
 const MODES: Mode[] = ['light', 'dark'];
 

@@ -1,11 +1,11 @@
-import { Page } from '../ui/Page.js';
-import { Ratio } from '../ui/Ratio.js';
-import { resolve, contrast } from '../../../src/tokens/contrast.js';
-import { primitives } from '../../../src/tokens/primitives.js';
+import { DocPage } from '@ui/DocPage';
+import { Ratio } from '@ui/Ratio';
+import { resolve, contrast } from '@/tokens/contrast';
+import { primitives } from '@/tokens/primitives';
 
-export function Decisions() {
+export default function Page() {
   return (
-    <Page
+    <DocPage
       evidence={
         <>
           <p>brand-2/700</p>
@@ -86,6 +86,6 @@ export function Decisions() {
         another fill step. Running out is not a flaw to design around; it is a constraint to
         state plainly so nobody invents a fifth level that collides with something.
       </p>
-    </Page>
+    </DocPage>
   );
 }

@@ -1,5 +1,5 @@
-import { Page } from '../ui/Page.js';
-import { textStyle, fontWeight } from '../../../src/tokens/typography.js';
+import { DocPage } from '@ui/DocPage';
+import { textStyle, fontWeight } from '@/tokens/typography';
 
 const SAMPLE: Record<string, string> = {
   'heading/h1': 'Thursday, 14:30',
@@ -17,9 +17,9 @@ const SAMPLE: Record<string, string> = {
   'caption/caps': 'Waiting room',
 };
 
-export function Typography() {
+export default function Page() {
   return (
-    <Page
+    <DocPage
       evidence={
         <>
           <p>13 styles</p>
@@ -79,6 +79,6 @@ export function Typography() {
         plainly not the intent; and the all-caps family carried its transform on the regular
         weight but not on medium or semibold.
       </p>
-    </Page>
+    </DocPage>
   );
 }

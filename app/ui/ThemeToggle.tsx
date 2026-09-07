@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { Button } from '../../../src/components/Button/index.js';
+import { Button } from '@/components/Button';
 
 type Choice = 'system' | 'light' | 'dark';
 

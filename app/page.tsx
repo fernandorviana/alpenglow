@@ -1,17 +1,17 @@
-import { Page } from '../ui/Page.js';
-import { Ratio } from '../ui/Ratio.js';
-import { resolve } from '../../../src/tokens/contrast.js';
-import { theme } from '../../../src/tokens/theme.js';
-import { primitives } from '../../../src/tokens/primitives.js';
+import { DocPage } from '@ui/DocPage';
+import { Ratio } from '@ui/Ratio';
+import { resolve } from '@/tokens/contrast';
+import { theme } from '@/tokens/theme';
+import { primitives } from '@/tokens/primitives';
 
-export function Overview() {
+export default function Page() {
   const counts = {
     primitives: Object.keys(primitives).length,
     theme: Object.keys(theme).length,
   };
 
   return (
-    <Page
+    <DocPage
       evidence={
         <>
           <p>{counts.primitives} primitives</p>
@@ -72,6 +72,6 @@ export function Overview() {
         that resolved to exactly the same colour as the surface beneath it — 1.00:1,
         invisible, and impossible to notice by eye in a palette of eighty-one greys.
       </p>
-    </Page>
+    </DocPage>
   );
 }
