@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Types first, then the contrast suite. Deployment is Vercel's job; this
+      # is the gate that stops a token change shipping without its numbers
+      # being recomputed, and catches a generated stylesheet left stale.
+      - run: npm run check
+
+      # A drifted build artefact is a silent failure: the site would keep
+      # rendering the old values. Regenerating and diffing catches it.
+      - name: Generated stylesheets are up to date
+        run: |
+          npm run build:css
+          git diff --exit-code -- src/styles/ || {
+            echo "::error::src/styles is stale — run 'npm run build:css' and commit the result."
+            exit 1
+          }
+
+      - run: npm run build:docs
