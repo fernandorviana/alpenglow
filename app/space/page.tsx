@@ -44,6 +44,11 @@ export default function Page() {
         ))}
 
       <h2>Radius</h2>
+      <p>
+        Buttons are capsules — <code>radius/full</code>, not <code>radius/md</code>. It is
+        the most recognisable thing about the system&rsquo;s shape language, so it is worth
+        stating rather than leaving each component to decide.
+      </p>
       <div className="specimenRow">
         {Object.entries(radius).map(([name, px]) => (
           <div key={name} style={{ textAlign: 'center' }}>

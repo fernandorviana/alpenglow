@@ -34,6 +34,11 @@ export const spacing = {
   1600: 320,
 } as const;
 
+/**
+ * `full` is the button radius. Alpenglow's buttons are capsules — it is the
+ * most recognisable thing about the system's shape language, so it is called
+ * out here rather than left for a component to decide.
+ */
 export const radius = {
   none: 0,
   xs: 2,

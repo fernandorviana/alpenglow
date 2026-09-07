@@ -14,9 +14,10 @@
   gap: var(--ap-spacing-100);
   margin: 0;
 
-  /* shape — radius/md is what the scale assigns to input, select and button */
+  /* shape — capsule. The system's most recognisable trait; inputs and cards
+     use radius/md, buttons do not. */
   border: var(--ap-border-width-hairline) solid transparent;
-  border-radius: var(--ap-radius-md);
+  border-radius: var(--ap-radius-full);
 
   /* type */
   font-family: var(--ap-font-sans);

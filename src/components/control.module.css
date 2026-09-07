@@ -1,0 +1,120 @@
+/**
+ * Shared styling for bordered form controls.
+ *
+ * Input and Textarea import this so the state matrix — resting, focus, error,
+ * disabled, read-only — is written once. Two components drifting apart on what
+ * "focused and invalid" looks like is exactly the kind of inconsistency a
+ * design system exists to remove.
+ *
+ * `.control` sits on whichever element carries the border: a wrapper for Input,
+ * because it can hold icons, and the textarea itself for Textarea.
+ */
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  width: 100%;
+
+  /* Inputs are not capsules — that shape is reserved for buttons. */
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control { transition: none; }
+}
+
+.control:hover:not(.disabled):not(.readOnly) {
+  border-color: var(--ap-color-border-accent);
+}
+
+/* Focus adds a ring outside the control. The border keeps its colour and its
+   width, so an invalid field stays visibly invalid while focused and nothing
+   reflows. */
+.control:focus-within,
+.control:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.invalid,
+.invalid:hover {
+  border-color: var(--ap-color-border-danger);
+}
+
+.disabled {
+  background: var(--ap-color-interactive-disabled);
+  border-color: var(--ap-color-border-subtle);
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.readOnly {
+  background: var(--ap-color-surface-sunken);
+  border-color: var(--ap-color-border-default);
+}
+
+/* --- sizes ---------------------------------------------------------------- */
+
+.sm { min-height: 32px; padding-inline: var(--ap-spacing-150); }
+.md { min-height: 40px; padding-inline: var(--ap-spacing-150); }
+.lg {
+  min-height: 48px;
+  padding-inline: var(--ap-spacing-200);
+  font-size: var(--ap-text-body-lg-size);
+  line-height: var(--ap-text-body-lg-line-height);
+}
+
+/* --- the editable element ------------------------------------------------- */
+
+/* The wrapper carries the border and background; the field itself is bare, so
+   icons can sit inside the same box without a nested outline. */
+.field {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+}
+
+.field::placeholder {
+  color: var(--ap-color-text-placeholder);
+  opacity: 1; /* Firefox dims placeholders by default. */
+}
+
+.field:disabled {
+  cursor: not-allowed;
+  /* Safari greys disabled text regardless of colour; be explicit. */
+  -webkit-text-fill-color: var(--ap-color-text-disabled);
+  color: var(--ap-color-text-disabled);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--ap-color-text-tertiary);
+}
+
+.lg .icon { width: 20px; height: 20px; }
+
+.icon svg { width: 100%; height: 100%; }
+
+.fullWidth { width: 100%; }
