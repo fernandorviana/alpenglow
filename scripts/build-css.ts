@@ -13,6 +13,7 @@ import { writeFileSync } from 'node:fs';
 import { primitives, alphaPrimitives } from '../src/tokens/primitives.js';
 import { theme } from '../src/tokens/theme.js';
 import { spacing, radius, borderWidth, focusRingOffset } from '../src/tokens/scale.js';
+import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
 
 const PREFIX = 'ap';
 
@@ -33,6 +34,26 @@ function themeBlock(mode: 'light' | 'dark', indent = '  '): string {
   return Object.entries(theme)
     .map(([name, entry]) => `${indent}${cssName(`color/${name}`)}: var(${cssName(entry[mode])});`)
     .join('\n');
+}
+
+function typographyBlock(): string {
+  const lines: string[] = [
+    ...Object.entries(fontFamily).map(([k, v]) => `  ${cssName(`font/${k}`)}: ${v};`),
+    '',
+    ...Object.entries(fontWeight).map(([k, v]) => `  ${cssName(`font-weight/${k}`)}: ${v};`),
+    '',
+  ];
+  for (const [name, style] of Object.entries(textStyle)) {
+    lines.push(`  /* ${style.use} */`);
+    lines.push(`  ${cssName(`text/${name}/size`)}: ${style.size}px;`);
+    lines.push(`  ${cssName(`text/${name}/line-height`)}: ${style.lineHeight}px;`);
+    lines.push(`  ${cssName(`text/${name}/tracking`)}: ${style.tracking}px;`);
+    if ('transform' in style) {
+      lines.push(`  ${cssName(`text/${name}/transform`)}: ${style.transform};`);
+    }
+    lines.push('');
+  }
+  return lines.join('\n').trimEnd();
 }
 
 function scaleBlock(): string {
@@ -98,14 +119,33 @@ ${scaleBlock()}
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — typography. Style and weight are independent axes.
+   --------------------------------------------------------------------------- */
+
+:root {
+${typographyBlock()}
+}
+
+/* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */
 
 body {
   background: var(${cssName('color/surface/base')});
   color: var(${cssName('color/text/primary')});
+  font-family: var(${cssName('font/sans')});
+  font-size: var(${cssName('text/body/md/size')});
+  line-height: var(${cssName('text/body/md/line-height')});
+  letter-spacing: var(${cssName('text/body/md/tracking')});
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 `;
 
 writeFileSync(new URL('../src/styles/tokens.css', import.meta.url), css);
-console.log(`tokens.css written — ${Object.keys(primitives).length + Object.keys(alphaPrimitives).length} primitives, ${Object.keys(theme).length} theme tokens, ${Object.keys(spacing).length + Object.keys(radius).length + Object.keys(borderWidth).length} scale values`);
+console.log(
+  `tokens.css written — ${Object.keys(primitives).length + Object.keys(alphaPrimitives).length} primitives, ` +
+    `${Object.keys(theme).length} theme tokens, ` +
+    `${Object.keys(spacing).length + Object.keys(radius).length + Object.keys(borderWidth).length} scale values, ` +
+    `${Object.keys(textStyle).length} text styles`,
+);

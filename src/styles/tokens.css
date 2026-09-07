@@ -323,10 +323,96 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — typography. Style and weight are independent axes.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ap-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --ap-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --ap-font-weight-regular: 400;
+  --ap-font-weight-medium: 500;
+  --ap-font-weight-semibold: 600;
+  --ap-font-weight-bold: 700;
+
+  /* Page title */
+  --ap-text-heading-h1-size: 40px;
+  --ap-text-heading-h1-line-height: 44px;
+  --ap-text-heading-h1-tracking: -1.8px;
+
+  /* Section title */
+  --ap-text-heading-h2-size: 32px;
+  --ap-text-heading-h2-line-height: 36px;
+  --ap-text-heading-h2-tracking: -1.6px;
+
+  /* Subsection title */
+  --ap-text-heading-h3-size: 28px;
+  --ap-text-heading-h3-line-height: 32px;
+  --ap-text-heading-h3-tracking: -1.1px;
+
+  /* Card title */
+  --ap-text-heading-h4-size: 24px;
+  --ap-text-heading-h4-line-height: 28px;
+  --ap-text-heading-h4-tracking: -0.8px;
+
+  /* Lead paragraph, prominent label */
+  --ap-text-subheading-lg-size: 20px;
+  --ap-text-subheading-lg-line-height: 24px;
+  --ap-text-subheading-lg-tracking: -0.3px;
+
+  /* Panel heading */
+  --ap-text-subheading-md-size: 18px;
+  --ap-text-subheading-md-line-height: 24px;
+  --ap-text-subheading-md-tracking: -0.2px;
+
+  /* Long-form copy */
+  --ap-text-body-lg-size: 16px;
+  --ap-text-body-lg-line-height: 24px;
+  --ap-text-body-lg-tracking: -0.1px;
+
+  /* Default body — the most used style in the system */
+  --ap-text-body-md-size: 14px;
+  --ap-text-body-md-line-height: 22px;
+  --ap-text-body-md-tracking: 0px;
+
+  /* Large button label */
+  --ap-text-button-lg-size: 16px;
+  --ap-text-button-lg-line-height: 20px;
+  --ap-text-button-lg-tracking: -0.2px;
+
+  /* Default button label */
+  --ap-text-button-md-size: 14px;
+  --ap-text-button-md-line-height: 18px;
+  --ap-text-button-md-tracking: -0.1px;
+
+  /* Helper text, metadata */
+  --ap-text-caption-md-size: 12px;
+  --ap-text-caption-md-line-height: 16px;
+  --ap-text-caption-md-tracking: 0.2px;
+
+  /* Dense table cells, timestamps */
+  --ap-text-caption-sm-size: 11px;
+  --ap-text-caption-sm-line-height: 14px;
+  --ap-text-caption-sm-tracking: 0.8px;
+
+  /* Section eyebrows, overline labels */
+  --ap-text-caption-caps-size: 10px;
+  --ap-text-caption-caps-line-height: 12px;
+  --ap-text-caption-caps-tracking: 0.8px;
+  --ap-text-caption-caps-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */
 
 body {
   background: var(--ap-color-surface-base);
   color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

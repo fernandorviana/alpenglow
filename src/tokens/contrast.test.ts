@@ -168,18 +168,23 @@ describe('every interactive fill is separable from its surface', () => {
 describe('the dark elevation ladder is ordered and every step is perceptible', () => {
   const LADDER = ['surface/sunken', 'surface/base', 'surface/raised', 'surface/overlay'] as const;
 
+  /** Adjacent pairs, so the loop never indexes past the end. */
+  const STEPS = LADDER.flatMap((from, i) => {
+    const to = LADDER[i + 1];
+    return to ? [[from, to] as const] : [];
+  });
+
   it('each step is lighter than the one below it', () => {
-    const lums = LADDER.map((t) => resolve(t, 'dark'));
-    for (let i = 0; i < lums.length - 1; i++) {
-      expect(contrast(lums[i], '#000000'), `${LADDER[i]} -> ${LADDER[i + 1]}`)
-        .toBeLessThan(contrast(lums[i + 1], '#000000'));
+    for (const [from, to] of STEPS) {
+      const lighter = (t: (typeof LADDER)[number]) => contrast(resolve(t, 'dark'), '#000000');
+      expect(lighter(from), `${from} -> ${to}`).toBeLessThan(lighter(to));
     }
   });
 
   it('each adjacent step is separable', () => {
-    for (let i = 0; i < LADDER.length - 1; i++) {
-      const ratio = contrast(resolve(LADDER[i], 'dark'), resolve(LADDER[i + 1], 'dark'));
-      expect(ratio, `${LADDER[i]} -> ${LADDER[i + 1]}`).toBeGreaterThanOrEqual(1.09);
+    for (const [from, to] of STEPS) {
+      const ratio = contrast(resolve(from, 'dark'), resolve(to, 'dark'));
+      expect(ratio, `${from} -> ${to}`).toBeGreaterThanOrEqual(1.09);
     }
   });
 });
@@ -203,7 +208,7 @@ describe('structural invariants', () => {
     const fills = Object.keys(theme).filter(
       (k) => k.startsWith('interactive/') && !k.includes('/on-') && !k.endsWith('selected'),
     );
-    const families = new Set(fills.map((f) => f.split('/')[1].split('-')[0]));
+    const families = new Set(fills.map((f) => f.split('/')[1]!.split('-')[0]!));
     for (const family of families) {
       expect(Object.keys(theme), `on-${family}`).toContain(`interactive/on-${family}`);
     }

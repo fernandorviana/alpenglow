@@ -1,0 +1,225 @@
+/**
+ * Button
+ *
+ * Every value here is a token. The only literals are geometry that follows from
+ * the token scale (control heights) and the spinner's own dimensions.
+ */
+
+.button {
+  /* layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: var(--ap-spacing-100);
+  margin: 0;
+
+  /* shape — radius/md is what the scale assigns to input, select and button */
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-md);
+
+  /* type */
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-semibold);
+  white-space: nowrap;
+
+  /* behaviour */
+  cursor: pointer;
+  user-select: none;
+  appearance: none;
+  background: none;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+/* The ring adds geometry rather than recolouring the border: colour is never
+   the only channel carrying a state. */
+.button:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
+
+/* --- sizes ---------------------------------------------------------------- */
+
+.sm {
+  height: 32px;
+  padding-inline: var(--ap-spacing-150);
+  gap: var(--ap-spacing-050);
+  font-size: var(--ap-text-button-md-size);
+  line-height: var(--ap-text-button-md-line-height);
+  letter-spacing: var(--ap-text-button-md-tracking);
+}
+
+.md {
+  height: 40px;
+  padding-inline: var(--ap-spacing-250);
+  font-size: var(--ap-text-button-md-size);
+  line-height: var(--ap-text-button-md-line-height);
+  letter-spacing: var(--ap-text-button-md-tracking);
+}
+
+.lg {
+  height: 48px;
+  padding-inline: var(--ap-spacing-300);
+  font-size: var(--ap-text-button-lg-size);
+  line-height: var(--ap-text-button-lg-line-height);
+  letter-spacing: var(--ap-text-button-lg-tracking);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* --- solid ---------------------------------------------------------------- */
+
+.solid.accent {
+  background: var(--ap-color-interactive-accent);
+  color: var(--ap-color-interactive-on-accent);
+}
+.solid.accent:hover:not(:disabled) { background: var(--ap-color-interactive-accent-hover); }
+.solid.accent:active:not(:disabled) { background: var(--ap-color-interactive-accent-pressed); }
+
+/* The neutral fill is ~1.1:1 against the surfaces it sits on — in light it is
+   identical to the canvas. The outline is what describes the button's shape,
+   so it is not optional here. */
+.solid.neutral {
+  background: var(--ap-color-interactive-neutral);
+  border-color: var(--ap-color-border-default);
+  color: var(--ap-color-interactive-on-neutral);
+}
+.solid.neutral:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
+.solid.neutral:active:not(:disabled) { background: var(--ap-color-interactive-neutral-pressed); }
+
+.solid.tertiary {
+  background: var(--ap-color-interactive-tertiary);
+  color: var(--ap-color-interactive-on-tertiary);
+}
+.solid.tertiary:hover:not(:disabled) { background: var(--ap-color-interactive-tertiary-hover); }
+.solid.tertiary:active:not(:disabled) { background: var(--ap-color-interactive-tertiary-pressed); }
+
+.solid.danger {
+  background: var(--ap-color-interactive-danger);
+  color: var(--ap-color-interactive-on-danger);
+}
+.solid.danger:hover:not(:disabled) { background: var(--ap-color-interactive-danger-hover); }
+.solid.danger:active:not(:disabled) { background: var(--ap-color-interactive-danger-pressed); }
+
+/* --- outline -------------------------------------------------------------- */
+
+.outline {
+  background: transparent;
+}
+.outline:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
+.outline:active:not(:disabled) { background: var(--ap-color-interactive-neutral-pressed); }
+
+.outline.accent  { border-color: var(--ap-color-border-accent);  color: var(--ap-color-text-accent); }
+.outline.neutral { border-color: var(--ap-color-border-default); color: var(--ap-color-text-primary); }
+.outline.danger  { border-color: var(--ap-color-border-danger);  color: var(--ap-color-text-danger); }
+
+/* --- ghost ---------------------------------------------------------------- */
+
+.ghost {
+  background: transparent;
+}
+.ghost:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
+.ghost:active:not(:disabled) { background: var(--ap-color-interactive-neutral-pressed); }
+
+.ghost.accent  { color: var(--ap-color-text-accent); }
+.ghost.neutral { color: var(--ap-color-text-primary); }
+.ghost.danger  { color: var(--ap-color-text-danger); }
+
+/* --- disabled ------------------------------------------------------------- */
+
+/* Disabled wins over every variant and tone. In dark the disabled fill equals
+   the neutral fill, so the label and the dropped outline carry the state. */
+.button:disabled,
+.button[aria-disabled='true'] {
+  background: var(--ap-color-interactive-disabled);
+  border-color: var(--ap-color-border-subtle);
+  color: var(--ap-color-interactive-on-disabled);
+}
+
+.ghost:disabled {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* --- icons ---------------------------------------------------------------- */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  font-size: 16px;
+}
+
+.lg .icon {
+  font-size: 20px;
+}
+
+.icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* --- loading -------------------------------------------------------------- */
+
+/* The label keeps its place in the flow and only loses its paint, so the button
+   does not change width when it starts loading. */
+.loading .content {
+  opacity: 0;
+}
+
+.spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner::after {
+  content: '';
+  width: 1em;
+  height: 1em;
+  font-size: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--ap-radius-full);
+  animation: spin 600ms linear infinite;
+}
+
+.lg .spinner::after {
+  font-size: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner::after { animation-duration: 1600ms; }
+}
+
+/* --- content -------------------------------------------------------------- */
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+}
