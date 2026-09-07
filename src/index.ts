@@ -3,6 +3,9 @@ import './styles/tokens.css';
 export { Button } from './components/Button/index';
 export type { ButtonProps, ButtonSize } from './components/Button/index';
 
+export { Field } from './components/Field/index';
+export type { FieldProps } from './components/Field/index';
+
 export { Input } from './components/Input/index';
 export type { InputProps, InputSize } from './components/Input/index';
 

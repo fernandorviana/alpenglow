@@ -1,0 +1,29 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-075);
+}
+
+.label {
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* Decorative. The control carries `required`, which assistive technology
+   already announces — reading "asterisk" on top of that is noise. */
+.required {
+  margin-left: var(--ap-spacing-025);
+  color: var(--ap-color-text-danger);
+}
+
+.description,
+.error {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+.description { color: var(--ap-color-text-tertiary); }
+.error { color: var(--ap-color-text-danger); }

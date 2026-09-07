@@ -1,5 +1,8 @@
+'use client';
+
 import { forwardRef } from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
+import { useField } from '../Field/FieldContext';
 import styles from '../control.module.css';
 
 export type InputSize = 'sm' | 'md' | 'lg';
@@ -14,13 +17,20 @@ export type InputProps = {
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { size = 'md', invalid = false, iconStart, iconEnd, disabled, readOnly, className, ...rest },
+  { size = 'md', invalid, iconStart, iconEnd, disabled, readOnly, className, ...rest },
   ref,
 ) {
+  // A surrounding Field supplies the id and the wiring. Explicit props still
+  // win: the caller is being more specific than the wrapper.
+  const field = useField();
+  const isInvalid = invalid ?? field?.invalid ?? false;
+  const id = rest.id ?? field?.controlId;
+  const describedBy = rest['aria-describedby'] ?? field?.describedBy;
+  const required = rest.required ?? field?.required;
   const wrapper = [
     styles.control,
     styles[size],
-    invalid && styles.invalid,
+    isInvalid && styles.invalid,
     disabled && styles.disabled,
     readOnly && styles.readOnly,
     className,
@@ -38,10 +48,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <input
         {...rest}
         ref={ref}
+        id={id}
         className={styles.field}
         disabled={disabled}
         readOnly={readOnly}
-        aria-invalid={invalid || undefined}
+        required={required}
+        aria-invalid={isInvalid || undefined}
+        aria-describedby={describedBy}
       />
       {iconEnd && (
         <span className={styles.icon} aria-hidden="true">

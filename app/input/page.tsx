@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
+import { Field } from '@/components/Field/index';
 import { Input } from '@/components/Input/index';
 import { Textarea } from '@/components/Textarea/index';
 
@@ -75,31 +76,41 @@ export default function Page() {
         </div>
       </div>
 
-      <h2>Validation</h2>
+      <h2>Field</h2>
       <p>
-        Type something without an <code>@</code> and the field turns. The border changes
-        colour but never width, so nothing on the page moves — and focusing an invalid field
-        keeps the red border while adding the ring, rather than replacing one signal with
-        the other.
+        Written by hand, a labelled field with help text and an error is four things to get
+        right, and three of them fail silently: a mismatched id leaves the label unattached,
+        a missing <code>aria-describedby</code> leaves the error unannounced, and a
+        forgotten invalid flag leaves the field red to sighted users and fine to everyone
+        else.
+      </p>
+      <p>
+        <code>Field</code> wires all of it. Type something without an <code>@</code> below —
+        the border turns, the message appears, and the control is marked invalid and
+        described by the message at the same moment.
       </p>
       <div className="specimen">
-        <div className="specimenRow">
-          <label htmlFor="e">Email</label>
+        <Field
+          label="Email address"
+          description="We only use it for appointment reminders."
+          error={invalid && 'Enter an address that includes an @.'}
+          required
+        >
           <Input
-            id="e"
             type="email"
             value={email}
-            invalid={invalid}
-            aria-describedby={invalid ? 'email-error' : undefined}
             onChange={(event) => setEmail(event.target.value)}
           />
-        </div>
-        {invalid && (
-          <p id="email-error" style={{ color: 'var(--ap-color-text-danger)', margin: '8px 0 0' }}>
-            Enter an address that includes an @.
-          </p>
-        )}
+        </Field>
       </div>
+      <p>
+        The help text stays announced alongside the error rather than being replaced by it.
+        It usually still applies when the value is wrong, and often explains why.
+      </p>
+      <p>
+        Field is for text controls. Checkbox and Radio carry their own labels, which belong
+        beside the control rather than above it.
+      </p>
 
       <h2>Textarea</h2>
       <div className="specimen">
@@ -116,10 +127,10 @@ export default function Page() {
         screen reader.
       </p>
       <p>
-        Neither component renders its own label. Wire one up with <code>htmlFor</code>, or
-        pass <code>aria-label</code> — a control that invents a label is a control that gets
-        the wrong one. Point <code>aria-describedby</code> at the error message so it is
-        announced with the field.
+        Neither component renders its own label — a control that invents a label is a
+        control that gets the wrong one. Wrap it in a <code>Field</code>, or wire{' '}
+        <code>htmlFor</code> yourself. A control still works with neither, so nothing forces
+        the wrapper on you.
       </p>
       <p>
         The visual <code>size</code> prop shadows the HTML <code>size</code> attribute,

@@ -1,5 +1,8 @@
+'use client';
+
 import { forwardRef } from 'react';
 import type { TextareaHTMLAttributes } from 'react';
+import { useField } from '../Field/FieldContext';
 import styles from '../control.module.css';
 
 export type TextareaSize = 'sm' | 'md' | 'lg';
@@ -16,14 +19,19 @@ export type TextareaProps = {
  * browser's native resize handle.
  */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { size = 'md', invalid = false, rows = 4, disabled, readOnly, className, style, ...rest },
+  { size = 'md', invalid, rows = 4, disabled, readOnly, className, style, ...rest },
   ref,
 ) {
+  const field = useField();
+  const isInvalid = invalid ?? field?.invalid ?? false;
+  const id = rest.id ?? field?.controlId;
+  const describedBy = rest['aria-describedby'] ?? field?.describedBy;
+  const required = rest.required ?? field?.required;
   const classes = [
     styles.control,
     styles.field,
     styles[size],
-    invalid && styles.invalid,
+    isInvalid && styles.invalid,
     disabled && styles.disabled,
     readOnly && styles.readOnly,
     className,
@@ -36,10 +44,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       {...rest}
       ref={ref}
       rows={rows}
+      id={id}
       className={classes}
       disabled={disabled}
       readOnly={readOnly}
-      aria-invalid={invalid || undefined}
+      required={required}
+      aria-invalid={isInvalid || undefined}
+      aria-describedby={describedBy}
       style={{ paddingBlock: 'var(--ap-spacing-100)', resize: 'vertical', ...style }}
     />
   );
