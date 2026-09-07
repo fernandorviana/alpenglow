@@ -1,0 +1,332 @@
+/**
+ * Alpenglow design tokens — GENERATED FILE, DO NOT EDIT.
+ * Source: src/tokens/*.ts · Regenerate with `npm run build:css`
+ *
+ * Theme: Eleonora
+ *
+ * Dark mode is declared twice on purpose. The media query handles viewers who
+ * have expressed no preference in the app, guarded by :not([data-theme="light"])
+ * so an explicit light choice still wins. The attribute selector handles an
+ * explicit dark choice. Without both, a toggle cannot override the system
+ * preference in both directions.
+ */
+
+/* ---------------------------------------------------------------------------
+   Layer 1 — primitives. Raw values with no meaning. Do not use these directly.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ap-white: #FFFFFF;
+  --ap-gray-light-050: #F6F8FA;
+  --ap-gray-light-100: #EBEEF1;
+  --ap-gray-light-200: #E1E6EB;
+  --ap-gray-light-300: #D5DBE1;
+  --ap-gray-light-400: #C3CAD4;
+  --ap-gray-light-500: #B1BAC7;
+  --ap-gray-light-600: #A3ACBA;
+  --ap-gray-light-700: #939CAB;
+  --ap-gray-light-800: #868F9F;
+  --ap-gray-light-900: #778091;
+  --ap-gray-dark-050: #687185;
+  --ap-gray-dark-100: #5F6678;
+  --ap-gray-dark-200: #545969;
+  --ap-gray-dark-300: #4B4F5E;
+  --ap-gray-dark-400: #414452;
+  --ap-gray-dark-500: #383A47;
+  --ap-gray-dark-600: #2F303D;
+  --ap-gray-dark-700: #262733;
+  --ap-gray-dark-800: #1A1B25;
+  --ap-gray-dark-900: #10111A;
+  --ap-brand-1-050: #F2EFFE;
+  --ap-brand-1-100: #E3DAFE;
+  --ap-brand-1-200: #C9B7FB;
+  --ap-brand-1-300: #AA89F5;
+  --ap-brand-1-400: #8B60F0;
+  --ap-brand-1-500: #7544E9;
+  --ap-brand-1-600: #5928C9;
+  --ap-brand-1-700: #4317AA;
+  --ap-brand-1-800: #310D84;
+  --ap-brand-1-900: #20065C;
+  --ap-brand-2-050: #F0FFFB;
+  --ap-brand-2-100: #D6FFF7;
+  --ap-brand-2-200: #B8FFF2;
+  --ap-brand-2-300: #92F9E7;
+  --ap-brand-2-400: #67F5DF;
+  --ap-brand-2-500: #33EFD8;
+  --ap-brand-2-600: #20D6C4;
+  --ap-brand-2-700: #13A89B;
+  --ap-brand-2-800: #0A7A73;
+  --ap-brand-2-900: #034444;
+  --ap-red-050: #FFF2F0;
+  --ap-red-100: #FFE1DB;
+  --ap-red-200: #FFBEB2;
+  --ap-red-300: #FB9787;
+  --ap-red-400: #F77463;
+  --ap-red-500: #EB503F;
+  --ap-red-600: #CC392E;
+  --ap-red-700: #AA2722;
+  --ap-red-800: #8F1818;
+  --ap-red-900: #720F12;
+  --ap-green-050: #F0FFF4;
+  --ap-green-100: #DBFFE7;
+  --ap-green-200: #B0FFCD;
+  --ap-green-300: #7DFAAF;
+  --ap-green-400: #51F093;
+  --ap-green-500: #25E578;
+  --ap-green-600: #19C868;
+  --ap-green-700: #12A356;
+  --ap-green-800: #0C703C;
+  --ap-green-900: #034624;
+  --ap-yellow-050: #FFFDEF;
+  --ap-yellow-100: #FFFBDD;
+  --ap-yellow-200: #FFF5B1;
+  --ap-yellow-300: #FFEA7F;
+  --ap-yellow-400: #FFDF5D;
+  --ap-yellow-500: #FFD33D;
+  --ap-yellow-600: #F9C513;
+  --ap-yellow-700: #DBAB09;
+  --ap-yellow-800: #B08800;
+  --ap-yellow-900: #735C0F;
+  --ap-blue-050: #F0F6FF;
+  --ap-blue-100: #DEECFF;
+  --ap-blue-200: #BFD9FF;
+  --ap-blue-300: #99BEFF;
+  --ap-blue-400: #6B9DFF;
+  --ap-blue-500: #3F7AF8;
+  --ap-blue-600: #1F54C7;
+  --ap-blue-700: #1B41A3;
+  --ap-blue-800: #143180;
+  --ap-blue-900: #0B1F5C;
+
+  --ap-alpha-black-04: rgb(0 0 0 / 0.04);
+  --ap-alpha-black-08: rgb(0 0 0 / 0.08);
+  --ap-alpha-black-16: rgb(0 0 0 / 0.16);
+  --ap-alpha-black-32: rgb(0 0 0 / 0.32);
+  --ap-alpha-black-48: rgb(0 0 0 / 0.48);
+  --ap-alpha-black-64: rgb(0 0 0 / 0.64);
+  --ap-alpha-white-04: rgb(255 255 255 / 0.04);
+  --ap-alpha-white-08: rgb(255 255 255 / 0.08);
+  --ap-alpha-white-16: rgb(255 255 255 / 0.16);
+  --ap-alpha-white-32: rgb(255 255 255 / 0.32);
+  --ap-alpha-white-48: rgb(255 255 255 / 0.48);
+  --ap-alpha-white-64: rgb(255 255 255 / 0.64);
+}
+
+/* ---------------------------------------------------------------------------
+   Layer 2 — theme: Eleonora, light. The only layer that varies by mode.
+   --------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light dark;
+
+  --ap-color-surface-base: var(--ap-gray-light-050);
+  --ap-color-surface-raised: var(--ap-white);
+  --ap-color-surface-overlay: var(--ap-white);
+  --ap-color-surface-sunken: var(--ap-gray-light-100);
+  --ap-color-surface-scrim: var(--ap-alpha-black-48);
+  --ap-color-surface-inverse: var(--ap-gray-dark-900);
+  --ap-color-surface-accent-subtle: var(--ap-brand-1-050);
+  --ap-color-surface-success-subtle: var(--ap-green-200);
+  --ap-color-surface-warning-subtle: var(--ap-yellow-100);
+  --ap-color-surface-danger-subtle: var(--ap-red-100);
+  --ap-color-surface-info-subtle: var(--ap-blue-100);
+  --ap-color-text-primary: var(--ap-gray-dark-500);
+  --ap-color-text-secondary: var(--ap-gray-dark-200);
+  --ap-color-text-tertiary: var(--ap-gray-dark-100);
+  --ap-color-text-placeholder: var(--ap-gray-light-900);
+  --ap-color-text-disabled: var(--ap-gray-light-700);
+  --ap-color-text-inverse: var(--ap-white);
+  --ap-color-text-accent: var(--ap-brand-1-500);
+  --ap-color-text-success: var(--ap-green-800);
+  --ap-color-text-warning: var(--ap-yellow-900);
+  --ap-color-text-danger: var(--ap-red-700);
+  --ap-color-text-info: var(--ap-blue-600);
+  --ap-color-interactive-accent: var(--ap-brand-1-500);
+  --ap-color-interactive-accent-hover: var(--ap-brand-1-600);
+  --ap-color-interactive-accent-pressed: var(--ap-brand-1-700);
+  --ap-color-interactive-on-accent: var(--ap-white);
+  --ap-color-interactive-neutral: var(--ap-gray-light-050);
+  --ap-color-interactive-neutral-hover: var(--ap-gray-light-100);
+  --ap-color-interactive-neutral-pressed: var(--ap-gray-light-200);
+  --ap-color-interactive-on-neutral: var(--ap-gray-dark-500);
+  --ap-color-interactive-tertiary: var(--ap-brand-2-500);
+  --ap-color-interactive-tertiary-hover: var(--ap-brand-2-600);
+  --ap-color-interactive-tertiary-pressed: var(--ap-brand-2-600);
+  --ap-color-interactive-on-tertiary: var(--ap-brand-2-900);
+  --ap-color-interactive-danger: var(--ap-red-600);
+  --ap-color-interactive-danger-hover: var(--ap-red-700);
+  --ap-color-interactive-danger-pressed: var(--ap-red-800);
+  --ap-color-interactive-on-danger: var(--ap-white);
+  --ap-color-interactive-selected: var(--ap-brand-1-050);
+  --ap-color-interactive-disabled: var(--ap-gray-light-200);
+  --ap-color-interactive-on-disabled: var(--ap-gray-light-700);
+  --ap-color-border-subtle: var(--ap-gray-light-100);
+  --ap-color-border-default: var(--ap-gray-light-300);
+  --ap-color-border-strong: var(--ap-gray-light-900);
+  --ap-color-border-accent: var(--ap-brand-1-500);
+  --ap-color-border-focus: var(--ap-brand-1-500);
+  --ap-color-border-danger: var(--ap-red-600);
+  --ap-color-border-success: var(--ap-green-700);
+  --ap-color-border-inverse: var(--ap-gray-dark-500);
+}
+
+/* Dark, for viewers whose system asks for it and who have not chosen light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ap-color-surface-base: var(--ap-gray-dark-800);
+    --ap-color-surface-raised: var(--ap-gray-dark-700);
+    --ap-color-surface-overlay: var(--ap-gray-dark-600);
+    --ap-color-surface-sunken: var(--ap-gray-dark-900);
+    --ap-color-surface-scrim: var(--ap-alpha-black-64);
+    --ap-color-surface-inverse: var(--ap-gray-light-050);
+    --ap-color-surface-accent-subtle: var(--ap-brand-1-800);
+    --ap-color-surface-success-subtle: var(--ap-green-900);
+    --ap-color-surface-warning-subtle: var(--ap-yellow-900);
+    --ap-color-surface-danger-subtle: var(--ap-red-800);
+    --ap-color-surface-info-subtle: var(--ap-blue-800);
+    --ap-color-text-primary: var(--ap-gray-light-050);
+    --ap-color-text-secondary: var(--ap-gray-light-400);
+    --ap-color-text-tertiary: var(--ap-gray-light-600);
+    --ap-color-text-placeholder: var(--ap-gray-light-800);
+    --ap-color-text-disabled: var(--ap-gray-dark-050);
+    --ap-color-text-inverse: var(--ap-gray-dark-900);
+    --ap-color-text-accent: var(--ap-brand-1-300);
+    --ap-color-text-success: var(--ap-green-300);
+    --ap-color-text-warning: var(--ap-yellow-300);
+    --ap-color-text-danger: var(--ap-red-200);
+    --ap-color-text-info: var(--ap-blue-200);
+    --ap-color-interactive-accent: var(--ap-brand-1-400);
+    --ap-color-interactive-accent-hover: var(--ap-brand-1-300);
+    --ap-color-interactive-accent-pressed: var(--ap-brand-1-200);
+    --ap-color-interactive-on-accent: var(--ap-gray-dark-900);
+    --ap-color-interactive-neutral: var(--ap-gray-dark-500);
+    --ap-color-interactive-neutral-hover: var(--ap-gray-dark-400);
+    --ap-color-interactive-neutral-pressed: var(--ap-gray-dark-300);
+    --ap-color-interactive-on-neutral: var(--ap-gray-light-050);
+    --ap-color-interactive-tertiary: var(--ap-brand-2-500);
+    --ap-color-interactive-tertiary-hover: var(--ap-brand-2-400);
+    --ap-color-interactive-tertiary-pressed: var(--ap-brand-2-300);
+    --ap-color-interactive-on-tertiary: var(--ap-brand-2-900);
+    --ap-color-interactive-danger: var(--ap-red-400);
+    --ap-color-interactive-danger-hover: var(--ap-red-300);
+    --ap-color-interactive-danger-pressed: var(--ap-red-200);
+    --ap-color-interactive-on-danger: var(--ap-gray-dark-900);
+    --ap-color-interactive-selected: var(--ap-brand-1-800);
+    --ap-color-interactive-disabled: var(--ap-gray-dark-500);
+    --ap-color-interactive-on-disabled: var(--ap-gray-dark-050);
+    --ap-color-border-subtle: var(--ap-gray-dark-500);
+    --ap-color-border-default: var(--ap-gray-dark-400);
+    --ap-color-border-strong: var(--ap-gray-light-900);
+    --ap-color-border-accent: var(--ap-brand-1-400);
+    --ap-color-border-focus: var(--ap-brand-1-300);
+    --ap-color-border-danger: var(--ap-red-400);
+    --ap-color-border-success: var(--ap-green-400);
+    --ap-color-border-inverse: var(--ap-gray-light-200);
+  }
+}
+
+/* Dark, chosen explicitly. */
+:root[data-theme="dark"] {
+  --ap-color-surface-base: var(--ap-gray-dark-800);
+  --ap-color-surface-raised: var(--ap-gray-dark-700);
+  --ap-color-surface-overlay: var(--ap-gray-dark-600);
+  --ap-color-surface-sunken: var(--ap-gray-dark-900);
+  --ap-color-surface-scrim: var(--ap-alpha-black-64);
+  --ap-color-surface-inverse: var(--ap-gray-light-050);
+  --ap-color-surface-accent-subtle: var(--ap-brand-1-800);
+  --ap-color-surface-success-subtle: var(--ap-green-900);
+  --ap-color-surface-warning-subtle: var(--ap-yellow-900);
+  --ap-color-surface-danger-subtle: var(--ap-red-800);
+  --ap-color-surface-info-subtle: var(--ap-blue-800);
+  --ap-color-text-primary: var(--ap-gray-light-050);
+  --ap-color-text-secondary: var(--ap-gray-light-400);
+  --ap-color-text-tertiary: var(--ap-gray-light-600);
+  --ap-color-text-placeholder: var(--ap-gray-light-800);
+  --ap-color-text-disabled: var(--ap-gray-dark-050);
+  --ap-color-text-inverse: var(--ap-gray-dark-900);
+  --ap-color-text-accent: var(--ap-brand-1-300);
+  --ap-color-text-success: var(--ap-green-300);
+  --ap-color-text-warning: var(--ap-yellow-300);
+  --ap-color-text-danger: var(--ap-red-200);
+  --ap-color-text-info: var(--ap-blue-200);
+  --ap-color-interactive-accent: var(--ap-brand-1-400);
+  --ap-color-interactive-accent-hover: var(--ap-brand-1-300);
+  --ap-color-interactive-accent-pressed: var(--ap-brand-1-200);
+  --ap-color-interactive-on-accent: var(--ap-gray-dark-900);
+  --ap-color-interactive-neutral: var(--ap-gray-dark-500);
+  --ap-color-interactive-neutral-hover: var(--ap-gray-dark-400);
+  --ap-color-interactive-neutral-pressed: var(--ap-gray-dark-300);
+  --ap-color-interactive-on-neutral: var(--ap-gray-light-050);
+  --ap-color-interactive-tertiary: var(--ap-brand-2-500);
+  --ap-color-interactive-tertiary-hover: var(--ap-brand-2-400);
+  --ap-color-interactive-tertiary-pressed: var(--ap-brand-2-300);
+  --ap-color-interactive-on-tertiary: var(--ap-brand-2-900);
+  --ap-color-interactive-danger: var(--ap-red-400);
+  --ap-color-interactive-danger-hover: var(--ap-red-300);
+  --ap-color-interactive-danger-pressed: var(--ap-red-200);
+  --ap-color-interactive-on-danger: var(--ap-gray-dark-900);
+  --ap-color-interactive-selected: var(--ap-brand-1-800);
+  --ap-color-interactive-disabled: var(--ap-gray-dark-500);
+  --ap-color-interactive-on-disabled: var(--ap-gray-dark-050);
+  --ap-color-border-subtle: var(--ap-gray-dark-500);
+  --ap-color-border-default: var(--ap-gray-dark-400);
+  --ap-color-border-strong: var(--ap-gray-light-900);
+  --ap-color-border-accent: var(--ap-brand-1-400);
+  --ap-color-border-focus: var(--ap-brand-1-300);
+  --ap-color-border-danger: var(--ap-red-400);
+  --ap-color-border-success: var(--ap-green-400);
+  --ap-color-border-inverse: var(--ap-gray-light-200);
+}
+
+/* ---------------------------------------------------------------------------
+   Layer 3 — scale. Dimension does not vary by theme.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ap-spacing-0: 0px;
+  --ap-spacing-100: 8px;
+  --ap-spacing-150: 12px;
+  --ap-spacing-200: 16px;
+  --ap-spacing-250: 20px;
+  --ap-spacing-300: 24px;
+  --ap-spacing-400: 32px;
+  --ap-spacing-500: 40px;
+  --ap-spacing-600: 48px;
+  --ap-spacing-700: 56px;
+  --ap-spacing-800: 64px;
+  --ap-spacing-900: 72px;
+  --ap-spacing-1000: 80px;
+  --ap-spacing-1100: 96px;
+  --ap-spacing-1200: 128px;
+  --ap-spacing-1300: 160px;
+  --ap-spacing-1400: 192px;
+  --ap-spacing-1500: 240px;
+  --ap-spacing-1600: 320px;
+  --ap-spacing-025: 2px;
+  --ap-spacing-050: 4px;
+  --ap-spacing-075: 6px;
+
+  --ap-radius-none: 0px;
+  --ap-radius-xs: 2px;
+  --ap-radius-sm: 4px;
+  --ap-radius-md: 8px;
+  --ap-radius-lg: 12px;
+  --ap-radius-xl: 16px;
+  --ap-radius-2xl: 20px;
+  --ap-radius-3xl: 24px;
+  --ap-radius-full: 9999px;
+
+  --ap-border-width-hairline: 1px;
+  --ap-border-width-control: 1.5px;
+  --ap-border-width-ring: 2px;
+  --ap-focus-ring-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
+body {
+  background: var(--ap-color-surface-base);
+  color: var(--ap-color-text-primary);
+}

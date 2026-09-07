@@ -1,0 +1,17 @@
+{
+  "name": "alpenglow",
+  "version": "0.0.0",
+  "description": "A design system for dense, data-heavy interfaces. Light and dark, measured for contrast.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build:css": "tsx scripts/build-css.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
