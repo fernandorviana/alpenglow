@@ -8,6 +8,9 @@ export default function Page() {
   const counts = {
     primitives: Object.keys(primitives).length,
     theme: Object.keys(theme).length,
+    // Derived, not typed. A hand-written count is exactly the kind of number
+    // this system exists to stop shipping.
+    aliases: Object.values(theme).filter((t) => !String(t.light).startsWith('#')).length,
   };
 
   return (
@@ -16,7 +19,8 @@ export default function Page() {
         <>
           <p>{counts.primitives} primitives</p>
           <p>{counts.theme} theme tokens</p>
-          <p>90 assertions</p>
+          <p>{counts.aliases} aliases</p>
+          <p>0 hex</p>
         </>
       }
     >
