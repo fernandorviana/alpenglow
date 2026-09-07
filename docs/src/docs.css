@@ -1,0 +1,332 @@
+/**
+ * Documentation site chrome.
+ *
+ * Built entirely from Alpenglow tokens — there are no colour literals in this
+ * file. A site documenting a colour system should not introduce colours of its
+ * own, and dogfooding is the cheapest way to find out where the system is thin.
+ *
+ * Colour appears in the interface only where colour IS the content: swatches,
+ * specimens, pass/fail marks. The chrome stays on the neutral ramp.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  color: var(--ap-color-text-primary);
+  background: var(--ap-color-surface-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+  border-radius: var(--ap-radius-xs);
+}
+
+/* --- shell ---------------------------------------------------------------- */
+
+.shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--ap-spacing-300) var(--ap-spacing-200);
+  border-right: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-raised);
+}
+
+.brand {
+  display: block;
+  margin-bottom: var(--ap-spacing-050);
+  font-size: var(--ap-text-subheading-md-size);
+  line-height: var(--ap-text-subheading-md-line-height);
+  letter-spacing: var(--ap-text-subheading-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-primary);
+  text-decoration: none;
+}
+
+.brandNote {
+  margin: 0 0 var(--ap-spacing-300);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
+.navGroup { margin-bottom: var(--ap-spacing-250); }
+
+.navTitle {
+  margin: 0 0 var(--ap-spacing-075);
+  padding-inline: var(--ap-spacing-100);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+}
+
+.navList { margin: 0; padding: 0; list-style: none; }
+
+.navLink {
+  display: block;
+  padding: var(--ap-spacing-075) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-sm);
+  color: var(--ap-color-text-secondary);
+  text-decoration: none;
+}
+
+.navLink:hover { background: var(--ap-color-interactive-neutral-hover); color: var(--ap-color-text-primary); }
+
+.navLink[aria-current='page'] {
+  background: var(--ap-color-interactive-selected);
+  color: var(--ap-color-text-primary);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* --- main ----------------------------------------------------------------- */
+
+.main { min-width: 0; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ap-spacing-100);
+  padding: var(--ap-spacing-150) var(--ap-spacing-400);
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-base);
+}
+
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 168px;
+  gap: var(--ap-spacing-400);
+  align-items: start;
+  padding: var(--ap-spacing-500) var(--ap-spacing-400) var(--ap-spacing-1100);
+  max-width: 1120px;
+}
+
+.prose { min-width: 0; max-width: 68ch; }
+
+/* The evidence gutter. Numbers live here, aligned in a column so they can be
+   compared down the page rather than hunted for in prose. */
+.gutter {
+  position: sticky;
+  top: calc(var(--ap-spacing-500) + var(--ap-spacing-300));
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-variant-numeric: tabular-nums;
+  color: var(--ap-color-text-tertiary);
+}
+
+.gutter p { margin: 0 0 var(--ap-spacing-100); }
+
+/* --- prose ---------------------------------------------------------------- */
+
+.prose h1 {
+  margin: 0 0 var(--ap-spacing-150);
+  font-size: var(--ap-text-heading-h1-size);
+  line-height: var(--ap-text-heading-h1-line-height);
+  letter-spacing: var(--ap-text-heading-h1-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.prose h2 {
+  margin: var(--ap-spacing-600) 0 var(--ap-spacing-150);
+  font-size: var(--ap-text-heading-h4-size);
+  line-height: var(--ap-text-heading-h4-line-height);
+  letter-spacing: var(--ap-text-heading-h4-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.prose h3 {
+  margin: var(--ap-spacing-400) 0 var(--ap-spacing-100);
+  font-size: var(--ap-text-subheading-md-size);
+  line-height: var(--ap-text-subheading-md-line-height);
+  letter-spacing: var(--ap-text-subheading-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.prose p { margin: 0 0 var(--ap-spacing-200); }
+
+.lead {
+  font-size: var(--ap-text-subheading-lg-size);
+  line-height: var(--ap-text-subheading-lg-line-height);
+  letter-spacing: var(--ap-text-subheading-lg-tracking);
+  color: var(--ap-color-text-secondary);
+}
+
+.prose a { color: var(--ap-color-text-accent); }
+
+.prose code {
+  font-family: var(--ap-font-mono);
+  font-size: 0.9em;
+  padding: 1px 4px;
+  border-radius: var(--ap-radius-xs);
+  background: var(--ap-color-surface-sunken);
+}
+
+/* --- specimens ------------------------------------------------------------ */
+
+.specimen {
+  padding: var(--ap-spacing-300);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-raised);
+}
+
+.specimenRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+}
+
+.specimenRow + .specimenRow { margin-top: var(--ap-spacing-250); }
+
+/* --- token table ---------------------------------------------------------- */
+
+.tokens { width: 100%; border-collapse: collapse; }
+
+.tokens th {
+  padding: var(--ap-spacing-075) var(--ap-spacing-100);
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-default);
+  font-size: var(--ap-text-caption-md-size);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+  text-align: left;
+}
+
+.tokens td {
+  padding: var(--ap-spacing-100);
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  vertical-align: middle;
+}
+
+.tokens tr:hover td { background: var(--ap-color-interactive-neutral-hover); }
+
+.tokenName {
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+}
+
+.alias {
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-sm-size);
+  color: var(--ap-color-text-tertiary);
+}
+
+/* Token names are identifiers — breaking `gray-light/050` across two lines
+   makes them unreadable and uncopyable. */
+.tokens .alias,
+.tokens .tokenName {
+  white-space: nowrap;
+}
+
+/* Wide tables scroll inside their own box rather than pushing the page sideways. */
+.tableScroll {
+  overflow-x: auto;
+  margin-bottom: var(--ap-spacing-200);
+}
+
+.swatch {
+  width: 40px;
+  height: 24px;
+  border-radius: var(--ap-radius-xs);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.ratio {
+  font-family: var(--ap-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--ap-text-caption-md-size);
+  white-space: nowrap;
+}
+
+.grade {
+  margin-left: var(--ap-spacing-075);
+  padding: 1px var(--ap-spacing-075);
+  border-radius: var(--ap-radius-full);
+  font-size: var(--ap-text-caption-caps-size);
+  letter-spacing: var(--ap-text-caption-caps-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.gradePass { background: var(--ap-color-surface-success-subtle); color: var(--ap-color-text-success); }
+.gradeFail { background: var(--ap-color-surface-danger-subtle); color: var(--ap-color-text-danger); }
+
+/* --- ramp ----------------------------------------------------------------- */
+
+.ramp { display: flex; margin-bottom: var(--ap-spacing-050); border-radius: var(--ap-radius-sm); overflow: hidden; }
+
+.rampStep { flex: 1; height: 48px; }
+
+.rampLabels {
+  display: flex;
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-sm-size);
+  color: var(--ap-color-text-tertiary);
+}
+
+.rampLabels span { flex: 1; text-align: center; }
+
+.rampName {
+  margin: var(--ap-spacing-250) 0 var(--ap-spacing-075);
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  color: var(--ap-color-text-secondary);
+}
+
+/* --- rejected-option callout ---------------------------------------------- */
+
+/* The thing the other design systems do not show you: what was not chosen,
+   and the number that ruled it out. */
+.rejected {
+  margin: var(--ap-spacing-250) 0;
+  padding: var(--ap-spacing-200) var(--ap-spacing-250);
+  border-left: 3px solid var(--ap-color-border-strong);
+  background: var(--ap-color-surface-sunken);
+  border-radius: 0 var(--ap-radius-md) var(--ap-radius-md) 0;
+}
+
+.rejected p { margin: 0; }
+.rejected p + p { margin-top: var(--ap-spacing-100); }
+
+.rejected strong { font-weight: var(--ap-font-weight-semibold); }
+
+/* --- responsive ----------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .page { grid-template-columns: minmax(0, 1fr); }
+  .gutter { position: static; display: none; }
+}
+
+@media (max-width: 760px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  }
+  .page { padding: var(--ap-spacing-400) var(--ap-spacing-250) var(--ap-spacing-600); }
+  .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
+}
