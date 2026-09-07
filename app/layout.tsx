@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import { Nav } from '@ui/Nav';
 import { ThemeToggle } from '@ui/ThemeToggle';
 import '@/styles/tokens.css';
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </div>
         </div>
+        <Analytics />
       </body>
     </html>
   );
