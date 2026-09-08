@@ -89,6 +89,16 @@ npm run check    # types, then every documented contrast ratio
 The site is a static export, so it hosts anywhere. Set `DOCS_BASE` if it is
 served from a subpath.
 
+## Icons
+
+The set is [IBM Carbon](https://carbondesignsystem.com/guidelines/icons/library/),
+Apache 2.0. Fifteen icons are not: they were drawn for this system because Carbon
+does not have them, and they ship from `alpenglow/icons`.
+
+Eight more exist in Carbon under a different name — `notifications` is
+`Notification`, `list--task` is `TaskComplete` — which is the kind of mismatch
+that costs an afternoon. The full mapping is on the Icons page.
+
 ## Licence
 
 MIT

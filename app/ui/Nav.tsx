@@ -19,6 +19,7 @@ const NAV = [
       { href: '/colour', label: 'Colour' },
       { href: '/typography', label: 'Typography' },
       { href: '/space', label: 'Space and shape' },
+      { href: '/icons', label: 'Icons' },
     ],
   },
   {
