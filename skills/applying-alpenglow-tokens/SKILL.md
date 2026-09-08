@@ -28,6 +28,16 @@ What it does carry:
 
 **Icons are IBM Carbon** (`@carbon/icons-react`, Apache 2.0), at 16, 20, 24 or 32. Do not draw one that looks close enough — the set has 2,700 and a hand-drawn lookalike is a shape nobody can find again by name.
 
+**But not all of them are Carbon.** Twenty-two icons in the system were drawn for it and do not exist in the package. Assuming one of these is Carbon produces a silently wrong shape, so check the name before reaching for an import:
+
+| Group | Icons |
+|---|---|
+| Domain | `waiting--room` · `availability` · `services` · `resources` · `user--medic` · `stress-breath-editor` |
+| Brand marks | `whatsapp` · `messenger` · `facebook` · `linkedin` · `markdown` · `zapier` |
+| UI gaps | `chevron--small--down` · `chevron--small--right` · `close--panel` · `ai--sparkle` · `text--heading` · `brush-freehand` · `angle` · `mark-unread` · `user--verified` · `user--verified--outline` |
+
+A further eight exist in Carbon under a different name: `notifications` is `Notification`, `direction--right--01` is `DirectionRight_01`, `list--task` is `TaskComplete`, `close--panel` is `SidePanelClose`, `collapse` is `CollapseAll`, `private` is `PrivateNetwork`, `calendar--day` is `Calendar`, `rotate--360` is `Rotate`.
+
 ## Quick reference — pick a token
 
 | Styling this | Token |

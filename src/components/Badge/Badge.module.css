@@ -25,10 +25,12 @@
 
 /* --- sizes ---------------------------------------------------------------- */
 
+/* Both sizes share one radius. A badge that rounds differently at 24px and at
+   30px reads as two shapes rather than one component at two sizes. */
 .sm {
   min-height: 24px;
   padding: var(--ap-spacing-050) var(--ap-spacing-100);
-  border-radius: var(--ap-radius-sm);
+  border-radius: var(--ap-radius-md);
   font-size: var(--ap-text-caption-md-size);
   line-height: var(--ap-text-caption-md-line-height);
   letter-spacing: var(--ap-text-caption-md-tracking);

@@ -50,9 +50,14 @@ describe('the scale keeps the steps components actually need', () => {
   // 6 was dropped as drift once and the scale jumped 4 to 8, which quietly
   // rounded the medium badge up by two pixels. Naming the steps a component
   // depends on stops that happening again without a failure.
-  it('has the badge radii', () => {
-    expect(radius.sm, 'small badge').toBe(4);
-    expect(radius.md, 'medium badge').toBe(6);
+  it('has the badge radius', () => {
+    // Both badge sizes share it: rounding differently at 24px and 30px reads as
+    // two shapes rather than one component at two sizes.
+    expect(radius.md, 'badge').toBe(6);
+  });
+
+  it('has the checkbox radius', () => {
+    expect(radius.sm, 'checkbox').toBe(4);
   });
 
   it('has the field radius', () => {
