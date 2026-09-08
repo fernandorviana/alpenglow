@@ -1,0 +1,51 @@
+/**
+ * Select adds two things to the shared control box: a chevron, and a way to
+ * show a placeholder.
+ *
+ * The element underneath is a native <select>. That gives keyboard behaviour,
+ * the platform picker on phones, form participation and screen-reader support
+ * without a line of code. The trade is that the option list cannot be styled —
+ * it belongs to the operating system. That is a good trade for a system that
+ * has to work in a clinic on whatever device is to hand.
+ */
+
+.select {
+  appearance: none;
+  cursor: pointer;
+  /* Leaves room for the chevron, which sits over the box. */
+  padding-right: var(--ap-spacing-300);
+}
+
+.select:disabled { cursor: not-allowed; }
+
+/* Native option lists render in the OS palette, so an option cannot inherit the
+   field's colour. Setting it explicitly stops a dark-theme field opening a list
+   of invisible text in browsers that do respect it. */
+.select option {
+  color: var(--ap-color-text-primary);
+  background: var(--ap-color-surface-overlay);
+}
+
+/* Shown while the empty option is chosen. The select's own colour has to change
+   rather than the option's, because the closed field paints the selected
+   option's text with the select's colour. */
+.placeholder {
+  color: var(--ap-color-text-placeholder);
+}
+
+.chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-left: calc(var(--ap-spacing-300) * -1);
+  color: var(--ap-color-text-tertiary);
+  /* The chevron sits over the select; clicks have to reach the control. */
+  pointer-events: none;
+}
+
+.chevron svg { width: 100%; height: 100%; }
+
+.disabled .chevron { color: var(--ap-color-text-disabled); }

@@ -10,7 +10,10 @@ export { Input } from './components/Input/index';
 export type { InputProps, InputSize } from './components/Input/index';
 
 export { Textarea } from './components/Textarea/index';
-export type { TextareaProps, TextareaSize } from './components/Textarea/index';
+export type { TextareaProps } from './components/Textarea/index';
+
+export { Select } from './components/Select/index';
+export type { SelectProps, SelectSize } from './components/Select/index';
 
 export { Checkbox } from './components/Checkbox/index';
 export type { CheckboxProps } from './components/Checkbox/index';

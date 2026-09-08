@@ -102,9 +102,11 @@ describe('Textarea', () => {
     expect(field).toHaveValue('First line\nSecond line');
   });
 
-  it('defaults to four rows', () => {
+  it('starts at a fixed height rather than a row count', () => {
+    // rows would size the box from the font that happens to load; the drawn
+    // component has one height and keeps it.
     render(<Textarea aria-label="Notes" />);
-    expect(screen.getByLabelText('Notes')).toHaveAttribute('rows', '4');
+    expect(screen.getByLabelText('Notes')).not.toHaveAttribute('rows');
   });
 
   it('sets aria-invalid when invalid', () => {

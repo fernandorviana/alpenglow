@@ -3,13 +3,10 @@
 import { forwardRef } from 'react';
 import type { TextareaHTMLAttributes } from 'react';
 import { useField } from '../Field/FieldContext';
-import styles from '../control.module.css';
-
-/** Shares Button's height scale: 32, 40, 48. */
-export type TextareaSize = 'sm' | 'md' | 'lg';
+import control from '../control.module.css';
+import styles from './Textarea.module.css';
 
 export type TextareaProps = {
-  size?: TextareaSize;
   /** Marks the field as failing validation. Sets `aria-invalid` for you. */
   invalid?: boolean;
 } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'>;
@@ -18,9 +15,13 @@ export type TextareaProps = {
  * The border sits on the textarea itself rather than a wrapper — there are no
  * icons to place inside it, and a wrapper would only get in the way of the
  * browser's native resize handle.
+ *
+ * One size, because the component is drawn with one. It starts at a fixed
+ * height rather than a row count, so a field is the same size before anyone
+ * types in it regardless of the font that ends up loading.
  */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { size = 'md', invalid, rows = 4, disabled, readOnly, className, style, ...rest },
+  { invalid, disabled, readOnly, className, ...rest },
   ref,
 ) {
   const field = useField();
@@ -28,13 +29,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
   const id = rest.id ?? field?.controlId;
   const describedBy = rest['aria-describedby'] ?? field?.describedBy;
   const required = rest.required ?? field?.required;
+
   const classes = [
-    styles.control,
-    styles.field,
-    styles[size],
-    isInvalid && styles.invalid,
-    disabled && styles.disabled,
-    readOnly && styles.readOnly,
+    control.control,
+    control.field,
+    styles.textarea,
+    isInvalid && control.invalid,
+    disabled && control.disabled,
+    readOnly && control.readOnly,
     className,
   ]
     .filter(Boolean)
@@ -44,7 +46,6 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
     <textarea
       {...rest}
       ref={ref}
-      rows={rows}
       id={id}
       className={classes}
       disabled={disabled}
@@ -52,7 +53,6 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       required={required}
       aria-invalid={isInvalid || undefined}
       aria-describedby={describedBy}
-      style={{ resize: 'vertical', ...style }}
     />
   );
 });

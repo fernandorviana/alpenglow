@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Field } from '@/components/Field/index';
 import { Input } from '@/components/Input/index';
-import { Textarea } from '@/components/Textarea/index';
 
 const Glass = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -28,13 +27,13 @@ export default function Page() {
         </>
       }
     >
-      <h1>Input and Textarea</h1>
+      <h1>Input</h1>
       <p className="lead">
         The two controls where the border is doing real work rather than decorating.
       </p>
 
       <p>
-        Both are filled and carry no border at rest. A border arrives on focus, and on
+        The field is filled and carries no border at rest. A border arrives on focus, and on
         nothing else — the box does not react to the pointer. A caret already says where
         typing will land, and a field that lights up under the mouse competes for attention
         with the one that is actually focused.
@@ -124,14 +123,6 @@ export default function Page() {
         Field is for text controls. Checkbox and Radio carry their own labels, which belong
         beside the control rather than above it.
       </p>
-
-      <h2>Textarea</h2>
-      <div className="specimen">
-        <label htmlFor="notes" style={{ display: 'block', marginBottom: 8 }}>
-          Consultation notes
-        </label>
-        <Textarea id="notes" placeholder="What was discussed, and what happens next." />
-      </div>
 
       <h2>Accessibility</h2>
       <p>

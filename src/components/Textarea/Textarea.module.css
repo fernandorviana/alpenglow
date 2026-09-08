@@ -1,0 +1,15 @@
+/**
+ * Textarea shares the control box but not its measurements.
+ *
+ * It has one size, a fixed starting height, and symmetric horizontal padding —
+ * where a single-line field is tighter on the right to sit closer to its icon,
+ * a block of text wants the same margin on both sides.
+ */
+
+.textarea {
+  min-height: 144px;
+  padding: var(--ap-spacing-150) var(--ap-spacing-200);
+  /* Text starts at the top; the box does not centre a paragraph. */
+  align-items: flex-start;
+  resize: vertical;
+}
