@@ -41,10 +41,22 @@
 /* Focus replaces the transparent resting border with a strong one — the only
    pointer- or keyboard-driven change the box makes. The width is held on the
    element at all times so the box never changes size. */
-.control:focus-within,
-.control:focus-visible {
+.control:focus-within:not(.readOnly),
+.control:focus-visible:not(.readOnly) {
   border-color: var(--ap-color-border-inverse);
   background: var(--ap-color-interactive-neutral);
+}
+
+/* A read-only field is still focusable — that is how its text gets selected and
+   copied — so it must show focus. What it must not do is start looking
+   editable: it keeps its recessed fill and takes a quieter border than the one
+   an editable field gets. Dropping the indicator entirely would leave a
+   focusable element with nowhere visible for the keyboard to be.
+
+   border/strong rather than border/default: at 1.20:1 against the recessed
+   fill, default is a focus indicator nobody can see. */
+.readOnly:focus-within {
+  border-color: var(--ap-color-border-strong);
 }
 
 .invalid,

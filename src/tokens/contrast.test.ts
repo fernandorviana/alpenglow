@@ -130,6 +130,26 @@ describe('border/strong meets 1.4.11 on every surface, in both modes', () => {
   }
 });
 
+describe('a focus indicator is visible wherever focus can land', () => {
+  // Read-only fields are focusable — that is how their text gets copied — and
+  // they sit on a recessed fill. The obvious quiet border for them, default, is
+  // 1.20:1 there: an indicator nobody can see, on an element the keyboard can
+  // reach.
+  for (const mode of MODES) {
+    it(`read-only focus border — ${mode}`, () => {
+      expect(tokenContrast('border/strong', 'surface/sunken', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('border/strong', 'surface/raised', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+    });
+
+    it(`an editable field's focus border is stronger than a read-only one — ${mode}`, () => {
+      // The two must not be mistakable for each other.
+      const editable = tokenContrast('border/inverse', 'surface/raised', mode);
+      const readOnly = tokenContrast('border/strong', 'surface/raised', mode);
+      expect(editable).toBeGreaterThan(readOnly);
+    });
+  }
+});
+
 describe('a checkbox or radio stays legible against its own fill', () => {
   // The box is inset, so its border and its selected dot are measured against
   // the fill inside it, not only against the card behind it. Filling the box

@@ -80,6 +80,9 @@ export default function Page() {
           <label htmlFor="r">Read-only</label>
           <Input id="r" readOnly defaultValue="APT-4821" />
         </div>
+        <p className="alias" style={{ margin: '4px 0 0' }}>
+          Tab into the read-only field: it shows focus without pretending to be editable.
+        </p>
         <div className="specimenRow">
           <label htmlFor="x">Disabled</label>
           <Input id="x" disabled defaultValue="Cannot be edited" />
@@ -141,6 +144,13 @@ export default function Page() {
         control that gets the wrong one. Wrap it in a <code>Field</code>, or wire{' '}
         <code>htmlFor</code> yourself. A control still works with neither, so nothing forces
         the wrapper on you.
+      </p>
+      <p>
+        A read-only field still takes focus — that is how its text gets selected and copied
+        — so it still shows one. It keeps its recessed fill and takes a quieter border than
+        an editable field, rather than lighting up as though you could type in it. Removing
+        the indicator would leave a focusable element with nowhere visible for the keyboard
+        to be.
       </p>
       <p>
         The visual <code>size</code> prop shadows the HTML <code>size</code> attribute,
