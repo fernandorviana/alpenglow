@@ -130,6 +130,20 @@ ${typographyBlock()}
    Base
    --------------------------------------------------------------------------- */
 
+/* Available to a screen reader, absent from the page. Used where a control is
+   understood visually by shape or colour and needs a name in words too. */
+.ap-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
   background: var(${cssName('color/surface/base')});
   color: var(${cssName('color/text/primary')});

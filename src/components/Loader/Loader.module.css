@@ -1,0 +1,68 @@
+/**
+ * Loader
+ *
+ * Two concentric arcs turning at different speeds, as drawn — 18px and 9px
+ * inside a 24px box, both 2px. The inner one runs the other way, which is what
+ * stops it reading as a single thick ring.
+ */
+
+.loader {
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+  color: var(--ap-color-interactive-accent);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.outer,
+.inner {
+  transform-origin: 50% 50%;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.outer {
+  stroke: currentColor;
+  animation: spin 900ms linear infinite;
+}
+
+.inner {
+  stroke: var(--ap-color-interactive-tertiary);
+  animation: spin 700ms linear infinite reverse;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* A spinner that cannot spin is a dot. Reduced motion keeps it turning, slowly
+   and smoothly, rather than freezing the one thing that says "still working".
+   The preference asks for less motion, not none, and a frozen spinner reads as
+   a hung page. */
+@media (prefers-reduced-motion: reduce) {
+  .outer { animation-duration: 3s; }
+  .inner { animation-duration: 3s; }
+}
+
+/* --- sizes ---------------------------------------------------------------- */
+
+.sm { width: 16px; height: 16px; }
+.md { width: 24px; height: 24px; }
+.lg { width: 32px; height: 32px; }
+
+/* --- tones ---------------------------------------------------------------- */
+
+.accent  { color: var(--ap-color-interactive-accent); }
+.neutral { color: var(--ap-color-text-secondary); }
+.success { color: var(--ap-color-text-success); }
+.danger  { color: var(--ap-color-text-danger); }
+
+/* On a filled button the loader has to take the label's colour, not the
+   system's. `currentColor` on both arcs is the only version that works there. */
+.onFill { color: currentColor; }
+.onFill .inner { stroke: currentColor; opacity: 0.5; }

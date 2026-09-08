@@ -201,29 +201,6 @@
   justify-content: center;
 }
 
-.spinner::after {
-  content: '';
-  width: 1em;
-  height: 1em;
-  font-size: 16px;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: var(--ap-radius-full);
-  animation: spin 600ms linear infinite;
-}
-
-.lg .spinner::after {
-  font-size: 20px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spinner::after { animation-duration: 1600ms; }
-}
-
 /* --- content -------------------------------------------------------------- */
 
 .content {

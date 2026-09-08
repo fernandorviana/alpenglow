@@ -1,0 +1,91 @@
+/**
+ * Avatar
+ *
+ * The drawn placeholder is white initials on a mid-grey circle, which measures
+ * 3.98:1 — below AA for text. It uses `surface/inverse` with `text/inverse`
+ * instead: a dark circle with light initials in light mode, and the reverse in
+ * dark, at 17.7:1 either way. Both tokens already existed and flip by theme, so
+ * the avatar reads on a dark card as well as a light one.
+ */
+
+.avatar {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-inverse);
+  color: var(--ap-color-text-inverse);
+  overflow: visible;
+
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-medium);
+  user-select: none;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--ap-radius-full);
+  object-fit: cover;
+  display: block;
+}
+
+/* --- sizes ---------------------------------------------------------------- */
+
+/* The diameters as drawn. The design file offers both "large" and "lg" as size
+   names, with no variants behind "lg" — one scale, one set of names. */
+.xxs { width: 24px; height: 24px; font-size: 11px; }
+.xs  { width: 30px; height: 30px; font-size: 12px; }
+.sm  { width: 36px; height: 36px; font-size: 14px; }
+.md  { width: 44px; height: 44px; font-size: 16px; }
+.lg  { width: 58px; height: 58px; font-size: 24px; }
+.xl  { width: 72px; height: 72px; font-size: 24px; }
+
+/* --- status --------------------------------------------------------------- */
+
+/* The ring is the surface behind, punched out so the dot reads against the
+   avatar rather than blending into it. */
+.status {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--ap-radius-full);
+  box-shadow: 0 0 0 2px var(--ap-color-surface-raised);
+}
+
+.xxs .status, .xs .status { width: 8px; height: 8px; }
+.sm .status, .md .status { width: 12px; height: 12px; }
+.lg .status, .xl .status { width: 16px; height: 16px; }
+
+/* Status tokens rather than the drawn brights: available was 1.67:1 against a
+   white card, idle 1.61:1 and away 1.96:1 — a status nobody can see. */
+.available { background: var(--ap-color-text-success); }
+.busy      { background: var(--ap-color-text-danger); }
+.inMeeting { background: var(--ap-color-text-info); }
+.idle      { background: var(--ap-color-text-warning); }
+.away      { background: var(--ap-color-text-tertiary); }
+
+/* --- group ---------------------------------------------------------------- */
+
+.group {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Each avatar overlaps the one before by a third of its width, and carries a
+   ring in the surface colour so the edges stay separate. */
+.group > * + * {
+  margin-left: -0.33em;
+}
+
+.group .avatar {
+  box-shadow: 0 0 0 2px var(--ap-color-surface-raised);
+}
+
+.count {
+  background: var(--ap-color-surface-sunken);
+  color: var(--ap-color-text-secondary);
+}

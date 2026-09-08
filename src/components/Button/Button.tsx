@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { Loader } from '../Loader/Loader';
 import styles from './Button.module.css';
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -81,7 +82,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
           </span>
         )}
       </span>
-      {loading && <span className={styles.spinner} aria-hidden="true" />}
+      {loading && (
+        <span className={styles.spinner}>
+          {/* No label: the button already carries aria-busy, and a second
+              announcement would repeat what it said. */}
+          <Loader tone="onFill" size={size === 'lg' ? 'md' : 'sm'} />
+        </span>
+      )}
     </button>
   );
 });

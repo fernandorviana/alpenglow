@@ -25,6 +25,7 @@ const NAV = [
   {
     title: 'Components',
     items: [
+      { href: '/avatar', label: 'Avatar and Loader' },
       { href: '/badge', label: 'Badge' },
       { href: '/button', label: 'Button' },
       { href: '/input', label: 'Input' },

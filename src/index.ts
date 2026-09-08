@@ -5,6 +5,12 @@ export type { ButtonProps, ButtonSize } from './components/Button/index';
 
 export * from './icons/index';
 
+export { Avatar, AvatarGroup } from './components/Avatar/index';
+export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarStatus } from './components/Avatar/index';
+
+export { Loader } from './components/Loader/index';
+export type { LoaderProps, LoaderSize, LoaderTone } from './components/Loader/index';
+
 export { Badge } from './components/Badge/index';
 export type { BadgeProps, BadgeTone, BadgeSize } from './components/Badge/index';
 
