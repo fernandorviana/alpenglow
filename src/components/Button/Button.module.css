@@ -47,6 +47,12 @@
   cursor: not-allowed;
 }
 
+/* Loading is not refusal — the button is working. `not-allowed` would say the
+   opposite. */
+.button.loading {
+  cursor: progress;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .button {
     transition: none;
@@ -151,15 +157,22 @@
 /* --- disabled ------------------------------------------------------------- */
 
 /* Disabled wins over every variant and tone. In dark the disabled fill equals
-   the neutral fill, so the label and the dropped outline carry the state. */
-.button:disabled,
-.button[aria-disabled='true'] {
+   the neutral fill, so the label and the dropped outline carry the state.
+ *
+ * `:not(.loading)` is the whole reason a loading button still looks like
+ * itself. A loading button is `disabled` — it must not be activated twice — but
+ * it is busy, not unavailable, and the two states do not look alike. Without
+ * the exclusion this block repainted every tone grey the moment it started
+ * loading, and since the spinner takes `currentColor`, it went grey with it:
+ * five tones, one indistinguishable loading state. */
+.button:disabled:not(.loading),
+.button[aria-disabled='true']:not(.loading) {
   background: var(--ap-color-interactive-disabled);
   border-color: var(--ap-color-border-subtle);
   color: var(--ap-color-interactive-on-disabled);
 }
 
-.ghost:disabled {
+.ghost:disabled:not(.loading) {
   background: transparent;
   border-color: transparent;
 }

@@ -116,6 +116,36 @@ export default function Page() {
         </div>
       </div>
 
+      <h3>Loading keeps the tone</h3>
+      <p>
+        A loading button is disabled — it must not be activated twice — but busy and
+        unavailable are different states and do not look alike. It holds its own fill
+        and label colour, and the spinner takes that label colour, so every tone stays
+        legible while it works.
+      </p>
+      <div className="specimen">
+        <div className="specimenRow">
+          <Button loading>Accent</Button>
+          <Button tone="neutral" loading>Neutral</Button>
+          <Button tone="tertiary" loading>Tertiary</Button>
+          <Button tone="success" loading>Success</Button>
+          <Button tone="danger" loading>Danger</Button>
+        </div>
+        <div className="specimenRow">
+          <Button variant="outline" loading>Outline</Button>
+          <Button variant="outline" tone="neutral" loading>Outline</Button>
+          <Button variant="outline" tone="danger" loading>Outline</Button>
+          <Button variant="ghost" loading>Ghost</Button>
+          <Button variant="ghost" tone="neutral" loading>Ghost</Button>
+          <Button variant="ghost" tone="danger" loading>Ghost</Button>
+        </div>
+        <div className="specimenRow">
+          <Button size="sm" loading>Small</Button>
+          <Button size="md" loading>Medium</Button>
+          <Button size="lg" loading>Large</Button>
+        </div>
+      </div>
+
       <h2>Accessibility</h2>
       <p>
         Focus adds a two-pixel ring at a two-pixel offset rather than recolouring the

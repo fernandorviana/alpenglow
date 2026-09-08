@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -58,6 +59,42 @@ describe('Button', () => {
     it('is not busy when idle', () => {
       render(<Button>Save</Button>);
       expect(screen.getByRole('button')).not.toHaveAttribute('aria-busy');
+    });
+
+    /**
+     * A loading button is `disabled` so it cannot be activated twice, which puts
+     * it in reach of every `:disabled` paint rule. It once repainted grey the
+     * moment it started loading — and since the spinner takes `currentColor`,
+     * the spinner went grey with it. Five tones, one loading state, no way to
+     * tell which button was working.
+     *
+     * The spinner has no colour of its own by design: it inherits the label's,
+     * and those are already proven — `interactive/on-*` against every fill state
+     * for solid, `text/*` against every surface for outline and ghost. That only
+     * holds while a loading button keeps its own label colour, so this reads the
+     * stylesheet and refuses any disabled rule that would repaint one.
+     */
+    it('is never repainted by a disabled rule', () => {
+      // `import.meta.url` is not a file URL under the jsdom environment these
+      // component tests run in, so resolve from the repository root instead.
+      const css = readFileSync('src/components/Button/Button.module.css', 'utf8');
+      const paints = /(^|[\s;{])(background|color|border-color)\s*:/;
+
+      const offenders = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+        .filter(([, , body]) => paints.test(body!))
+        // A selector list is split first. Checked whole, one guarded branch
+        // would vouch for an unguarded one sitting beside it — which is exactly
+        // how the first version of this test passed against the bug it exists
+        // to catch.
+        .flatMap(([, selector]) => selector!.split(',').map((part) => part.trim()))
+        .filter(Boolean)
+        // `:not(...)` is stripped before looking for `:disabled`, so the hover
+        // and active rules — scoped with `:not(:disabled)` — are not mistaken
+        // for the disabled rules they exclude.
+        .filter((part) => /:disabled|\[aria-disabled/.test(part.replace(/:not\([^)]*\)/g, '')))
+        .filter((part) => !part.includes(':not(.loading)'));
+
+      expect(offenders).toEqual([]);
     });
   });
 

@@ -12,8 +12,8 @@ export type LoaderProps = {
 } & Omit<HTMLAttributes<HTMLSpanElement>, 'children'>;
 
 /**
- * Two arcs turning in opposite directions, at 24px as drawn and scaled from
- * there.
+ * An arc turning on a faint track, growing and shrinking as it goes. 24px as
+ * drawn and scaled from there.
  *
  * With a `label` it is a live region, so a screen reader hears that something
  * started. Without one it is decoration — which is right inside a button that
@@ -32,23 +32,17 @@ export function Loader({ size = 'md', tone = 'accent', label, className, ...rest
       aria-hidden={label ? undefined : true}
     >
       <svg className={styles.svg} viewBox="0 0 24 24" fill="none">
-        {/* 18px across, so r=9 on a 24 box. Three quarters drawn, one open. */}
+        {/* 18px across, so r=9 on a 24 box, 2px stroke — the ring as drawn. */}
+        <circle className={styles.track} cx="12" cy="12" r="9" strokeWidth="2" />
+        {/* Same circle, but `pathLength` restates its circumference as 100 so
+            the dash animation can be written in percentages. */}
         <circle
-          className={styles.outer}
+          className={styles.arc}
           cx="12"
           cy="12"
           r="9"
           strokeWidth="2"
-          strokeDasharray="42 15"
-        />
-        {/* 9px across: r=4.5. */}
-        <circle
-          className={styles.inner}
-          cx="12"
-          cy="12"
-          r="4.5"
-          strokeWidth="2"
-          strokeDasharray="21 7"
+          pathLength={100}
         />
       </svg>
       {label && <span className="ap-sr-only">{label}</span>}
