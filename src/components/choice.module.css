@@ -45,14 +45,18 @@
 .control {
   appearance: none;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   margin: 0;
   /* Optical alignment: centre the box on the first line of the label. */
-  margin-top: calc((var(--ap-text-body-md-line-height) - 16px) / 2);
+  margin-top: calc((var(--ap-text-body-md-line-height) - 20px) / 2);
 
-  border: var(--ap-border-width-control) solid var(--ap-color-border-strong);
-  background: var(--ap-color-surface-raised);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
+  /* The box reads as inset. surface/sunken rather than the canvas colour the
+     design used: against the canvas the border falls to 2.83:1 in dark, and
+     the selected dot to 2.70:1. One ramp step darker fixes both and is 1.08:1
+     away in light — a difference nobody sees, in a place that matters. */
+  background: var(--ap-color-surface-sunken);
   cursor: inherit;
 
   transition: background-color 120ms ease, border-color 120ms ease;
@@ -62,7 +66,7 @@
   .control { transition: none; }
 }
 
-.checkbox { border-radius: var(--ap-radius-xs); }
+.checkbox { border-radius: var(--ap-radius-sm); }
 .radio { border-radius: var(--ap-radius-full); }
 
 .control:hover:not(:disabled) {
@@ -76,15 +80,26 @@
   outline-offset: var(--ap-focus-ring-offset);
 }
 
-.control:checked,
-.control:indeterminate {
+/* Checkbox fills when checked; radio keeps its fill and gains a ring and a dot.
+   That is the conventional pair, and it keeps the two distinguishable at a
+   glance even when they sit in the same form. */
+.checkbox:checked,
+.checkbox:indeterminate {
   background-color: var(--ap-color-interactive-accent);
   border-color: var(--ap-color-interactive-accent);
 }
 
-.control:checked:hover:not(:disabled),
-.control:indeterminate:hover:not(:disabled) {
+.checkbox:checked:hover:not(:disabled),
+.checkbox:indeterminate:hover:not(:disabled) {
   background-color: var(--ap-color-interactive-accent-hover);
+  border-color: var(--ap-color-interactive-accent-hover);
+}
+
+.radio:checked {
+  border-color: var(--ap-color-interactive-accent);
+}
+
+.radio:checked:hover:not(:disabled) {
   border-color: var(--ap-color-interactive-accent-hover);
 }
 
@@ -115,8 +130,13 @@
 }
 
 .radio:checked::before {
+  background-color: var(--ap-color-interactive-accent);
   border-radius: var(--ap-radius-full);
   transform: scale(0.5);
+}
+
+.radio:checked:hover:not(:disabled)::before {
+  background-color: var(--ap-color-interactive-accent-hover);
 }
 
 .control {
@@ -129,9 +149,13 @@
   border-color: var(--ap-color-border-subtle);
 }
 
-.control:disabled:checked,
-.control:disabled:indeterminate {
+.checkbox:disabled:checked,
+.checkbox:disabled:indeterminate {
   background: var(--ap-color-interactive-disabled);
+}
+
+.radio:disabled::before {
+  background-color: var(--ap-color-interactive-on-disabled);
 }
 
 .control:disabled::before {
@@ -143,7 +167,7 @@
 .description {
   display: block;
   /* Aligned under the label text, past the box and its gap. */
-  margin-left: calc(16px + var(--ap-spacing-100));
+  margin-left: calc(20px + var(--ap-spacing-100));
   margin-top: var(--ap-spacing-025);
   color: var(--ap-color-text-tertiary);
   font-size: var(--ap-text-caption-md-size);

@@ -130,6 +130,26 @@ describe('border/strong meets 1.4.11 on every surface, in both modes', () => {
   }
 });
 
+describe('a checkbox or radio stays legible against its own fill', () => {
+  // The box is inset, so its border and its selected dot are measured against
+  // the fill inside it, not only against the card behind it. Filling the box
+  // with the canvas colour instead drops the border to 2.83:1 and the dot to
+  // 2.70:1 in dark — invisible where it matters and fine everywhere else, which
+  // is the hardest kind of regression to notice.
+  const BOX_FILL: ThemeTokenName = 'surface/sunken';
+
+  for (const mode of MODES) {
+    it(`border and dot against the box fill — ${mode}`, () => {
+      expect(tokenContrast('border/strong', BOX_FILL, mode), 'unchecked border').toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('interactive/accent', BOX_FILL, mode), 'selected dot').toBeGreaterThanOrEqual(NON_TEXT);
+    });
+
+    it(`the box is separable from the surface it sits on — ${mode}`, () => {
+      expect(tokenContrast(BOX_FILL, 'surface/raised', mode)).toBeGreaterThanOrEqual(1.1);
+    });
+  }
+});
+
 describe('the focus ring is distinguishable from every surface', () => {
   for (const mode of MODES) {
     it(`border/focus — ${mode}`, () => {

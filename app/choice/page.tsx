@@ -62,6 +62,19 @@ export default function Page() {
         Checked and disabled states are exempt. A brand fill supplies the contrast, and
         WCAG 2.1 excludes inactive components.
       </p>
+      <p>
+        The box is inset — filled a step darker than the surface it sits on — so its border
+        and its selected dot are measured against that fill, not only against the card
+        behind it. Filling it with the canvas colour instead, which is how it was drawn,
+        drops the border to 2.83:1 and the dot to 2.70:1 in dark: fine in light, invisible
+        in dark, and the hardest kind of regression to catch by eye. One ramp step darker
+        fixes both and is 1.08:1 away in light.
+      </p>
+      <p>
+        A checkbox fills when checked; a radio keeps its fill and gains a ring and a dot.
+        Keeping the two treatments apart is what makes them distinguishable at a glance in
+        a form that contains both.
+      </p>
 
       <h2>Checkbox</h2>
       <div className="specimen">
