@@ -34,8 +34,10 @@ export default function Page() {
       </p>
 
       <p>
-        Both are filled and carry no border at rest. The boundary arrives on hover and
-        again on focus, where it becomes strong. That is how the components are drawn.
+        Both are filled and carry no border at rest. A border arrives on focus, and on
+        nothing else — the box does not react to the pointer. A caret already says where
+        typing will land, and a field that lights up under the mouse competes for attention
+        with the one that is actually focused.
       </p>
       <p>
         Neither is a capsule. That shape belongs to buttons, and using it here would blur

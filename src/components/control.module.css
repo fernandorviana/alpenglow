@@ -1,14 +1,15 @@
 /**
  * Shared styling for bordered form controls.
  *
- * Input and Textarea import this so the state matrix — resting, hover, focus,
- * error, disabled, read-only — is written once. Two components drifting apart
+ * Input and Textarea import this so the state matrix — resting, focus, error,
+ * disabled, read-only — is written once. Two components drifting apart
  * on what "focused and invalid" looks like is exactly the kind of inconsistency
  * a design system exists to remove.
  *
- * The control is FILLED and has no border at rest. That is how it is drawn:
- * the boundary arrives on hover and focus rather than being permanently
- * visible. See the note on the resting state at the foot of this file.
+ * The control is FILLED and has no border at rest. There is no hover state:
+ * the box does not react to the pointer, only to focus and to validity. A
+ * caret already tells you where typing will go, and a field that lights up
+ * under the mouse competes with the one that is actually focused.
  *
  * `.control` sits on whichever element carries the box: a wrapper for Input,
  * because it can hold icons, and the textarea itself for Textarea.
@@ -37,13 +38,9 @@
   .control { transition: none; }
 }
 
-.control:hover:not(.disabled):not(.readOnly) {
-  border-color: var(--ap-color-border-default);
-  background: var(--ap-color-interactive-neutral-hover);
-}
-
-/* Focus replaces the transparent resting border with a strong one. The width
-   is held on the element at all times so the box never changes size. */
+/* Focus replaces the transparent resting border with a strong one — the only
+   pointer- or keyboard-driven change the box makes. The width is held on the
+   element at all times so the box never changes size. */
 .control:focus-within,
 .control:focus-visible {
   border-color: var(--ap-color-border-inverse);
@@ -51,7 +48,6 @@
 }
 
 .invalid,
-.invalid:hover,
 .invalid:focus-within {
   border-color: var(--ap-color-border-danger);
   background: var(--ap-color-surface-danger-subtle);
@@ -64,8 +60,11 @@
   cursor: not-allowed;
 }
 
+/* Read-only is recessed rather than lit. Borrowing the hover fill would have
+   made it the lightest thing on a dark card — reading as more prominent than an
+   editable field, which is backwards. */
 .readOnly {
-  background: var(--ap-color-interactive-neutral-hover);
+  background: var(--ap-color-surface-sunken);
   border-color: transparent;
 }
 
