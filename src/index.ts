@@ -23,6 +23,9 @@ export type { SelectProps, SelectSize } from './components/Select/index';
 export { Checkbox } from './components/Checkbox/index';
 export type { CheckboxProps } from './components/Checkbox/index';
 
+export { Switch } from './components/Switch/index';
+export type { SwitchProps } from './components/Switch/index';
+
 export { Radio } from './components/Radio/index';
 export type { RadioProps } from './components/Radio/index';
 

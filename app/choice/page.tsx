@@ -5,6 +5,7 @@ import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Checkbox } from '@/components/Checkbox/index';
 import { Radio } from '@/components/Radio/index';
+import { Switch } from '@/components/Switch/index';
 import { resolve } from '@/tokens/contrast';
 
 const SERVICES = ['Consultation', 'Follow-up', 'Assessment'] as const;
@@ -45,7 +46,7 @@ export default function Page() {
         </>
       }
     >
-      <h1>Checkbox and Radio</h1>
+      <h1>Checkbox, Radio and Switch</h1>
       <p className="lead">
         The two controls where the border is not describing the control. It is the control.
       </p>
@@ -139,6 +140,46 @@ export default function Page() {
             </Radio>
           </div>
         </fieldset>
+      </div>
+
+      <h2>Switch</h2>
+      <p>
+        A checkbox underneath, with <code>role=&quot;switch&quot;</code>. The role is the
+        whole difference: a screen reader says &ldquo;on&rdquo; and &ldquo;off&rdquo; rather
+        than &ldquo;checked&rdquo; and &ldquo;not checked&rdquo;, which is what a switch
+        means.
+      </p>
+      <p>
+        Use one only when the change takes effect immediately. If it applies after a Save,
+        it is a checkbox, whatever it looks like.
+      </p>
+      <div className="specimen">
+        <div style={{ display: 'grid', gap: 12 }}>
+          <Switch defaultChecked description="They get an email the day before.">
+            Send reminders
+          </Switch>
+          <Switch>Allow online booking</Switch>
+          <Switch disabled>Not available on this plan</Switch>
+          <Switch disabled defaultChecked>Required by the clinic</Switch>
+        </div>
+      </div>
+
+      <div className="rejected">
+        <p>
+          <strong>The drawn switch had no visible boundary, in either half.</strong>
+        </p>
+        <p>
+          A mint track with a white knob measures 1.48:1 knob-to-track, and 1.48:1
+          track-to-card. Neither the control nor its state could be made out — it reads as
+          a pale smudge on white. It uses the tokens that exist to clear 3:1 instead:
+          <code>border/strong</code> off, <code>border/success</code> on, and the knob on{' '}
+          <code>surface/raised</code>, which is what it is — a raised surface sitting on the
+          track.
+        </p>
+        <p>
+          The knob&rsquo;s <em>position</em> is the state signal that survives when colour
+          does not, which is why reduced motion removes the slide but never the travel.
+        </p>
       </div>
 
       <h2>Accessibility</h2>

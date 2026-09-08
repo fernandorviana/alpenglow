@@ -172,6 +172,30 @@ describe('every badge tone is readable, in the treatment it actually uses', () =
   });
 });
 
+describe('a switch shows both its shape and its state', () => {
+  // The drawn switch is a mint track with a white knob: the knob is 1.48:1
+  // against the track and the track 1.48:1 against a white card, so neither the
+  // control nor its state has a boundary. These are the tokens that exist to
+  // clear 3:1, which is what a control's identifying parts need.
+  const KNOB: ThemeTokenName = 'surface/raised';
+  const OFF: ThemeTokenName = 'border/strong';
+  const ON: ThemeTokenName = 'border/success';
+
+  for (const mode of MODES) {
+    it(`the knob is visible on both tracks — ${mode}`, () => {
+      expect(tokenContrast(KNOB, OFF, mode), 'knob on the off track').toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast(KNOB, ON, mode), 'knob on the on track').toBeGreaterThanOrEqual(NON_TEXT);
+    });
+
+    it(`the track is visible on every surface a form sits on — ${mode}`, () => {
+      for (const surface of ['surface/base', 'surface/raised'] as const) {
+        expect(tokenContrast(OFF, surface, mode), `off on ${surface}`).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast(ON, surface, mode), `on on ${surface}`).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+});
+
 describe('a focus indicator is visible wherever focus can land', () => {
   // Read-only fields are focusable — that is how their text gets copied — and
   // they sit on a recessed fill. The obvious quiet border for them, default, is

@@ -173,7 +173,8 @@
 
 .description {
   display: block;
-  /* Aligned under the label text, past the box and its gap. */
+  /* Aligned under the label text, past the control and its gap. The switch is
+     wider than a box, so it sets its own offset. */
   margin-left: calc(20px + var(--ap-spacing-100));
   margin-top: var(--ap-spacing-025);
   color: var(--ap-color-text-tertiary);
