@@ -3,6 +3,9 @@ import './styles/tokens.css';
 export { Button } from './components/Button/index';
 export type { ButtonProps, ButtonSize } from './components/Button/index';
 
+export { Badge } from './components/Badge/index';
+export type { BadgeProps, BadgeTone, BadgeSize } from './components/Badge/index';
+
 export { Field } from './components/Field/index';
 export type { FieldProps } from './components/Field/index';
 

@@ -130,6 +130,33 @@ describe('border/strong meets 1.4.11 on every surface, in both modes', () => {
   }
 });
 
+describe('every badge tone is readable', () => {
+  // These pairs had no component consuming them until Badge existed. Tokens
+  // nobody uses are tokens nobody has checked in place.
+  const TONES: ReadonlyArray<readonly [ThemeTokenName, ThemeTokenName]> = [
+    ['text/primary', 'surface/sunken'],
+    ['text/accent', 'surface/accent-subtle'],
+    ['text/success', 'surface/success-subtle'],
+    ['text/warning', 'surface/warning-subtle'],
+    ['text/danger', 'surface/danger-subtle'],
+    ['text/info', 'surface/info-subtle'],
+  ];
+
+  for (const mode of MODES) {
+    for (const [fg, bg] of TONES) {
+      it(`${fg} on ${bg} — ${mode}`, () => {
+        expect(tokenContrast(fg, bg, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      });
+    }
+
+    it(`each tone's background is separable from the surface behind it — ${mode}`, () => {
+      for (const [, bg] of TONES) {
+        expect(tokenContrast(bg, 'surface/raised', mode), bg).toBeGreaterThanOrEqual(1.03);
+      }
+    });
+  }
+});
+
 describe('a focus indicator is visible wherever focus can land', () => {
   // Read-only fields are focusable — that is how their text gets copied — and
   // they sit on a recessed fill. The obvious quiet border for them, default, is

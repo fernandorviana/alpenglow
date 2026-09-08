@@ -1,0 +1,85 @@
+/**
+ * Badge
+ *
+ * The drawn component names its colours by hue — Gray, Red, Yellow, Green,
+ * Blue, Indigo, Purple, Pink. This one names them by meaning instead. A badge
+ * API that takes a colour makes every caller decide what green means, and the
+ * answers drift: one screen's green is "paid", another's is "active", a third's
+ * is "low risk". Naming the meaning keeps that decision in one place.
+ *
+ * Every pair reuses the status tokens that already existed and, until now, had
+ * no component consuming them.
+ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  max-width: 100%;
+
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-medium);
+  white-space: nowrap;
+}
+
+/* --- sizes ---------------------------------------------------------------- */
+
+.sm {
+  min-height: 24px;
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-sm);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+.md {
+  min-height: 30px;
+  padding: var(--ap-spacing-050) var(--ap-spacing-150);
+  border-radius: var(--ap-radius-md);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+/* An icon sits closer to the edge than text does, so the padding tightens on
+   that side only. */
+.withIcon.sm { padding-left: var(--ap-spacing-075); }
+.withIcon.md { padding-left: var(--ap-spacing-100); }
+
+/* --- tones ---------------------------------------------------------------- */
+
+.neutral { background: var(--ap-color-surface-sunken); color: var(--ap-color-text-primary); }
+.accent  { background: var(--ap-color-surface-accent-subtle); color: var(--ap-color-text-accent); }
+.success { background: var(--ap-color-surface-success-subtle); color: var(--ap-color-text-success); }
+.warning { background: var(--ap-color-surface-warning-subtle); color: var(--ap-color-text-warning); }
+.danger  { background: var(--ap-color-surface-danger-subtle); color: var(--ap-color-text-danger); }
+.info    { background: var(--ap-color-surface-info-subtle); color: var(--ap-color-text-info); }
+
+/* --- parts ---------------------------------------------------------------- */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+.icon svg { width: 100%; height: 100%; }
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A dot carries the same meaning as the tone at a fraction of the width, for
+   tables where a full badge would not fit. */
+.dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ap-radius-full);
+  background: currentColor;
+}
