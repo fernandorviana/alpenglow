@@ -5,6 +5,7 @@ import type { TextareaHTMLAttributes } from 'react';
 import { useField } from '../Field/FieldContext';
 import styles from '../control.module.css';
 
+/** Shares Button's height scale: 32, 40, 48. */
 export type TextareaSize = 'sm' | 'md' | 'lg';
 
 export type TextareaProps = {
@@ -51,7 +52,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       required={required}
       aria-invalid={isInvalid || undefined}
       aria-describedby={describedBy}
-      style={{ paddingBlock: 'var(--ap-spacing-100)', resize: 'vertical', ...style }}
+      style={{ resize: 'vertical', ...style }}
     />
   );
 });

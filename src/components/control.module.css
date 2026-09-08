@@ -1,25 +1,28 @@
 /**
  * Shared styling for bordered form controls.
  *
- * Input and Textarea import this so the state matrix — resting, focus, error,
- * disabled, read-only — is written once. Two components drifting apart on what
- * "focused and invalid" looks like is exactly the kind of inconsistency a
- * design system exists to remove.
+ * Input and Textarea import this so the state matrix — resting, hover, focus,
+ * error, disabled, read-only — is written once. Two components drifting apart
+ * on what "focused and invalid" looks like is exactly the kind of inconsistency
+ * a design system exists to remove.
  *
- * `.control` sits on whichever element carries the border: a wrapper for Input,
+ * The control is FILLED and has no border at rest. That is how it is drawn:
+ * the boundary arrives on hover and focus rather than being permanently
+ * visible. See the note on the resting state at the foot of this file.
+ *
+ * `.control` sits on whichever element carries the box: a wrapper for Input,
  * because it can hold icons, and the textarea itself for Textarea.
  */
 
 .control {
   display: flex;
   align-items: center;
-  gap: var(--ap-spacing-100);
+  gap: var(--ap-spacing-150);
   width: 100%;
 
-  /* Inputs are not capsules — that shape is reserved for buttons. */
-  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
-  border-radius: var(--ap-radius-md);
-  background: var(--ap-color-surface-raised);
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-interactive-neutral);
   color: var(--ap-color-text-primary);
 
   font-family: var(--ap-font-sans);
@@ -35,50 +38,62 @@
 }
 
 .control:hover:not(.disabled):not(.readOnly) {
-  border-color: var(--ap-color-border-accent);
+  border-color: var(--ap-color-border-default);
+  background: var(--ap-color-interactive-neutral-hover);
 }
 
-/* Focus adds a ring outside the control. The border keeps its colour and its
-   width, so an invalid field stays visibly invalid while focused and nothing
-   reflows. */
+/* Focus replaces the transparent resting border with a strong one. The width
+   is held on the element at all times so the box never changes size. */
 .control:focus-within,
 .control:focus-visible {
-  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
-  outline-offset: var(--ap-focus-ring-offset);
+  border-color: var(--ap-color-border-inverse);
+  background: var(--ap-color-interactive-neutral);
 }
 
 .invalid,
-.invalid:hover {
+.invalid:hover,
+.invalid:focus-within {
   border-color: var(--ap-color-border-danger);
+  background: var(--ap-color-surface-danger-subtle);
 }
 
 .disabled {
   background: var(--ap-color-interactive-disabled);
-  border-color: var(--ap-color-border-subtle);
+  border-color: transparent;
   color: var(--ap-color-text-disabled);
   cursor: not-allowed;
 }
 
 .readOnly {
-  background: var(--ap-color-surface-sunken);
-  border-color: var(--ap-color-border-default);
+  background: var(--ap-color-interactive-neutral-hover);
+  border-color: transparent;
 }
 
 /* --- sizes ---------------------------------------------------------------- */
 
-.sm { min-height: 32px; padding-inline: var(--ap-spacing-150); }
-.md { min-height: 40px; padding-inline: var(--ap-spacing-150); }
+/* Heights are shared with Button: 32, 40, 48. A button and a field of the same
+   size sit at the same height, which the drawn numbering did not give — there
+   the field's md was 48 and the button's was 40, so the two never lined up.
+   The two drawn heights become md and lg; sm is the compact addition. */
+.sm {
+  min-height: 32px;
+  padding: var(--ap-spacing-050) var(--ap-spacing-150) var(--ap-spacing-050) var(--ap-spacing-200);
+}
+
+.md {
+  min-height: 40px;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150) var(--ap-spacing-100) var(--ap-spacing-200);
+}
+
 .lg {
   min-height: 48px;
-  padding-inline: var(--ap-spacing-200);
-  font-size: var(--ap-text-body-lg-size);
-  line-height: var(--ap-text-body-lg-line-height);
+  padding: var(--ap-spacing-150) var(--ap-spacing-150) var(--ap-spacing-150) var(--ap-spacing-200);
 }
 
 /* --- the editable element ------------------------------------------------- */
 
-/* The wrapper carries the border and background; the field itself is bare, so
-   icons can sit inside the same box without a nested outline. */
+/* The wrapper carries the box; the field itself is bare, so icons can sit
+   inside it without a nested outline. */
 .field {
   flex: 1;
   min-width: 0;
@@ -108,13 +123,22 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   color: var(--ap-color-text-tertiary);
 }
-
-.lg .icon { width: 20px; height: 20px; }
 
 .icon svg { width: 100%; height: 100%; }
 
 .fullWidth { width: 100%; }
+
+/**
+ * Known gap, kept on purpose for now.
+ *
+ * At rest the control has no border, so its boundary is carried entirely by the
+ * fill. Against a card that is 1.06:1, and against the app canvas — which is
+ * the same colour — the field has no boundary at all. WCAG 1.4.11 asks for 3:1
+ * where a border is what identifies a control.
+ *
+ * This matches the drawn component and is on the list to tune.
+ */

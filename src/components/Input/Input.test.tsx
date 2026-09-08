@@ -76,7 +76,7 @@ describe('Input', () => {
 
   it('keeps `size` as a visual scale rather than the HTML character count', () => {
     // The HTML attribute would render a 40-character-wide box.
-    render(<Input aria-label="Email" size="lg" />);
+    render(<Input aria-label="Email" size="sm" />);
     expect(screen.getByLabelText('Email')).not.toHaveAttribute('size');
   });
 

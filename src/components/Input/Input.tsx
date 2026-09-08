@@ -5,6 +5,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import { useField } from '../Field/FieldContext';
 import styles from '../control.module.css';
 
+/** Shares Button's height scale: 32, 40, 48. */
 export type InputSize = 'sm' | 'md' | 'lg';
 
 export type InputProps = {

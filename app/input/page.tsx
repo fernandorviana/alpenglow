@@ -34,29 +34,37 @@ export default function Page() {
       </p>
 
       <p>
-        Both use <code>border/strong</code>, the only value in the ramp clearing 3:1 against
-        every surface in both themes. Cards and containers use the lighter{' '}
-        <code>border/default</code> — a card outline is decorative, and a form control&rsquo;s
-        is not.
+        Both are filled and carry no border at rest. The boundary arrives on hover and
+        again on focus, where it becomes strong. That is how the components are drawn.
       </p>
       <p>
         Neither is a capsule. That shape belongs to buttons, and using it here would blur
         the line between what you press and what you type into.
       </p>
+      <div className="rejected">
+        <p>
+          <strong>The resting state has a known gap, kept for now.</strong>
+        </p>
+        <p>
+          With no border, the field&rsquo;s boundary is carried entirely by its fill — 1.06:1
+          against a card, and against the app canvas, which is the same colour, no boundary
+          at all. WCAG 1.4.11 asks for 3:1 where a border is what identifies a control. This
+          matches the drawn component and is on the list to tune.
+        </p>
+      </div>
 
       <h2>Sizes</h2>
+      <p>
+        Three, sharing Button&rsquo;s heights: 32, 40 and 48. A button and a field of the
+        same size line up, which the drawn numbering did not give — there a medium field was
+        48 and a medium button was 40, so the two never sat level. The drawn heights are md
+        and lg; sm is the compact addition.
+      </p>
       <div className="specimen">
         <div className="specimenRow">
-          <label htmlFor="s">Small</label>
-          <Input id="s" size="sm" placeholder="Search clients" iconStart={<Glass />} />
-        </div>
-        <div className="specimenRow">
-          <label htmlFor="m">Medium</label>
-          <Input id="m" size="md" placeholder="Search clients" iconStart={<Glass />} />
-        </div>
-        <div className="specimenRow">
-          <label htmlFor="l">Large</label>
-          <Input id="l" size="lg" placeholder="Search clients" iconStart={<Glass />} />
+          <Input size="sm" placeholder="Small" iconStart={<Glass />} />
+          <Input size="md" placeholder="Medium" iconStart={<Glass />} />
+          <Input size="lg" placeholder="Large" iconStart={<Glass />} />
         </div>
       </div>
 
