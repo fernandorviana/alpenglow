@@ -153,6 +153,10 @@
   --ap-color-interactive-tertiary-hover: var(--ap-brand-2-600);
   --ap-color-interactive-tertiary-pressed: var(--ap-brand-2-600);
   --ap-color-interactive-on-tertiary: var(--ap-brand-2-900);
+  --ap-color-interactive-success: var(--ap-green-500);
+  --ap-color-interactive-success-hover: var(--ap-green-600);
+  --ap-color-interactive-success-pressed: var(--ap-green-700);
+  --ap-color-interactive-on-success: var(--ap-green-900);
   --ap-color-interactive-danger: var(--ap-red-600);
   --ap-color-interactive-danger-hover: var(--ap-red-700);
   --ap-color-interactive-danger-pressed: var(--ap-red-800);
@@ -207,6 +211,10 @@
     --ap-color-interactive-tertiary-hover: var(--ap-brand-2-400);
     --ap-color-interactive-tertiary-pressed: var(--ap-brand-2-300);
     --ap-color-interactive-on-tertiary: var(--ap-brand-2-900);
+    --ap-color-interactive-success: var(--ap-green-500);
+    --ap-color-interactive-success-hover: var(--ap-green-400);
+    --ap-color-interactive-success-pressed: var(--ap-green-300);
+    --ap-color-interactive-on-success: var(--ap-green-900);
     --ap-color-interactive-danger: var(--ap-red-400);
     --ap-color-interactive-danger-hover: var(--ap-red-300);
     --ap-color-interactive-danger-pressed: var(--ap-red-200);
@@ -261,6 +269,10 @@
   --ap-color-interactive-tertiary-hover: var(--ap-brand-2-400);
   --ap-color-interactive-tertiary-pressed: var(--ap-brand-2-300);
   --ap-color-interactive-on-tertiary: var(--ap-brand-2-900);
+  --ap-color-interactive-success: var(--ap-green-500);
+  --ap-color-interactive-success-hover: var(--ap-green-400);
+  --ap-color-interactive-success-pressed: var(--ap-green-300);
+  --ap-color-interactive-on-success: var(--ap-green-900);
   --ap-color-interactive-danger: var(--ap-red-400);
   --ap-color-interactive-danger-hover: var(--ap-red-300);
   --ap-color-interactive-danger-pressed: var(--ap-red-200);

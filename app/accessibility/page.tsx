@@ -181,8 +181,8 @@ export default function Page() {
 
       <h2>Where the system falls short, on purpose</h2>
       <p>
-        Two tokens sit below 4.5:1, and both are deliberate. Listing them is the point:
-        a system that reports no exceptions is a system that has not looked.
+        Three pairs sit below 4.5:1, all three deliberate. Listing them is the point: a
+        system that reports no exceptions is a system that has not looked.
       </p>
 
       <div className="tableScroll">
@@ -207,6 +207,26 @@ export default function Page() {
               <td>
                 Placeholder text is a hint, never the only copy of a label. Darkening it far
                 enough to clear AA makes an empty field read as a filled one.
+              </td>
+            </tr>
+            <tr>
+              <td className="tokenName">on-success on success-pressed</td>
+              <td className="ratio">
+                {contrast(
+                  resolve('interactive/on-success', 'light'),
+                  resolve('interactive/success-pressed', 'light'),
+                ).toFixed(2)}
+              </td>
+              <td className="ratio">
+                {contrast(
+                  resolve('interactive/on-success', 'dark'),
+                  resolve('interactive/success-pressed', 'dark'),
+                ).toFixed(2)}
+              </td>
+              <td>
+                Pressed is feedback after the decision, not information used to make it —
+                nobody reads a label while their finger is down. The green ramp has no third
+                step that keeps a dark label above 4.5, and a light label fails far worse.
               </td>
             </tr>
             <tr>

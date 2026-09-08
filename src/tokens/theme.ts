@@ -68,6 +68,15 @@ export const theme = {
   'interactive/tertiary-pressed': { light: 'brand-2/600', dark: 'brand-2/300', use: 'Tertiary pressed — Light repeats hover, see brand-2 dead zone' },
   'interactive/on-tertiary':      { light: 'brand-2/900', dark: 'brand-2/900', use: 'Label on tertiary' },
 
+  // Green crosses over: light greens need a dark label, dark greens need white,
+  // and no single label survives three steps in one direction. The dark label
+  // wins because it keeps the fill recognisably green — the same call the
+  // system already makes for brand-2.
+  'interactive/success':         { light: 'green/500', dark: 'green/500', use: 'Confirming button fill' },
+  'interactive/success-hover':   { light: 'green/600', dark: 'green/400', use: 'Confirming hover' },
+  'interactive/success-pressed': { light: 'green/700', dark: 'green/300', use: 'Confirming pressed' },
+  'interactive/on-success':      { light: 'green/900', dark: 'green/900', use: 'Label on success' },
+
   'interactive/danger':         { light: 'red/600', dark: 'red/400', use: 'Destructive button fill' },
   'interactive/danger-hover':   { light: 'red/700', dark: 'red/300', use: 'Destructive hover' },
   'interactive/danger-pressed': { light: 'red/800', dark: 'red/200', use: 'Destructive pressed' },

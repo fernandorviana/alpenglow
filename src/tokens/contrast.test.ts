@@ -65,24 +65,56 @@ describe('status text meets AA on its own subtle surface', () => {
 });
 
 describe('every on-* label meets AA on all of its fill states', () => {
-  // The rule this guards: a fill and its label are a pair. In dark the accent
-  // fill lightens while the label darkens; breaking either half breaks AA.
-  const GROUPS = [
-    { on: 'interactive/on-accent',   fills: ['interactive/accent', 'interactive/accent-hover', 'interactive/accent-pressed'] },
-    { on: 'interactive/on-neutral',  fills: ['interactive/neutral', 'interactive/neutral-hover', 'interactive/neutral-pressed'] },
-    { on: 'interactive/on-tertiary', fills: ['interactive/tertiary', 'interactive/tertiary-hover', 'interactive/tertiary-pressed'] },
-    { on: 'interactive/on-danger',   fills: ['interactive/danger', 'interactive/danger-hover', 'interactive/danger-pressed'] },
-  ] as const;
+  // Families are derived from the tokens, not listed here. A hand-kept list is
+  // how `success` shipped untested: the family was added to the theme and the
+  // list was not updated, so nothing checked it and everything passed.
+  const families = [
+    ...new Set(
+      Object.keys(theme)
+        .filter((k) => k.startsWith('interactive/on-'))
+        .map((k) => k.slice('interactive/on-'.length)),
+    ),
+  ].filter((family) => family !== 'disabled');
+
+  /** Pairs that are knowingly below AA, held at the figure they were accepted at. */
+  const EXEMPT: Record<string, { ratio: number; why: string }> = {
+    'interactive/on-success on interactive/success-pressed in light': {
+      ratio: 3.36,
+      why: 'Pressed is feedback after the decision, not information used to make it. The green ramp has no third step that keeps a dark label above 4.5.',
+    },
+  };
 
   for (const mode of MODES) {
-    for (const { on, fills } of GROUPS) {
-      for (const fill of fills) {
-        it(`${on} on ${fill} — ${mode}`, () => {
-          expect(tokenContrast(on, fill, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
-        });
-      }
+    for (const family of families) {
+      const on = `interactive/on-${family}` as ThemeTokenName;
+      const fills = [
+        `interactive/${family}`,
+        `interactive/${family}-hover`,
+        `interactive/${family}-pressed`,
+      ].filter((f): f is ThemeTokenName => f in theme);
+
+      it(`${on} — ${mode} (${fills.length} fills)`, () => {
+        for (const fill of fills) {
+          const ratio = tokenContrast(on, fill, mode);
+          const exemption = EXEMPT[`${on} on ${fill} in ${mode}`];
+
+          if (exemption) {
+            // Asserted at its recorded value, so an edit can never make it worse
+            // without failing. An exemption is not a place to stop measuring.
+            expect(ratio, exemption.why).toBeCloseTo(exemption.ratio, 1);
+          } else {
+            expect(ratio, `${on} on ${fill} (${mode})`).toBeGreaterThanOrEqual(AA_NORMAL);
+          }
+        }
+      });
     }
   }
+
+  it('covers every interactive family the theme defines', () => {
+    // Guards the derivation itself: if a family stops producing an on- token,
+    // this notices rather than silently checking one fewer thing.
+    expect(families.sort()).toEqual(['accent', 'danger', 'neutral', 'success', 'tertiary']);
+  });
 });
 
 describe('border/strong meets 1.4.11 on every surface, in both modes', () => {

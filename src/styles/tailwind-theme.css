@@ -44,6 +44,10 @@
   --color-interactive-tertiary-hover: var(--ap-color-interactive-tertiary-hover);
   --color-interactive-tertiary-pressed: var(--ap-color-interactive-tertiary-pressed);
   --color-interactive-on-tertiary: var(--ap-color-interactive-on-tertiary);
+  --color-interactive-success: var(--ap-color-interactive-success);
+  --color-interactive-success-hover: var(--ap-color-interactive-success-hover);
+  --color-interactive-success-pressed: var(--ap-color-interactive-success-pressed);
+  --color-interactive-on-success: var(--ap-color-interactive-on-success);
   --color-interactive-danger: var(--ap-color-interactive-danger);
   --color-interactive-danger-hover: var(--ap-color-interactive-danger-hover);
   --color-interactive-danger-pressed: var(--ap-color-interactive-danger-pressed);

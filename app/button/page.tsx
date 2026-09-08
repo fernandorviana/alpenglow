@@ -67,6 +67,7 @@ export default function Page() {
           <Button tone="accent">Confirm booking</Button>
           <Button tone="neutral">Go back</Button>
           <Button tone="tertiary">Start intake</Button>
+          <Button tone="success">Mark complete</Button>
           <Button tone="danger">Cancel appointment</Button>
         </div>
         <div className="specimenRow">
@@ -83,13 +84,14 @@ export default function Page() {
 
       <div className="rejected">
         <p>
-          <strong>Tertiary is solid-only, and the type signature enforces it.</strong>
+          <strong>Tertiary and success are solid-only, and the type signature enforces it.</strong>
         </p>
         <p>
-          The tone resolves to brand-2, which fails as a foreground on light surfaces —
-          brand-2/500 is 1.45:1 on white. There is no compliant text or border colour for
-          it, so <code>variant="outline" tone="tertiary"</code> does not compile rather than
-          producing a button nobody should ship.
+          Both resolve to bright, saturated hues that fail as a foreground on light surfaces
+          — brand-2/500 is 1.45:1 on white and green/500 is 1.67:1. There is no compliant
+          text or border colour for either, so{' '}
+          <code>variant=&quot;outline&quot; tone=&quot;tertiary&quot;</code> does not compile
+          rather than producing a button nobody should ship.
         </p>
       </div>
 
@@ -149,7 +151,7 @@ export default function Page() {
         <tbody>
           {[
             ['variant', "'solid' | 'outline' | 'ghost'", "'solid'"],
-            ['tone', "'accent' | 'neutral' | 'tertiary' | 'danger'", "'accent'"],
+            ['tone', "'accent' | 'neutral' | 'tertiary' | 'success' | 'danger'", "'accent'"],
             ['size', "'sm' | 'md' | 'lg'", "'md'"],
             ['loading', 'boolean', 'false'],
             ['iconStart', 'ReactNode', '—'],

@@ -15,15 +15,15 @@ type BaseProps = {
 };
 
 /**
- * `tertiary` is solid-only on purpose.
+ * `tertiary` and `success` are solid-only on purpose.
  *
- * It resolves to brand-2, whose usable steps fail contrast as a foreground on
- * light surfaces — brand-2/500 is 1.45:1 on white. There is no compliant text
- * or border colour for it, so outline and ghost do not offer the tone rather
- * than offering one that cannot pass.
+ * Both resolve to bright, saturated hues whose usable steps fail contrast as a
+ * foreground on light surfaces — brand-2/500 is 1.45:1 on white, and green/500
+ * is 1.67:1. There is no compliant text or border colour for either, so outline
+ * and ghost do not offer the tones rather than offering ones that cannot pass.
  */
 type VariantProps =
-  | { variant?: 'solid'; tone?: 'accent' | 'neutral' | 'tertiary' | 'danger' }
+  | { variant?: 'solid'; tone?: 'accent' | 'neutral' | 'tertiary' | 'success' | 'danger' }
   | { variant: 'outline' | 'ghost'; tone?: 'accent' | 'neutral' | 'danger' };
 
 export type ButtonProps = BaseProps &

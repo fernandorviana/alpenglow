@@ -11,6 +11,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  /* Gap is 8 at every size — a smaller button does not get a tighter icon. */
   gap: var(--ap-spacing-100);
   margin: 0;
 
@@ -56,8 +57,7 @@
 
 .sm {
   height: 32px;
-  padding-inline: var(--ap-spacing-150);
-  gap: var(--ap-spacing-050);
+  padding-inline: var(--ap-spacing-200);
   font-size: var(--ap-text-button-md-size);
   line-height: var(--ap-text-button-md-line-height);
   letter-spacing: var(--ap-text-button-md-tracking);
@@ -116,6 +116,13 @@
 }
 .solid.danger:hover:not(:disabled) { background: var(--ap-color-interactive-danger-hover); }
 .solid.danger:active:not(:disabled) { background: var(--ap-color-interactive-danger-pressed); }
+
+.solid.success {
+  background: var(--ap-color-interactive-success);
+  color: var(--ap-color-interactive-on-success);
+}
+.solid.success:hover:not(:disabled) { background: var(--ap-color-interactive-success-hover); }
+.solid.success:active:not(:disabled) { background: var(--ap-color-interactive-success-pressed); }
 
 /* --- outline -------------------------------------------------------------- */
 
