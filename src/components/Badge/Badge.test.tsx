@@ -30,10 +30,13 @@ describe('Badge', () => {
     expect(screen.getByTestId('tick').parentElement).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('shows the dot rather than the icon when both are given', () => {
-    // Two marks before one word is noise; the dot is the more compact of them.
-    render(<Badge dot icon={<svg data-testid="tick" />}>Confirmed</Badge>);
-    expect(screen.queryByTestId('tick')).not.toBeInTheDocument();
+  it('shows the icon rather than the dot when both are given', () => {
+    // Two marks before one word is noise, and an icon says more than a circle.
+    const { container } = render(
+      <Badge dot icon={<svg data-testid="tick" />}>Confirmed</Badge>,
+    );
+    expect(screen.getByTestId('tick')).toBeInTheDocument();
+    expect(container.querySelector(`.${styles.dot}`)).toBeNull();
   });
 
   it('applies tone and size', () => {

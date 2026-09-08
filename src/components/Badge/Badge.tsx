@@ -7,9 +7,10 @@ export type BadgeSize = 'sm' | 'md';
 export type BadgeProps = {
   tone?: BadgeTone;
   size?: BadgeSize;
-  /** A small filled circle before the label, in the tone's own colour. */
-  dot?: boolean;
+  /** A mark before the label. Takes precedence over `dot`. */
   icon?: ReactNode;
+  /** A small filled circle before the label, for when there is no icon to use. */
+  dot?: boolean;
   children: ReactNode;
 } & Omit<HTMLAttributes<HTMLSpanElement>, 'children'>;
 
@@ -42,11 +43,12 @@ export function Badge({
 
   return (
     <span {...rest} className={classes}>
-      {dot && <span className={styles.dot} aria-hidden="true" />}
-      {icon && !dot && (
+      {icon ? (
         <span className={styles.icon} aria-hidden="true">
           {icon}
         </span>
+      ) : (
+        dot && <span className={styles.dot} aria-hidden="true" />
       )}
       <span className={styles.label}>{children}</span>
     </span>

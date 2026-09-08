@@ -130,9 +130,12 @@ describe('border/strong meets 1.4.11 on every surface, in both modes', () => {
   }
 });
 
-describe('every badge tone is readable', () => {
-  // These pairs had no component consuming them until Badge existed. Tokens
-  // nobody uses are tokens nobody has checked in place.
+describe('every badge tone is readable, in the treatment it actually uses', () => {
+  // Badge is not one treatment with swapped values. In light it is a tinted
+  // fill with no outline; in dark the fill drops to the sunken surface for
+  // every tone and an outline appears in the tone's own colour. Measuring the
+  // light pairing in both modes would have been checking something the
+  // component does not do.
   const TONES: ReadonlyArray<readonly [ThemeTokenName, ThemeTokenName]> = [
     ['text/primary', 'surface/sunken'],
     ['text/accent', 'surface/accent-subtle'],
@@ -142,19 +145,31 @@ describe('every badge tone is readable', () => {
     ['text/info', 'surface/info-subtle'],
   ];
 
-  for (const mode of MODES) {
+  it('light: the label clears AA on its tinted fill', () => {
     for (const [fg, bg] of TONES) {
-      it(`${fg} on ${bg} — ${mode}`, () => {
-        expect(tokenContrast(fg, bg, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
-      });
+      expect(tokenContrast(fg, bg, 'light'), `${fg} on ${bg}`).toBeGreaterThanOrEqual(AA_NORMAL);
     }
+  });
 
-    it(`each tone's background is separable from the surface behind it — ${mode}`, () => {
-      for (const [, bg] of TONES) {
-        expect(tokenContrast(bg, 'surface/raised', mode), bg).toBeGreaterThanOrEqual(1.03);
-      }
-    });
-  }
+  it('dark: the label clears AA on the sunken fill every tone shares', () => {
+    for (const [fg] of TONES) {
+      expect(tokenContrast(fg, 'surface/sunken', 'dark'), fg).toBeGreaterThanOrEqual(AA_NORMAL);
+    }
+  });
+
+  it('dark: the outline clears 1.4.11 against the surface the badge sits on', () => {
+    // The outline is what gives the badge its shape there, so it has to be
+    // findable against the card behind it, not only against its own fill.
+    for (const [fg] of TONES) {
+      expect(tokenContrast(fg, 'surface/raised', 'dark'), fg).toBeGreaterThanOrEqual(NON_TEXT);
+    }
+  });
+
+  it('light: each tinted fill is separable from the surface behind it', () => {
+    for (const [, bg] of TONES) {
+      expect(tokenContrast(bg, 'surface/raised', 'light'), bg).toBeGreaterThanOrEqual(1.03);
+    }
+  });
 });
 
 describe('a focus indicator is visible wherever focus can land', () => {

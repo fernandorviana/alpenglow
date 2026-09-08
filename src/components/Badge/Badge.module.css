@@ -13,6 +13,7 @@
 
 .badge {
   display: inline-flex;
+  border: var(--ap-border-width-hairline) solid transparent;
   align-items: center;
   gap: var(--ap-spacing-100);
   max-width: 100%;
@@ -49,6 +50,7 @@
 
 /* --- tones ---------------------------------------------------------------- */
 
+/* Light: a tinted fill and no outline. */
 .neutral { background: var(--ap-color-surface-sunken); color: var(--ap-color-text-primary); }
 .accent  { background: var(--ap-color-surface-accent-subtle); color: var(--ap-color-text-accent); }
 .success { background: var(--ap-color-surface-success-subtle); color: var(--ap-color-text-success); }
@@ -56,15 +58,40 @@
 .danger  { background: var(--ap-color-surface-danger-subtle); color: var(--ap-color-text-danger); }
 .info    { background: var(--ap-color-surface-info-subtle); color: var(--ap-color-text-info); }
 
+/* Dark is a different treatment, not the same one with swapped values: the
+   fill drops back to the sunken surface for every tone and an outline appears
+   in the tone's own colour. A tinted fill at the 800 tier goes muddy on a dark
+   ground, where an outline stays crisp.
+ *
+ * This is the one place a component carries theme logic. The switch is
+ * tone-independent — same background, border takes currentColor — so encoding
+ * it as twelve more tokens would cost more than it explains. The three-block
+ * shape is the same one tokens.css uses, so an explicit light choice still
+ * wins over the system preference. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .badge {
+    background: var(--ap-color-surface-sunken);
+    border-color: currentColor;
+  }
+}
+
+:root[data-theme='dark'] .badge {
+  background: var(--ap-color-surface-sunken);
+  border-color: currentColor;
+}
+
 /* --- parts ---------------------------------------------------------------- */
 
+/* 16px as drawn, rather than scaling with the label — a badge's icon is a mark
+   at a fixed size, and letting it track the font size makes the small and
+   medium badges disagree about how big a tick is. */
 .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 1em;
-  height: 1em;
+  width: 16px;
+  height: 16px;
 }
 
 .icon svg { width: 100%; height: 100%; }
