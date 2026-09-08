@@ -22,7 +22,7 @@
   width: 100%;
 
   border: var(--ap-border-width-hairline) solid transparent;
-  border-radius: var(--ap-radius-lg);
+  border-radius: var(--ap-radius-xl);
   background: var(--ap-color-interactive-neutral);
   color: var(--ap-color-text-primary);
 

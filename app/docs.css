@@ -192,7 +192,7 @@ body {
 .specimen {
   padding: var(--ap-spacing-300);
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
-  border-radius: var(--ap-radius-lg);
+  border-radius: var(--ap-radius-xl);
   background: var(--ap-color-surface-raised);
 }
 
@@ -307,7 +307,7 @@ body {
   padding: var(--ap-spacing-200) var(--ap-spacing-250);
   border-left: 3px solid var(--ap-color-border-strong);
   background: var(--ap-color-surface-sunken);
-  border-radius: 0 var(--ap-radius-md) var(--ap-radius-md) 0;
+  border-radius: 0 var(--ap-radius-lg) var(--ap-radius-lg) 0;
 }
 
 .rejected p { margin: 0; }

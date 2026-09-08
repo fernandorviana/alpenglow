@@ -38,16 +38,22 @@ export const spacing = {
  * `full` is the button radius. Alpenglow's buttons are capsules — it is the
  * most recognisable thing about the system's shape language, so it is called
  * out here rather than left for a component to decide.
+ *
+ * 6 was originally dropped as drift and the scale jumped 4 to 8. It is not
+ * drift: it is the medium badge, drawn deliberately. It appeared as often in
+ * the source as 2, which was kept — so one was discarded and the other kept on
+ * the same evidence. Adding it shifts every name above it by one step.
  */
 export const radius = {
   none: 0,
   xs: 2,
   sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  '2xl': 20,
-  '3xl': 24,
+  md: 6,
+  lg: 8,
+  xl: 12,
+  '2xl': 16,
+  '3xl': 20,
+  '4xl': 24,
   full: 9999,
 } as const;
 

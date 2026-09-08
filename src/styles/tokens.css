@@ -321,11 +321,12 @@
   --ap-radius-none: 0px;
   --ap-radius-xs: 2px;
   --ap-radius-sm: 4px;
-  --ap-radius-md: 8px;
-  --ap-radius-lg: 12px;
-  --ap-radius-xl: 16px;
-  --ap-radius-2xl: 20px;
-  --ap-radius-3xl: 24px;
+  --ap-radius-md: 6px;
+  --ap-radius-lg: 8px;
+  --ap-radius-xl: 12px;
+  --ap-radius-2xl: 16px;
+  --ap-radius-3xl: 20px;
+  --ap-radius-4xl: 24px;
   --ap-radius-full: 9999px;
 
   --ap-border-width-hairline: 1px;

@@ -46,6 +46,24 @@ describe('tokens.css is in step with the token source', () => {
   });
 });
 
+describe('the scale keeps the steps components actually need', () => {
+  // 6 was dropped as drift once and the scale jumped 4 to 8, which quietly
+  // rounded the medium badge up by two pixels. Naming the steps a component
+  // depends on stops that happening again without a failure.
+  it('has the badge radii', () => {
+    expect(radius.sm, 'small badge').toBe(4);
+    expect(radius.md, 'medium badge').toBe(6);
+  });
+
+  it('has the field radius', () => {
+    expect(radius.xl, 'input, textarea, select').toBe(12);
+  });
+
+  it('rises without gaps through the small end, where controls live', () => {
+    expect([radius.xs, radius.sm, radius.md, radius.lg, radius.xl]).toEqual([2, 4, 6, 8, 12]);
+  });
+});
+
 describe('the Tailwind theme is in step with the token source', () => {
   it('exposes every theme token as a colour utility', () => {
     for (const name of Object.keys(theme)) {

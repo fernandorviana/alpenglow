@@ -230,11 +230,11 @@ Single mode, identical in both themes. Atlassian convention: `spacing/100` = 8px
 
 Most used in production: gap 16 / 8 / 12 / 4 · padding 8 / 12 / 16 / 20.
 
-`radius/` none=0 · xs=2 (checkbox) · sm=4 (badge) · md=8 (input, textarea, select, button) · lg=12 (dropdown, popover) · xl=16 (card) · 2xl=20 (large card) · 3xl=24 (modal) · full=9999 (pill, avatar, toggle)
+`radius/` none=0 · xs=2 · sm=4 (checkbox, small badge) · md=6 (medium badge) · lg=8 · xl=12 (input, textarea, select) · 2xl=16 (card) · 3xl=20 (large card) · 4xl=24 (modal) · full=9999 (**button**, avatar, toggle)
 
 `border-width/` hairline=1 (dividers, inputs, textarea, select, cards — **never changes on focus or error**) · control=1.5 (checkbox and radio only) · ring=2 (the focus ring itself)
 
-Values of 6, 10 and 50 found in the files are drift — snap to 8, 8 and `full`.
+10 and 50 found in the files are drift — snap to 8 and `full`. 6 is not drift: it is the medium badge, and dropping it silently rounded that component up by two pixels.
 
 ---
 
