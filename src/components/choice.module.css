@@ -122,11 +122,15 @@
 .checkbox:checked::before {
   -webkit-mask-image: var(--check);
   mask-image: var(--check);
+  -webkit-mask-size: 11px 9px;
+  mask-size: 11px 9px;
 }
 
 .checkbox:indeterminate::before {
   -webkit-mask-image: var(--dash);
   mask-image: var(--dash);
+  -webkit-mask-size: 10px 1.5px;
+  mask-size: 10px 1.5px;
 }
 
 .radio:checked::before {
@@ -140,8 +144,11 @@
 }
 
 .control {
-  --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2l2.6 2.6L10 3.4' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  --dash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6h7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  /* Both marks are the vectors from the drawn components, not lookalikes:
+     the tick is 11x9 and the dash 10x1.5 inside a 20px box. They are painted
+     through a mask so the fill comes from a token and follows the theme. */
+  --check: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2011%209%27%3E%3Cpath%20fill%3D%27black%27%20fill-rule%3D%27evenodd%27%20d%3D%27M%2011%200.715%20L%204.232%208.473%20C%203.541%209.266%202.241%209.145%201.72%208.239%20L%200%205.25%20L%201.005%204.712%20L%202.725%207.7%20C%202.855%207.926%203.18%207.957%203.353%207.759%20L%2010.121%200%20L%2011%200.715%20Z%27%2F%3E%3C%2Fsvg%3E");
+  --dash: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2010%201.5%27%3E%3Cpath%20stroke%3D%27black%27%20stroke-width%3D%271.5%27%20d%3D%27M0%20.75H10%27%2F%3E%3C%2Fsvg%3E");
 }
 
 .control:disabled {
