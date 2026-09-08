@@ -24,7 +24,9 @@ What it does carry:
 - Setting up or checking Light/Dark behaviour
 - Migrating from paint styles to variables
 
-**Not for:** typography (still text styles, not variables), icon assets, avatar images, or the `brand-alt` gradient.
+**Not for:** typography (still text styles, not variables), avatar images, or the `brand-alt` gradient.
+
+**Icons are IBM Carbon** (`@carbon/icons-react`, Apache 2.0), at 16, 20, 24 or 32. Do not draw one that looks close enough — the set has 2,700 and a hand-drawn lookalike is a shape nobody can find again by name.
 
 ## Quick reference — pick a token
 

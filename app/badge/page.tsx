@@ -2,6 +2,7 @@ import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Badge, type BadgeTone } from '@/components/Badge/index';
 import type { ReactNode } from 'react';
+import { Checkmark, Time, Close } from '@carbon/icons-react';
 import { resolve } from '@/tokens/contrast';
 import type { ThemeTokenName } from '@/tokens/theme';
 
@@ -18,31 +19,6 @@ const TONES: ReadonlyArray<{
   { tone: 'danger', label: 'No-show', fg: 'text/danger', bg: 'surface/danger-subtle' },
   { tone: 'info', label: 'Rescheduled', fg: 'text/info', bg: 'surface/info-subtle' },
 ];
-
-const Tick = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-    <path d="M3 8.5l3.5 3.5L13 5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const Clock = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" />
-    <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const Cross = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-    <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
-  </svg>
-);
-
-const ICONS: Partial<Record<BadgeTone, ReactNode>> = {
-  success: <Tick />,
-  warning: <Clock />,
-  danger: <Cross />,
-};
 
 export default function Page() {
   return (
@@ -136,18 +112,18 @@ export default function Page() {
       <p>
         An icon sits before the label at a fixed 16px, rather than scaling with the text —
         a mark that tracks the font size makes a small badge and a medium one disagree about
-        how big a tick is.
+        how big a tick is. These are IBM Carbon icons, the set the design system uses.
       </p>
       <div className="specimen">
         <div className="specimenRow">
-          <Badge tone="success" icon={<Tick />}>Confirmed</Badge>
-          <Badge tone="warning" icon={<Clock />}>Awaiting</Badge>
-          <Badge tone="danger" icon={<Cross />}>No-show</Badge>
+          <Badge tone="success" icon={<Checkmark size={16} />}>Confirmed</Badge>
+          <Badge tone="warning" icon={<Time size={16} />}>Awaiting</Badge>
+          <Badge tone="danger" icon={<Close size={16} />}>No-show</Badge>
         </div>
         <div className="specimenRow">
-          <Badge size="sm" tone="success" icon={<Tick />}>Confirmed</Badge>
-          <Badge size="sm" tone="warning" icon={<Clock />}>Awaiting</Badge>
-          <Badge size="sm" tone="danger" icon={<Cross />}>No-show</Badge>
+          <Badge size="sm" tone="success" icon={<Checkmark size={16} />}>Confirmed</Badge>
+          <Badge size="sm" tone="warning" icon={<Time size={16} />}>Awaiting</Badge>
+          <Badge size="sm" tone="danger" icon={<Close size={16} />}>No-show</Badge>
         </div>
       </div>
 

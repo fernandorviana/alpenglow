@@ -3,14 +3,9 @@
 import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
+import { Checkmark } from '@carbon/icons-react';
 import { Button } from '@/components/Button';
 import { resolve } from '@/tokens/contrast';
-
-const Check = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-    <path d="M3 8.5l3.5 3.5L13 5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 export default function Page() {
   const [saving, setSaving] = useState(false);
@@ -110,8 +105,8 @@ export default function Page() {
           <Button>Default</Button>
           <Button disabled>Disabled</Button>
           <Button loading>Loading</Button>
-          <Button iconStart={<Check />}>With icon</Button>
-          <Button iconEnd={<Check />}>Icon after</Button>
+          <Button iconStart={<Checkmark size={16} />}>With icon</Button>
+          <Button iconEnd={<Checkmark size={16} />}>Icon after</Button>
         </div>
         <div className="specimenRow">
           <Button variant="outline" tone="neutral">Default</Button>

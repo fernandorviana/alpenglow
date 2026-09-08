@@ -2,15 +2,9 @@
 
 import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
+import { Search } from '@carbon/icons-react';
 import { Field } from '@/components/Field/index';
 import { Input } from '@/components/Input/index';
-
-const Glass = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-    <circle cx="7" cy="7" r="4.5" />
-    <path d="M10.5 10.5L14 14" strokeLinecap="round" />
-  </svg>
-);
 
 export default function Page() {
   const [email, setEmail] = useState('not-an-email');
@@ -63,9 +57,9 @@ export default function Page() {
       </p>
       <div className="specimen">
         <div className="specimenRow">
-          <Input size="sm" placeholder="Small" iconStart={<Glass />} />
-          <Input size="md" placeholder="Medium" iconStart={<Glass />} />
-          <Input size="lg" placeholder="Large" iconStart={<Glass />} />
+          <Input size="sm" placeholder="Small" iconStart={<Search size={20} />} />
+          <Input size="md" placeholder="Medium" iconStart={<Search size={20} />} />
+          <Input size="lg" placeholder="Large" iconStart={<Search size={20} />} />
         </div>
       </div>
 

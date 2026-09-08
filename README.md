@@ -48,6 +48,25 @@ separable, and no token collapsing into the surface behind it.
 It is not decoration. It caught five real defects on its first run, including a
 divider that resolved to exactly the same colour as the surface beneath it.
 
+## Icons
+
+The system uses [IBM Carbon icons](https://carbondesignsystem.com/elements/icons/library/)
+— 2,700 of them, Apache 2.0. They are not re-exported from here: a design system
+that bundles an icon library makes everyone carry all of it to use six.
+
+```bash
+npm install @carbon/icons-react
+```
+
+```tsx
+import { Search } from '@carbon/icons-react';
+
+<Input iconStart={<Search size={20} />} placeholder="Search clients" />
+```
+
+Sizes are 16, 20, 24 and 32. Components size their own icon slot, so pass the
+size that matches: 16 in a badge, 20 in a field.
+
 ## Two things that look like mistakes and are not
 
 **Light and dark are asymmetric.** In light, `surface/raised` and
