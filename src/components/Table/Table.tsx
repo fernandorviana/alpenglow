@@ -48,7 +48,13 @@ export function Table<Row>({
   ...rest
 }: TableProps<Row>) {
   return (
-    <div {...rest} className={[styles.wrap, className].filter(Boolean).join(' ')}>
+    <div
+      {...rest}
+      className={[styles.wrap, className].filter(Boolean).join(' ')}
+      role="region"
+      aria-label={caption}
+      tabIndex={0}
+    >
       <table className={styles.table}>
         <caption className={captionVisible ? undefined : 'ap-sr-only'}>{caption}</caption>
 

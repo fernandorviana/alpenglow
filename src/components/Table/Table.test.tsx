@@ -65,6 +65,19 @@ describe('Table semantics', () => {
     expect(headers[0]).toHaveAttribute('data-align', 'start');
     expect(headers[1]).toHaveAttribute('data-align', 'end');
   });
+
+  it('is a labelled region a keyboard can scroll', () => {
+    // Without tabindex a keyboard cannot scroll a wide table at all —
+    // WCAG 2.1.1, and routinely missed.
+    render(<Table {...base} />);
+    const region = screen.getByRole('region', { name: 'Clients' });
+    expect(region).toHaveAttribute('tabindex', '0');
+  });
+
+  it('takes its region name from the caption, so the two cannot drift', () => {
+    render(<Table {...base} caption="Appointments" />);
+    expect(screen.getByRole('region', { name: 'Appointments' })).toBeInTheDocument();
+  });
 });
 
 describe('Table empty state', () => {

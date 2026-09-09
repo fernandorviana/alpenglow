@@ -1,10 +1,9 @@
 /**
  * Table
  *
- * A real <table> in a scrolling region. Every colour is a token; the only
- * literals are the row and header heights and the widths of the two special
- * columns, which are geometry from the drawing rather than values from the
- * scale.
+ * A real <table> in a scrolling region. Every colour is a token; row and
+ * header heights and the widths of the two special columns arrive with later
+ * tasks as geometry from the drawing rather than values from the scale.
  *
  * The header band is `surface/base`, NOT `surface/sunken` — even though that
  * token's own `use` string advertises "table headers". In light, `sunken`
@@ -20,8 +19,8 @@
  */
 
 .wrap {
-  /* The region has to be focusable for a keyboard to scroll it — WCAG 2.1.1.
-     Its role and label are set on the element, not here. */
+  /* The region is focusable so a keyboard can scroll it; its role and label
+     are set in the component. */
   overflow-x: auto;
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   border-radius: var(--ap-radius-lg);
