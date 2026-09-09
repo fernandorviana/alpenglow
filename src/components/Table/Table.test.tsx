@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import userEvent from '@testing-library/user-event';
-import { Table, nextSort } from './Table';
+import { Table, nextSort, headerSelectionState } from './Table';
 import type { Column } from './Table';
 import styles from './Table.module.css';
 
@@ -259,5 +259,109 @@ describe('Table sorting', () => {
   it('renders no button for a column that is not sortable', () => {
     render(<Table {...base} columns={sortable} onSortChange={() => {}} />);
     expect(screen.queryByRole('button', { name: /last seen/i })).toBeNull();
+  });
+});
+
+describe('headerSelectionState', () => {
+  it('is unchecked when nothing is selected', () => {
+    expect(headerSelectionState(0, 3)).toEqual({ checked: false, indeterminate: false });
+  });
+
+  it('is mixed when the selection is partial', () => {
+    // This is the state the drawing shows and the one that is forgotten when
+    // a table is written by hand.
+    expect(headerSelectionState(1, 3)).toEqual({ checked: false, indeterminate: true });
+  });
+
+  it('is checked when everything is selected', () => {
+    expect(headerSelectionState(3, 3)).toEqual({ checked: true, indeterminate: false });
+  });
+
+  it('is unchecked rather than checked when there are no rows', () => {
+    // Vacuously "all selected" would present a checked box over an empty
+    // table, which invites a select-all that does nothing.
+    expect(headerSelectionState(0, 0)).toEqual({ checked: false, indeterminate: false });
+  });
+});
+
+describe('Table selection', () => {
+  const selectable = {
+    ...base,
+    onSelectionChange: () => {},
+    selected: new Set<string>(),
+  };
+
+  it('adds no selection column when nobody is listening', () => {
+    render(<Table {...base} />);
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+  });
+
+  it('gives every row checkbox a name of its own', () => {
+    // Ten checkboxes named "Select row" are useless in a screen reader.
+    render(<Table {...selectable} selectionLabel={(r) => `Select ${r.name}`} />);
+    expect(screen.getByRole('checkbox', { name: 'Select Lisa Roberts' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Select Gary Martin' })).toBeInTheDocument();
+  });
+
+  it('numbers the row checkboxes when the caller gives no names', () => {
+    render(<Table {...selectable} />);
+    expect(screen.getByRole('checkbox', { name: 'Select row 1' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Select row 2' })).toBeInTheDocument();
+  });
+
+  it('reports the header checkbox as mixed on a partial selection', () => {
+    render(<Table {...selectable} selected={new Set(['a'])} />);
+    expect(screen.getByRole('checkbox', { name: /select all/i })).toHaveAttribute(
+      'aria-checked',
+      'mixed',
+    );
+  });
+
+  it('adds a row to the selection when its checkbox is activated', async () => {
+    const onSelectionChange = vi.fn();
+    render(<Table {...selectable} onSelectionChange={onSelectionChange} />);
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set(['a']));
+  });
+
+  it('removes a row that was already selected', async () => {
+    const onSelectionChange = vi.fn();
+    render(
+      <Table {...selectable} selected={new Set(['a', 'b'])} onSelectionChange={onSelectionChange} />,
+    );
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set(['b']));
+  });
+
+  it('selects every row from the header', async () => {
+    const onSelectionChange = vi.fn();
+    render(<Table {...selectable} onSelectionChange={onSelectionChange} />);
+    await userEvent.click(screen.getByRole('checkbox', { name: /select all/i }));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set(['a', 'b']));
+  });
+
+  it('clears the selection from the header when everything is selected', async () => {
+    const onSelectionChange = vi.fn();
+    render(
+      <Table {...selectable} selected={new Set(['a', 'b'])} onSelectionChange={onSelectionChange} />,
+    );
+    await userEvent.click(screen.getByRole('checkbox', { name: /select all/i }));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set());
+  });
+
+  it('marks the row for styling without claiming invalid ARIA', () => {
+    // aria-selected is only valid under role="grid". On a plain table it is
+    // invalid ARIA that reads as correct, so the checkbox carries the state
+    // and the styling hangs off a data attribute.
+    const { container } = render(<Table {...selectable} selected={new Set(['a'])} />);
+    const rows = container.querySelectorAll('tbody tr');
+    expect(rows[0]).toHaveAttribute('data-selected', 'true');
+    expect(rows[0]).not.toHaveAttribute('aria-selected');
+    expect(rows[1]).not.toHaveAttribute('data-selected');
+  });
+
+  it('spans the selection column too in the empty state', () => {
+    render(<Table {...selectable} rows={[]} />);
+    expect(screen.getByText('No rows').closest('td')).toHaveAttribute('colspan', '3');
   });
 });

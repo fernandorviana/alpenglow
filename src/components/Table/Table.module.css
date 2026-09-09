@@ -179,3 +179,29 @@
   border-bottom: 5px solid transparent;
 }
 
+/* --- selection -------------------------------------------------------------
+ *
+ * The selected fill is `interactive/selected`, not the byte-identical
+ * `surface/accent-subtle` the drawing binds: a selected row is an interactive
+ * state and that token's name says so. The two resolving to one value in both
+ * modes is a token-layer redundancy recorded in the spec.
+ *
+ * Selection is never colour-only — the checkbox carries it.
+ *
+ * Horizontal padding is deliberately absent here: the density blocks set it
+ * on every cell and outrank this rule. The class also marks the cells that
+ * survive the responsive collapse.
+ */
+
+.selectCell {
+  width: 56px;
+}
+
+.tr[data-selected='true'] .td {
+  background: var(--ap-color-interactive-selected);
+}
+
+.tr:hover:not([data-selected='true']) .td {
+  background: var(--ap-color-interactive-neutral-hover);
+}
+

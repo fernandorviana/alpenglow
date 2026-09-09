@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { Checkbox } from '../Checkbox/Checkbox';
 import styles from './Table.module.css';
 
 export type SortDirection = 'asc' | 'desc';
@@ -17,6 +18,22 @@ export function nextSort(current: Sort | null | undefined, key: string): Sort | 
   if (!current || current.key !== key) return { key, direction: 'asc' };
   if (current.direction === 'asc') return { key, direction: 'desc' };
   return null;
+}
+
+/**
+ * The header checkbox is derived, never passed in. The drawing shows the
+ * mixed state; deriving it is what stops it being wrong.
+ *
+ * No rows means unchecked rather than vacuously checked — a checked box over
+ * an empty table invites a select-all that does nothing.
+ */
+export function headerSelectionState(
+  selectedCount: number,
+  rowCount: number,
+): { checked: boolean; indeterminate: boolean } {
+  if (rowCount === 0 || selectedCount === 0) return { checked: false, indeterminate: false };
+  if (selectedCount >= rowCount) return { checked: true, indeterminate: false };
+  return { checked: false, indeterminate: true };
 }
 
 const ARIA_SORT = { asc: 'ascending', desc: 'descending' } as const;
@@ -48,12 +65,20 @@ export type TableProps<Row> = {
   density?: TableDensity;
   sort?: Sort | null;
   onSortChange?: (next: Sort | null) => void;
+  selected?: ReadonlySet<string>;
+  onSelectionChange?: (next: Set<string>) => void;
+  /** Accessible name for a row's checkbox. Defaults to `Select row {n}`. */
+  selectionLabel?: (row: Row) => string;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
 
 /**
- * Sorting and selection arrive in later tasks. What is here is the part that
- * has to be right before anything else matters: a real table, named, with
- * scoped headers and a column group.
+ * A real table, named, with scoped headers and a column group, plus
+ * controlled sorting and selection. The component sorts and selects nothing
+ * itself: it reports intent and renders what it is given.
+ *
+ * Selection state lives in the checkboxes, not in `aria-selected` — that
+ * attribute is only valid on rows under `role="grid"`, so on a plain table it
+ * is invalid ARIA that reads as correct. Styling hangs off `data-selected`.
  */
 export function Table<Row>({
   caption,
@@ -65,9 +90,38 @@ export function Table<Row>({
   empty = 'No rows',
   sort,
   onSortChange,
+  selected,
+  onSelectionChange,
+  selectionLabel,
   className,
   ...rest
 }: TableProps<Row>) {
+  // Aliased to a const so the compiler carries the narrowing into the two
+  // closures below. The same reason the sort handler is bound this way: an
+  // assertion at the call site would only be the author claiming what the
+  // compiler can prove.
+  const onSelect = onSelectionChange;
+  const selectedIds = selected ?? new Set<string>();
+  const ids = rows.map(getRowId);
+  const head = headerSelectionState(
+    ids.filter((id) => selectedIds.has(id)).length,
+    ids.length,
+  );
+  const columnCount = columns.length + (onSelect ? 1 : 0);
+
+  const toggleRow = onSelect
+    ? (id: string) => {
+        const next = new Set(selectedIds);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        onSelect(next);
+      }
+    : undefined;
+
+  const toggleAll = onSelect
+    ? () => onSelect(head.checked ? new Set<string>() : new Set(ids))
+    : undefined;
+
   return (
     <div
       {...rest}
@@ -80,6 +134,7 @@ export function Table<Row>({
         <caption className={captionVisible ? undefined : 'ap-sr-only'}>{caption}</caption>
 
         <colgroup>
+          {onSelect && <col style={{ width: '56px' }} />}
           {columns.map((column) => (
             <col key={column.key} style={column.width ? { width: column.width } : undefined} />
           ))}
@@ -87,6 +142,16 @@ export function Table<Row>({
 
         <thead>
           <tr>
+            {toggleAll && (
+              <th scope="col" className={`${styles.th} ${styles.selectCell}`}>
+                <Checkbox
+                  aria-label="Select all rows"
+                  checked={head.checked}
+                  indeterminate={head.indeterminate}
+                  onChange={toggleAll}
+                />
+              </th>
+            )}
             {columns.map((column) => {
               // `sortable` without a handler degrades to plain text: a control
               // that reports to nobody is worse than no control. Binding the
@@ -129,24 +194,34 @@ export function Table<Row>({
         <tbody>
           {rows.length === 0 ? (
             <tr className={styles.tr}>
-              <td className={`${styles.td} ${styles.empty}`} colSpan={columns.length}>
+              <td className={`${styles.td} ${styles.empty}`} colSpan={columnCount}>
                 {empty}
               </td>
             </tr>
           ) : (
-            rows.map((row) => (
-              <tr key={getRowId(row)} className={styles.tr}>
-                {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={styles.td}
-                    data-align={column.align ?? 'start'}
-                  >
-                    {column.cell(row)}
-                  </td>
-                ))}
-              </tr>
-            ))
+            rows.map((row, index) => {
+              const id = getRowId(row);
+              const isSelected = selectedIds.has(id);
+
+              return (
+                <tr key={id} className={styles.tr} data-selected={isSelected ? 'true' : undefined}>
+                  {toggleRow && (
+                    <td className={`${styles.td} ${styles.selectCell}`}>
+                      <Checkbox
+                        aria-label={selectionLabel?.(row) ?? `Select row ${index + 1}`}
+                        checked={isSelected}
+                        onChange={() => toggleRow(id)}
+                      />
+                    </td>
+                  )}
+                  {columns.map((column) => (
+                    <td key={column.key} className={styles.td} data-align={column.align ?? 'start'}>
+                      {column.cell(row)}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
