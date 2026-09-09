@@ -61,25 +61,13 @@ export default function Page() {
     { key: 'seen', header: 'Last seen', cell: (c) => c.seen },
   ];
 
-  // For compact and empty/loading specimens, use a different columns array
-  // with the name column marked as primary
-  const columnsCompact: Column<Client>[] = [
-    {
-      key: 'name',
-      header: 'Client',
-      primary: true,
-      cell: (c) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Avatar name={c.name} size="md" />
-          <div>
-            <div>{c.name}</div>
-            <div className="alias">{c.email}</div>
-          </div>
-        </div>
-      ),
-    },
-    { key: 'status', header: 'Status', cell: (c) => <Badge tone={TONE[c.status]}>{c.status}</Badge> },
-    { key: 'visits', header: 'Visits', align: 'end', sortable: true, cell: (c) => c.visits },
+  // The compact and state specimens drop the avatar cell deliberately: a 48px
+  // row is for one line of content, and an avatar beside two lines is what the
+  // 72px row exists for. `primary` still marks one column, because these
+  // specimens are the ones narrow enough to collapse.
+  const simpleColumns: Column<Client>[] = [
+    { key: 'name', header: 'Client', primary: true, cell: (c) => c.name },
+    { key: 'visits', header: 'Visits', align: 'end', cell: (c) => c.visits },
     { key: 'seen', header: 'Last seen', cell: (c) => c.seen },
   ];
 
@@ -132,7 +120,7 @@ export default function Page() {
         <Table
           caption="Clients, compact"
           density="compact"
-          columns={columnsCompact}
+          columns={simpleColumns}
           rows={rows}
           getRowId={(c) => c.id}
         />
@@ -149,10 +137,10 @@ export default function Page() {
 
       <h2>States</h2>
       <div className="specimen">
-        <Table caption="Empty example" columns={columnsCompact} rows={[]} getRowId={(c) => c.id} empty="No clients yet" />
+        <Table caption="Empty example" columns={simpleColumns} rows={[]} getRowId={(c) => c.id} empty="No clients yet" />
       </div>
       <div className="specimen">
-        <Table caption="Loading example" columns={columnsCompact} rows={[]} getRowId={(c) => c.id} loading />
+        <Table caption="Loading example" columns={simpleColumns} rows={[]} getRowId={(c) => c.id} loading />
       </div>
 
       <h2>Accessibility</h2>
@@ -201,16 +189,16 @@ export default function Page() {
             {[
               ['caption', 'string', 'required'],
               ['captionVisible', 'boolean', 'false'],
-              ['columns', 'Column&lt;Row&gt;[]', 'required'],
+              ['columns', 'Column<Row>[]', 'required'],
               ['rows', 'Row[]', 'required'],
-              ['getRowId', '(row: Row) =&gt; string', 'required'],
+              ['getRowId', '(row: Row) => string', 'required'],
               ['density', "'comfortable' | 'compact'", "'comfortable'"],
               ['sort', 'Sort | null', '—'],
-              ['onSortChange', '(next: Sort | null) =&gt; void', '—'],
-              ['selected', 'ReadonlySet&lt;string&gt;', '—'],
-              ['onSelectionChange', '(next: Set&lt;string&gt;) =&gt; void', '—'],
-              ['selectionLabel', '(row: Row) =&gt; string', 'Select row {n}'],
-              ['rowAction', '(row: Row) =&gt; ReactNode', '—'],
+              ['onSortChange', '(next: Sort | null) => void', '—'],
+              ['selected', 'ReadonlySet<string>', '—'],
+              ['onSelectionChange', '(next: Set<string>) => void', '—'],
+              ['selectionLabel', '(row: Row) => string', 'Select row {n}'],
+              ['rowAction', '(row: Row) => ReactNode', '—'],
               ['empty', 'ReactNode', "'No rows'"],
               ['loading', 'boolean', 'false'],
             ].map(([prop, type, def]) => (
@@ -234,7 +222,7 @@ export default function Page() {
             {[
               ['key', 'string', 'required'],
               ['header', 'ReactNode', 'required'],
-              ['cell', '(row: Row) =&gt; ReactNode', 'required'],
+              ['cell', '(row: Row) => ReactNode', 'required'],
               ['align', "'start' | 'center' | 'end'", "'start'"],
               ['sortable', 'boolean', 'false'],
               ['width', 'string (CSS)', 'auto'],
