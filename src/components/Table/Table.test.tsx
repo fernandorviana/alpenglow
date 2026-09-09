@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { Table } from './Table';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+import { Table, nextSort } from './Table';
 import type { Column } from './Table';
 import styles from './Table.module.css';
 
@@ -132,5 +134,96 @@ describe('Table density', () => {
     expect(css).toMatch(/\.compact\s+\.td/);
     expect(css).toMatch(/\.comfortable\s+\.th/);
     expect(css).toMatch(/\.compact\s+\.th/);
+  });
+});
+
+describe('nextSort', () => {
+  it('starts a new column ascending', () => {
+    expect(nextSort(null, 'name')).toEqual({ key: 'name', direction: 'asc' });
+    expect(nextSort({ key: 'seen', direction: 'desc' }, 'name')).toEqual({
+      key: 'name',
+      direction: 'asc',
+    });
+  });
+
+  it('turns ascending into descending on the same column', () => {
+    expect(nextSort({ key: 'name', direction: 'asc' }, 'name')).toEqual({
+      key: 'name',
+      direction: 'desc',
+    });
+  });
+
+  it('returns to no sort on the third activation', () => {
+    // Two states would strand the caller with no way back to the natural
+    // order. The drawing does not specify a cycle; this is a decision.
+    expect(nextSort({ key: 'name', direction: 'desc' }, 'name')).toBeNull();
+  });
+});
+
+describe('Table sorting', () => {
+  const sortable: Column<Row>[] = [
+    { key: 'name', header: 'Name', cell: (r) => r.name, sortable: true, primary: true },
+    { key: 'seen', header: 'Last seen', cell: (r) => r.seen },
+  ];
+
+  it('marks only the sorted column with aria-sort', () => {
+    // Putting aria-sort on every header is the usual mistake, and is worse
+    // than omitting it: it claims every column is sorted.
+    render(
+      <Table
+        {...base}
+        columns={sortable}
+        sort={{ key: 'name', direction: 'asc' }}
+        onSortChange={() => {}}
+      />,
+    );
+    const [name, seen] = screen.getAllByRole('columnheader');
+    expect(name).toHaveAttribute('aria-sort', 'ascending');
+    expect(seen).not.toHaveAttribute('aria-sort');
+  });
+
+  it('reports descending as descending', () => {
+    render(
+      <Table
+        {...base}
+        columns={sortable}
+        sort={{ key: 'name', direction: 'desc' }}
+        onSortChange={() => {}}
+      />,
+    );
+    expect(screen.getAllByRole('columnheader')[0]).toHaveAttribute('aria-sort', 'descending');
+  });
+
+  it('puts a button inside the header so a keyboard can reach it', () => {
+    // A click handler on the <th> is unreachable without a pointer.
+    render(<Table {...base} columns={sortable} onSortChange={() => {}} />);
+    const button = screen.getByRole('button', { name: /name/i });
+    expect(button.closest('th')).toBeInTheDocument();
+  });
+
+  it('cycles the sort when the header is activated', async () => {
+    const onSortChange = vi.fn();
+    render(
+      <Table
+        {...base}
+        columns={sortable}
+        sort={{ key: 'name', direction: 'asc' }}
+        onSortChange={onSortChange}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /name/i }));
+    expect(onSortChange).toHaveBeenCalledWith({ key: 'name', direction: 'desc' });
+  });
+
+  it('renders plain text when a sortable column has nobody to report to', () => {
+    // A control that reports to nobody is worse than no control.
+    render(<Table {...base} columns={sortable} />);
+    expect(screen.queryByRole('button', { name: /name/i })).toBeNull();
+    expect(screen.getByText('Name')).toBeInTheDocument();
+  });
+
+  it('renders no button for a column that is not sortable', () => {
+    render(<Table {...base} columns={sortable} onSortChange={() => {}} />);
+    expect(screen.queryByRole('button', { name: /last seen/i })).toBeNull();
   });
 });

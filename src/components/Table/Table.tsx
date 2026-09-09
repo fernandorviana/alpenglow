@@ -6,6 +6,21 @@ export type Sort = { key: string; direction: SortDirection };
 export type ColumnAlign = 'start' | 'center' | 'end';
 export type TableDensity = 'comfortable' | 'compact';
 
+/**
+ * asc → desc → none.
+ *
+ * The drawing shows a caret but says nothing about the cycle. Three states
+ * rather than two, because returning to the natural order is useful and a
+ * two-state cycle gives the caller no way back.
+ */
+export function nextSort(current: Sort | null | undefined, key: string): Sort | null {
+  if (!current || current.key !== key) return { key, direction: 'asc' };
+  if (current.direction === 'asc') return { key, direction: 'desc' };
+  return null;
+}
+
+const ARIA_SORT = { asc: 'ascending', desc: 'descending' } as const;
+
 export type Column<Row> = {
   /** Stable identifier, and the value reported as the sort key. */
   key: string;
@@ -31,6 +46,8 @@ export type TableProps<Row> = {
   /** Shown in place of rows when `rows` is empty. Defaults to "No rows". */
   empty?: ReactNode;
   density?: TableDensity;
+  sort?: Sort | null;
+  onSortChange?: (next: Sort | null) => void;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
 
 /**
@@ -46,6 +63,8 @@ export function Table<Row>({
   getRowId,
   density = 'comfortable',
   empty = 'No rows',
+  sort,
+  onSortChange,
   className,
   ...rest
 }: TableProps<Row>) {
@@ -68,16 +87,34 @@ export function Table<Row>({
 
         <thead>
           <tr>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                scope="col"
-                className={styles.th}
-                data-align={column.align ?? 'start'}
-              >
-                {column.header}
-              </th>
-            ))}
+            {columns.map((column) => {
+              // `sortable` without a handler degrades to plain text.
+              const interactive = Boolean(column.sortable && onSortChange);
+              const sorted = sort?.key === column.key ? sort : null;
+
+              return (
+                <th
+                  key={column.key}
+                  scope="col"
+                  className={styles.th}
+                  data-align={column.align ?? 'start'}
+                  aria-sort={sorted ? ARIA_SORT[sorted.direction] : undefined}
+                >
+                  {interactive ? (
+                    <button
+                      type="button"
+                      className={styles.sortButton}
+                      onClick={() => onSortChange!(nextSort(sort, column.key))}
+                    >
+                      {column.header}
+                      <span className={styles.sortMark} aria-hidden="true" data-direction={sorted?.direction ?? 'none'} />
+                    </button>
+                  ) : (
+                    column.header
+                  )}
+                </th>
+              );
+            })}
           </tr>
         </thead>
 

@@ -118,3 +118,50 @@
   vertical-align: middle;
 }
 
+/* --- sorting ---------------------------------------------------------------
+ *
+ * The control is a button inside the <th>, never a handler on the <th>: only
+ * the button is reachable by keyboard. The mark is decoration — aria-sort on
+ * the header is what carries the state.
+ */
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sortButton:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+  border-radius: var(--ap-radius-xs);
+}
+
+.sortMark {
+  width: 0;
+  height: 0;
+  border-inline: 4px solid transparent;
+}
+
+.sortMark[data-direction='asc'] {
+  border-bottom: 5px solid currentColor;
+}
+
+.sortMark[data-direction='desc'] {
+  border-top: 5px solid currentColor;
+}
+
+/* Unsorted keeps the space so the label does not shift when sorting starts. */
+.sortMark[data-direction='none'] {
+  border-bottom: 5px solid transparent;
+}
+
