@@ -1,0 +1,81 @@
+/**
+ * Table
+ *
+ * A real <table> in a scrolling region. Every colour is a token; the only
+ * literals are the row and header heights and the widths of the two special
+ * columns, which are geometry from the drawing rather than values from the
+ * scale.
+ *
+ * The header band is `surface/base`, NOT `surface/sunken` — even though that
+ * token's own `use` string advertises "table headers". In light, `sunken`
+ * resolves to #EBEEF1 and `border/subtle` resolves to #EBEEF1 as well, so a
+ * header painted `sunken` would swallow the separator beneath it. Both clear
+ * AA for the header text (6.55 and 5.99 in light), so this is a collision
+ * question, not a contrast one.
+ *
+ * The outer radius is `radius/lg`, which is 8px. The drawing calls 8px
+ * `radius/md` — the names are offset by one step above `sm`, because 6 was
+ * reinstated in the code's scale as a deliberate step and shifted everything
+ * above it. Porting a Figma radius by name lands one step out.
+ */
+
+.wrap {
+  /* The region has to be focusable for a keyboard to scroll it — WCAG 2.1.1.
+     Its role and label are set on the element, not here. */
+  overflow-x: auto;
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-raised);
+}
+
+.wrap:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ap-font-sans);
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.th {
+  background: var(--ap-color-surface-base);
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-sm-size);
+  line-height: var(--ap-text-caption-sm-line-height);
+  letter-spacing: var(--ap-text-caption-sm-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  text-transform: uppercase;
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  white-space: nowrap;
+}
+
+/* Separators group rows that position already separates, so they are
+   decoration and exempt from the 3:1 of WCAG 1.4.11. Written down rather
+   than assumed. */
+.td {
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+/* Alignment is declared per column and read from the attribute, so the
+   header and its cells cannot drift apart. */
+.th[data-align='start'],
+.td[data-align='start'] { text-align: start; }
+.th[data-align='center'],
+.td[data-align='center'] { text-align: center; }
+.th[data-align='end'],
+.td[data-align='end'] { text-align: end; }
+
+.empty {
+  text-align: center;
+  color: var(--ap-color-text-tertiary);
+}
