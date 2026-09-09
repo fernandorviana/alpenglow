@@ -137,8 +137,9 @@ body {
    own container query collapses it to a list below 40rem, and a specimen
    inside a 600px column is 550px, so every Table on its own documentation
    page rendered collapsed — header gone, three of four columns gone — on a
-   desktop. The content column is 784px, which leaves 736px inside a
-   specimen; that table needs 654px. */
+   desktop. The content column is 784px, which leaves 734px inside a
+   specimen once its padding and hairline are taken off both sides; that
+   table needs 654px. */
 .prose { min-width: 0; }
 
 .prose > * { max-width: 37.5rem; }
