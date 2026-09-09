@@ -324,16 +324,21 @@ describe('Table selection', () => {
     expect(onSelectionChange).toHaveBeenCalledWith(new Set(['a']));
   });
 
-  it('takes the id from getRowId and not from the row position', async () => {
-    // The shared fixture's ids happen to match their positions, so the test
-    // above would also pass if the index were used. These do not match.
+  it('takes the id from getRowId and from nowhere else', async () => {
+    // The shared fixture's ids are 'a' and 'b' at positions 0 and 1, so a
+    // reversed fixture would still pass if the row position were used. A
+    // getRowId that returns something derivable from neither the position
+    // nor the row's own id field is what actually pins the contract.
     const onSelectionChange = vi.fn();
-    const reversed = [...base.rows].reverse();
     render(
-      <Table {...selectable} rows={reversed} onSelectionChange={onSelectionChange} />,
+      <Table
+        {...selectable}
+        getRowId={(r) => `row:${r.id}`}
+        onSelectionChange={onSelectionChange}
+      />,
     );
     await userEvent.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
-    expect(onSelectionChange).toHaveBeenCalledWith(new Set([base.getRowId(reversed[0]!)]));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set(['row:a']));
   });
 
   it('keeps ids the caller holds for rows this table is not showing', async () => {
