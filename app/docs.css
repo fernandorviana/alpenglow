@@ -126,7 +126,28 @@ body {
   max-width: 1120px;
 }
 
-.prose { min-width: 0; max-width: 68ch; }
+/* The measure belongs to the text, not to what the text is about. It sits on
+   the children rather than on `.prose` so a specimen can be as wide as the
+   content column, and it is a fixed length rather than `68ch` so a heading
+   gets the same measure as a paragraph — `ch` is relative to each element's
+   own font, so on a heading it resolved to no limit at all. 37.5rem is the
+   68ch this column used to be, measured at the body font.
+
+   A specimen that stops at the measure is not a cosmetic loss: the Table's
+   own container query collapses it to a list below 40rem, and a specimen
+   inside a 600px column is 550px, so every Table on its own documentation
+   page rendered collapsed — header gone, three of four columns gone — on a
+   desktop. The content column is 784px, which leaves 736px inside a
+   specimen; that table needs 654px. */
+.prose { min-width: 0; }
+
+.prose > * { max-width: 37.5rem; }
+
+.prose > .specimen,
+.prose > .specimenRow,
+.prose > .tableScroll {
+  max-width: none;
+}
 
 /* The evidence gutter. Numbers live here, aligned in a column so they can be
    compared down the page rather than hunted for in prose. */
