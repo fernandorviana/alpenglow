@@ -46,7 +46,10 @@ describe('Table semantics', () => {
     );
     const cols = container.querySelectorAll('colgroup col');
     expect(cols).toHaveLength(2);
-    expect(cols[0]).toHaveStyle({ width: '20rem' });
+    // toHaveStyle resolves rem through getComputedStyle, which would test
+    // jsdom's unit conversion rather than the component. The contract is that
+    // the caller's value reaches the col untouched, so read it back raw.
+    expect(cols[0]!.getAttribute('style')).toContain('20rem');
   });
 
   it('renders a row per item and a cell per column', () => {
