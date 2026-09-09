@@ -175,20 +175,35 @@ body {
    track carries no border, so 84x48 is the whole control and not the box
    inside a hairline.
 
-   The colours are the drawn values too, which takes a per-mode block: the
-   design file has no dark mode, so its dark variant was drawn straight from
-   primitives and there is no single semantic token that lands on #F6F8FA in
-   light and #262733 in dark. Each mode therefore names the token that carries
-   the drawn value in that mode. Two of them have no semantic name at all — the
-   resting icon in light (#868F9F) and the knob's edge in dark (#2F303D) — and
-   point at the primitive rather than borrow a token whose meaning is wrong. */
+   The colours take a per-mode block. The design file has no dark mode, so its
+   dark variant was drawn straight from primitives, and no single semantic
+   token lands on both the light and the dark drawn value.
+
+   Dark is the drawn variant exactly: #262733 track, #1A1B25 knob, #2F303D
+   edge, #868F9F resting icon. It is drawn on a dark page and it sits on one
+   here, so nothing has to move.
+
+   Light does move, by one step of the neutral ramp, and this is the part worth
+   reading. The drawn light variant assumes a white card: its #F6F8FA track is
+   1.06:1 against that card, which is barely a step but is a step. The topbar
+   is `surface/base`, which is #F6F8FA itself — the same colour — so the drawn
+   track vanished into it and the control read as two loose icons rather than
+   one pill. Every light value therefore shifts one step down the same ramp,
+   which keeps the drawing's relationships and its appearance: track 1.09:1
+   against the bar, knob 1.16:1 against the track, edge a step below that. The
+   resting icon does not shift — #687185 is 4.20:1 on the new track — because
+   the drawing already put it far clear of the surface.
+
+   The two values with no semantic name at all point at the primitive rather
+   than borrow a token whose meaning is wrong: the knob's edge in dark, and the
+   resting icon in light. */
 .themeToggle {
-  --toggle-track: var(--ap-color-surface-base);
-  --toggle-track-hover: var(--ap-color-surface-sunken);
+  --toggle-track: var(--ap-color-surface-sunken);
+  --toggle-track-hover: var(--ap-color-interactive-neutral-pressed);
   --toggle-knob: var(--ap-color-surface-raised);
-  --toggle-knob-edge: var(--ap-color-border-subtle);
+  --toggle-knob-edge: var(--ap-color-border-default);
   --toggle-knob-shadow: var(--ap-alpha-black-08);
-  --toggle-icon-idle: var(--ap-gray-light-800);
+  --toggle-icon-idle: var(--ap-gray-dark-050);
 
   position: relative;
   display: inline-flex;
@@ -254,7 +269,7 @@ body {
     --toggle-knob: var(--ap-color-surface-base);
     --toggle-knob-edge: var(--ap-gray-dark-600);
     --toggle-knob-shadow: var(--ap-alpha-black-16);
-    --toggle-icon-idle: var(--ap-gray-dark-050);
+    --toggle-icon-idle: var(--ap-color-text-placeholder);
   }
   :root:not([data-theme='light']) .themeToggleKnob { transform: translateX(36px); }
   :root:not([data-theme='light']) .themeToggleSun { color: var(--toggle-icon-idle); }
@@ -267,7 +282,7 @@ body {
   --toggle-knob: var(--ap-color-surface-base);
   --toggle-knob-edge: var(--ap-gray-dark-600);
   --toggle-knob-shadow: var(--ap-alpha-black-16);
-  --toggle-icon-idle: var(--ap-gray-dark-050);
+  --toggle-icon-idle: var(--ap-color-text-placeholder);
 }
 
 /* One slot plus the gap between them. */
