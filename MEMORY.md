@@ -142,13 +142,15 @@ Ordered by what it costs the project *as a portfolio piece*, which is not the
 same as what it would cost a library with adopters. Reviewers arrive through the
 documentation site, so an absent component costs more than an absent package.
 
-### 1. The tokens promise a system twice the size of the component set
+### 1. The tokens still promise components that do not exist
 
-Five tokens name components that do not exist: `surface/overlay` (modals,
-popovers, dropdowns), `surface/scrim` (modal backdrop), `surface/inverse`
-(tooltips), and two others. The Table shipped on this branch: it consumes
-`surface/raised` (body) and `interactive/selected` (row). The token `surface/sunken`
-exists but has no Table consumer — its use string is 'Wells, progress tracks'.
+Four tokens still name components that do not exist: `surface/overlay`
+(modals, popovers, dropdowns), `surface/sunken` (wells, progress tracks),
+`surface/scrim` (modal backdrop), `surface/inverse` (tooltips, inverted
+banners). Table claimed two more off this list — it is the consumer of
+`surface/raised` (table body) and of `interactive/selected` (row), which is
+why `surface/sunken` no longer claims table headers: the header band is
+`surface/base`, and the reason is recorded on the token itself.
 
 ### 2. README drift
 
@@ -209,13 +211,13 @@ Two parts do **not** wait, because they get more expensive later:
 - **Dependency hygiene, now.** `next` and `@vercel/analytics` belong to the
   docs site, not the library, and `react`/`react-dom` should be
   `peerDependencies`. Ten minutes, unrelated to publishing.
-- **The CSS delivery model, with Table shipped.** How does a consumer receive
-  `tokens.css`, and do the CSS Module class names survive a library build? This
-  is architecture, not packaging: the Table and its contemporaries provide
-  concrete cases to test against, making it the time to settle the model rather
-  than deferring it further. A *throwaway* build — generate once, install the
-  tarball into a scratch Vite app, check light and dark, delete it — answers
-  whether the current setup works at distribution. Nothing to maintain afterwards.
+- **The CSS delivery model, now.** How does a consumer receive `tokens.css`,
+  and do the CSS Module class names survive a library build? This is
+  architecture, not packaging: if the answer forces a change in how components
+  are styled, it is much cheaper to learn at twelve components than at
+  twenty-five. Settle it with a *throwaway* build — generate once, install the
+  tarball into a scratch Vite app, check light and dark, delete it. Nothing to
+  maintain afterwards.
 
 The rest — `exports`, `files`, `sideEffects`, version, the build config,
 `npm pack` — waits until the component set stops moving.
