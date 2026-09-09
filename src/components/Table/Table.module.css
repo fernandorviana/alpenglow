@@ -78,3 +78,47 @@
   text-align: center;
   color: var(--ap-color-text-tertiary);
 }
+
+/* --- density ---------------------------------------------------------------
+ *
+ * `comfortable` is the drawing, unchanged, and the default.
+ *
+ * `compact` is a DEVIATION, added deliberately. The drawn `Size` axis holds
+ * only `lg` and `mobile`, and a 72px row is comfortable rather than dense —
+ * which left the one component that should prove "dense, data-heavy
+ * interfaces" as the one proving it least. It costs two blocks of CSS and no
+ * new structure. Recorded in MEMORY.md as well, because the Loader once
+ * departed from its drawing silently and that is logged as a defect.
+ *
+ * Height lives on the cell and content is centred. Padding is horizontal
+ * only: the drawn primary cell stacks body/lg on body/md for 46px of content,
+ * and no symmetric padding from the scale takes that to 72 while also taking
+ * a single 22px line to 72.
+ */
+
+.comfortable .th {
+  height: 44px;
+  padding-inline: var(--ap-spacing-200);
+}
+
+.comfortable .td {
+  height: 72px;
+  padding-inline: var(--ap-spacing-200);
+  vertical-align: middle;
+}
+
+.compact .th {
+  height: 36px;
+  padding-inline: var(--ap-spacing-150);
+}
+
+.compact .td {
+  height: 48px;
+  padding-inline: var(--ap-spacing-150);
+  vertical-align: middle;
+}
+
+/* Compact drops to the smaller body size; comfortable keeps the drawn one. */
+.compact .table {
+  font-size: var(--ap-text-body-md-size);
+}

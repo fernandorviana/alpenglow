@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { Table } from './Table';
 import type { Column } from './Table';
+import styles from './Table.module.css';
 
 type Row = { id: string; name: string; seen: string };
 
@@ -96,5 +98,39 @@ describe('Table empty state', () => {
     // Dropping them makes the table jump when data arrives.
     render(<Table {...base} rows={[]} />);
     expect(screen.getAllByRole('columnheader')).toHaveLength(2);
+  });
+});
+
+describe('Table density', () => {
+  it('is comfortable by default — the density that was drawn', () => {
+    const { container } = render(<Table {...base} />);
+    expect(container.firstElementChild).toHaveClass(styles.comfortable!);
+  });
+
+  it('takes the compact density', () => {
+    const { container } = render(<Table {...base} density="compact" />);
+    expect(container.firstElementChild).toHaveClass(styles.compact!);
+  });
+
+  it('sets height on the row rather than deriving it from padding', () => {
+    // The arithmetic does not close the other way round: the drawn primary
+    // cell stacks body/lg on body/md for 46px of content, and no symmetric
+    // padding takes that to 72 while also taking a single 22px line to 72.
+    // A padding-derived implementation gives 62px rows that look nearly
+    // right, so the rule is asserted against the stylesheet source.
+    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
+    const comfortable = css.match(/\.comfortable\s+\.td\s*\{([^}]*)\}/)?.[1] ?? '';
+
+    expect(comfortable).toMatch(/height:\s*72px/);
+    expect(comfortable).toMatch(/padding-inline:/);
+    expect(comfortable).not.toMatch(/padding-block|padding-top|padding-bottom/);
+  });
+
+  it('declares both densities', () => {
+    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
+    expect(css).toMatch(/\.comfortable\s+\.td/);
+    expect(css).toMatch(/\.compact\s+\.td/);
+    expect(css).toMatch(/\.comfortable\s+\.th/);
+    expect(css).toMatch(/\.compact\s+\.th/);
   });
 });

@@ -30,6 +30,7 @@ export type TableProps<Row> = {
   getRowId: (row: Row) => string;
   /** Shown in place of rows when `rows` is empty. Defaults to "No rows". */
   empty?: ReactNode;
+  density?: TableDensity;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
 
 /**
@@ -43,6 +44,7 @@ export function Table<Row>({
   columns,
   rows,
   getRowId,
+  density = 'comfortable',
   empty = 'No rows',
   className,
   ...rest
@@ -50,7 +52,7 @@ export function Table<Row>({
   return (
     <div
       {...rest}
-      className={[styles.wrap, className].filter(Boolean).join(' ')}
+      className={[styles.wrap, styles[density], className].filter(Boolean).join(' ')}
       role="region"
       aria-label={caption}
       tabIndex={0}
