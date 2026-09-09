@@ -119,6 +119,10 @@ export function Table<Row>({
   );
   const columnCount = columns.length + (onSelect ? 1 : 0) + (action ? 1 : 0);
 
+  // First in source order wins. Zero is the common case for a table nobody
+  // expects to collapse, so it is not an error.
+  const primaryKey = columns.find((column) => column.primary)?.key;
+
   const toggleRow = onSelect
     ? (id: string) => {
         const next = new Set(selectedIds);
@@ -162,7 +166,7 @@ export function Table<Row>({
           ))}
         </colgroup>
 
-        <thead>
+        <thead className={styles.thead}>
           <tr>
             {toggleAll && (
               <th scope="col" className={`${styles.th} ${styles.selectCell}`}>
@@ -193,6 +197,7 @@ export function Table<Row>({
                   scope="col"
                   className={styles.th}
                   data-align={column.align ?? 'start'}
+                  data-primary={column.key === primaryKey ? 'true' : undefined}
                   aria-sort={sorted ? ARIA_SORT[sorted.direction] : undefined}
                 >
                   {onSort ? (
@@ -263,6 +268,7 @@ export function Table<Row>({
                       key={column.key}
                       className={styles.td}
                       data-align={column.align ?? 'start'}
+                      data-primary={column.key === primaryKey ? 'true' : undefined}
                     >
                       {column.cell(row)}
                     </td>

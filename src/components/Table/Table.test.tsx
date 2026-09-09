@@ -456,3 +456,36 @@ describe('Table loading', () => {
     expect(container.firstElementChild).not.toHaveAttribute('aria-busy');
   });
 });
+
+describe('Table collapse', () => {
+  it('marks the primary column, and only the first one', () => {
+    // The drawing's mobile variant keeps the primary cell and drops the
+    // rest. Several primaries is a caller mistake that still has to render.
+    const many: Column<Row>[] = [
+      { key: 'name', header: 'Name', cell: (r) => r.name, primary: true },
+      { key: 'seen', header: 'Last seen', cell: (r) => r.seen, primary: true },
+    ];
+    const { container } = render(<Table {...base} columns={many} />);
+    expect(container.querySelectorAll('td[data-primary="true"]')).toHaveLength(2);
+    expect(container.querySelectorAll('th[data-primary="true"]')).toHaveLength(1);
+  });
+
+  it('marks no column primary when none is declared', () => {
+    const { container } = render(
+      <Table
+        {...base}
+        columns={[{ key: 'seen', header: 'Last seen', cell: (r) => r.seen }]}
+      />,
+    );
+    expect(container.querySelectorAll('[data-primary="true"]')).toHaveLength(0);
+  });
+
+  it('collapses on the container width, not the viewport', () => {
+    // A table in a narrow sidebar should collapse on a wide screen, and it
+    // is the container's width that decides. jsdom does not evaluate
+    // container queries, so the rule is asserted against the source.
+    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
+    expect(css).toMatch(/container-type:\s*inline-size/);
+    expect(css).toMatch(/@container\s*\(\s*max-width:\s*40rem\s*\)/);
+  });
+});
