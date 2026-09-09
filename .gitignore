@@ -9,3 +9,6 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 .vercel
 .env*
+
+# Private working notes — provenance, Figma keys. Never publish.
+NOTES.private.md
