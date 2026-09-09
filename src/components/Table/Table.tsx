@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { Loader } from '../Loader/Loader';
 import styles from './Table.module.css';
 
 export type SortDirection = 'asc' | 'desc';
@@ -69,16 +70,22 @@ export type TableProps<Row> = {
   onSelectionChange?: (next: Set<string>) => void;
   /** Accessible name for a row's checkbox. Defaults to `Select row {n}`. */
   selectionLabel?: (row: Row) => string;
+  /** The trailing action column from the drawing. */
+  rowAction?: (row: Row) => ReactNode;
+  loading?: boolean;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
 
 /**
  * A real table, named, with scoped headers and a column group, plus
- * controlled sorting and selection. The component sorts and selects nothing
- * itself: it reports intent and renders what it is given.
+ * controlled sorting, selection, and row actions. The component sorts, selects
+ * and actions nothing itself: it reports intent and renders what it is given.
  *
  * Selection state lives in the checkboxes, not in `aria-selected` — that
  * attribute is only valid on rows under `role="grid"`, so on a plain table it
  * is invalid ARIA that reads as correct. Styling hangs off `data-selected`.
+ *
+ * When loading is true, the body is replaced with a single spanning cell
+ * holding a Loader, and the header is kept so the layout does not jump.
  */
 export function Table<Row>({
   caption,
@@ -93,6 +100,8 @@ export function Table<Row>({
   selected,
   onSelectionChange,
   selectionLabel,
+  rowAction,
+  loading,
   className,
   ...rest
 }: TableProps<Row>) {
@@ -101,13 +110,14 @@ export function Table<Row>({
   // assertion at the call site would only be the author claiming what the
   // compiler can prove.
   const onSelect = onSelectionChange;
+  const action = rowAction;
   const selectedIds = selected ?? new Set<string>();
   const ids = rows.map(getRowId);
   const head = headerSelectionState(
     ids.filter((id) => selectedIds.has(id)).length,
     ids.length,
   );
-  const columnCount = columns.length + (onSelect ? 1 : 0);
+  const columnCount = columns.length + (onSelect ? 1 : 0) + (action ? 1 : 0);
 
   const toggleRow = onSelect
     ? (id: string) => {
@@ -140,6 +150,7 @@ export function Table<Row>({
       role="region"
       aria-label={caption}
       tabIndex={0}
+      aria-busy={loading || undefined}
     >
       <table className={styles.table}>
         <caption className={captionVisible ? undefined : 'ap-sr-only'}>{caption}</caption>
@@ -199,11 +210,25 @@ export function Table<Row>({
                 </th>
               );
             })}
+            {action && (
+              <th scope="col" className={`${styles.th} ${styles.actionCell}`}>
+                <span className="ap-sr-only">Actions</span>
+              </th>
+            )}
           </tr>
         </thead>
 
         <tbody>
-          {rows.length === 0 ? (
+          {loading ? (
+            <tr className={styles.tr}>
+              <td
+                className={`${styles.td} ${styles.loadingCell}`}
+                colSpan={columnCount}
+              >
+                <Loader label="Loading rows" />
+              </td>
+            </tr>
+          ) : rows.length === 0 ? (
             <tr className={styles.tr}>
               <td className={`${styles.td} ${styles.empty}`} colSpan={columnCount}>
                 {empty}
@@ -215,7 +240,11 @@ export function Table<Row>({
               const isSelected = selectedIds.has(id);
 
               return (
-                <tr key={id} className={styles.tr} data-selected={isSelected ? 'true' : undefined}>
+                <tr
+                  key={id}
+                  className={styles.tr}
+                  data-selected={isSelected ? 'true' : undefined}
+                >
                   {toggleRow && (
                     <td className={`${styles.td} ${styles.selectCell}`}>
                       <Checkbox
@@ -226,10 +255,17 @@ export function Table<Row>({
                     </td>
                   )}
                   {columns.map((column) => (
-                    <td key={column.key} className={styles.td} data-align={column.align ?? 'start'}>
+                    <td
+                      key={column.key}
+                      className={styles.td}
+                      data-align={column.align ?? 'start'}
+                    >
                       {column.cell(row)}
                     </td>
                   ))}
+                  {action && (
+                    <td className={`${styles.td} ${styles.actionCell}`}>{action(row)}</td>
+                  )}
                 </tr>
               );
             })

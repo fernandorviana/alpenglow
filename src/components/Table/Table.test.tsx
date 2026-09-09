@@ -397,3 +397,48 @@ describe('Table selection', () => {
     expect(screen.getByText('No rows').closest('td')).toHaveAttribute('colspan', '3');
   });
 });
+
+describe('Table row action', () => {
+  it('renders the action in a trailing column of its own', () => {
+    render(<Table {...base} rowAction={(r) => <button type="button">Edit {r.name}</button>} />);
+    expect(screen.getByRole('button', { name: 'Edit Lisa Roberts' })).toBeInTheDocument();
+  });
+
+  it('gives the trailing header no visible label but keeps it announced', () => {
+    // An unlabelled column header leaves the cells belonging to nothing.
+    render(<Table {...base} rowAction={() => <button type="button">Edit</button>} />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(3);
+    expect(headers[2]).toHaveTextContent('Actions');
+  });
+
+  it('counts the action column in the empty state span', () => {
+    render(<Table {...base} rows={[]} rowAction={() => null} />);
+    expect(screen.getByText('No rows').closest('td')).toHaveAttribute('colspan', '3');
+  });
+});
+
+describe('Table loading', () => {
+  it('reports itself busy', () => {
+    const { container } = render(<Table {...base} loading />);
+    expect(container.firstElementChild).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('keeps the headers so the layout does not jump when rows arrive', () => {
+    render(<Table {...base} loading />);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(2);
+  });
+
+  it('replaces the body rather than dimming the rows', () => {
+    // A table that dims stale rows while fetching is a different component
+    // with a different contract.
+    render(<Table {...base} loading />);
+    expect(screen.queryByText('Lisa Roberts')).toBeNull();
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  it('is not busy when it is not loading', () => {
+    const { container } = render(<Table {...base} />);
+    expect(container.firstElementChild).not.toHaveAttribute('aria-busy');
+  });
+});

@@ -1,9 +1,11 @@
 /**
  * Table
  *
- * A real <table> in a scrolling region. Every colour is a token; row and
- * header heights and the widths of the two special columns arrive with later
- * tasks as geometry from the drawing rather than values from the scale.
+ * A real <table> in a scrolling region. Every colour is a token; row heights
+ * are set at Task 2 via the density blocks, and the selection column's width
+ * is set at Task 4. The action column has no width: it is the trailing column,
+ * so caller-supplied Column.width values do not slide, and its content is a
+ * render prop so can be any width.
  *
  * The header band is `surface/base`, NOT `surface/sunken` — even though that
  * token's own `use` string advertises "table headers". In light, `sunken`
@@ -209,8 +211,25 @@
   background: var(--ap-color-interactive-selected);
 }
 
-/* Not the empty state: its cell is a placeholder, not a row to scan. */
-.tr:hover:not([data-selected='true']) .td:not(.empty) {
+/* Not the empty state or the loading cell: both are placeholders, not rows to scan. */
+.tr:hover:not([data-selected='true']) .td:not(.empty):not(.loadingCell) {
   background: var(--ap-color-interactive-neutral-hover);
+}
+
+/* --- action column ---------------------------------------------------------
+ *
+ * The header is empty to the eye and named to assistive technology: an
+ * unlabelled column header leaves its cells belonging to nothing.
+ */
+
+.actionCell {
+  text-align: end;
+}
+
+/* Centres the Loader vertically within the cell. The height of the cell is
+   held by the density blocks' height on .td, which applies to this row as
+   well since it is a <tr>. */
+.loadingCell {
+  text-align: center;
 }
 
