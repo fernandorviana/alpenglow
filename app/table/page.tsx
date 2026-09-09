@@ -181,7 +181,9 @@ export default function Page() {
         and the secondary columns go, and the primary cell, the selection checkbox
         and the row action stay. The drawing keeps only the first and the last of
         those — dropping the checkbox would remove selection on a phone rather
-        than lay it out differently.
+        than lay it out differently. The empty and loading cells are spared by the
+        same rule, for the same reason: they are the only content those two states
+        have.
       </p>
       <p>
         The select-all checkbox in the header is <code>disabled</code> while{' '}

@@ -266,7 +266,7 @@ describe('Table sorting', () => {
     expect(screen.queryByRole('button', { name: /last seen/i })).toBeNull();
   });
 
-  it('darkens the sortable header label on hover', () => {
+  it("raises the sortable header label's contrast on hover", () => {
     // The hit target is the label, not the whole header cell. Without a hover
     // affordance, pointer users cannot tell where the actual target is. The
     // label moves to text/primary on hover, raising contrast against the band
@@ -443,6 +443,21 @@ describe('Table row action', () => {
   it('counts the action column in the empty state span', () => {
     render(<Table {...base} rows={[]} rowAction={() => null} />);
     expect(screen.getByText('No rows').closest('td')).toHaveAttribute('colspan', '3');
+  });
+
+  it('counts both extra columns when selection and an action are on together', () => {
+    // The two are asserted one at a time above, and each alone gives 3, so
+    // an implementation that counted either instead of both would pass those
+    // and fail here.
+    render(
+      <Table
+        {...base}
+        rows={[]}
+        onSelectionChange={() => {}}
+        rowAction={() => null}
+      />,
+    );
+    expect(screen.getByText('No rows').closest('td')).toHaveAttribute('colspan', '4');
   });
 });
 
