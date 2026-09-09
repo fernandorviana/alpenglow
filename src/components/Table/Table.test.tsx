@@ -396,12 +396,26 @@ describe('Table selection', () => {
     render(<Table {...selectable} rows={[]} />);
     expect(screen.getByText('No rows').closest('td')).toHaveAttribute('colspan', '3');
   });
+
+  it('disables the select-all checkbox while loading', () => {
+    // Prevents writing a stale Set when keepPreviousData shows old rows
+    // that are no longer rendered. The keepPreviousData pattern is common.
+    render(<Table {...selectable} loading />);
+    const selectAll = screen.getByRole('checkbox', { name: /select all/i });
+    expect(selectAll).toBeDisabled();
+  });
 });
 
 describe('Table row action', () => {
   it('renders the action in a trailing column of its own', () => {
-    render(<Table {...base} rowAction={(r) => <button type="button">Edit {r.name}</button>} />);
+    const { container } = render(
+      <Table {...base} rowAction={(r) => <button type="button">Edit {r.name}</button>} />,
+    );
     expect(screen.getByRole('button', { name: 'Edit Lisa Roberts' })).toBeInTheDocument();
+    const rows = container.querySelectorAll('tbody tr');
+    const firstRowCells = rows[0]!.querySelectorAll('td');
+    const lastCell = firstRowCells[firstRowCells.length - 1]!;
+    expect(lastCell).toContainElement(screen.getByRole('button', { name: 'Edit Lisa Roberts' }));
   });
 
   it('gives the trailing header no visible label but keeps it announced', () => {

@@ -1,11 +1,11 @@
 /**
  * Table
  *
- * A real <table> in a scrolling region. Every colour is a token; row heights
- * are set at Task 2 via the density blocks, and the selection column's width
- * is set at Task 4. The action column has no width: it is the trailing column,
- * so caller-supplied Column.width values do not slide, and its content is a
- * render prop so can be any width.
+ * A real <table> in a scrolling region. Every colour is a token; row and
+ * header heights and the selection column's width are geometry from the
+ * drawing rather than values from the scale. The action column has no width:
+ * it is the trailing column, so caller-supplied Column.width values do not
+ * slide, and its content is a render prop so can be any width.
  *
  * The header band is `surface/base`, NOT `surface/sunken` — even though that
  * token's own `use` string advertises "table headers". In light, `sunken`
@@ -226,9 +226,8 @@
   text-align: end;
 }
 
-/* Centres the Loader vertically within the cell. The height of the cell is
-   held by the density blocks' height on .td, which applies to this row as
-   well since it is a <tr>. */
+/* Centres the Loader horizontally. Height and vertical centering come from
+   the density blocks: height on .td and vertical-align: middle. */
 .loadingCell {
   text-align: center;
 }

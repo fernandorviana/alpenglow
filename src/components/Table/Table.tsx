@@ -166,11 +166,15 @@ export function Table<Row>({
           <tr>
             {toggleAll && (
               <th scope="col" className={`${styles.th} ${styles.selectCell}`}>
+                {/* Disabled while loading because it writes a Set derived from rows
+                    that may be stale (the common keepPreviousData pattern). Sorting
+                    stays live because it only reports intent. */}
                 <Checkbox
                   aria-label="Select all rows"
                   checked={head.checked}
                   indeterminate={head.indeterminate}
                   onChange={toggleAll}
+                  disabled={loading}
                 />
               </th>
             )}
