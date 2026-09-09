@@ -373,10 +373,15 @@ describe('the table stays legible in both modes', () => {
   });
 
   // Row separators group rows that position already separates, so they are
-  // decoration and exempt from the 3:1 of WCAG 1.4.11. Asserted as a floor
-  // against the body so a future token change cannot make them invisible.
-  it.each(['light', 'dark'] as const)('row separators stay visible in %s', (mode) => {
+  // decoration and exempt from the 3:1 of WCAG 1.4.11. The visibility FLOOR
+  // for this pairing is enforced above, at MIN_VISIBLE — a floor here would be
+  // looser and could never fail first, so it would defend nothing. What is
+  // recorded instead is the measured figure, following the exemptions block:
+  // an edit that moves the separator in EITHER direction has to be deliberate.
+  const SEPARATOR = { light: 1.16, dark: 1.31 } as const;
+
+  it.each(['light', 'dark'] as const)('row separators stay at their measured value in %s', (mode) => {
     const ratio = tokenContrast('border/subtle', 'surface/raised', mode);
-    expect(ratio, 'border/subtle on surface/raised').toBeGreaterThan(1.05);
+    expect(ratio, 'border/subtle on surface/raised').toBeCloseTo(SEPARATOR[mode], 1);
   });
 });
