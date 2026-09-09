@@ -128,10 +128,12 @@
  * caption/sm, 11px on a 14px line, so the target is 14px tall — under the
  * 24px of WCAG 2.5.8. It conforms on the spacing exception instead:
  * neighbouring labels are separated by twice spacing/200 (32px) comfortable
- * and twice spacing/150 (24px) compact, so the 24px circles centred on two
- * adjacent targets cannot meet even if both labels were zero-width. Measured,
- * not assumed. Whether the cell itself should be the target is a design
- * question, and the drawing does not answer it.
+ * and twice spacing/150 (24px) compact, and centre to centre is that gap plus
+ * half of each label, so the 24px circles centred on two adjacent targets do
+ * not overlap. Comfortable clears it on the gap alone; compact clears it by
+ * the width of the labels, since a zero-width label would leave the circles
+ * exactly tangent. Measured, not assumed. Whether the cell itself should be
+ * the target is a design question, and the drawing does not answer it.
  */
 
 .sortButton {
