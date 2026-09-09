@@ -352,3 +352,31 @@ describe('structural invariants', () => {
     }
   });
 });
+
+describe('the table stays legible in both modes', () => {
+  // The header band is surface/base rather than the surface/sunken its own
+  // `use` string advertises: in light, sunken and border/subtle resolve to
+  // the same hex, so a sunken band swallows the separator. Both clear AA,
+  // which is why the choice was made on the collision instead. This assertion
+  // restates a pairing the generic loop already covers — it exists to name the
+  // Table's specific choice and keep this reasoning next to it.
+  it.each(['light', 'dark'] as const)('header text clears AA on the band in %s', (mode) => {
+    const ratio = tokenContrast('text/secondary', 'surface/base', mode);
+    expect(ratio, 'text/secondary on surface/base').toBeGreaterThanOrEqual(AA_NORMAL);
+  });
+
+  // New coverage: interactive/selected does not appear as a text ground in the
+  // generic loop.
+  it.each(['light', 'dark'] as const)('body text clears AA on a selected row in %s', (mode) => {
+    const ratio = tokenContrast('text/primary', 'interactive/selected', mode);
+    expect(ratio, 'text/primary on interactive/selected').toBeGreaterThanOrEqual(AA_NORMAL);
+  });
+
+  // Row separators group rows that position already separates, so they are
+  // decoration and exempt from the 3:1 of WCAG 1.4.11. Asserted as a floor
+  // against the body so a future token change cannot make them invisible.
+  it.each(['light', 'dark'] as const)('row separators stay visible in %s', (mode) => {
+    const ratio = tokenContrast('border/subtle', 'surface/raised', mode);
+    expect(ratio, 'border/subtle on surface/raised').toBeGreaterThan(1.05);
+  });
+});

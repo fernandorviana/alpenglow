@@ -30,7 +30,10 @@ export const theme = {
   'surface/base':           { light: 'gray-light/050', dark: 'gray-dark/800', use: 'App canvas' },
   'surface/raised':         { light: 'white',          dark: 'gray-dark/700', use: 'Cards, panels, table body' },
   'surface/overlay':        { light: 'white',          dark: 'gray-dark/600', use: 'Modals, popovers, dropdowns' },
-  'surface/sunken':         { light: 'gray-light/100', dark: 'gray-dark/900', use: 'Wells, table headers, tracks' },
+  // Not table headers, despite what this said for a long time: in light this
+  // resolves to the same hex as border/subtle, so a header band painted with
+  // it swallows the row separator. Table uses surface/base.
+  'surface/sunken':         { light: 'gray-light/100', dark: 'gray-dark/900', use: 'Wells, progress tracks' },
   'surface/scrim':          { light: 'alpha/black-48', dark: 'alpha/black-64', use: 'Modal backdrop' },
   'surface/inverse':        { light: 'gray-dark/900',  dark: 'gray-light/050', use: 'Tooltips, inverted banners' },
   'surface/accent-subtle':  { light: 'brand-1/050',    dark: 'brand-1/800',   use: 'Selected nav, highlighted row' },

@@ -158,6 +158,17 @@
 /* Radius sits on the base rule, not here, so the outline it shapes is not
    geometry that exists only while focused. Button, choice and Switch all do
    it this way. */
+.sortButton:hover {
+  /* The hit target is the label, not the whole header cell. This hover
+     affordance tells pointer users where the target actually is. The colour
+     moves from text/secondary to text/primary, raising contrast against the
+     band in both modes. In light it darkens (#545969 → #383A47), but in dark
+     it lightens (#C3CAD4 → #F6F8FA) — the strength/contrast is what matters
+     in both, not the direction. The sortMark uses currentColor, so it follows
+     automatically. */
+  color: var(--ap-color-text-primary);
+}
+
 .sortButton:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
   outline-offset: var(--ap-focus-ring-offset);

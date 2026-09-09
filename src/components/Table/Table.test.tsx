@@ -260,6 +260,15 @@ describe('Table sorting', () => {
     render(<Table {...base} columns={sortable} onSortChange={() => {}} />);
     expect(screen.queryByRole('button', { name: /last seen/i })).toBeNull();
   });
+
+  it('darkens the sortable header label on hover', () => {
+    // The hit target is the label, not the whole header cell. Without a hover
+    // affordance, pointer users cannot tell where the actual target is. The
+    // label moves to text/primary on hover, raising contrast against the band
+    // in both light and dark modes.
+    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
+    expect(css).toMatch(/\.sortButton:hover\s*\{[^}]*color:\s*var\(--ap-color-text-primary\)/);
+  });
 });
 
 describe('headerSelectionState', () => {
