@@ -88,8 +88,12 @@ export function Table<Row>({
         <thead>
           <tr>
             {columns.map((column) => {
-              // `sortable` without a handler degrades to plain text.
-              const interactive = Boolean(column.sortable && onSortChange);
+              // `sortable` without a handler degrades to plain text: a control
+              // that reports to nobody is worse than no control. Binding the
+              // handler to a const rather than to a boolean is what lets the
+              // compiler carry that narrowing into the click closure, so the
+              // call site needs no non-null assertion.
+              const onSort = column.sortable ? onSortChange : undefined;
               const sorted = sort?.key === column.key ? sort : null;
 
               return (
@@ -100,14 +104,18 @@ export function Table<Row>({
                   data-align={column.align ?? 'start'}
                   aria-sort={sorted ? ARIA_SORT[sorted.direction] : undefined}
                 >
-                  {interactive ? (
+                  {onSort ? (
                     <button
                       type="button"
                       className={styles.sortButton}
-                      onClick={() => onSortChange!(nextSort(sort, column.key))}
+                      onClick={() => onSort(nextSort(sort, column.key))}
                     >
                       {column.header}
-                      <span className={styles.sortMark} aria-hidden="true" data-direction={sorted?.direction ?? 'none'} />
+                      <span
+                        className={styles.sortMark}
+                        aria-hidden="true"
+                        data-direction={sorted?.direction ?? 'none'}
+                      />
                     </button>
                   ) : (
                     column.header

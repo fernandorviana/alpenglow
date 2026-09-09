@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
 import { Table, nextSort } from './Table';
 import type { Column } from './Table';
 import styles from './Table.module.css';
@@ -213,6 +212,41 @@ describe('Table sorting', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: /name/i }));
     expect(onSortChange).toHaveBeenCalledWith({ key: 'name', direction: 'desc' });
+  });
+
+  it('returns to the natural order on the third activation', async () => {
+    const onSortChange = vi.fn();
+    render(
+      <Table
+        {...base}
+        columns={sortable}
+        sort={{ key: 'name', direction: 'desc' }}
+        onSortChange={onSortChange}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /name/i }));
+    expect(onSortChange).toHaveBeenCalledWith(null);
+  });
+
+  it('starts a different column ascending rather than inheriting the old direction', async () => {
+    // The helper is tested directly, but only a rendered click proves the
+    // header hands over its OWN key and the CURRENT sort, rather than the
+    // key of whichever column happens to be sorted.
+    const onSortChange = vi.fn();
+    const bothSortable: Column<Row>[] = [
+      { key: 'name', header: 'Name', cell: (r) => r.name, sortable: true, primary: true },
+      { key: 'seen', header: 'Last seen', cell: (r) => r.seen, sortable: true },
+    ];
+    render(
+      <Table
+        {...base}
+        columns={bothSortable}
+        sort={{ key: 'name', direction: 'desc' }}
+        onSortChange={onSortChange}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /last seen/i }));
+    expect(onSortChange).toHaveBeenCalledWith({ key: 'seen', direction: 'asc' });
   });
 
   it('renders plain text when a sortable column has nobody to report to', () => {

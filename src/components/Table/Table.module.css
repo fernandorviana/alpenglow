@@ -123,6 +123,15 @@
  * The control is a button inside the <th>, never a handler on the <th>: only
  * the button is reachable by keyboard. The mark is decoration — aria-sort on
  * the header is what carries the state.
+ *
+ * The target is the label, not the whole header cell. Header type is
+ * caption/sm, 11px on a 14px line, so the target is 14px tall — under the
+ * 24px of WCAG 2.5.8. It conforms on the spacing exception instead:
+ * neighbouring labels are separated by twice spacing/200 (32px) comfortable
+ * and twice spacing/150 (24px) compact, so the 24px circles centred on two
+ * adjacent targets cannot meet even if both labels were zero-width. Measured,
+ * not assumed. Whether the cell itself should be the target is a design
+ * question, and the drawing does not answer it.
  */
 
 .sortButton {
@@ -132,6 +141,7 @@
   margin: 0;
   padding: 0;
   border: 0;
+  border-radius: var(--ap-radius-xs);
   background: none;
   font: inherit;
   letter-spacing: inherit;
@@ -140,10 +150,12 @@
   cursor: pointer;
 }
 
+/* Radius sits on the base rule, not here, so the outline it shapes is not
+   geometry that exists only while focused. Button, choice and Switch all do
+   it this way. */
 .sortButton:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
   outline-offset: var(--ap-focus-ring-offset);
-  border-radius: var(--ap-radius-xs);
 }
 
 .sortMark {
