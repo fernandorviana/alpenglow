@@ -118,7 +118,3 @@
   vertical-align: middle;
 }
 
-/* Compact drops to the smaller body size; comfortable keeps the drawn one. */
-.compact .table {
-  font-size: var(--ap-text-body-md-size);
-}
