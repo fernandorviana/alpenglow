@@ -35,6 +35,16 @@ export type { SwitchProps } from './components/Switch/index';
 export { Radio } from './components/Radio/index';
 export type { RadioProps } from './components/Radio/index';
 
+export { Table } from './components/Table/index';
+export type {
+  TableProps,
+  Column,
+  ColumnAlign,
+  TableDensity,
+  Sort,
+  SortDirection,
+} from './components/Table/index';
+
 export { primitives, alphaPrimitives } from './tokens/primitives';
 export { theme } from './tokens/theme';
 export { spacing, radius, borderWidth, focusRingOffset } from './tokens/scale';

@@ -77,6 +77,13 @@ have all been mistaken for errors at least once.
 6. **Reduced motion slows the spinner, it does not freeze it.** A frozen
    spinner reads as a hung page. What it drops is the length change.
 
+7. **The Table's `compact` density is not in the drawing.** Figma draws one
+   size, a 72px row, which is comfortable rather than dense. `comfortable` is
+   that row unchanged and remains the default; `compact` (48px) was added so
+   the component that should prove "dense, data-heavy interfaces" is not the
+   one proving it least. Do not delete it as drift — and do not silently add
+   more, which is the mistake the Loader made.
+
 ---
 
 ## Conventions
@@ -137,11 +144,11 @@ documentation site, so an absent component costs more than an absent package.
 
 ### 1. The tokens promise a system twice the size of the component set
 
-Eight tokens name components that do not exist: `surface/raised` (table body),
-`surface/overlay` (modals, popovers, dropdowns), `surface/sunken` (table
-headers), `surface/scrim` (modal backdrop), `surface/inverse` (tooltips),
-`interactive/selected` (row, tab, nav). For a system pitched at dense,
-data-heavy interfaces, **Table** is the load-bearing absence.
+Five tokens name components that do not exist: `surface/overlay` (modals,
+popovers, dropdowns), `surface/scrim` (modal backdrop), `surface/inverse`
+(tooltips), and two others. The Table shipped on this branch: it consumes
+`surface/raised` (body) and `interactive/selected` (row). The token `surface/sunken`
+exists but has no Table consumer — its use string is 'Wells, progress tracks'.
 
 ### 2. README drift
 
@@ -202,13 +209,13 @@ Two parts do **not** wait, because they get more expensive later:
 - **Dependency hygiene, now.** `next` and `@vercel/analytics` belong to the
   docs site, not the library, and `react`/`react-dom` should be
   `peerDependencies`. Ten minutes, unrelated to publishing.
-- **The CSS delivery model, before Table.** How does a consumer receive
+- **The CSS delivery model, with Table shipped.** How does a consumer receive
   `tokens.css`, and do the CSS Module class names survive a library build? This
-  is architecture, not packaging: if the answer forces a change in how
-  components are styled, it is much cheaper to learn at twelve components than
-  at twenty-five. Settle it with a *throwaway* build — generate once, install
-  the tarball into a scratch Vite app, check light and dark, delete it. Nothing
-  to maintain afterwards.
+  is architecture, not packaging: the Table and its contemporaries provide
+  concrete cases to test against, making it the time to settle the model rather
+  than deferring it further. A *throwaway* build — generate once, install the
+  tarball into a scratch Vite app, check light and dark, delete it — answers
+  whether the current setup works at distribution. Nothing to maintain afterwards.
 
 The rest — `exports`, `files`, `sideEffects`, version, the build config,
 `npm pack` — waits until the component set stops moving.

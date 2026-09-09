@@ -31,6 +31,7 @@ const NAV = [
       { href: '/input', label: 'Input' },
       { href: '/choice', label: 'Checkbox, Radio, Switch' },
       { href: '/select', label: 'Select and Textarea' },
+      { href: '/table', label: 'Table' },
     ],
   },
 ];

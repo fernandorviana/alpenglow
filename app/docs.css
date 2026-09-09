@@ -315,6 +315,21 @@ body {
 
 .rejected strong { font-weight: var(--ap-font-weight-semibold); }
 
+/* --- specimen component styles --------------------------------------------- */
+
+.rowAction {
+  border: 0;
+  background: none;
+  padding: var(--ap-spacing-050);
+  border-radius: var(--ap-radius-sm);
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.rowAction:hover { background: var(--ap-color-interactive-neutral-hover); }
+
 /* --- responsive ----------------------------------------------------------- */
 
 @media (max-width: 1080px) {
