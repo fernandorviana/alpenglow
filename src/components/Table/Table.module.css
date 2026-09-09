@@ -226,7 +226,7 @@
   text-align: end;
 }
 
-/* Centres the Loader horizontally. Height and vertical centering come from
+/* Centres the Loader horizontally. Height and vertical centring come from
    the density blocks: height on .td and vertical-align: middle. */
 .loadingCell {
   text-align: center;
