@@ -5,7 +5,20 @@ import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Checkmark } from '@carbon/icons-react';
 import { Button } from '@/components/Button';
+import { Table } from '@/components/Table';
 import { resolve } from '@/tokens/contrast';
+
+type PropRow = { prop: string; type: string; default: string };
+
+const PROPS: PropRow[] = [
+  { prop: 'variant', type: "'solid' | 'outline' | 'ghost'", default: "'solid'" },
+  { prop: 'tone', type: "'accent' | 'neutral' | 'tertiary' | 'success' | 'danger'", default: "'accent'" },
+  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  { prop: 'loading', type: 'boolean', default: 'false' },
+  { prop: 'iconStart', type: 'ReactNode', default: '—' },
+  { prop: 'iconEnd', type: 'ReactNode', default: '—' },
+  { prop: 'fullWidth', type: 'boolean', default: 'false' },
+];
 
 export default function Page() {
   const [saving, setSaving] = useState(false);
@@ -168,29 +181,18 @@ export default function Page() {
       </p>
 
       <h2>Props</h2>
-      <div className="tableScroll">
-      <table className="tokens">
-        <thead>
-          <tr><th>Prop</th><th>Type</th><th>Default</th></tr>
-        </thead>
-        <tbody>
-          {[
-            ['variant', "'solid' | 'outline' | 'ghost'", "'solid'"],
-            ['tone', "'accent' | 'neutral' | 'tertiary' | 'success' | 'danger'", "'accent'"],
-            ['size', "'sm' | 'md' | 'lg'", "'md'"],
-            ['loading', 'boolean', 'false'],
-            ['iconStart', 'ReactNode', '—'],
-            ['iconEnd', 'ReactNode', '—'],
-            ['fullWidth', 'boolean', 'false'],
-          ].map(([prop, type, def]) => (
-            <tr key={prop}>
-              <td className="tokenName">{prop}</td>
-              <td className="alias">{type}</td>
-              <td className="alias">{def}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="specimen">
+        <Table
+          caption="Button props"
+          density="compact"
+          columns={[
+            { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
+            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+            { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
+          ]}
+          rows={PROPS}
+          getRowId={(r) => r.prop}
+        />
       </div>
       <p className="alias" style={{ marginTop: 8 }}>
         All remaining button attributes are passed through.
