@@ -135,8 +135,9 @@
  * half of each label, so the 24px circles centred on two adjacent targets do
  * not overlap. Comfortable clears it on the gap alone; compact clears it by
  * the width of the labels, since a zero-width label would leave the circles
- * exactly tangent. Measured, not assumed. Whether the cell itself should be
- * the target is a design question, and the drawing does not answer it.
+ * exactly tangent. Measured, not assumed. The drawing does not say whether
+ * the cell itself should be the target; it was settled deliberately as the
+ * label, with a hover colour below to show where that target is.
  */
 
 .sortButton {
@@ -155,20 +156,18 @@
   cursor: pointer;
 }
 
-/* Radius sits on the base rule, not here, so the outline it shapes is not
-   geometry that exists only while focused. Button, choice and Switch all do
-   it this way. */
+/* The target is the label rather than the whole cell, so this is what tells a
+   pointer user where the target actually is. text/secondary to text/primary
+   raises contrast against the band in both modes; only the direction differs,
+   darker in light (#545969 to #383A47) and lighter in dark (#C3CAD4 to
+   #F6F8FA). The mark inherits currentColor and follows. */
 .sortButton:hover {
-  /* The hit target is the label, not the whole header cell. This hover
-     affordance tells pointer users where the target actually is. The colour
-     moves from text/secondary to text/primary, raising contrast against the
-     band in both modes. In light it darkens (#545969 → #383A47), but in dark
-     it lightens (#C3CAD4 → #F6F8FA) — the strength/contrast is what matters
-     in both, not the direction. The sortMark uses currentColor, so it follows
-     automatically. */
   color: var(--ap-color-text-primary);
 }
 
+/* Radius sits on the base rule, not here, so the outline it shapes is not
+   geometry that exists only while focused. Button, choice and Switch all do
+   it this way. */
 .sortButton:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
   outline-offset: var(--ap-focus-ring-offset);
