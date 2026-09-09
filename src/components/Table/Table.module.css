@@ -248,7 +248,7 @@
     display: none;
   }
 
-  .td:not([data-primary='true']):not(.selectCell):not(.actionCell) {
+  .td:not([data-primary='true']):not(.selectCell):not(.actionCell):not(.empty):not(.loadingCell) {
     display: none;
   }
 
