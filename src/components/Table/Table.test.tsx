@@ -497,4 +497,21 @@ describe('Table collapse', () => {
     expect(css).toMatch(/container-type:\s*inline-size/);
     expect(css).toMatch(/@container\s*\(\s*max-width:\s*40rem\s*\)/);
   });
+
+  it('keeps the selection, action, empty and loading cells when it collapses', () => {
+    // The drawing's mobile frame has no selection column, so "primary cell
+    // and row action only" is a complete reading of it and an incomplete
+    // rule: selection is a feature the caller opted into, and hiding the
+    // checkbox here would remove it on a phone rather than lay it out
+    // differently. Empty and loading are excluded because they are the only
+    // content those states have. jsdom does not evaluate container queries,
+    // so the selector is asserted against the source.
+    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
+    const hide = css.match(/\.td:not\(\[data-primary='true'\]\)([^{]*)/)?.[1] ?? '';
+
+    expect(hide).toContain(':not(.selectCell)');
+    expect(hide).toContain(':not(.actionCell)');
+    expect(hide).toContain(':not(.empty)');
+    expect(hide).toContain(':not(.loadingCell)');
+  });
 });

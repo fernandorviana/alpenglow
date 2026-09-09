@@ -84,6 +84,15 @@ have all been mistaken for errors at least once.
    one proving it least. Do not delete it as drift — and do not silently add
    more, which is the mistake the Loader made.
 
+8. **The Table keeps its selection column when it collapses.** Below `40rem`
+   of container width the table becomes a list: header gone, secondary columns
+   gone. The drawing's mobile frame shows the primary cell and the row action
+   only, and it has no selection column to show. Selection is a feature the
+   caller opts into, so hiding the checkbox there would remove it on a phone
+   rather than lay it out differently. The empty and loading cells are
+   excluded from the same hide rule because they are the only content those
+   two states have.
+
 ---
 
 ## Conventions

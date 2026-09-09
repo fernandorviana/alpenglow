@@ -246,7 +246,15 @@
 /* --- collapse --------------------------------------------------------------
  *
  * The drawing's mobile variant does not scroll — it collapses to a list:
- * header gone, secondary columns gone, primary cell and action only.
+ * header gone, secondary columns gone.
+ *
+ * Four kinds of cell survive and the drawing accounts for two of them. The
+ * primary cell and the row action are its list item. The selection cell is a
+ * deliberate addition: selection is a feature the caller opted into, and
+ * hiding the checkbox at a container width would take it away on a phone
+ * rather than lay it out differently. The empty and loading cells are
+ * excluded because they are the only content those two states have, and
+ * hiding them leaves a blank region.
  *
  * A container query rather than a media query, because a table in a narrow
  * sidebar should collapse on a wide screen and it is the container's width

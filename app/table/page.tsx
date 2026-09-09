@@ -165,7 +165,11 @@ export default function Page() {
       </p>
       <p>
         The table sits in a focusable, labelled region, so a keyboard can scroll it
-        sideways. Below 40rem of container width it collapses to a list.
+        sideways. Below 40rem of container width it collapses to a list: the header
+        and the secondary columns go, and the primary cell, the selection checkbox
+        and the row action stay. The drawing keeps only the first and the last of
+        those — dropping the checkbox would remove selection on a phone rather
+        than lay it out differently.
       </p>
       <p>
         The select-all checkbox in the header is <code>disabled</code> while{' '}

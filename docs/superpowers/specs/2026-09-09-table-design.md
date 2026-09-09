@@ -280,6 +280,16 @@ correction of that habit.
 The drawing's `mobile` variant does not scroll — it **collapses to a list**:
 header gone, non-primary columns gone, primary cell and row action only.
 
+**Deviation, as shipped: the selection cell survives the collapse too.** The
+drawing's mobile frame has no selection column, so "primary cell and row action
+only" is a complete reading of it and an incomplete rule for the component.
+Selection is a feature the caller opts into by passing `onSelectionChange`;
+hiding the checkbox below `40rem` would not lay that feature out differently, it
+would remove it on a phone. The empty and loading cells are excluded from the
+hide rule for the same class of reason — they are the only content those states
+have. The reasoning is recorded in `Table.module.css` beside the selector and in
+`MEMORY.md`.
+
 Implemented with a **container query**, not a media query. A table in a narrow
 sidebar should collapse on a wide screen, and it is the container's width that
 decides. The collapse threshold is `40rem` of container width.
