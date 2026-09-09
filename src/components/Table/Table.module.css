@@ -191,6 +191,14 @@
  * Horizontal padding is deliberately absent here: the density blocks set it
  * on every cell and outrank this rule. The class also marks the cells that
  * survive the responsive collapse.
+ *
+ * The 56px appears here AND on the column's <col>, which looks like a
+ * duplicated literal and is the one exception to "widths live on the <col>".
+ * Both are needed and they do different jobs. The <col> cannot be dropped
+ * because <colgroup> maps positionally, so losing it would slide every
+ * caller-supplied Column.width one column to the left. The declaration here
+ * cannot be dropped either, because `table-layout` is auto, where a <col>
+ * width is a suggestion the browser may narrow. If one changes, change both.
  */
 
 .selectCell {
@@ -201,7 +209,8 @@
   background: var(--ap-color-interactive-selected);
 }
 
-.tr:hover:not([data-selected='true']) .td {
+/* Not the empty state: its cell is a placeholder, not a row to scan. */
+.tr:hover:not([data-selected='true']) .td:not(.empty) {
   background: var(--ap-color-interactive-neutral-hover);
 }
 

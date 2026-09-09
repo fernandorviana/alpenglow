@@ -118,8 +118,19 @@ export function Table<Row>({
       }
     : undefined;
 
+  // Scoped to the rows actually rendered, like toggleRow: ids the caller is
+  // holding for rows this table is not showing survive a select-all. The
+  // alternative throws away a filtered or paginated caller's other pages on
+  // one click, and would make the two handlers disagree about the same state.
   const toggleAll = onSelect
-    ? () => onSelect(head.checked ? new Set<string>() : new Set(ids))
+    ? () => {
+        const next = new Set(selectedIds);
+        for (const id of ids) {
+          if (head.checked) next.delete(id);
+          else next.add(id);
+        }
+        onSelect(next);
+      }
     : undefined;
 
   return (

@@ -324,6 +324,33 @@ describe('Table selection', () => {
     expect(onSelectionChange).toHaveBeenCalledWith(new Set(['a']));
   });
 
+  it('takes the id from getRowId and not from the row position', async () => {
+    // The shared fixture's ids happen to match their positions, so the test
+    // above would also pass if the index were used. These do not match.
+    const onSelectionChange = vi.fn();
+    const reversed = [...base.rows].reverse();
+    render(
+      <Table {...selectable} rows={reversed} onSelectionChange={onSelectionChange} />,
+    );
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select row 1' }));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set([base.getRowId(reversed[0]!)]));
+  });
+
+  it('keeps ids the caller holds for rows this table is not showing', async () => {
+    // toggleRow already preserved them; toggleAll now does too, so the two
+    // handlers agree about the same state.
+    const onSelectionChange = vi.fn();
+    render(
+      <Table
+        {...selectable}
+        selected={new Set(['off-page'])}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    await userEvent.click(screen.getByRole('checkbox', { name: /select all/i }));
+    expect(onSelectionChange).toHaveBeenCalledWith(new Set(['off-page', 'a', 'b']));
+  });
+
   it('removes a row that was already selected', async () => {
     const onSelectionChange = vi.fn();
     render(
