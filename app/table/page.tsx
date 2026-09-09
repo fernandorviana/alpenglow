@@ -146,8 +146,20 @@ export default function Page() {
       <h2>Accessibility</h2>
       <p>
         The caption is required, because a table with no accessible name is the most
-        common table defect there is. It is hidden unless you ask for it.
+        common table defect there is. It is hidden unless you ask for it, and{' '}
+        <code>captionVisible</code> is what asks — shown here, aligned to the first
+        column rather than centred the way a bare <code>caption</code> would be.
       </p>
+      <div className="specimen">
+        <Table
+          caption="Clients"
+          captionVisible
+          density="compact"
+          columns={simpleColumns}
+          rows={rows}
+          getRowId={(c) => c.id}
+        />
+      </div>
       <p>
         <code>aria-sort</code> lands on the sorted column and no other, and the control is
         a button inside the header rather than a handler on it, so a keyboard can reach it.

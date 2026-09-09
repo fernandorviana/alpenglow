@@ -157,7 +157,9 @@ export function Table<Row>({
       aria-busy={loading || undefined}
     >
       <table className={styles.table}>
-        <caption className={captionVisible ? undefined : 'ap-sr-only'}>{caption}</caption>
+        <caption className={captionVisible ? styles.caption : 'ap-sr-only'}>
+          {caption}
+        </caption>
 
         <colgroup>
           {onSelect && <col style={{ width: '56px' }} />}

@@ -45,6 +45,19 @@
   letter-spacing: var(--ap-text-body-md-tracking);
 }
 
+/* Screen-reader-only unless `captionVisible`, so this is only ever what that
+   prop asks for. Aligned to the inline start rather than the browser's centred
+   default, because it is a heading for the table and every other heading in
+   the system starts there. Horizontal padding comes from the density blocks,
+   like the cells', so the text lines up with the first column. */
+.caption {
+  padding-block: var(--ap-spacing-150);
+  text-align: start;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+}
+
 .th {
   background: var(--ap-color-surface-base);
   color: var(--ap-color-text-secondary);
@@ -99,6 +112,10 @@
  * a single 22px line to 72.
  */
 
+.comfortable .caption {
+  padding-inline: var(--ap-spacing-200);
+}
+
 .comfortable .th {
   height: 44px;
   padding-inline: var(--ap-spacing-200);
@@ -108,6 +125,10 @@
   height: 72px;
   padding-inline: var(--ap-spacing-200);
   vertical-align: middle;
+}
+
+.compact .caption {
+  padding-inline: var(--ap-spacing-150);
 }
 
 .compact .th {

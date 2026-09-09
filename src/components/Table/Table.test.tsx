@@ -30,9 +30,14 @@ describe('Table semantics', () => {
     expect(caption).toHaveClass('ap-sr-only');
   });
 
-  it('shows the caption when asked', () => {
+  it('shows the caption when asked, styled rather than bare', () => {
+    // A browser's default <caption> is centred and unpadded, which is not
+    // how any other heading in the system sits, so the visible state gets a
+    // class of its own rather than only losing the hidden one.
     render(<Table {...base} captionVisible />);
-    expect(screen.getByText('Clients')).not.toHaveClass('ap-sr-only');
+    const caption = screen.getByText('Clients');
+    expect(caption).not.toHaveClass('ap-sr-only');
+    expect(caption).toHaveClass(styles.caption!);
   });
 
   it('scopes every header to its column', () => {
