@@ -45,15 +45,15 @@ export type {
   SortDirection,
 } from './components/Table/index';
 
-export { Menu } from './components/Menu/index';
+export { DropdownMenu } from './components/DropdownMenu/index';
 export type {
-  MenuProps,
-  MenuTriggerProps,
-  MenuAction,
-  MenuGroup,
-  MenuEntry,
-  MenuItemTone,
-} from './components/Menu/index';
+  DropdownMenuProps,
+  DropdownMenuTriggerProps,
+  DropdownMenuAction,
+  DropdownMenuGroup,
+  DropdownMenuEntry,
+  DropdownMenuItemTone,
+} from './components/DropdownMenu/index';
 
 export { primitives, alphaPrimitives } from './tokens/primitives';
 export { theme } from './tokens/theme';

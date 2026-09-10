@@ -8,11 +8,11 @@ import type {
   ReactNode,
   ToggleEvent,
 } from 'react';
-import styles from './Menu.module.css';
+import styles from './DropdownMenu.module.css';
 import { actionText, isGroup, isSeparator, matchIndex, nextIndex } from './rows';
-import type { MenuAction, MenuEntry } from './rows';
+import type { DropdownMenuAction, DropdownMenuEntry } from './rows';
 
-export type MenuTriggerProps = {
+export type DropdownMenuTriggerProps = {
   id: string;
   popoverTarget: string;
   'aria-haspopup': 'menu';
@@ -21,19 +21,19 @@ export type MenuTriggerProps = {
   style: CSSProperties;
 };
 
-export type MenuProps = {
+export type DropdownMenuProps = {
   /** Receives everything the trigger needs. Spread it onto a button. */
-  trigger: (props: MenuTriggerProps) => ReactNode;
-  items: MenuEntry[];
+  trigger: (props: DropdownMenuTriggerProps) => ReactNode;
+  items: DropdownMenuEntry[];
 };
 
-function Row({ action, onClose }: { action: MenuAction; onClose: () => void }) {
+function Row({ action, onClose }: { action: DropdownMenuAction; onClose: () => void }) {
   return (
     <button
       type="button"
       role="menuitem"
       // Disabled rows take no tabindex and no focus at all — not even the
-      // APG's focusable-but-inert. See the disabled block in Menu.module.css.
+      // APG's focusable-but-inert. See the disabled block in DropdownMenu.module.css.
       aria-disabled={action.disabled || undefined}
       tabIndex={action.disabled ? undefined : -1}
       className={[styles.item, action.tone && styles[action.tone]].filter(Boolean).join(' ')}
@@ -44,7 +44,7 @@ function Row({ action, onClose }: { action: MenuAction; onClose: () => void }) {
         onClose();
       }}
       // The pointer moves focus, so the highlight has one owner. See the
-      // :focus rule in Menu.module.css.
+      // :focus rule in DropdownMenu.module.css.
       onMouseEnter={(event) => {
         if (action.disabled) return;
         event.currentTarget.focus();
@@ -65,7 +65,7 @@ function Row({ action, onClose }: { action: MenuAction; onClose: () => void }) {
   );
 }
 
-export function Menu({ trigger, items }: MenuProps) {
+export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
   const uid = useId();
   const menuId = `menu-${uid}`;
   const triggerId = `menu-trigger-${uid}`;

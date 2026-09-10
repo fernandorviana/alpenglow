@@ -2,12 +2,12 @@
 
 import { DocPage } from '@ui/DocPage';
 import { Button } from '@/components/Button/index';
-import { Menu } from '@/components/Menu/index';
-import type { MenuEntry } from '@/components/Menu/index';
+import { DropdownMenu } from '@/components/DropdownMenu/index';
+import type { DropdownMenuEntry } from '@/components/DropdownMenu/index';
 import { composite, contrast, hexToRgb, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
 import { alphaPrimitives, primitives } from '@/tokens/primitives';
 
-const ITEMS: MenuEntry[] = [
+const ITEMS: DropdownMenuEntry[] = [
   { id: 'edit', label: 'Edit appointment' },
   { id: 'reschedule', label: 'Reschedule' },
   { id: 'export', label: 'Export', disabled: true },
@@ -56,18 +56,28 @@ export default function Page() {
         </>
       }
     >
-      <h1>Menu</h1>
+      <h1>Dropdown menu</h1>
       <p className="lead">
         A list of commands, anchored to the control that opened it. The overlay is the
         browser&rsquo;s, not ours.
       </p>
 
-      <h2>Why it is not called Dropdown</h2>
+      <h2>Why both words</h2>
       <p>
-        The drawing calls this page Dropdown, and &ldquo;dropdown&rdquo; covers two components
-        with different semantics: a list of commands, which is this one, and a list of values,
-        which is a listbox and is not built. Seven of the fifteen drawn variants belong to the
-        second. Naming this one after the umbrella would leave the other one homeless.
+        The drawing calls this page Dropdown, and &ldquo;dropdown&rdquo; alone covers two
+        components with different semantics: a list of commands, which is this one, and a list of
+        values. Seven of the fifteen drawn variants belong to the second. Naming this one after
+        the umbrella would leave the other one homeless. A single value from a fixed list is
+        already a <a href="/select">Select</a>; a richer list of values would be a listbox, and is
+        not built.
+      </p>
+      <p>
+        &ldquo;Menu&rdquo; alone is no better. It is also what a site&rsquo;s navigation is
+        called, and navigation menus are planned — a different pattern, where a link is followed
+        rather than a command run, and for which <code>role=&quot;menu&quot;</code> is the wrong
+        role. &ldquo;Dropdown menu&rdquo; names both halves: how it appears, and what it holds.
+        It is also the name most libraries give this pattern, so a reader arriving from one of
+        them finds it where they expect.
       </p>
 
       <h2>The trade</h2>
@@ -85,7 +95,7 @@ export default function Page() {
       </p>
 
       <div className="specimen">
-        <Menu
+        <DropdownMenu
           trigger={(props) => (
             <Button variant="outline" tone="neutral" {...props}>
               Appointment actions

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Field } from '@/components/Field/index';
 import { Select } from '@/components/Select/index';
-import { Textarea } from '@/components/Textarea/index';
 
 const SERVICES = [
   ['consult', 'Consultation'],
@@ -25,12 +24,12 @@ export default function Page() {
         </>
       }
     >
-      <h1>Select and Textarea</h1>
+      <h1>Select</h1>
       <p className="lead">
-        Both sit in the same box as Input, with the measurements each is actually drawn at.
+        One value from a fixed list, in the same box as Input, at the measurements it is actually
+        drawn at.
       </p>
 
-      <h2>Select</h2>
       <p>
         The element underneath is a native <code>&lt;select&gt;</code>. That gives keyboard
         behaviour, the platform picker on a phone, form participation and screen-reader
@@ -62,7 +61,20 @@ export default function Page() {
         </div>
       </div>
 
-      <h3>In a Field</h3>
+      <h2>Select or dropdown menu</h2>
+      <p>
+        Both open a list under a control, and in a drawing they look the same. They answer
+        different questions. A select holds a <strong>value</strong>: the choice stays visible in
+        the field afterwards, belongs to a form, and is submitted with it. A{' '}
+        <a href="/dropdown-menu">dropdown menu</a> runs a <strong>command</strong>: nothing is
+        kept, the list closes, and something happens — reschedule, export, cancel.
+      </p>
+      <p>
+        The test is what the control shows once the list has closed. If it shows the choice, it
+        is a Select. If choosing was the end of it, it is a dropdown menu.
+      </p>
+
+      <h2>In a Field</h2>
       <p>
         Choose nothing and the message stays. The placeholder is offered but cannot be
         chosen — it is a prompt, not an answer.
@@ -88,7 +100,7 @@ export default function Page() {
         </div>
       </div>
 
-      <h3>States</h3>
+      <h2>States</h2>
       <div className="specimen">
         <div style={{ display: 'grid', gap: 16, maxWidth: 360 }}>
           <Select aria-label="Disabled" disabled placeholder="Disabled">
@@ -101,25 +113,6 @@ export default function Page() {
               <option key={v} value={v}>{l}</option>
             ))}
           </Select>
-        </div>
-      </div>
-
-      <h2>Textarea</h2>
-      <p>
-        One size, and a fixed starting height of 144px rather than a row count — a row count
-        sizes the box from whichever font happens to load, so the field would be a different
-        height before and after the webfont arrives.
-      </p>
-      <p>
-        Its horizontal padding is symmetric, where a single-line field is tighter on the
-        right to sit closer to its icon. A block of text wants the same margin on both
-        sides.
-      </p>
-      <div className="specimen">
-        <div style={{ maxWidth: 420 }}>
-          <Field label="Consultation notes" description="Visible to the clinician only.">
-            <Textarea placeholder="What was discussed, and what happens next." />
-          </Field>
         </div>
       </div>
 

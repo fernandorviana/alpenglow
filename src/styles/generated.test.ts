@@ -48,7 +48,7 @@ describe('tokens.css is in step with the token source', () => {
 
   it('declares every elevation step in both modes', () => {
     // The shadow is what separates raised from overlay in light — the claim
-    // theme.ts makes and, until the Menu, nothing drew.
+    // theme.ts makes and, until the DropdownMenu, nothing drew.
     for (const [name, byMode] of Object.entries(elevation)) {
       expect(tokensCss, name).toContain(`--ap-elevation-${name}: ${shadowCss(byMode.light)};`);
       expect(tokensCss, name).toContain(`--ap-elevation-${name}: ${shadowCss(byMode.dark)};`);

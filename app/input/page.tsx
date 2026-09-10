@@ -5,6 +5,7 @@ import { DocPage } from '@ui/DocPage';
 import { Search } from '@carbon/icons-react';
 import { Field } from '@/components/Field/index';
 import { Input } from '@/components/Input/index';
+import { Textarea } from '@/components/Textarea/index';
 
 export default function Page() {
   const [email, setEmail] = useState('not-an-email');
@@ -21,9 +22,10 @@ export default function Page() {
         </>
       }
     >
-      <h1>Input</h1>
+      <h1>Input and Textarea</h1>
       <p className="lead">
-        The two controls where the border is doing real work rather than decorating.
+        The two text controls — a line and a block — where the border is doing real work rather
+        than decorating.
       </p>
 
       <p>
@@ -118,6 +120,29 @@ export default function Page() {
         beside the control rather than above it.
       </p>
 
+      <h2>Textarea</h2>
+      <p>
+        The same box, the same fill and the same focus border as Input, from the same
+        stylesheet. It differs where a block of text differs from a line.
+      </p>
+      <p>
+        One size, and a fixed starting height of 144px rather than a row count — a row count
+        sizes the box from whichever font happens to load, so the field would be a different
+        height before and after the webfont arrives.
+      </p>
+      <p>
+        Its horizontal padding is symmetric, where a single-line field is tighter on the
+        right to sit closer to its icon. A block of text wants the same margin on both
+        sides.
+      </p>
+      <div className="specimen">
+        <div style={{ maxWidth: 420 }}>
+          <Field label="Consultation notes" description="Visible to the clinician only.">
+            <Textarea placeholder="What was discussed, and what happens next." />
+          </Field>
+        </div>
+      </div>
+
       <h2>Accessibility</h2>
       <p>
         <code>invalid</code> sets <code>aria-invalid</code>. When the field is valid the
@@ -138,7 +163,7 @@ export default function Page() {
         to be.
       </p>
       <p>
-        The visual <code>size</code> prop shadows the HTML <code>size</code> attribute,
+        Input&rsquo;s visual <code>size</code> prop shadows the HTML <code>size</code> attribute,
         which sets a width in characters. Passing <code>size=&quot;lg&quot;</code> gives you
         a taller control, not a forty-character-wide one.
       </p>

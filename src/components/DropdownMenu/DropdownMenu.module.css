@@ -1,5 +1,5 @@
 /**
- * Menu — an anchored command list.
+ * DropdownMenu — an anchored command list.
  *
  * The overlay is native. `popover="auto"` puts the surface in the top layer,
  * so it escapes `overflow: hidden` and every stacking context without a
@@ -112,11 +112,11 @@
 
 /**
  * The fill is on :focus, not :hover, because the pointer moves focus (see
- * Menu.tsx). One rule then covers both inputs, and there is never more than
+ * DropdownMenu.tsx). One rule then covers both inputs, and there is never more than
  * one highlighted row.
  *
  * The :not() guard is the same shape as Button's :not(.loading): without it a
- * disabled row would light up under the pointer. Menu.test.tsx asserts it.
+ * disabled row would light up under the pointer. DropdownMenu.test.tsx asserts it.
  */
 /* The default outline is removed here, on the plain selector, and not inside
    the guarded fill rule below. There it was one attribute more specific than

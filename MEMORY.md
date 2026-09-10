@@ -111,16 +111,16 @@ have all been mistaken for errors at least once.
     light does more than a 64% one in dark, so dark does not chase a shadow
     that cannot work — it stops at `alpha/black-32` and `-48`.
 
-11. **The Menu has a border in dark and none in light.** Invariant 4 applied,
-    not an accident of asymmetry: in dark the shadow stops separating, and
+11. **The DropdownMenu has a border in dark and none in light.** Invariant 4
+    applied, not an accident of asymmetry: in dark the shadow stops separating, and
     `border/default` is 1.77:1 against the canvas there against 1.31:1 in
     light. Each menu tone also hovers to its own subtle fill rather than one
     shared neutral — `text/accent` on the neutral fill is 3.50:1 in dark.
-    Both are asserted in `Menu.test.tsx` and `contrast.test.ts`.
+    Both are asserted in `DropdownMenu.test.tsx` and `contrast.test.ts`.
 
-12. **The Menu's tests stub the popover API, and only part of it.** jsdom 30
-    implements none of it. The stub in `Menu.test.tsx` covers show, hide,
-    toggle, the queued `toggle` event and invoker clicks. Esc, light dismiss,
+12. **The DropdownMenu's tests stub the popover API, and only part of it.**
+    jsdom 30 implements none of it. The stub in `DropdownMenu.test.tsx` covers
+    show, hide, toggle, the queued `toggle` event and invoker clicks. Esc, light dismiss,
     focus return and placement are deliberately absent — they are the
     browser's. Placement and light dismiss were checked in Chrome; Esc and
     focus return were not (the browser automation sends an untrusted Esc that
@@ -146,8 +146,16 @@ have all been mistaken for errors at least once.
   equivalent; eight more exist in Carbon under a different name, and that
   mapping is on the Icons page.
 - **Prefer the native element.** `Select` wraps `<select>` rather than building
-  a listbox, and `Menu` is a `popover` placed with CSS anchor positioning
-  rather than a portal and a positioning library.
+  a listbox, and `DropdownMenu` is a `popover` placed with CSS anchor
+  positioning rather than a portal and a positioning library.
+- **"Menu" alone is reserved for navigation.** The command list is
+  `DropdownMenu` (renamed from `Menu` before it merged): navigation menus are
+  planned, and they are a different pattern for which `role="menu"` is wrong.
+  Name a new overlay by what it holds, not by the popover mechanism.
+- **Docs pages group by what the reader is deciding, not by look.** Textarea
+  lives with Input (same stylesheet, same Field); Select and DropdownMenu keep
+  separate pages because one holds a value and the other runs a command — the
+  Select page carries the test for telling them apart.
 
 ---
 
@@ -193,7 +201,7 @@ documentation site, so an absent component costs more than an absent package.
 
 Three tokens still name components that do not exist: `surface/sunken`
 (wells, progress tracks), `surface/scrim` (modal backdrop), `surface/inverse`
-(tooltips, inverted banners). Menu claimed `surface/overlay`, and is its only
+(tooltips, inverted banners). DropdownMenu claimed `surface/overlay`, and is its only
 consumer until a modal or a popover exists. Table claimed two more off this list — it is the consumer of
 `surface/raised` (table body) and of `interactive/selected` (row), which is
 why `surface/sunken` no longer claims table headers: the header band is
@@ -206,7 +214,7 @@ why `surface/sunken` no longer claims table headers: the header band is
   `alpenglow/icons`, and `src/index.ts` does `export * from './icons/index'`.
 - Two near-duplicate "Running it" blocks, with different Carbon URLs.
 
-The counts were corrected with the Menu work: 53 semantic tokens, 81 + 14
+The counts were corrected with the DropdownMenu work: 53 semantic tokens, 81 + 14
 primitives, and 95 contrast cases — stated as cases, the number the suite
 reports, rather than as assertions, which nothing counts.
 
@@ -239,7 +247,7 @@ cannot line up with its checkbox.
 `warning`, `info` and `tertiary` appearing in some and not others. Some
 divergence is right — a warning button is usually a design error — but there is
 no exported `Tone` type naming the vocabulary that each component subsets.
-`MenuItemTone` makes it four, with 3 members (`default`, `accent`, `danger`).
+`DropdownMenuItemTone` makes it four, with 3 members (`default`, `accent`, `danger`).
 
 ### 6. Packaging — deliberately deferred
 

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { flattenActions, actionText, nextIndex, matchIndex } from './rows';
-import type { MenuEntry } from './rows';
+import type { DropdownMenuEntry } from './rows';
 
-const items: MenuEntry[] = [
+const items: DropdownMenuEntry[] = [
   { id: 'edit', label: 'Edit' },
   'separator',
   { label: 'Danger zone', items: [{ id: 'delete', label: 'Delete', tone: 'danger' }] },

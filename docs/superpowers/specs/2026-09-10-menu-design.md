@@ -1,5 +1,12 @@
 # Menu — design
 
+> **Renamed during execution.** The component shipped as `DropdownMenu`, at
+> `/dropdown-menu`. "Menu" alone is also what a site's navigation is called,
+> and navigation menus are planned — a different pattern, for which
+> `role="menu"` is the wrong role. "Dropdown menu" names both how it appears
+> and what it holds. The rest of this document keeps the name it was designed
+> under.
+
 **Figma:** page `__ Dropdown` in the source design file (the file key is kept
 out of this repository), variant set `628:10566`, 15 variants.
 

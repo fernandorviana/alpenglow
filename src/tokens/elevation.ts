@@ -19,7 +19,7 @@
  * in dark, black at 64% over surface/base reaches only 1.16:1. An 8% shadow in
  * light does more than a 64% shadow in dark. Pushing dark to 48/64% buys 0.07
  * of ratio and costs a smear, so in dark the shadow renders a soft contact and
- * the surface takes a 1px border instead — see Menu.module.css.
+ * the surface takes a 1px border instead — see DropdownMenu.module.css.
  */
 
 import type { AlphaPrimitiveName } from './primitives';

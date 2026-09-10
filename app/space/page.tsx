@@ -92,7 +92,8 @@ export default function Page() {
         shadow in dark. Pushing dark harder buys 0.07 of ratio and costs a smear.
       </p>
       <p>
-        Which is why, in dark, the Menu also takes a 1px border. That is the rule for running
+        Which is why, in dark, the <a href="/dropdown-menu">dropdown menu</a> also takes a 1px
+        border. That is the rule for running
         out of elevation, applied: separate with a border rather than inventing a step.
         Against the canvas <code>border/default</code> is 1.77:1 in dark and 1.31:1 in light —
         stronger exactly where it is needed. Light does not get one; there the shadow already

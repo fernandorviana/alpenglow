@@ -2,10 +2,10 @@ import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, it, expect, vi } from 'vitest';
-import { Menu } from './Menu';
-import type { MenuEntry } from './rows';
+import { DropdownMenu } from './DropdownMenu';
+import type { DropdownMenuEntry } from './rows';
 
-const css = readFileSync('src/components/Menu/Menu.module.css', 'utf8');
+const css = readFileSync('src/components/DropdownMenu/DropdownMenu.module.css', 'utf8');
 
 /**
  * A stand-in for the popover API, because jsdom 30 has none of it: no
@@ -21,7 +21,7 @@ const css = readFileSync('src/components/Menu/Menu.module.css', 'utf8');
  *
  * Esc, light dismiss, focus return and the top layer are absent on purpose.
  * They belong to the browser, and a test of them here would be a test of this
- * stub. They are verified in a real browser instead, and the Menu page says so.
+ * stub. They are verified in a real browser instead, and the DropdownMenu page says so.
  *
  * Each test file gets its own jsdom, so nothing here leaks into other suites.
  */
@@ -75,18 +75,18 @@ beforeAll(() => {
 });
 
 function Basic() {
-  return <Menu trigger={(props) => <button {...props}>Actions</button>} items={[]} />;
+  return <DropdownMenu trigger={(props) => <button {...props}>Actions</button>} items={[]} />;
 }
 
-function Open({ items }: { items: MenuEntry[] }) {
-  return <Menu trigger={(props) => <button {...props}>Actions</button>} items={items} />;
+function Open({ items }: { items: DropdownMenuEntry[] }) {
+  return <DropdownMenu trigger={(props) => <button {...props}>Actions</button>} items={items} />;
 }
 
 async function open(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: 'Actions' }));
 }
 
-describe('Menu', () => {
+describe('DropdownMenu', () => {
   it('stubs the popover API only because jsdom lacks it', () => {
     // When jsdom ships popover, delete the stub above: it would be overriding
     // the real implementation, and the suite would be testing the imitation.
@@ -163,7 +163,7 @@ describe('Menu', () => {
   });
 });
 
-describe('Menu rows', () => {
+describe('DropdownMenu rows', () => {
   it('renders one menuitem per action', async () => {
     const user = userEvent.setup();
     render(<Open items={[{ id: 'edit', label: 'Edit' }, { id: 'copy', label: 'Copy' }]} />);
@@ -232,7 +232,7 @@ describe('Menu rows', () => {
   });
 });
 
-describe('Menu groups and separators', () => {
+describe('DropdownMenu groups and separators', () => {
   it('labels a group with its own heading', async () => {
     const user = userEvent.setup();
     render(
@@ -274,13 +274,13 @@ describe('Menu groups and separators', () => {
   });
 });
 
-const THREE: MenuEntry[] = [
+const THREE: DropdownMenuEntry[] = [
   { id: 'archive', label: 'Archive' },
   { id: 'copy', label: 'Copy' },
   { id: 'delete', label: 'Delete' },
 ];
 
-describe('Menu keyboard', () => {
+describe('DropdownMenu keyboard', () => {
   it('opens on ArrowDown with the first row focused', async () => {
     const user = userEvent.setup();
     render(<Open items={THREE} />);
@@ -359,13 +359,13 @@ describe('Menu keyboard', () => {
   });
 });
 
-const WITH_DISABLED: MenuEntry[] = [
+const WITH_DISABLED: DropdownMenuEntry[] = [
   { id: 'archive', label: 'Archive' },
   { id: 'copy', label: 'Copy', disabled: true },
   { id: 'delete', label: 'Delete' },
 ];
 
-describe('Menu disabled rows', () => {
+describe('DropdownMenu disabled rows', () => {
   it('stays in the accessibility tree so it is still discoverable', () => {
     render(<Open items={WITH_DISABLED} />);
     const row = screen.getByRole('menuitem', { name: 'Copy', hidden: true });
