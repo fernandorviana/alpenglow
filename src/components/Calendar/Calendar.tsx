@@ -445,6 +445,16 @@ export function Calendar({
     return notAfterMax && notBeforeMin;
   };
 
+  // The status region announces changes, not the selection this Calendar
+  // mounted with. Filled at mount, it would speak on page load and, for the
+  // picker's calendar, which mounts on every open, each time the panel opened.
+  // It stays empty until the selection first differs from the mounted one,
+  // then announces every selection, a return to the first one included.
+  const selectionKey = rangeValue ? `${rangeValue.start}/${rangeValue.end}` : (single ?? '');
+  const mountedSelection = useRef(selectionKey);
+  const [selectionChanged, setSelectionChanged] = useState(false);
+  if (!selectionChanged && selectionKey !== mountedSelection.current) setSelectionChanged(true);
+
   return (
     <div className={styles.calendar} onKeyDown={onRootKeyDown}>
       <div className={styles.header}>
@@ -531,16 +541,14 @@ export function Calendar({
       {/* role="status" is an implicit aria-live="polite". Separate from the
           month heading so paging and selecting do not overwrite each other.
           The element stays on the server so the live region exists before
-          any change — but its text waits for `hydrated`, both because
-          `formatRange`'s separator glyph is runtime-dependent (see `now`
-          above) and because an empty live region on first paint is correct
-          on its own terms: a status region announces changes, not initial
-          content. */}
+          any change. Its text waits for `selectionChanged` (see above), and
+          for `hydrated`, because `formatRange`'s separator glyph is
+          runtime-dependent (see `now` above). */}
       <div role="status" className={styles.hidden}>
-        {hydrated
-          ? mode === 'range' && rangeValue
+        {hydrated && selectionChanged
+          ? rangeValue
             ? rangeFormat.formatRange(utcTimestamp(rangeValue.start), utcTimestamp(rangeValue.end))
-            : mode === 'single' && single
+            : single
               ? cellFormat.format(utcTimestamp(single))
               : ''
           : ''}

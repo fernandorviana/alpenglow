@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { useState } from 'react';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { act, render, screen, within } from '@testing-library/react';
 import { hydrateRoot, type Root } from 'react-dom/client';
@@ -292,6 +293,28 @@ describe('Calendar single selection', () => {
     render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-26" />);
     const button = screen.getByRole('button', { name: /april 26/i });
     expect(button.closest('td')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('announces a new selection, and nothing at mount', async () => {
+    // A status region announces changes. Filled with the value the calendar
+    // mounted with, it would speak on page load — and, for the picker's
+    // calendar, every time the panel opened.
+    function Harness() {
+      const [value, setValue] = useState<string | null>('2023-04-26');
+      return (
+        <Calendar label="Date" value={value} onSelect={(next) => setValue(next as string)} />
+      );
+    }
+    render(<Harness />);
+    const live = screen.getByRole('status');
+    expect(live.textContent).toBe('');
+
+    await userEvent.click(screen.getByRole('button', { name: /april 12/i }));
+    expect(live.textContent).toBe('Wednesday, April 12, 2023');
+
+    // From then on every pick is announced, a return to the first one included.
+    await userEvent.click(screen.getByRole('button', { name: /april 26/i }));
+    expect(live.textContent).toBe('Wednesday, April 26, 2023');
   });
 
   it('marks exactly one day selected', () => {
@@ -828,19 +851,29 @@ describe('Calendar range mode', () => {
     }
   });
 
-  it('announces the range once both ends exist', async () => {
+  it('announces a new range once both ends exist, and not the range it mounted with', async () => {
     // Intl.DateTimeFormat#formatRange rather than two formatted dates, so the
-    // year is not repeated.
-    render(
-      <Calendar
-        label="Stay"
-        mode="range"
-        defaultMonth="2023-04-01"
-        value={range('2023-04-10', '2023-04-14')}
-      />,
-    );
+    // year is not repeated. A status region announces changes: the range a
+    // page loads with is not one.
+    function Harness() {
+      const [value, setValue] = useState(range('2023-04-10', '2023-04-14'));
+      return (
+        <Calendar
+          label="Stay"
+          mode="range"
+          defaultMonth="2023-04-01"
+          value={value}
+          onSelect={(next) => setValue(next as ReturnType<typeof range>)}
+        />
+      );
+    }
+    render(<Harness />);
     const live = screen.getByRole('status');
-    expect(live.textContent).toMatch(/april 10\s*–\s*14, 2023/i);
+    expect(live.textContent).toBe('');
+
+    await userEvent.click(screen.getByRole('button', { name: /april 17/i }));
+    await userEvent.click(screen.getByRole('button', { name: /april 20/i }));
+    expect(live.textContent).toMatch(/april 17\s*–\s*20, 2023/i);
   });
 
   it('paints the band as the keyboard extends it, one key at a time', async () => {
