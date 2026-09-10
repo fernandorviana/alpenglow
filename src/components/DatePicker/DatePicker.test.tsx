@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { useState } from 'react';
+import { renderToString } from 'react-dom/server';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
@@ -293,6 +294,28 @@ describe('DatePicker', () => {
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+
+  it('opens on the value it holds now, not the one it held when it last closed', async () => {
+    function Controlled({ value }: { value: string }) {
+      return <DatePicker label="Appointment" value={value} />;
+    }
+    const { rerender } = render(<Controlled value="2023-04-26" />);
+    rerender(<Controlled value="2023-06-15" />);
+
+    await openPanel(/change date/i);
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Thursday, June 15, 2023' }),
+    ).toHaveFocus();
+  });
+
+  it('keeps no grid in the DOM while closed', () => {
+    render(<DatePicker label="Appointment" defaultMonth="2023-04-01" />);
+    expect(document.querySelector('[role="grid"]')).toBeNull();
+  });
+
+  it('puts no grid in the server HTML, so no month reaches it', () => {
+    expect(renderToString(<DatePicker label="Any day" />)).not.toContain('role="grid"');
   });
 
   it('opens on the resolved month again after closing', async () => {

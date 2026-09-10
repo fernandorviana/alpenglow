@@ -9,10 +9,15 @@
  * nothing more. Show and hide flip a flag, make the element visible inline,
  * and queue a `toggle` event as a task. The platform queues it too, and a
  * synchronous one would hide ordering bugs between opening and moving focus.
+ * The order is the platform's: `beforetoggle` synchronously, then the state
+ * change, then `toggle` queued.
  *
  * Esc, light dismiss, focus return and the top layer are absent on purpose.
- * They belong to the browser, and a test of them here would be a test of this
- * stub. They are checked in a real browser instead, and the docs page says so.
+ * For a `popover="auto"` consumer (DropdownMenu) the first three belong to the
+ * browser, and a test of them here would be a test of this stub. A `manual`
+ * consumer (DatePicker) implements its own dismissal, which its suite tests
+ * through this stub. The top layer, anchor placement and real focus are not
+ * covered by any suite, and have not yet been checked by hand.
  *
  * Each test file gets its own jsdom, so nothing here leaks into other suites.
  *
@@ -26,6 +31,13 @@ const queued = new WeakMap<HTMLElement, { timer: ReturnType<typeof setTimeout>; 
 function setShown(el: HTMLElement, next: boolean) {
   if (!el.hasAttribute('popover')) throw new DOMException('Not a popover', 'NotSupportedError');
   if (shown.has(el) === next) return;
+
+  el.dispatchEvent(
+    Object.assign(new Event('beforetoggle'), {
+      oldState: next ? 'closed' : 'open',
+      newState: next ? 'open' : 'closed',
+    }),
+  );
 
   if (next) {
     shown.add(el);

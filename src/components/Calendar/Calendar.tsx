@@ -123,43 +123,44 @@ export function Calendar({
   const headingId = useId();
 
   // `false` on the server and on the client's first, hydration-matching pass;
-  // `true` on every render after that. Two things must not reach server
-  // HTML: today's date, which drives the today marker and the tab stop below
-  // and is only known once the client's clock can be read, and the
+  // `true` on every render after that. Three things must not reach server
+  // HTML: today's date, which drives the today marker and the tab stop below;
+  // today's month, for a calendar that has nothing else to open on; and the
   // runtime-dependent separator inside `rangeFormat.formatRange` near the
   // bottom of this component, whose glyph (space vs thin space) depends on
-  // the runtime's ICU data and can differ between the machine that built the
-  // static export and the browser that hydrates it. React 19 does not patch
-  // a mismatched attribute or text node on hydration — it leaves whichever
-  // one the server sent — so both must wait for this flag.
+  // the runtime's ICU data. The machine that built the static export reads
+  // neither the browser's clock nor its ICU data. React 19 does not patch a
+  // mismatched attribute or text node on hydration — it leaves whichever one
+  // the server sent — so all three wait for this flag. No `today()` call may
+  // run outside it.
   const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
   const now = hydrated ? today() : null;
 
-  // The starting month, resolved once: an explicit `defaultMonth` wins, else
-  // the month of a single-mode value, else the month of a range's start, else
-  // today's month. A controlled `month` prop still wins for what is visible —
-  // this only seeds the uncontrolled fallback and the initial focus below.
-  // Deliberately `today()` here rather than the hydration-gated `now` above:
-  // this only seeds which month an uncontrolled, valueless calendar opens
-  // on, not a today marker or a tab stop, and gating it would make that
-  // calendar's first server render crash with no month to resolve at all.
-  const resolvedMonth = startOfMonth(
-    defaultMonth ??
-      (typeof value === 'string'
-        ? value
-        : value && typeof value === 'object' && 'start' in value
-          ? value.start
-          : today()),
-  );
-
+  // The month the calendar opens on, when anything names one: an explicit
+  // `defaultMonth`, else the single value's month, else the range's start.
+  // With none of those the seed is `null` and the visible month falls back to
+  // today's — which is only known once `hydrated`, so on the server and in the
+  // hydration pass such a calendar draws an empty six-row grid, no heading and
+  // no month in its name. A controlled `month` still wins over all of it.
+  //
   // The visible month and the selection are two different pieces of state.
   // Conflating them is what makes a range across a month boundary hard to
   // reason about, so they are controlled separately.
-  const [internalMonth, setInternalMonth] = useState(() => resolvedMonth);
-  const visibleMonth = startOfMonth(month ?? internalMonth);
+  const seed =
+    defaultMonth ??
+    (typeof value === 'string' ? value : value && typeof value === 'object' ? value.start : null);
+  const [internalMonth, setInternalMonth] = useState<ISODate | null>(() =>
+    seed === null ? null : startOfMonth(seed),
+  );
+  const visibleMonth = month
+    ? startOfMonth(month)
+    : (internalMonth ?? (now ? startOfMonth(now) : null));
 
   const weekdays = useWeekdayNames(locale, weekStartsOn);
-  const grid = useMemo(() => monthGrid(visibleMonth, weekStartsOn), [visibleMonth, weekStartsOn]);
+  const grid = useMemo(
+    () => (visibleMonth === null ? null : monthGrid(visibleMonth, weekStartsOn)),
+    [visibleMonth, weekStartsOn],
+  );
 
   const monthFormat = useMemo(
     () => dateFormat(locale, { month: 'long' }),
@@ -186,7 +187,7 @@ export function Calendar({
     [locale],
   );
 
-  const { year: visibleYear, month: visibleMonthNumber } = parts(visibleMonth);
+  const visibleYear = visibleMonth === null ? null : parts(visibleMonth).year;
 
   // In single mode `value` is the date; in range mode it is the interval. Both
   // are read through one helper so the cell does not have to know the mode.
@@ -291,6 +292,8 @@ export function Calendar({
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTableElement>) {
+    // No month is drawn before hydration seeds one, so there is no day to move from.
+    if (tabStop === null) return;
     const keys: Record<string, () => ISODate> = {
       ArrowLeft: () => addDays(tabStop, -1),
       ArrowRight: () => addDays(tabStop, 1),
@@ -431,8 +434,9 @@ export function Calendar({
   // only whether the month's own ends fall inside the bounds (or vice versa)
   // is wrong whenever one interval sits strictly inside the other, e.g. a
   // month that fully contains a narrow [min, max] window.
-  const previousMonth = addMonths(visibleMonth, -1);
-  const nextMonth = addMonths(visibleMonth, 1);
+  // Both null while no month is drawn, which disables both buttons.
+  const previousMonth = visibleMonth === null ? null : addMonths(visibleMonth, -1);
+  const nextMonth = visibleMonth === null ? null : addMonths(visibleMonth, 1);
   const canGo = (target: ISODate) => {
     const { year, month: m } = parts(target);
     const last = toISO(year, m, daysInMonth(year, m));
@@ -448,8 +452,8 @@ export function Calendar({
           type="button"
           className={styles.page}
           aria-label="Previous month"
-          disabled={!canGo(previousMonth)}
-          onClick={() => goToMonth(previousMonth)}
+          disabled={previousMonth === null || !canGo(previousMonth)}
+          onClick={() => previousMonth && goToMonth(previousMonth)}
         >
           <Chevron direction="previous" />
         </button>
@@ -457,17 +461,22 @@ export function Calendar({
         <h2 className={styles.heading} id={headingId} aria-live="polite">
           {/* One heading, two weights: the drawing sets the month Medium and
               the year Regular. Split into spans rather than two headings so
-              it is still one string to a screen reader. */}
-          <span className={styles.month}>{monthFormat.format(utcTimestamp(visibleMonth))}</span>{' '}
-          <span className={styles.year}>{visibleYear}</span>
+              it is still one string to a screen reader. Empty until a month
+              is drawn. */}
+          {visibleMonth !== null && (
+            <>
+              <span className={styles.month}>{monthFormat.format(utcTimestamp(visibleMonth))}</span>{' '}
+              <span className={styles.year}>{visibleYear}</span>
+            </>
+          )}
         </h2>
 
         <button
           type="button"
           className={styles.page}
           aria-label="Next month"
-          disabled={!canGo(nextMonth)}
-          onClick={() => goToMonth(nextMonth)}
+          disabled={nextMonth === null || !canGo(nextMonth)}
+          onClick={() => nextMonth && goToMonth(nextMonth)}
         >
           <Chevron direction="next" />
         </button>
@@ -477,7 +486,11 @@ export function Calendar({
         ref={gridRef}
         role="grid"
         className={styles.grid}
-        aria-label={`${label}, ${headingFormat.format(utcTimestamp(visibleMonth))}`}
+        aria-label={
+          visibleMonth === null
+            ? label
+            : `${label}, ${headingFormat.format(utcTimestamp(visibleMonth))}`
+        }
         onKeyDown={onKeyDown}
       >
         <thead>
@@ -497,11 +510,21 @@ export function Calendar({
           </tr>
         </thead>
         <tbody>
-          {grid.map((week) => (
-            <tr key={week[0]!.date}>
-              {week.map((cell) => renderDay(cell))}
-            </tr>
-          ))}
+          {grid
+            ? grid.map((week) => (
+                <tr key={week[0]!.date}>
+                  {week.map((cell) => renderDay(cell))}
+                </tr>
+              ))
+            : // No month yet: six rows of seven empty cells, so the 6 x 40
+              // height is already there and nothing jumps when a month arrives.
+              Array.from({ length: 6 }, (_, row) => (
+                <tr key={row}>
+                  {Array.from({ length: 7 }, (_, column) => (
+                    <td key={column} role="gridcell" className={styles.cell} />
+                  ))}
+                </tr>
+              ))}
         </tbody>
       </table>
 

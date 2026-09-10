@@ -72,13 +72,19 @@ export function DatePicker({
   const required = field?.required;
 
   const [open, setOpen] = useState(false);
-  // Remounts the Calendar on every open so a pending range start, or a page
-  // to a different month, does not survive into the next open — the grid
-  // should always resume from the resolved month, not wherever it was left.
-  const [openCount, setOpenCount] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // A popover moves focus only to an element carrying `autofocus`, so a panel
+  // opened by a click has to place it itself: the day grid's roving tab stop.
+  // An effect on `open`, because the grid only exists once `open` renders it.
+  useEffect(() => {
+    if (!open) return;
+    panelRef.current
+      ?.querySelector<HTMLButtonElement>('[role="grid"] button[tabindex="0"]')
+      ?.focus();
+  }, [open]);
   const panelId = useId();
   // useId returns a value containing characters that are legal in an HTML id
   // and not in a CSS identifier, so the anchor name is sanitised separately.
@@ -291,43 +297,39 @@ export function DatePicker({
         className={styles.panel}
         style={{ '--picker-anchor': anchor } as CSSProperties}
         onKeyDown={handlePanelKeyDown}
-        onToggle={(event: ToggleEvent) => {
-          const isOpen = event.newState === 'open';
-          setOpen(isOpen);
-          if (isOpen) {
-            // A popover moves focus only to an element carrying `autofocus`,
-            // so a panel opened by a click has to place it itself: the day
-            // grid's roving tab stop, the same target Calendar's own
-            // mount-time focus used before it moved here.
-            panelRef.current
-              ?.querySelector<HTMLButtonElement>('[role="grid"] button[tabindex="0"]')
-              ?.focus();
-          } else {
-            setOpenCount((count) => count + 1);
-          }
-        }}
+        // `beforetoggle`, not `toggle`: the platform fires it synchronously,
+        // before the panel shows. `toggle` is queued as a task, so the panel
+        // could paint empty for a frame before the Calendar mounted.
+        onBeforeToggle={(event: ToggleEvent) => setOpen(event.newState === 'open')}
       >
-        <Calendar
-          key={openCount}
-          {...calendar}
-          label={label}
-          mode={mode}
-          value={value}
-          locale={locale}
-          min={min}
-          max={max}
-          isDateUnavailable={isDateUnavailable}
-          onSelect={(next) => {
-            // A calendar pick always wins over whatever was mid-typed: the
-            // draft it is replacing, and any parse failure attached to it.
-            setDraft(null);
-            setParseFailed(false);
-            onSelect?.(next);
-            // Calendar reports only a finished choice — a single date, or a
-            // range with both ends — so every report closes the panel.
-            close();
-          }}
-        />
+        {/* Mounted only while open. Kept mounted in the hidden panel, the
+            build month reached the server HTML of a picker with no value, a
+            closed picker reopened on the month it was left on rather than
+            its current value, and a hidden grid re-rendered on every
+            keystroke. Unmounting on close is also what discards a pending
+            range start. */}
+        {open && (
+          <Calendar
+            {...calendar}
+            label={label}
+            mode={mode}
+            value={value}
+            locale={locale}
+            min={min}
+            max={max}
+            isDateUnavailable={isDateUnavailable}
+            onSelect={(next) => {
+              // A calendar pick always wins over whatever was mid-typed: the
+              // draft it is replacing, and any parse failure attached to it.
+              setDraft(null);
+              setParseFailed(false);
+              onSelect?.(next);
+              // Calendar reports only a finished choice — a single date, or a
+              // range with both ends — so every report closes the panel.
+              close();
+            }}
+          />
+        )}
       </div>
     </div>
   );

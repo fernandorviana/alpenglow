@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
+import { hydrateRoot, type Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import {
@@ -976,6 +977,40 @@ describe('Calendar on the server', () => {
     const status = doc.querySelector('[role="status"]');
     expect(status).not.toBeNull();
     expect(status!.textContent).toBe('');
+  });
+
+  it('hydrates without a mismatch when the month has moved since the server render', async () => {
+    // A static export is built in one month and opened in another. A calendar
+    // with no month seed must put no month in its server HTML, or the client's
+    // first pass disagrees with it — and React 19 keeps the server's text.
+    const previous = (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean })
+      .IS_REACT_ACT_ENVIRONMENT;
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+    vi.useFakeTimers({ toFake: ['Date'] });
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    let root: Root | undefined;
+    try {
+      vi.setSystemTime(new Date(2026, 8, 10, 12));
+      container.innerHTML = renderToString(<Calendar label="Any day" />);
+      expect(container.innerHTML).not.toContain('September');
+
+      vi.setSystemTime(new Date(2026, 9, 2, 12));
+      const onRecoverableError = vi.fn();
+      await act(async () => {
+        root = hydrateRoot(container, <Calendar label="Any day" />, { onRecoverableError });
+      });
+
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(within(container).getByRole('heading', { level: 2 })).toHaveTextContent(
+        'October 2026',
+      );
+    } finally {
+      act(() => root?.unmount());
+      container.remove();
+      vi.useRealTimers();
+      (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = previous;
+    }
   });
 
   it('leaves today out of the server HTML', () => {
