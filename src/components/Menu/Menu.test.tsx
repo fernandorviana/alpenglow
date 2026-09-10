@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, describe, it, expect } from 'vitest';
+import { beforeAll, describe, it, expect, vi } from 'vitest';
 import { Menu } from './Menu';
+import type { MenuEntry } from './rows';
 
 const css = readFileSync('src/components/Menu/Menu.module.css', 'utf8');
 
@@ -73,10 +74,16 @@ beforeAll(() => {
   });
 });
 
-// No `items` yet — this task builds the surface. Task 4 adds the prop and
-// updates this helper.
 function Basic() {
-  return <Menu trigger={(props) => <button {...props}>Actions</button>} />;
+  return <Menu trigger={(props) => <button {...props}>Actions</button>} items={[]} />;
+}
+
+function Open({ items }: { items: MenuEntry[] }) {
+  return <Menu trigger={(props) => <button {...props}>Actions</button>} items={items} />;
+}
+
+async function open(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Actions' }));
 }
 
 describe('Menu', () => {
@@ -152,6 +159,59 @@ describe('Menu', () => {
       // The popover still opens, still dismisses, still takes the keyboard —
       // it loses its anchor and gains the UA's centred placement.
       expect(css).toContain('@supports not (anchor-name: --a)');
+    });
+  });
+});
+
+describe('Menu rows', () => {
+  it('renders one menuitem per action', async () => {
+    const user = userEvent.setup();
+    render(<Open items={[{ id: 'edit', label: 'Edit' }, { id: 'copy', label: 'Copy' }]} />);
+    await open(user);
+    expect(screen.getAllByRole('menuitem').map((el) => el.textContent)).toEqual(['Edit', 'Copy']);
+  });
+
+  it('fires onSelect and closes', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(<Open items={[{ id: 'edit', label: 'Edit', onSelect }]} />);
+    await open(user);
+    await user.click(screen.getByRole('menuitem', { name: 'Edit' }));
+    expect(onSelect).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Actions' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('hides decorative icons from assistive technology', async () => {
+    const user = userEvent.setup();
+    render(
+      <Open items={[{ id: 'edit', label: 'Edit', icon: <svg data-testid="lead" />, iconEnd: <svg data-testid="trail" /> }]} />,
+    );
+    await open(user);
+    expect(screen.getByTestId('lead').parentElement).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByTestId('trail').parentElement).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  describe('the stylesheet', () => {
+    it('gives each tone the fill measured for it, not one shared neutral', () => {
+      // text/accent on the neutral fill is 3.50:1 in dark. On its own subtle
+      // surface it is 5.00:1. See contrast.test.ts.
+      expect(css).toContain('--ap-color-interactive-neutral-hover');
+      expect(css).toContain('--ap-color-surface-accent-subtle');
+      expect(css).toContain('--ap-color-surface-danger-subtle');
+    });
+
+    it('does not give the danger row the drawn hover border', () => {
+      // The drawing adds 1px of border/danger on hover. It would reflow the
+      // row by 1px and would be the only hover in the system that changes
+      // geometry. At ΔE76 14.14 in light and 61.74 in dark the fill is
+      // unambiguous alone.
+      expect(css).not.toContain('--ap-color-border-danger');
+    });
+
+    it("lets the icon slots take the row's colour", () => {
+      // control.module.css paints its icons text/tertiary. A grey icon beside
+      // a red label splits the row in two.
+      expect(css).toMatch(/\.icon[^{]*\{[^}]*color:\s*inherit/);
     });
   });
 });
