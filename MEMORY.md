@@ -123,7 +123,14 @@ have all been mistaken for errors at least once.
     show, hide, toggle, the queued `toggle` event and invoker clicks. Esc, light dismiss,
     focus return and placement are deliberately absent — they are the
     browser's, and all four were checked in Chrome — Esc by hand, because the
-    browser automation sends an untrusted Esc that the close watcher ignores.
+    browser automation's Esc is ignored. Rechecked by hand on 2026-09-10 in
+    Chrome and Safari 26.6 (Firefox not yet): Esc and the outside click close
+    the menu, after a click or ArrowDown, and Esc returns focus to the trigger.
+    The automation's keydown is trusted but carries `keyCode` 0 and an empty
+    `code`, and Chromium's close watcher does not read it as Esc. Pressed by
+    hand in the same Browser pane, `keyCode` is 27 and the menu closes. An
+    automated outside click closes it too. A menu left open by an automated Esc
+    is the tool, not the component — do not add Esc or outside-click handlers.
     Do not grow the stub to imitate them; delete it when jsdom ships popover,
     which a guard test will announce. The same Chrome check caught a keyboard
     ring losing on specificity, which jsdom cannot compute — look at
