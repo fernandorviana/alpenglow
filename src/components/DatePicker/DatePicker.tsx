@@ -165,6 +165,12 @@ export function DatePicker({
   // mask waits for the composition to end: rewriting the value mid-way would
   // fight the IME for the same characters.
   const composingFrom = useRef<string | null>(null);
+  // The draft when that composition began. Restored before `edit` runs, so a
+  // composition the mask refuses — or one that nets out to no change — never
+  // leaves raw, IME-authored characters sitting in the field. An edit `edit`
+  // does accept still wins: its own `setDraft` runs afterward, in the same
+  // handler.
+  const composingDraft = useRef<string | null>(null);
 
   /**
    * Ends in exactly one call: `onSelect` with a value, `onSelect(null)` for an
@@ -351,17 +357,37 @@ export function DatePicker({
           }}
           onCompositionStart={() => {
             composingFrom.current = text;
+            composingDraft.current = draft;
           }}
           onCompositionEnd={(event: CompositionEvent<HTMLInputElement>) => {
             const previous = composingFrom.current ?? text;
             composingFrom.current = null;
+            // Restore the pre-composition draft first: a composition `edit`
+            // refuses, or that nets out unchanged, returns before touching
+            // `draft`, so without this the raw composed text — even a bare
+            // non-digit — would stay in the field. An accepted edit's own
+            // `setDraft` below still wins; both run in this one handler.
+            setDraft(composingDraft.current);
             edit(event.currentTarget, previous, 'insertCompositionText');
           }}
           onBlur={() => {
+            // A blur mid-composition (rare, but IMEs can commit on blur)
+            // must not evaluate the still-uncommitted composition text.
+            if (composingFrom.current !== null) return;
             if (draft !== null) evaluate(draft);
           }}
           onKeyDown={(event) => {
-            if (event.key !== 'Enter') return;
+            if (
+              event.key !== 'Enter' ||
+              event.nativeEvent.isComposing ||
+              // Safari sends the Enter that commits a composition afterward,
+              // with keyCode 229 and isComposing already false, so that flag
+              // alone would miss it.
+              event.keyCode === 229 ||
+              composingFrom.current !== null
+            ) {
+              return;
+            }
             event.preventDefault();
             if (draft !== null) evaluate(draft);
           }}

@@ -777,6 +777,87 @@ describe('DatePicker typing', () => {
     expect(input).toHaveValue('12/');
   });
 
+  it('restores the pre-composition text when the mask refuses what the composition produced', () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox');
+    input.focus();
+    fireEvent.compositionStart(input);
+    // Fullwidth 13: an impossible month, refused the same way ASCII 13 is.
+    fireEvent.change(input, { target: { value: '１３' } });
+    expect(input).toHaveValue('１３');
+    fireEvent.compositionEnd(input);
+    expect(input).toHaveValue('');
+  });
+
+  it('restores the digits already typed when a composition only inserts a non-digit', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '12');
+    expect(input).toHaveValue('12/');
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: '12/／' } });
+    expect(input).toHaveValue('12/／');
+    fireEvent.compositionEnd(input);
+    expect(input).toHaveValue('12/');
+  });
+
+  it('calls nothing when a composition is cancelled back to the text it started from', () => {
+    const onSelect = vi.fn();
+    const onInvalid = vi.fn();
+    render(<Typed initial="2023-04-26" onSelect={onSelect} onInvalid={onInvalid} />);
+    const input = screen.getByRole('textbox');
+    input.focus();
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: '04/26/202３' } });
+    fireEvent.change(input, { target: { value: '04/26/2023' } });
+    fireEvent.compositionEnd(input);
+    fireEvent.blur(input);
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(onInvalid).not.toHaveBeenCalled();
+  });
+
+  it('does not evaluate the Enter that Chrome sends to commit an IME composition', () => {
+    const onInvalid = vi.fn();
+    render(<Typed onInvalid={onInvalid} />);
+    const input = screen.getByRole('textbox');
+    input.focus();
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: '１２' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+    expect(onInvalid).not.toHaveBeenCalled();
+    expect(input).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('does not evaluate an Enter carrying keyCode 229 just after a composition ends', () => {
+    const onInvalid = vi.fn();
+    render(<Typed onInvalid={onInvalid} />);
+    const input = screen.getByRole('textbox');
+    input.focus();
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: '１２' } });
+    fireEvent.compositionEnd(input);
+    fireEvent.keyDown(input, { key: 'Enter', keyCode: 229 });
+    expect(onInvalid).not.toHaveBeenCalled();
+  });
+
+  it('keeps the caret where a mid-string insert began, not at the end, when the mask refuses it', async () => {
+    render(<Typed initial="2023-04-26" />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await userEvent.type(input, '5', { initialSelectionStart: 0, initialSelectionEnd: 0 });
+    expect(input).toHaveValue('04/26/2023');
+    expect(input.selectionStart).toBe(0);
+  });
+
+  it('replaces a mid-string selection, reflowing the segment after it and landing the caret past its separator', async () => {
+    const onSelect = vi.fn();
+    render(<Typed initial="2023-04-26" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await userEvent.type(input, '9', { initialSelectionStart: 3, initialSelectionEnd: 5 });
+    expect(input).toHaveValue('04/09/2023');
+    expect(input.selectionStart).toBe(6);
+    expect(onSelect).toHaveBeenCalledWith('2023-04-09');
+  });
+
   it('takes its placeholder from the locale, compact, with its separator', () => {
     render(<DatePicker label="Data" locale="de-DE" />);
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'DD.MM.YYYY');
