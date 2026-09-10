@@ -340,6 +340,22 @@ describe('DatePicker', () => {
     expect(new FormData(container.querySelector('form')!).get('appointment')).toBe('');
   });
 
+  it('leaves the trigger inert in server HTML, so a click before hydration cannot open an empty panel', () => {
+    // Native popovertarget would open the panel before React listens: `open`
+    // stays false, the Calendar stays unmounted, and the panel shows empty.
+    const html = renderToString(<DatePicker label="Any day" />);
+    expect(html).not.toContain('popoverTarget');
+  });
+
+  it('submits nothing under its name when disabled', () => {
+    const { container } = render(
+      <form>
+        <DatePicker label="Appointment" name="appointment" value="2023-04-26" disabled />
+      </form>,
+    );
+    expect(new FormData(container.querySelector('form')!).has('appointment')).toBe(false);
+  });
+
   it('does not open when read-only', async () => {
     render(<DatePicker label="Appointment" value="2023-04-26" readOnly />);
     await userEvent.click(screen.getByRole('button', { name: /change date/i }), {

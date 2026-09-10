@@ -186,7 +186,10 @@ have all been mistaken for errors at least once.
     month seed (no `month`, `defaultMonth` or value) renders an empty six-row
     grid until then. React 19 does not patch a mismatched attribute or text
     node on hydration; it keeps the server's, so nothing the build machine and
-    the browser can disagree on may reach the server HTML.
+    the browser can disagree on may reach the server HTML. The flag is
+    `useHydrated` (`src/components/useHydrated.ts`), shared with DatePicker,
+    whose trigger carries `popovertarget` only once hydrated so a click before
+    hydration cannot open an empty panel.
 
 ---
 
@@ -256,7 +259,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 555 tests across 18 files
+npm test            # 558 tests across 18 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

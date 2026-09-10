@@ -17,7 +17,8 @@
  * browser, and a test of them here would be a test of this stub. A `manual`
  * consumer (DatePicker) implements its own dismissal, which its suite tests
  * through this stub. The top layer, anchor placement and real focus are not
- * covered by any suite, and have not yet been checked by hand.
+ * covered by any suite. DropdownMenu's docs page records its own by-hand
+ * check; DatePicker's have not yet been checked by hand.
  *
  * Each test file gets its own jsdom, so nothing here leaks into other suites.
  *

@@ -12,6 +12,7 @@ import {
   utcTimestamp,
 } from '../Calendar/date';
 import { useField } from '../Field/FieldContext';
+import { useHydrated } from '../useHydrated';
 import control from '../control.module.css';
 import styles from './DatePicker.module.css';
 
@@ -82,6 +83,7 @@ export function DatePicker({
   const describedBy = describedByProp ?? field?.describedBy;
   const required = requiredProp ?? field?.required;
 
+  const hydrated = useHydrated();
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -236,6 +238,8 @@ export function DatePicker({
           type="hidden"
           name={name}
           value={single ?? (range ? `${range.start}/${range.end}` : '')}
+          // A disabled control submits nothing, as a disabled input would.
+          disabled={disabled}
         />
         <input
           id={controlId}
@@ -282,7 +286,10 @@ export function DatePicker({
           // `open` the way the id used to.
           aria-controls={panelId}
           disabled={disabled || readOnly}
-          popoverTarget={panelId}
+          // Only once hydrated. Before that, a native popovertarget would open
+          // the panel while React is not listening: `open` would stay false,
+          // the Calendar unmounted, and the panel empty until two more clicks.
+          popoverTarget={hydrated ? panelId : undefined}
         >
           <CalendarIcon />
         </button>

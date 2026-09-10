@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
   addDays,
@@ -21,6 +21,7 @@ import {
   type CalendarCell,
   type ISODate,
 } from './date';
+import { useHydrated } from '../useHydrated';
 import styles from './Calendar.module.css';
 
 export type { ISODate } from './date';
@@ -97,15 +98,6 @@ function Chevron({ direction }: { direction: 'previous' | 'next' }) {
   );
 }
 
-// `useSyncExternalStore` with no subscription and no effect: it never fires,
-// so `hydrated` simply reads its server snapshot (`false`) for the render
-// that produces static HTML and for the client's matching first pass, then
-// its client snapshot (`true`) for every render after that — including the
-// very first one under a plain client `render()`, which never goes through
-// server/hydration snapshots at all. Declared at module scope so it is one
-// stable function reference rather than a fresh closure per render.
-const subscribe = () => () => {};
-
 export function Calendar({
   label,
   mode = 'single',
@@ -131,7 +123,7 @@ export function Calendar({
   // mismatched attribute or text node on hydration — it leaves whichever one
   // the server sent — so all three wait for this flag. No `today()` call may
   // run outside it.
-  const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const hydrated = useHydrated();
   const now = hydrated ? today() : null;
 
   // The month the calendar opens on, when anything names one: an explicit
@@ -453,9 +445,9 @@ export function Calendar({
   // It stays empty until the selection first differs from the mounted one,
   // then announces every selection, a return to the first one included.
   const selectionKey = rangeValue ? `${rangeValue.start}/${rangeValue.end}` : (single ?? '');
-  const mountedSelection = useRef(selectionKey);
+  const [mountedSelection] = useState(selectionKey);
   const [selectionChanged, setSelectionChanged] = useState(false);
-  if (!selectionChanged && selectionKey !== mountedSelection.current) setSelectionChanged(true);
+  if (!selectionChanged && selectionKey !== mountedSelection) setSelectionChanged(true);
 
   return (
     <div className={styles.calendar} onKeyDown={onRootKeyDown}>
