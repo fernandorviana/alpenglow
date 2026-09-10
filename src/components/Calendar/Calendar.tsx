@@ -58,11 +58,6 @@ export type CalendarProps = {
    * unread.
    */
   isDateUnavailable?: (date: ISODate) => boolean;
-  /**
-   * Focuses the day grid's tab stop on mount. Only the dialog sets this; a
-   * bare Calendar must not steal focus from the page.
-   */
-  autoFocusDay?: boolean;
 };
 
 /** The seven column headers, in the order the grid draws them. */
@@ -115,7 +110,6 @@ export function Calendar({
   min,
   max,
   isDateUnavailable,
-  autoFocusDay,
 }: CalendarProps) {
   const headingId = useId();
 
@@ -234,25 +228,11 @@ export function Calendar({
   const shouldRestoreFocus = useRef(false);
   const gridRef = useRef<HTMLTableElement>(null);
 
-  /** Focuses the grid's current tab stop, wherever the derivation above put it. */
-  function focusTabStop() {
-    gridRef.current?.querySelector<HTMLButtonElement>('button[tabindex="0"]')?.focus();
-  }
-
   useEffect(() => {
     if (!shouldRestoreFocus.current) return;
     shouldRestoreFocus.current = false;
-    focusTabStop();
+    gridRef.current?.querySelector<HTMLButtonElement>('button[tabindex="0"]')?.focus();
   });
-
-  // `autoFocusDay`'s mount effect calls `focusTabStop()` directly rather than
-  // setting `shouldRestoreFocus.current = true`: effects run in declaration
-  // order after each render, so a mount effect that only set the flag would
-  // run AFTER the effect above with no further render to make it act on it,
-  // and focus would never move.
-  useEffect(() => {
-    if (autoFocusDay) focusTabStop();
-  }, []);
 
   // The single place the month changes. Both the arrow-key paging in
   // `moveFocus` and the Previous/Next buttons below route through this, so

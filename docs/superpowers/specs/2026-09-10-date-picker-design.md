@@ -365,25 +365,38 @@ has expressed an interval, not an order.
 
 ---
 
-## The popover, and why not the native API
+## The popover
 
-The panel is `position: absolute` inside a `position: relative` wrapper, flipping
-above the field when the viewport has no room below, measured once on open. It
-dismisses on `Esc`, on a pointer press outside, and on focus leaving the
-subtree.
+The panel was first built `position: absolute` inside a `position: relative`
+wrapper, flipping above the field when the viewport had no room below,
+measured once on open. The native `popover` attribute was rejected at the
+time on a measurement rather than a preference: jsdom 30 implements neither
+`popover`, nor `showPopover`, nor `inert`, and building on it would have put
+the entire open, close, dismiss and focus-return contract outside the reach
+of the suite.
 
-The native `popover` attribute is the better mechanism on paper — it puts the
-panel in the top layer, which solves clipping and stacking without a line of JS.
-It is rejected on a measurement rather than a preference: the test environment
-(jsdom 30) implements neither `popover`, nor `showPopover`, nor `inert`. Building
-on it would put the entire open, close, dismiss and focus-return contract outside
-the reach of the suite, in a repository whose Button tests read the stylesheet
-source to prove an invariant. A component that cannot be tested is not this
-system's idea of a finished component.
+On 2026-09-10 it moved to `popover="manual"` plus CSS anchor positioning.
+`DropdownMenu` had by then shown the API can be stubbed in jsdom
+(`src/test/popover.ts`, carrying a guard test that fails the day jsdom ships
+the real thing), and the absolute panel was clipped by any ancestor with
+`overflow: hidden` — a cost that was written down as known but not, in the
+end, acceptable.
 
-The known cost is written down rather than hidden: an ancestor with
-`overflow: hidden` will clip the panel. When a `Popover` primitive is eventually
-extracted, moving to the top layer is the first thing it should do.
+`manual`, not `auto`: dismissal stays in the component because of the Esc
+layering. In range mode the first Esc only cancels a pending start; the
+second closes the panel. With `auto` that ordering would depend on the
+platform's own close request, which neither jsdom nor a browser automation
+tool can drive.
+
+It dismisses on `Esc`, on a pointer press outside, and on focus leaving the
+subtree, all handled in the component rather than left to the platform. Tab
+cycles within the dialog and wraps at both ends.
+
+Without anchor positioning it falls back to a centred panel, the same
+degraded path `DropdownMenu` uses.
+
+Esc, the outside press, focus return, the top layer and the flip are verified
+in a real browser, not in the suite.
 
 ---
 

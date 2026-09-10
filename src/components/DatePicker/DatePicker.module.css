@@ -1,22 +1,24 @@
 /**
  * DatePicker
  *
- * The panel is positioned against a relatively-placed wrapper rather than put
- * in the top layer. The native `popover` attribute is the better mechanism on
- * paper — it solves clipping and stacking without a line of JS — and it is
- * rejected on a measurement rather than a preference: jsdom 30 implements
- * neither `popover`, nor `showPopover`, nor `inert`, so the entire open,
- * close, dismiss and focus-return contract would sit outside the reach of the
- * suite.
+ * The panel is native `popover="manual"` in the top layer, anchored to the
+ * field with CSS anchor positioning. That escapes `overflow: hidden` and
+ * every stacking context without a portal, and CSS places and flips it, so
+ * there is no positioning JavaScript to keep correct on scroll and resize.
+ * `manual`, not `auto`: dismissal stays in the component, because of the Esc
+ * layering — the first Esc in range mode only cancels a pending start, and
+ * that has to run before the platform would otherwise close the popover on
+ * its own close request.
  *
- * The known cost, written down rather than hidden: an ancestor with
- * `overflow: hidden` will clip the panel. When a Popover primitive is
- * eventually extracted, moving to the top layer is the first thing it should
- * do.
+ * jsdom 30 has none of the popover API. The stub that fills in for it,
+ * `src/test/popover.ts`, is shared with `DropdownMenu`, whose tests carry a
+ * guard that fails the day jsdom ships the real thing.
+ *
+ * Esc, the outside press, focus return, the top layer and the flip are
+ * checked in a real browser, not in the suite.
  */
 
 .wrapper {
-  position: relative;
   display: inline-flex;
   flex-direction: column;
   width: 100%;
@@ -53,40 +55,48 @@
    panel painted `raised` would sit at the same value as the card it floats
    over.
 
-   In light the panel's edge against a card measures 1.00:1 and against the
-   canvas 1.06:1: the shadow is the boundary. A hairline does not rescue it
-   either — border/subtle against the panel is 1.16:1 and border/default
-   against a card is 1.40:1. Recorded, not corrected.
-
-   The drawing's shadow is navy at 10% / 12%. No shadow token exists and this
-   plan adds none, so the two `--ap-alpha-black-*` primitives stand in — the
-   same pair the docs site already uses for the theme toggle's knob shadow.
-   In light, this shadow is the panel's only boundary against a card: the
-   1.00:1 hairline above means there is nothing else drawing that edge.
-
    Figma radius/lg (12) is the code's radius/xl: the names are offset by one
-   step above sm. */
+   step above sm.
+
+   The shadow is the system's `elevation/md` token, the same one the menu
+   uses. */
 .panel {
-  position: absolute;
-  z-index: 1;
-  top: calc(100% + var(--ap-spacing-050));
-  inset-inline-start: 0;
-  width: 296px;
+  /* The UA sheet gives [popover] `inset: 0; margin: auto`, which centres it.
+     Anchor positioning needs both cleared. The @supports branch at the bottom
+     puts them back where anchor positioning is missing. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  inline-size: max-content;
   padding: var(--ap-spacing-100);
+  overflow: visible;
+
+  border: var(--ap-border-width-hairline) solid transparent;
   border-radius: var(--ap-radius-xl);
   background: var(--ap-color-surface-overlay);
-  box-shadow:
-    0 10px 32px -4px var(--ap-alpha-black-08),
-    0 6px 14px -6px var(--ap-alpha-black-16);
+  box-shadow: var(--ap-elevation-md);
+
+  position-anchor: var(--picker-anchor);
+  position-area: block-end span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  /* Hide rather than float loose when the field scrolls out of view. */
+  position-visibility: anchors-visible;
+  margin-block-start: var(--ap-spacing-050);
 }
 
-/* Flipped above the field when there is no room below. Set by the component
-   after it measures, once, on open. jsdom reports zero for both
-   `getBoundingClientRect()` and `window.innerHeight`, so the flip can never
-   trigger under the suite — the branch is exercised by eye, not asserted. */
-.above {
-  top: auto;
-  bottom: calc(100% + var(--ap-spacing-050));
+/**
+ * In dark the surface takes a border, and light does not. See the menu's
+ * stylesheet for the measurement behind it — the same panel, the same
+ * reasoning.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .panel {
+    border-color: var(--ap-color-border-default);
+  }
+}
+
+:root[data-theme='dark'] .panel {
+  border-color: var(--ap-color-border-default);
 }
 
 /* A panel either is or is not on screen. Unlike the Loader's spinner, nothing
@@ -100,4 +110,13 @@
 @keyframes appear {
   from { opacity: 0; transform: translateY(-2px); }
   to { opacity: 1; transform: none; }
+}
+
+/* The degraded path where anchor positioning is missing — see the menu's
+   stylesheet for the browser support and the trade-off. */
+@supports not (anchor-name: --a) {
+  .panel {
+    inset: 0;
+    margin: auto;
+  }
 }

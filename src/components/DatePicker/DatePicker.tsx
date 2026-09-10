@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import type { FocusEvent, KeyboardEvent } from 'react';
+import type { CSSProperties, FocusEvent, KeyboardEvent, ToggleEvent } from 'react';
 import { Calendar, type CalendarProps, type DateRange } from '../Calendar';
 import { dateFormat, utcTimestamp } from '../Calendar/date';
 import { useField } from '../Field/FieldContext';
@@ -26,7 +26,7 @@ function CalendarIcon() {
 /** Shares Button's height scale: 32, 40, 48. */
 export type DatePickerSize = 'sm' | 'md' | 'lg';
 
-export type DatePickerProps = Omit<CalendarProps, 'autoFocusDay'> & {
+export type DatePickerProps = CalendarProps & {
   size?: DatePickerSize;
   invalid?: boolean;
   disabled?: boolean;
@@ -56,23 +56,17 @@ export function DatePicker({
   const required = field?.required;
 
   const [open, setOpen] = useState(false);
+  // Remounts the Calendar on every open so a pending range start, or a page
+  // to a different month, does not survive into the next open — the grid
+  // should always resume from the resolved month, not wherever it was left.
+  const [openCount, setOpenCount] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const dialogId = useId();
-
-  // Flips the panel above the field when there is no room below. Measured
-  // once on open, not on every render or scroll — a panel that renegotiates
-  // its own position while the user is looking at it reads as unstable.
-  // jsdom reports zero for both `getBoundingClientRect()` and
-  // `window.innerHeight`, so `rect.bottom > window.innerHeight` is never true
-  // under the suite; the branch is not asserted here, only in the browser.
-  const [above, setAbove] = useState(false);
-  useEffect(() => {
-    if (!open) return;
-    const rect = panelRef.current?.getBoundingClientRect();
-    setAbove(Boolean(rect && rect.bottom > window.innerHeight));
-  }, [open]);
+  const panelId = useId();
+  // useId returns a value containing characters that are legal in an HTML id
+  // and not in a CSS identifier, so the anchor name is sanitised separately.
+  const anchor = `--picker-${panelId.replace(/[^a-zA-Z0-9]/g, '')}`;
 
   // The only place a formatter is built for this component: it goes through
   // `dateFormat`, which pins the zone to UTC, so the trigger's label and the
@@ -95,7 +89,7 @@ export function DatePicker({
         : '';
 
   function close({ restoreFocus = true } = {}) {
-    setOpen(false);
+    panelRef.current?.hidePopover();
     if (restoreFocus) triggerRef.current?.focus();
   }
 
@@ -105,7 +99,7 @@ export function DatePicker({
     if (!open) return;
     function onPointerDown(event: PointerEvent) {
       if (!wrapperRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+        close({ restoreFocus: false });
       }
     }
     document.addEventListener('pointerdown', onPointerDown);
@@ -123,7 +117,7 @@ export function DatePicker({
     if (!open) return;
     const next = event.relatedTarget;
     if (next && !wrapperRef.current?.contains(next)) {
-      setOpen(false);
+      close({ restoreFocus: false });
     }
   }
 
@@ -172,6 +166,7 @@ export function DatePicker({
         ]
           .filter(Boolean)
           .join(' ')}
+        style={{ anchorName: anchor }}
       >
         <input
           id={controlId}
@@ -197,43 +192,68 @@ export function DatePicker({
           // to read the field to know what is in it.
           aria-label={display ? `Change date, ${display}` : 'Choose date'}
           aria-expanded={open}
-          aria-controls={open ? dialogId : undefined}
+          // The panel is always in the DOM now, so this no longer depends on
+          // `open` the way the id used to.
+          aria-controls={panelId}
           disabled={disabled || readOnly}
-          onClick={() => setOpen((was) => !was)}
+          popoverTarget={panelId}
         >
           <CalendarIcon />
         </button>
       </div>
 
-      {open && (
-        <div
-          id={dialogId}
-          role="dialog"
-          aria-modal="true"
-          aria-label={label}
-          ref={panelRef}
-          className={[styles.panel, above && styles.above].filter(Boolean).join(' ')}
-          onKeyDown={handlePanelKeyDown}
-        >
-          <Calendar
-            {...calendar}
-            label={label}
-            mode={mode}
-            value={value}
-            locale={locale}
-            autoFocusDay
-            onSelect={(next) => {
-              onSelect?.(next);
-              // A single date is complete on the first click. A range is not:
-              // closing on the first would make the second unreachable.
-              const complete =
-                mode === 'single' ||
-                (next !== null && typeof next === 'object' && next.end !== null);
-              if (complete) close();
-            }}
-          />
-        </div>
-      )}
+      {/*
+       * `manual`, not `auto`: dismissal stays in this component's own tested
+       * handlers (Esc — including the range-mode layering where the first
+       * Esc only cancels a pending start — a pointer press outside, and focus
+       * leaving the subtree). With `auto` the Esc layering would depend on
+       * the platform's close request, which jsdom cannot run and which a
+       * browser automation tool cannot send either.
+       */}
+      <div
+        id={panelId}
+        popover="manual"
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        ref={panelRef}
+        className={styles.panel}
+        style={{ '--picker-anchor': anchor } as CSSProperties}
+        onKeyDown={handlePanelKeyDown}
+        onToggle={(event: ToggleEvent) => {
+          const isOpen = event.newState === 'open';
+          setOpen(isOpen);
+          if (isOpen) {
+            // A popover moves focus only to an element carrying `autofocus`,
+            // so a panel opened by a click has to place it itself: the day
+            // grid's roving tab stop, the same target Calendar's own
+            // mount-time focus used before it moved here.
+            panelRef.current
+              ?.querySelector<HTMLButtonElement>('[role="grid"] button[tabindex="0"]')
+              ?.focus();
+          } else {
+            setOpenCount((count) => count + 1);
+          }
+        }}
+      >
+        <Calendar
+          key={openCount}
+          {...calendar}
+          label={label}
+          mode={mode}
+          value={value}
+          locale={locale}
+          onSelect={(next) => {
+            onSelect?.(next);
+            // A single date is complete on the first click. A range is not:
+            // closing on the first would make the second unreachable.
+            const complete =
+              mode === 'single' ||
+              (next !== null && typeof next === 'object' && next.end !== null);
+            if (complete) close();
+          }}
+        />
+      </div>
     </div>
   );
 }
