@@ -213,6 +213,22 @@ describe('Menu rows', () => {
       // a red label splits the row in two.
       expect(css).toMatch(/\.icon[^{]*\{[^}]*color:\s*inherit/);
     });
+
+    it('lets the keyboard ring win over the rule that removes the default outline', () => {
+      // Found in Chrome, not in jsdom: with `outline: none` inside the guarded
+      // `.item:focus:not([aria-disabled='true'])` rule, that selector is one
+      // attribute more specific than `.item:focus-visible`, so the ring's
+      // outline-style lost and a keyboard user saw a fill and no ring. The
+      // default outline is removed on plain `.item:focus`, ahead of the ring.
+      const rules = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^}]*)\}/g)].map(
+        ([, selector, body]) => ({ selector: selector!.trim(), body: body! }),
+      );
+      const removers = rules.filter((rule) => /outline:\s*none/.test(rule.body));
+      const ring = rules.findIndex((rule) => rule.selector === '.item:focus-visible');
+
+      expect(removers.map((rule) => rule.selector)).toEqual(['.item:focus']);
+      expect(ring).toBeGreaterThan(rules.indexOf(removers[0]!));
+    });
   });
 });
 

@@ -118,8 +118,15 @@
  * The :not() guard is the same shape as Button's :not(.loading): without it a
  * disabled row would light up under the pointer. Menu.test.tsx asserts it.
  */
-.item:focus:not([aria-disabled='true']) {
+/* The default outline is removed here, on the plain selector, and not inside
+   the guarded fill rule below. There it was one attribute more specific than
+   `.item:focus-visible`, so the ring lost and a keyboard user saw a fill with
+   no ring — measured in Chrome; jsdom computes no :focus-visible. */
+.item:focus {
   outline: none;
+}
+
+.item:focus:not([aria-disabled='true']) {
   background: var(--ap-color-interactive-neutral-hover);
 }
 
