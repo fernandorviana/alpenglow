@@ -199,8 +199,16 @@ export default function Page() {
         jsdom, which runs the test suite, implements none of the popover API. The suite stubs the
         calls the component makes and asserts everything the component decides: the roles and
         their wiring, the rows, every key, the disabled rows, and the stylesheet&rsquo;s choices of
-        token. Esc, the outside click, focus return and placement belong to the browser, and were
-        checked in one.
+        token. Esc, the outside click, focus return and placement belong to the browser. Placement
+        and the outside click were checked in Chrome; Esc and focus return rest on the
+        platform&rsquo;s specification.
+      </p>
+      <p>
+        That check found one defect the suite could not. The rule removing the default outline
+        sat inside the guarded fill, one attribute more specific than the keyboard ring, so the
+        ring lost: a keyboard user saw a fill and no ring. jsdom computes no{' '}
+        <code>:focus-visible</code>, so the suite passed. The stylesheet test now pins the order
+        of the two rules instead.
       </p>
       <p>
         The top layer was worth that gap. A menu opens from inside other components — a row of

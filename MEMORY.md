@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-09**, commit `5c577af`.
+Last verified against the tree on **2026-09-10**, commit `3dd47f0`.
 
 ---
 
@@ -25,13 +25,16 @@ It is a public portfolio piece. Keep the writing at the standard of the code.
 
 ## Architecture
 
-Three token layers, mirrored in Figma as three variable collections. TypeScript
-is the source of truth; both stylesheets are generated from it.
+Three token layers, mirrored in Figma as three variable collections, plus an
+elevation file that is not a fourth collection — effects are styles in Figma,
+not variables. TypeScript is the source of truth; both stylesheets are
+generated from it.
 
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
-| Primitives | `src/tokens/primitives.ts` | no | 81 opaque colours + 12 alpha. Never referenced directly. |
+| Primitives | `src/tokens/primitives.ts` | no | 81 opaque colours + 14 alpha (12 on the ramps, 2 shadow inks). Never referenced directly. |
 | Theme | `src/tokens/theme.ts` | Light / Dark | 53 semantic tokens: `surface` 11, `text` 11, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
+| Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, one step (`md`). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 
 Generated artefacts, both written by `npm run build:css`:
@@ -102,6 +105,31 @@ have all been mistaken for errors at least once.
    all. `app/ui/ThemeToggle.test.tsx` reads `app/docs.css` and fails if the two
    halves stop matching declaration for declaration.
 
+10. **Dark elevation is modest on purpose.** The dark shadow was never drawn,
+    so its values are a decision. Black at 64% over the dark canvas reaches
+    1.16:1 against it; black at 8% over white reaches 1.19:1. An 8% shadow in
+    light does more than a 64% one in dark, so dark does not chase a shadow
+    that cannot work — it stops at `alpha/black-32` and `-48`.
+
+11. **The Menu has a border in dark and none in light.** Invariant 4 applied,
+    not an accident of asymmetry: in dark the shadow stops separating, and
+    `border/default` is 1.77:1 against the canvas there against 1.31:1 in
+    light. Each menu tone also hovers to its own subtle fill rather than one
+    shared neutral — `text/accent` on the neutral fill is 3.50:1 in dark.
+    Both are asserted in `Menu.test.tsx` and `contrast.test.ts`.
+
+12. **The Menu's tests stub the popover API, and only part of it.** jsdom 30
+    implements none of it. The stub in `Menu.test.tsx` covers show, hide,
+    toggle, the queued `toggle` event and invoker clicks. Esc, light dismiss,
+    focus return and placement are deliberately absent — they are the
+    browser's. Placement and light dismiss were checked in Chrome; Esc and
+    focus return were not (the browser automation sends an untrusted Esc that
+    the close watcher ignores), so a manual keypress is still owed. Do not grow
+    the stub to imitate them; delete it when jsdom ships popover, which a guard
+    test will announce. The same Chrome check caught a keyboard ring losing on
+    specificity, which jsdom cannot compute — look at `:focus-visible` in a real
+    browser after touching a focus rule.
+
 ---
 
 ## Conventions
@@ -118,7 +146,8 @@ have all been mistaken for errors at least once.
   equivalent; eight more exist in Carbon under a different name, and that
   mapping is on the Icons page.
 - **Prefer the native element.** `Select` wraps `<select>` rather than building
-  a listbox.
+  a listbox, and `Menu` is a `popover` placed with CSS anchor positioning
+  rather than a portal and a positioning library.
 
 ---
 
@@ -126,7 +155,7 @@ have all been mistaken for errors at least once.
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 327 tests across 13 files
+npm test            # 391 tests across 16 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
@@ -135,7 +164,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck + tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 80 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 95 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -162,23 +191,24 @@ documentation site, so an absent component costs more than an absent package.
 
 ### 1. The tokens still promise components that do not exist
 
-Four tokens still name components that do not exist: `surface/overlay`
-(modals, popovers, dropdowns), `surface/sunken` (wells, progress tracks),
-`surface/scrim` (modal backdrop), `surface/inverse` (tooltips, inverted
-banners). Table claimed two more off this list — it is the consumer of
+Three tokens still name components that do not exist: `surface/sunken`
+(wells, progress tracks), `surface/scrim` (modal backdrop), `surface/inverse`
+(tooltips, inverted banners). Menu claimed `surface/overlay`, and is its only
+consumer until a modal or a popover exists. Table claimed two more off this list — it is the consumer of
 `surface/raised` (table body) and of `interactive/selected` (row), which is
 why `surface/sunken` no longer claims table headers: the header band is
 `surface/base`, and the reason is recorded on the token itself.
 
 ### 2. README drift
 
-- Claims **49** semantic tokens; there are **53**.
 - Two different `## Icons` sections that contradict each other and the code:
   one says icons are not re-exported, the other says they ship from
   `alpenglow/icons`, and `src/index.ts` does `export * from './icons/index'`.
 - Two near-duplicate "Running it" blocks, with different Carbon URLs.
-- Claims 97 contrast assertions; the suite runs 80 cases — plausible but
-  unverified, worth recounting alongside the 53.
+
+The counts were corrected with the Menu work: 53 semantic tokens, 81 + 14
+primitives, and 95 contrast cases — stated as cases, the number the suite
+reports, rather than as assertions, which nothing counts.
 
 For a system whose pitch is *measured rather than assumed*, a drifted number in
 the README is the most expensive kind of typo. Cheap to fix, and it is the
@@ -209,6 +239,7 @@ cannot line up with its checkbox.
 `warning`, `info` and `tertiary` appearing in some and not others. Some
 divergence is right — a warning button is usually a design error — but there is
 no exported `Tone` type naming the vocabulary that each component subsets.
+`MenuItemTone` makes it four, with 3 members (`default`, `accent`, `danger`).
 
 ### 6. Packaging — deliberately deferred
 

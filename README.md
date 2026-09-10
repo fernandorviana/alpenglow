@@ -15,8 +15,9 @@ Three layers, mirrored in Figma as three variable collections.
 
 | Layer | Varies by mode | What it holds |
 |---|---|---|
-| **Primitives** | no | The raw ramp. 81 opaque colours plus 12 alpha values. Nothing references these directly. |
-| **Theme** | Light / Dark | 49 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
+| **Primitives** | no | The raw ramp. 81 opaque colours plus 14 alpha values — twelve on the black and white ramps, two shadow inks. Nothing references these directly. |
+| **Theme** | Light / Dark | 53 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
+| **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
 
 TypeScript is the source of truth. Both stylesheets are generated from it, and
@@ -39,7 +40,7 @@ npm run check        # types, then every documented contrast ratio
 
 ## The contrast suite
 
-97 assertions covering what the design actually depends on: text clearing AA on
+95 test cases covering what the design actually depends on: text clearing AA on
 every surface it can appear on, status text clearing AA on its own subtle
 background, every button label clearing AA on all of its fill states, control
 borders clearing WCAG 1.4.11, the dark elevation ladder staying ordered and

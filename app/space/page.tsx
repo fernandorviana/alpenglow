@@ -10,6 +10,7 @@ export default function Page() {
           <p>22 steps</p>
           <p>9 radii</p>
           <p>3 stroke widths</p>
+          <p>1 elevation step, moded</p>
         </>
       }
     >
@@ -66,6 +67,50 @@ export default function Page() {
             </div>
           </div>
         ))}
+      </div>
+
+      <h2>Elevation</h2>
+      <p>
+        One step, <code>md</code>, and it is the only token besides the theme that varies by
+        mode. It cannot live in either existing layer: the theme is typed as colour aliases and
+        the contrast suite iterates its keys, while the scale must not vary by mode — and this
+        does. It is not a fourth Figma collection, because effects are styles there rather than
+        variables.
+      </p>
+      <p>
+        The geometry is shared by both modes and only the ink changes: the same light, a
+        different room. In light the ink is <code>gray-dark/900</code> at 10% and 12%, which
+        lands ΔE76 1.73 and 1.57 from the drawn navy. Pure black at the nearest steps of the
+        alpha ramp was tried first and measured at 2.20 and 5.70 — the second is well past the
+        ~2.3 just noticeable difference, so the shadow needed its own ink.
+      </p>
+      <p>
+        Dark was never drawn: the source library has this shadow in three sizes for light and
+        one for dark, and not this one. So the dark values are a decision, and the decision is
+        to keep them modest. Against the ground it falls on, black at 8% in light reaches
+        1.19:1; black at 64% in dark reaches 1.16:1. An 8% shadow in light does more than a 64%
+        shadow in dark. Pushing dark harder buys 0.07 of ratio and costs a smear.
+      </p>
+      <p>
+        Which is why, in dark, the Menu also takes a 1px border. That is the rule for running
+        out of elevation, applied: separate with a border rather than inventing a step.
+        Against the canvas <code>border/default</code> is 1.77:1 in dark and 1.31:1 in light —
+        stronger exactly where it is needed. Light does not get one; there the shadow already
+        separates, and a border would draw the edge twice.
+      </p>
+
+      <div className="specimen">
+        <div
+          style={{
+            padding: 24,
+            maxWidth: 240,
+            borderRadius: 'var(--ap-radius-xl)',
+            background: 'var(--ap-color-surface-overlay)',
+            boxShadow: 'var(--ap-elevation-md)',
+          }}
+        >
+          <span className="alias">elevation/md</span>
+        </div>
       </div>
 
       <h2>Stroke width</h2>

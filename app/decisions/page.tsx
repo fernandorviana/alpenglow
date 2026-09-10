@@ -86,6 +86,43 @@ export default function Page() {
         another fill step. Running out is not a flaw to design around; it is a constraint to
         state plainly so nobody invents a fifth level that collides with something.
       </p>
+
+      <h2>The menu takes a border in dark and not in light</h2>
+      <p>
+        Not an oversight of symmetry. Against the ground it falls on, the shadow reaches 1.19:1
+        in light at 8% opacity and 1.16:1 in dark at 64% — in dark it has stopped carrying
+        elevation, whatever it is set to. The border is what separates the menu there, and
+        against the canvas it is 1.77:1 in dark against 1.31:1 in light: stronger where it has
+        to be. In light the shadow already does the work, and drawing the edge twice would
+        look like a mistake, because it would be one.
+      </p>
+
+      <h2>Each menu tone hovers to its own fill</h2>
+      <p>
+        The drawing gives every row the same hover fill. Two measurements broke that. The drawn
+        fill is <code>surface/base</code>, which in dark is <em>darker</em> than the menu — the
+        row under the pointer would open a hole rather than light up. And the accent row&rsquo;s
+        label on a shared neutral fill is 3.50:1 in dark, below AA. On its own subtle surface it
+        is 5.00:1.
+      </p>
+      <p>
+        The accent fill in dark is 1.06:1 against the menu, which reads as invisible and is not.
+        It is a hue change, and its ΔE76 is 65.86. The WCAG ratio is a luminance measure; here
+        it misses the difference entirely. Both numbers belong on the page, because only one of
+        them describes what a reader sees.
+      </p>
+
+      <h2>The menu takes the top layer, and the suite cannot see it</h2>
+      <p>
+        jsdom, which runs the test suite, implements none of the popover API. The menu uses it
+        anyway. A menu opens from inside other components — a row of actions in the Table, whose
+        scroll container clips anything positioned inside it — and escaping that clip is the
+        reason for an overlay to exist. The suite stubs the calls the component makes and asserts
+        everything the component decides: roles, rows, keys, disabled rows, the stylesheet. Esc,
+        the outside click, focus return and placement belong to the browser. Placement and the
+        outside click were checked in Chrome; Esc and focus return rest on the platform&rsquo;s
+        specification. This entry says which is which rather than letting a stub claim them.
+      </p>
     </DocPage>
   );
 }
