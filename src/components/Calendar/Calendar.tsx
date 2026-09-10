@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
   addDays,
@@ -97,6 +97,15 @@ function Chevron({ direction }: { direction: 'previous' | 'next' }) {
   );
 }
 
+// `useSyncExternalStore` with no subscription and no effect: it never fires,
+// so `hydrated` simply reads its server snapshot (`false`) for the render
+// that produces static HTML and for the client's matching first pass, then
+// its client snapshot (`true`) for every render after that — including the
+// very first one under a plain client `render()`, which never goes through
+// server/hydration snapshots at all. Declared at module scope so it is one
+// stable function reference rather than a fresh closure per render.
+const subscribe = () => () => {};
+
 export function Calendar({
   label,
   mode = 'single',
@@ -113,19 +122,34 @@ export function Calendar({
 }: CalendarProps) {
   const headingId = useId();
 
-  const now = today();
+  // `false` on the server and on the client's first, hydration-matching pass;
+  // `true` on every render after that. Two things must not reach server
+  // HTML: today's date, which drives the today marker and the tab stop below
+  // and is only known once the client's clock can be read, and the
+  // runtime-dependent separator inside `rangeFormat.formatRange` near the
+  // bottom of this component, whose glyph (space vs thin space) depends on
+  // the runtime's ICU data and can differ between the machine that built the
+  // static export and the browser that hydrates it. React 19 does not patch
+  // a mismatched attribute or text node on hydration — it leaves whichever
+  // one the server sent — so both must wait for this flag.
+  const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const now = hydrated ? today() : null;
 
   // The starting month, resolved once: an explicit `defaultMonth` wins, else
   // the month of a single-mode value, else the month of a range's start, else
   // today's month. A controlled `month` prop still wins for what is visible —
   // this only seeds the uncontrolled fallback and the initial focus below.
+  // Deliberately `today()` here rather than the hydration-gated `now` above:
+  // this only seeds which month an uncontrolled, valueless calendar opens
+  // on, not a today marker or a tab stop, and gating it would make that
+  // calendar's first server render crash with no month to resolve at all.
   const resolvedMonth = startOfMonth(
     defaultMonth ??
       (typeof value === 'string'
         ? value
         : value && typeof value === 'object' && 'start' in value
           ? value.start
-          : now),
+          : today()),
   );
 
   // The visible month and the selection are two different pieces of state.
@@ -347,7 +371,7 @@ export function Calendar({
             compare(cell.date, rangeValue.start) >= 0 &&
             compare(cell.date, rangeValue.end ?? rangeValue.start) <= 0
         : single === cell.date;
-    const isToday = cell.date === now;
+    const isToday = now !== null && cell.date === now;
     const isUnavailable = unavailable(cell.date);
 
     const dayClasses = [
@@ -481,13 +505,21 @@ export function Calendar({
       </table>
 
       {/* role="status" is an implicit aria-live="polite". Separate from the
-          month heading so paging and selecting do not overwrite each other. */}
+          month heading so paging and selecting do not overwrite each other.
+          The element stays on the server so the live region exists before
+          any change — but its text waits for `hydrated`, both because
+          `formatRange`'s separator glyph is runtime-dependent (see `now`
+          above) and because an empty live region on first paint is correct
+          on its own terms: a status region announces changes, not initial
+          content. */}
       <div role="status" className={styles.hidden}>
-        {mode === 'range' && rangeValue?.end
-          ? rangeFormat.formatRange(utcTimestamp(rangeValue.start), utcTimestamp(rangeValue.end))
-          : mode === 'single' && single
-            ? cellFormat.format(utcTimestamp(single))
-            : ''}
+        {hydrated
+          ? mode === 'range' && rangeValue?.end
+            ? rangeFormat.formatRange(utcTimestamp(rangeValue.start), utcTimestamp(rangeValue.end))
+            : mode === 'single' && single
+              ? cellFormat.format(utcTimestamp(single))
+              : ''
+          : ''}
       </div>
     </div>
   );

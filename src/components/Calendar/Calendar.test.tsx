@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import {
   addDays,
@@ -931,6 +932,48 @@ describe('Calendar stylesheet source', () => {
     expect(css).not.toMatch(/\b(?:rgb|rgba|hsl|hsla)\(/);
     const primitives = css.match(/--ap-(gray|brand|red|green|yellow|blue|alpha)-[\w-]+/g) ?? [];
     expect(primitives).toEqual(['--ap-gray-light-400']);
+  });
+});
+
+describe('Calendar on the server', () => {
+  const parseHTML = (html: string) => {
+    const parser = new DOMParser();
+    return parser.parseFromString(html, 'text/html');
+  };
+
+  it('leaves the selection announcement out of the server HTML', () => {
+    const html = renderToString(
+      <Calendar
+        label="Stay"
+        mode="range"
+        defaultMonth="2023-03-01"
+        value={{ start: '2023-02-20', end: '2023-03-03' }}
+      />,
+    );
+    const doc = parseHTML(html);
+    const status = doc.querySelector('[role="status"]');
+    expect(status).not.toBeNull();
+    expect(status!.textContent).toBe('');
+  });
+
+  it('leaves today out of the server HTML', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date(2023, 3, 12, 12));
+      const html = renderToString(<Calendar label="Date" defaultMonth="2023-04-01" />);
+      const doc = parseHTML(html);
+
+      const todayCells = [...doc.querySelectorAll('td')].filter((cell) =>
+        cell.className.includes(styles.today!),
+      );
+      expect(todayCells).toHaveLength(0);
+
+      const tabbable = [...doc.querySelectorAll('button[tabindex="0"]')];
+      expect(tabbable).toHaveLength(1);
+      expect(tabbable[0]!.getAttribute('aria-label')).toMatch(/april 1,/i);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
