@@ -3,7 +3,14 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, FocusEvent, KeyboardEvent, ToggleEvent } from 'react';
 import { Calendar, type CalendarProps, type DateRange } from '../Calendar';
-import { dateFormat, utcTimestamp } from '../Calendar/date';
+import {
+  dateFormat,
+  formatTyped,
+  isWithin,
+  parseTyped,
+  placeholderFor,
+  utcTimestamp,
+} from '../Calendar/date';
 import { useField } from '../Field/FieldContext';
 import control from '../control.module.css';
 import styles from './DatePicker.module.css';
@@ -33,6 +40,11 @@ export type DatePickerProps = CalendarProps & {
   readOnly?: boolean;
   id?: string;
   name?: string;
+  /**
+   * Fires when the typed text is not a date, or is a date the calendar would
+   * refuse — outside `min`/`max`, or excluded by `isDateUnavailable`.
+   */
+  onParseError?: (raw: string) => void;
 };
 
 export function DatePicker({
@@ -46,7 +58,11 @@ export function DatePicker({
   mode = 'single',
   value,
   onSelect,
+  onParseError,
   locale = 'en-US',
+  min,
+  max,
+  isDateUnavailable,
   ...calendar
 }: DatePickerProps) {
   const field = useField();
@@ -80,13 +96,54 @@ export function DatePicker({
   const single = typeof value === 'string' ? value : null;
   const range = value !== null && typeof value === 'object' ? (value as DateRange) : null;
 
-  const display = single
+  // Spoken form, for the trigger's accessible name: always the long form,
+  // regardless of what the field itself is showing.
+  const spokenText = single
     ? formatter.format(utcTimestamp(single))
     : range?.end
       ? `${formatter.format(utcTimestamp(range.start))} – ${formatter.format(utcTimestamp(range.end))}`
       : range
         ? formatter.format(utcTimestamp(range.start))
         : '';
+
+  // Field form: the locale's own digit order, so the placeholder, the field
+  // and `parseTyped` all agree on what a typed date looks like.
+  const fieldText = single
+    ? formatTyped(single, locale)
+    : range?.end
+      ? `${formatTyped(range.start, locale)} – ${formatTyped(range.end, locale)}`
+      : range
+        ? formatTyped(range.start, locale)
+        : '';
+
+  // What the user has typed but not yet committed. `null` means the field is
+  // showing the formatted value rather than a draft.
+  const [draft, setDraft] = useState<string | null>(null);
+  const [parseFailed, setParseFailed] = useState(false);
+
+  function commit() {
+    if (draft === null) return;
+    if (draft.trim() === '') {
+      setDraft(null);
+      setParseFailed(false);
+      onSelect?.(null);
+      return;
+    }
+    const parsed = parseTyped(draft, locale);
+    // A date the calendar would refuse — outside min/max, or excluded by
+    // isDateUnavailable — is rejected exactly like one that does not parse:
+    // both are "not a date this picker will accept".
+    const refused =
+      parsed === null || !isWithin(parsed, min, max) || Boolean(isDateUnavailable?.(parsed));
+    if (refused) {
+      setParseFailed(true);
+      onParseError?.(draft);
+      return;
+    }
+    setDraft(null);
+    setParseFailed(false);
+    onSelect?.(parsed);
+  }
 
   function close({ restoreFocus = true } = {}) {
     panelRef.current?.hidePopover();
@@ -172,25 +229,43 @@ export function DatePicker({
           id={controlId}
           name={name}
           className={control.field}
-          value={display}
-          placeholder="MM / DD / YYYY"
+          value={draft ?? fieldText}
+          placeholder={placeholderFor(locale)}
           disabled={disabled}
-          readOnly
+          // A range needs two locale-ordered dates in one free-text field, and
+          // `-` is both a date separator and a range separator — so a typed
+          // range would be ambiguous in exactly the locales that use it as
+          // either. The calendar stays the only way to set one.
+          readOnly={readOnly || mode === 'range'}
           required={required}
-          aria-invalid={isInvalid || undefined}
+          aria-invalid={isInvalid || parseFailed || undefined}
           aria-describedby={describedBy}
           // Inside a Field the label element already names the input; adding
           // this too would give it a redundant accessible name. A bare
           // DatePicker has no such label, so it names itself.
           aria-label={field ? undefined : label}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            // Not validated per keystroke: half a date is unfinished, not
+            // wrong, and marking it invalid mid-word is noise.
+            setParseFailed(false);
+          }}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commit();
+            }
+          }}
         />
         <button
           type="button"
           ref={triggerRef}
           className={styles.trigger}
           // The name confirms the value, so a screen reader user does not have
-          // to read the field to know what is in it.
-          aria-label={display ? `Change date, ${display}` : 'Choose date'}
+          // to read the field to know what is in it. Always the long form,
+          // even while the field itself holds an uncommitted draft.
+          aria-label={spokenText ? `Change date, ${spokenText}` : 'Choose date'}
           aria-expanded={open}
           // The panel is always in the DOM now, so this no longer depends on
           // `open` the way the id used to.
@@ -243,7 +318,14 @@ export function DatePicker({
           mode={mode}
           value={value}
           locale={locale}
+          min={min}
+          max={max}
+          isDateUnavailable={isDateUnavailable}
           onSelect={(next) => {
+            // A calendar pick always wins over whatever was mid-typed: the
+            // draft it is replacing, and any parse failure attached to it.
+            setDraft(null);
+            setParseFailed(false);
             onSelect?.(next);
             // A single date is complete on the first click. A range is not:
             // closing on the first would make the second unreachable.

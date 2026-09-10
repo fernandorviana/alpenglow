@@ -147,6 +147,85 @@ export function orderRange(a: ISODate, b: ISODate): { start: ISODate; end: ISODa
   return compare(a, b) <= 0 ? { start: a, end: b } : { start: b, end: a };
 }
 
+export type Segment = 'year' | 'month' | 'day';
+
+/**
+ * The order a locale writes a numeric date in.
+ *
+ * `04/05/2026` is the 5th of April in the United States and the 4th of May in
+ * Portugal, and neither reading is wrong. A single text field cannot be
+ * unambiguous, so it can at least agree with the person typing into it.
+ */
+export function segmentOrder(locale: string): Segment[] {
+  const segments = dateFormat(locale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(utcTimestamp('2026-04-26'));
+
+  return segments
+    .map((segment) => segment.type)
+    .filter((type): type is Segment => type === 'year' || type === 'month' || type === 'day');
+}
+
+const WIDTH: Record<Segment, string> = { year: 'YYYY', month: 'MM', day: 'DD' };
+
+export function placeholderFor(locale: string): string {
+  return segmentOrder(locale)
+    .map((segment) => WIDTH[segment])
+    .join(' / ');
+}
+
+/**
+ * Render a date the way this locale would type it: zero-padded, in
+ * `segmentOrder`, joined the same way `placeholderFor` joins its widths. The
+ * placeholder, the display and `parseTyped` all have to agree on this order —
+ * otherwise a field could show a date it would then refuse to read back.
+ */
+export function formatTyped(date: ISODate, locale: string): string {
+  const { year, month, day } = parts(date);
+  const value: Record<Segment, string> = {
+    year: pad(year, 4),
+    month: pad(month),
+    day: pad(day),
+  };
+  return segmentOrder(locale)
+    .map((segment) => value[segment])
+    .join(' / ');
+}
+
+/**
+ * Parse what a person typed.
+ *
+ * ISO is accepted in every locale, unconditionally: it is the one form nobody
+ * can misread, and a user who knows it should not be made to guess the local
+ * order. Otherwise the digits are read in the locale's own order.
+ *
+ * Rejects rather than rolls over: 31 February is not the 3rd of March, and a
+ * component that quietly corrects a date the user did not mean is worse than
+ * one that says it did not understand.
+ */
+export function parseTyped(raw: string, locale: string): ISODate | null {
+  const trimmed = raw.trim();
+  if (isValidISO(trimmed)) return trimmed;
+
+  const digits = trimmed.split(/[^\d]+/).filter(Boolean);
+  if (digits.length !== 3) return null;
+
+  const order = segmentOrder(locale);
+  const read: Partial<Record<Segment, number>> = {};
+  order.forEach((segment, index) => {
+    read[segment] = Number(digits[index]);
+  });
+
+  const { year, month, day } = read as Record<Segment, number>;
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (String(year).length !== 4) return null;
+
+  const candidate = toISO(year, month, day);
+  return isValidISO(candidate) ? candidate : null;
+}
+
 /**
  * Six rows of seven, always. The drawn panel is 340px tall, which closes
  * exactly at six rows — a grid that shrinks to five for a short February

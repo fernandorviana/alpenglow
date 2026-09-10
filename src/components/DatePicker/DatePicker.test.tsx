@@ -321,3 +321,129 @@ describe('DatePicker', () => {
     }
   });
 });
+
+describe('DatePicker typing', () => {
+  it('parses on blur and reports the date', async () => {
+    const onSelect = vi.fn();
+    render(<DatePicker label="Appointment" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '04/26/2023');
+    await userEvent.tab();
+    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
+  });
+
+  it('parses on Enter without waiting for blur', async () => {
+    const onSelect = vi.fn();
+    render(<DatePicker label="Appointment" onSelect={onSelect} />);
+    await userEvent.type(screen.getByRole('textbox'), '04/26/2023{Enter}');
+    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
+  });
+
+  it('does not validate on every keystroke', async () => {
+    // Half a date is not an invalid date, it is an unfinished one.
+    const onParseError = vi.fn();
+    render(<DatePicker label="Appointment" onParseError={onParseError} />);
+    await userEvent.type(screen.getByRole('textbox'), '04/2');
+    expect(onParseError).not.toHaveBeenCalled();
+  });
+
+  it('keeps what the user typed when it cannot be parsed', async () => {
+    // Clearing the field would throw away the only record of their intent.
+    const onParseError = vi.fn();
+    const onSelect = vi.fn();
+    render(
+      <DatePicker label="Appointment" onParseError={onParseError} onSelect={onSelect} />,
+    );
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '02/31/2026');
+    await userEvent.tab();
+
+    expect(onParseError).toHaveBeenCalledWith('02/31/2026');
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(input).toHaveValue('02/31/2026');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('takes its placeholder from the locale', () => {
+    render(<DatePicker label="Data" locale="pt-PT" />);
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'DD / MM / YYYY');
+  });
+
+  it('does not accept typing when readOnly', async () => {
+    render(<DatePicker label="Appointment" value="2023-04-26" readOnly />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '01/01/2020');
+    expect(input).toHaveValue('04 / 26 / 2023');
+  });
+
+  // --- Rulings for Task 9 ----------------------------------------------------
+
+  it('shows the field text in the locale order, and names the trigger with the long form', () => {
+    render(<DatePicker label="Appointment" value="2023-04-26" />);
+    expect(screen.getByRole('textbox')).toHaveValue('04 / 26 / 2023');
+    expect(
+      screen.getByRole('button', { name: 'Change date, April 26, 2023' }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the field read-only in range mode, because - cannot be both a date separator and a range separator', async () => {
+    render(<DatePicker label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('readonly');
+
+    await userEvent.type(input, '04/10/2023');
+    expect(input).toHaveValue('');
+  });
+
+  it('clears the draft and the parse failure on a calendar pick', async () => {
+    const onSelect = vi.fn();
+    const { rerender } = render(
+      <DatePicker label="Appointment" defaultMonth="2023-04-01" onSelect={onSelect} />,
+    );
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '02/31/2026');
+    await userEvent.tab();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+
+    await openPanel();
+    await userEvent.click(screen.getByRole('button', { name: /april 26/i }));
+    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
+
+    rerender(
+      <DatePicker
+        label="Appointment"
+        defaultMonth="2023-04-01"
+        value="2023-04-26"
+        onSelect={onSelect}
+      />,
+    );
+
+    expect(input).toHaveValue('04 / 26 / 2023');
+    expect(input).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('rejects a typed date the calendar would refuse, like one outside min/max', async () => {
+    const onParseError = vi.fn();
+    const onSelect = vi.fn();
+    render(
+      <DatePicker
+        label="Appointment"
+        min="2023-04-10"
+        onParseError={onParseError}
+        onSelect={onSelect}
+      />,
+    );
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '04/01/2023');
+    await userEvent.tab();
+
+    expect(onParseError).toHaveBeenCalledWith('04/01/2023');
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(input).toHaveValue('04/01/2023');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+  });
+});
