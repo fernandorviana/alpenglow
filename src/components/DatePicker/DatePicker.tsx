@@ -100,21 +100,17 @@ export function DatePicker({
   // regardless of what the field itself is showing.
   const spokenText = single
     ? formatter.format(utcTimestamp(single))
-    : range?.end
+    : range
       ? `${formatter.format(utcTimestamp(range.start))} – ${formatter.format(utcTimestamp(range.end))}`
-      : range
-        ? formatter.format(utcTimestamp(range.start))
-        : '';
+      : '';
 
   // Field form: the locale's own digit order, so the placeholder, the field
   // and `parseTyped` all agree on what a typed date looks like.
   const fieldText = single
     ? formatTyped(single, locale)
-    : range?.end
+    : range
       ? `${formatTyped(range.start, locale)} – ${formatTyped(range.end, locale)}`
-      : range
-        ? formatTyped(range.start, locale)
-        : '';
+      : '';
 
   // What the user has typed but not yet committed. `null` means the field is
   // showing the formatted value rather than a draft.
@@ -327,12 +323,9 @@ export function DatePicker({
             setDraft(null);
             setParseFailed(false);
             onSelect?.(next);
-            // A single date is complete on the first click. A range is not:
-            // closing on the first would make the second unreachable.
-            const complete =
-              mode === 'single' ||
-              (next !== null && typeof next === 'object' && next.end !== null);
-            if (complete) close();
+            // Calendar reports only a finished choice — a single date, or a
+            // range with both ends — so every report closes the panel.
+            close();
           }}
         />
       </div>

@@ -224,7 +224,8 @@ export default function Page() {
               label="Follow-up window"
               mode="range"
               value={followUp}
-              onSelect={(next) => setFollowUp(next as DateRange | null)}
+              // Range mode only ever reports a complete range.
+              onSelect={(next) => setFollowUp(next as DateRange)}
             />
           </div>
         </div>

@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { useState } from 'react';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
+import type { DateRange } from '../Calendar';
 import { DatePicker } from './DatePicker';
 import { Field } from '../Field';
 import calendarStyles from '../Calendar/Calendar.module.css';
@@ -264,6 +266,9 @@ describe('DatePicker', () => {
     const dialog = screen.getByRole('dialog');
 
     await userEvent.click(within(dialog).getByRole('button', { name: /april 10/i }));
+    // Without this, the assertion after Escape passes even if the click
+    // painted nothing.
+    expect(bandedCells(dialog)).toHaveLength(1);
 
     await userEvent.keyboard('{Escape}');
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -307,6 +312,67 @@ describe('DatePicker', () => {
 
     await openPanel();
     expect(bandedCells(screen.getByRole('dialog'))).toHaveLength(0);
+  });
+
+  describe('a controlled range', () => {
+    const committed = { start: '2023-04-03', end: '2023-04-05' };
+
+    function Harness({ onSelect }: { onSelect: (next: unknown) => void }) {
+      const [value, setValue] = useState<DateRange | null>(committed);
+      return (
+        <div>
+          <DatePicker
+            label="Stay"
+            mode="range"
+            value={value}
+            onSelect={(next) => {
+              onSelect(next);
+              setValue(next as DateRange);
+            }}
+          />
+          <button type="button">Elsewhere</button>
+        </div>
+      );
+    }
+
+    const cellFor = (dialog: HTMLElement, name: RegExp) =>
+      within(dialog).getByRole('button', { name }).closest('td')!;
+
+    it('leaves the value alone when Escape cancels a pending start', async () => {
+      const onSelect = vi.fn();
+      render(<Harness onSelect={onSelect} />);
+      await openPanel(/change date/i);
+      const dialog = screen.getByRole('dialog');
+
+      await userEvent.click(within(dialog).getByRole('button', { name: /april 10/i }));
+      expect(cellFor(dialog, /april 10/i).className).toContain(calendarStyles.inRange!);
+
+      await userEvent.keyboard('{Escape}');
+      expect(onSelect).not.toHaveBeenCalled();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(cellFor(dialog, /april 10/i).className).not.toContain(calendarStyles.inRange!);
+    });
+
+    it('leaves the value alone when a press outside closes on a pending start', async () => {
+      const onSelect = vi.fn();
+      render(<Harness onSelect={onSelect} />);
+      const trigger = await openPanel(/change date/i);
+      const name = trigger.getAttribute('aria-label');
+
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: /april 10/i }),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Elsewhere' }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(onSelect).not.toHaveBeenCalled();
+
+      await openPanel(/change date/i);
+      const banded = bandedCells(screen.getByRole('dialog')).map(
+        (cell) => cell.querySelector('button')?.getAttribute('data-date'),
+      );
+      expect(banded).toEqual(['2023-04-03', '2023-04-04', '2023-04-05']);
+      expect(trigger).toHaveAttribute('aria-label', name);
+    });
   });
 
   it('imports the popover stub rather than defining its own', () => {

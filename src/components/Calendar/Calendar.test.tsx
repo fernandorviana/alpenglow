@@ -698,7 +698,7 @@ describe('Calendar pagination', () => {
 });
 
 describe('Calendar range mode', () => {
-  const range = (start: string, end: string | null) => ({ start, end });
+  const range = (start: string, end: string) => ({ start, end });
 
   it('marks the ends selected and paints the days between', () => {
     render(
@@ -718,17 +718,20 @@ describe('Calendar range mode', () => {
     expect(cellFor(/april 9/i).className).not.toContain(styles.rangeMiddle!);
   });
 
-  it('holds the first click open and reports the range on the second', async () => {
+  it('reports nothing on the first click and the whole range on the second', async () => {
+    // A half-made range is an interaction in progress, not a value: the caller
+    // is only ever handed both ends.
     const onSelect = vi.fn();
     render(
       <Calendar label="Stay" mode="range" defaultMonth="2023-04-01" onSelect={onSelect} />,
     );
 
     await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
-    expect(onSelect).toHaveBeenCalledWith({ start: '2023-04-10', end: null });
+    expect(onSelect).not.toHaveBeenCalled();
 
     await userEvent.click(screen.getByRole('button', { name: /april 14/i }));
-    expect(onSelect).toHaveBeenLastCalledWith({ start: '2023-04-10', end: '2023-04-14' });
+    expect(onSelect).toHaveBeenCalledOnce();
+    expect(onSelect).toHaveBeenCalledWith({ start: '2023-04-10', end: '2023-04-14' });
   });
 
   it('swaps the ends when the second click precedes the first', async () => {

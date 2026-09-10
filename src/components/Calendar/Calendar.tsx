@@ -26,7 +26,7 @@ import styles from './Calendar.module.css';
 export type { ISODate } from './date';
 
 export type CalendarMode = 'single' | 'range';
-export type DateRange = { start: ISODate; end: ISODate | null };
+export type DateRange = { start: ISODate; end: ISODate };
 
 export type CalendarProps = {
   /** Required. The grid's accessible name. */
@@ -194,25 +194,24 @@ export function Calendar({
   const rangeValue =
     mode === 'range' && value !== null && typeof value === 'object' ? value : null;
 
-  // The first click of a pair. Held here rather than pushed to the caller,
-  // because a half-made range is not a value — it is an interaction in
-  // progress, and a caller storing it would have to model that.
+  // The first click of a pair. The contract: range mode's `onSelect` only ever
+  // carries a complete, ordered range. The first click or Enter sets this and
+  // calls nothing; the second completes the range and reports it. Escape, or
+  // this Calendar unmounting, discards it — the value is never touched.
   const [pending, setPending] = useState<ISODate | null>(null);
   const [preview, setPreview] = useState<ISODate | null>(null);
 
-  /** The interval to paint: the committed range, or the one being drawn. */
-  const painted = (() => {
-    if (pending) return preview ? orderRange(pending, preview) : { start: pending, end: pending };
-    if (rangeValue?.end) return { start: rangeValue.start, end: rangeValue.end };
-    if (rangeValue) return { start: rangeValue.start, end: rangeValue.start };
-    return null;
-  })();
+  /** The interval to paint: the one being drawn, else the committed range. */
+  const painted = pending
+    ? preview
+      ? orderRange(pending, preview)
+      : { start: pending, end: pending }
+    : rangeValue;
 
   function selectRange(date: ISODate) {
     if (pending === null) {
       setPending(date);
       setPreview(null);
-      onSelect?.({ start: date, end: null });
       return;
     }
     const ordered = orderRange(pending, date);
@@ -369,7 +368,7 @@ export function Calendar({
           ? cell.date === pending
           : rangeValue !== null &&
             compare(cell.date, rangeValue.start) >= 0 &&
-            compare(cell.date, rangeValue.end ?? rangeValue.start) <= 0
+            compare(cell.date, rangeValue.end) <= 0
         : single === cell.date;
     const isToday = now !== null && cell.date === now;
     const isUnavailable = unavailable(cell.date);
@@ -514,7 +513,7 @@ export function Calendar({
           content. */}
       <div role="status" className={styles.hidden}>
         {hydrated
-          ? mode === 'range' && rangeValue?.end
+          ? mode === 'range' && rangeValue
             ? rangeFormat.formatRange(utcTimestamp(rangeValue.start), utcTimestamp(rangeValue.end))
             : mode === 'single' && single
               ? cellFormat.format(utcTimestamp(single))
