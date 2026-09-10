@@ -264,9 +264,10 @@ describe('Calendar structure', () => {
     expect(outside).toHaveLength(12); // 6 leading in March, 6 trailing in May
   });
 
-  it('renders the month name and the year as separate weights', () => {
+  it('reads the month and the year as one heading', () => {
     // The drawing sets the month Medium and the year Regular. One <h2> with
-    // two spans, so the heading is still one string to a screen reader.
+    // two spans, so the heading is still one string to a screen reader. The
+    // weights themselves live in the stylesheet, which jsdom does not apply.
     render(<Calendar label="Date" defaultMonth="2023-04-01" />);
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toHaveTextContent('April 2023');
@@ -275,6 +276,7 @@ describe('Calendar structure', () => {
   it('follows the locale for month and weekday names', () => {
     render(<Calendar label="Data" defaultMonth="2023-04-01" locale="pt-PT" />);
     expect(screen.getByRole('grid', { name: /abril de 2023/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader')[0]).toHaveAccessibleName('domingo');
   });
 
   it('marks weekend days by date, wherever the week starts', () => {
@@ -474,6 +476,22 @@ describe('Calendar keyboard', () => {
       .filter((b) => b.tabIndex === 0);
     expect(tabbable).toHaveLength(1);
     expect(tabbable[0]).toHaveAccessibleName(/april 26/i);
+  });
+
+  it('puts the tab stop on a range start when the month shows it', () => {
+    render(
+      <Calendar
+        label="Stay"
+        mode="range"
+        defaultMonth="2023-04-01"
+        value={{ start: '2023-04-10', end: '2023-04-14' }}
+      />,
+    );
+    const tabbable = within(screen.getByRole('grid'))
+      .getAllByRole('button')
+      .filter((b) => b.tabIndex === 0);
+    expect(tabbable).toHaveLength(1);
+    expect(tabbable[0]).toHaveAccessibleName(/april 10,/i);
   });
 
   it('does not steal focus from the page on a bare mount', () => {
@@ -1022,6 +1040,17 @@ describe('Calendar stylesheet source', () => {
     expect(css).not.toMatch(/\b(?:rgb|rgba|hsl|hsla)\(/);
     const primitives = css.match(/--ap-(gray|brand|red|green|yellow|blue|alpha|white|black)-[\w-]+/g) ?? [];
     expect(primitives).toEqual([]);
+  });
+});
+
+describe('Calendar source', () => {
+  it('reaches for neither Date nor a raw Intl formatter', () => {
+    // The same tripwire DatePicker's source carries. `Date` and `new Intl.`
+    // live only in date.ts, where the zone is pinned: a `Date.UTC` here once
+    // slipped through because this file was not checked.
+    const code = readFileSync('src/components/Calendar/Calendar.tsx', 'utf8');
+    expect(code).not.toContain('new Intl.');
+    expect(code).not.toContain('Date.');
   });
 });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
   addDays,
@@ -67,7 +67,7 @@ function useWeekdayNames(locale: string, weekStartsOn: number) {
     const long = dateFormat(locale, { weekday: 'long' });
     // 2023-01-01 was a Sunday, so index 0 of this week is weekday 0.
     return Array.from({ length: 7 }, (_, i) => {
-      const day = Date.UTC(2023, 0, 1 + ((weekStartsOn + i) % 7));
+      const day = utcTimestamp(addDays('2023-01-01', (weekStartsOn + i) % 7));
       return { narrow: narrow.format(day), long: long.format(day) };
     });
   }, [locale, weekStartsOn]);
@@ -120,8 +120,6 @@ export function Calendar({
   max,
   isDateUnavailable,
 }: CalendarProps) {
-  const headingId = useId();
-
   // `false` on the server and on the client's first, hydration-matching pass;
   // `true` on every render after that. Three things must not reach server
   // HTML: today's date, which drives the today marker and the tab stop below;
@@ -472,7 +470,7 @@ export function Calendar({
           <Chevron direction="previous" />
         </button>
 
-        <h2 className={styles.heading} id={headingId} aria-live="polite">
+        <h2 className={styles.heading} aria-live="polite">
           {/* One heading, two weights: the drawing sets the month Medium and
               the year Regular. Split into spans rather than two headings so
               it is still one string to a screen reader. Empty until a month
