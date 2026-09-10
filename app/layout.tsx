@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { Nav } from '@ui/Nav';
+import { InlineScript } from '@ui/InlineScript';
 import { ThemeToggle } from '@ui/ThemeToggle';
 import '@/styles/tokens.css';
 import './docs.css';
@@ -21,6 +22,9 @@ export const metadata: Metadata = {
  * The site is statically exported, so the served HTML carries no theme
  * attribute. Without this, a viewer who has chosen dark would see one frame of
  * light while React hydrates.
+ *
+ * Not `next/script` with `beforeInteractive`: in the App Router that queues the
+ * code for the Next.js runtime to run, which is after the first paint.
  */
 const NO_FLASH = `
 try {
@@ -33,7 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
+        <InlineScript html={NO_FLASH} />
       </head>
       <body>
         <div className="shell">
