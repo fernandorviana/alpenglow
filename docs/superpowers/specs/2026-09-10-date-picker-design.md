@@ -48,8 +48,8 @@ calendars, and a general-purpose `Popover`. Each can be added later without
 changing the API below.
 
 The `Popover` is the one worth justifying, since it is the piece a library would
-extract first. It is deliberately deferred: the overlay mechanics here are about
-sixty lines, and a primitive with one consumer is a guess about the second. When
+extract first. It is deliberately deferred: a primitive with one consumer is a
+guess about the second. When
 a modal or a dropdown arrives, the mechanics lift out of `DatePicker` unchanged.
 Extracting it now would add a third component to the docs site that nobody can
 see, against a priority list that asks for a small number of impeccable
@@ -63,7 +63,7 @@ components rather than broad coverage.
 /** An ISO 8601 calendar date. No time, no zone. */
 export type ISODate = string; // '2026-04-26'
 
-export type DateRange = { start: ISODate; end: ISODate | null };
+export type DateRange = { start: ISODate; end: ISODate };
 
 export type CalendarProps = {
   /** Defaults to 'single'. */
@@ -71,6 +71,7 @@ export type CalendarProps = {
 
   /** ISODate in single mode, DateRange in range mode. */
   value?: ISODate | DateRange | null;
+  /** In range mode, fires only with a complete range — never with half of one. */
   onSelect?: (next: ISODate | DateRange | null) => void;
 
   /** The visible month, as an ISODate whose day is ignored. Uncontrolled if omitted. */
@@ -99,6 +100,11 @@ export type DatePickerProps = CalendarProps & {
   invalid?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  id?: string;
+  /** Submitted through a hidden input as ISO: a date, or `start/end` in range mode. */
+  name?: string;
+  required?: boolean;
+  'aria-describedby'?: string;
   /** Fires when the text field produces a date the parser rejects. */
   onParseError?: (raw: string) => void;
 };
@@ -171,7 +177,7 @@ Read from the bound Figma variables rather than from the picture.
 | Panel padding | `spacing/100` (8) | unchanged |
 | Panel gap | `spacing/050` (4) | unchanged |
 | Panel radius | Figma `radius/lg` (12) | code `radius/xl` — names are offset by one step above `sm` |
-| Panel shadow | `Drop Shadow/md/Light Mode` | `0 10px 32px -4px #18274B1A, 0 6px 14px -6px #18274B1F` |
+| Panel shadow | `Drop Shadow/md/Light Mode` | the `elevation/md` token |
 | Panel fill | `surface/raised` | **`surface/overlay`** — collision 1 |
 | Header height | 40px | unchanged |
 | Month label | `paragraph/md/(500) Medium`, `text/primary` | unchanged |
@@ -181,7 +187,7 @@ Read from the bound Figma variables rather than from the picture.
 | Day pill | 32 × 32, inset 4px | unchanged, except the range band — see "the band is continuous" |
 | Day, this month | `gray-dark/600` | `text/primary` — collision 4 |
 | Day, weekend | `text/tertiary` | unchanged |
-| Day, outside month | `gray-light/400` | unchanged — see "days outside the month" |
+| Day, outside month | `gray-light/400` | **`text/inert`** (`gray-light/400` light, `gray-dark/300` dark) — see "days outside the month" |
 | Today | `brand-1/100` pill, `text/accent` label, 4px dot | `interactive/selected` pill — collision 4 |
 | Selected | `interactive/accent` pill, `text/inverse` label | `interactive/on-accent` label — collision 4 |
 | Hover | `surface/sunken` pill | **`interactive/neutral-hover`** — collision 2 |
@@ -284,11 +290,20 @@ not focusable, not clickable, outside the roving `tabindex`, and their content i
 bare numbers belonging to a month it was not told about. The `<td
 role="gridcell">` stays in place so the grid's geometry is intact.
 
-This is what makes their contrast defensible. At `gray-light/400` they measure
-**1.65:1**, which no text may do — but a thing that cannot be focused, clicked or
-reached is decoration, and 1.4.3 exempts it. Making them interactive would
-require `text/tertiary` at **5.74 / 5.69**, at which point they stop reading as
-outside the month at all and the grid loses its boundary.
+This is what makes their contrast defensible. They take `text/inert`, which
+measures **1.65:1** in light and **1.60:1** in dark against the panel. No text
+may do this — but a thing that cannot be focused, clicked or reached is
+decoration, and 1.4.3 exempts it. Making them interactive would require
+`text/tertiary` at **5.74 / 5.69**, at which point they stop reading as outside
+the month at all and the grid loses its boundary.
+
+The drawing binds the primitive `gray-light/400`, and the first build used it
+directly. A primitive does not switch with the theme: on the dark panel it
+measured **7.90:1** — brighter than the weekday header (5.69) and far brighter
+than an unavailable day (2.66), so the boundary between "outside the month" and
+"available" inverted in dark. `text/inert` is `gray-light/400` in light and
+`gray-dark/300` in dark, which keeps a spilled day at the same weight in both
+modes and quieter than `text/disabled` in both.
 
 Nothing is lost by making them inert, because they are not how the keyboard or
 the pointer crosses a month. `→` on the last day of the month moves to the first
@@ -298,8 +313,9 @@ authoritative, interactive copy of every spilled day is one month away.
 ### The band is continuous, including across the boundary
 
 An inert day still takes the range fill when it falls inside the range. This is
-the case the rule exists for: with May visible, the cells spilled in at the top
-are 28, 29 and 30 April, and those days are inside a range that started in April.
+the case the rule exists for: with March 2023 visible, the cells spilled in at
+the top are 26, 27 and 28 February, and those days are inside a range that
+started on 20 February.
 If inert meant unpainted, the band would break at precisely the boundary the user
 most needs to see whole. Painted, it measures **5.59 / 4.50** for the label on the
 band — the contrast question disappears the moment the day is in the range.
@@ -307,10 +323,10 @@ band — the contrast question disappears the moment the day is in the range.
 The band is also continuous *within* a week. The drawing's range middle is a
 32px square in a 40px cell, which would leave 8px of panel between consecutive
 days and read as loose squares rather than a period. In code the range fill spans
-the full 40px cell; the start's leading edge and the end's trailing edge keep the
-drawn 16px radius, and the endpoints keep their 32px pill drawn on top. This is
-the one purely visual departure from the drawing in this spec, and it was agreed
-before it was written.
+the full 40px cell, and the ends are shaped by the cell's own rounded inline ends:
+start, middle and end are one solid accent fill with on-accent labels
+throughout. This is the one purely visual departure from the drawing in this
+spec, and it was agreed before it was written.
 
 ---
 
@@ -322,7 +338,9 @@ The APG *Date Picker Dialog* pattern, followed rather than approximated.
   `aria-label` of *"Choose date"*, becoming *"Change date, {formatted}"* once a
   value exists.
 - The panel is `role="dialog" aria-modal="true"` with an accessible name.
-- The grid is a `<table role="grid">`, `aria-labelledby` the month heading.
+- The grid is a `<table role="grid">` whose `aria-label` is *"{label}, {Month
+  Year}"* — not `aria-labelledby` the heading, so the name carries both what the
+  grid is for and which month it shows.
 - Exactly one `gridcell` is tabbable; the rest carry `tabindex="-1"`.
 - The selected day carries `aria-selected="true"`. In range mode the start and
   end carry it; days between carry `aria-selected="true"` as well, since they are
@@ -337,13 +355,16 @@ The APG *Date Picker Dialog* pattern, followed rather than approximated.
   name.
 - The month and year heading is `aria-live="polite"`, so paging announces itself.
 - A separate `polite` region announces the selection, built with
-  `Intl.DateTimeFormat#formatRange` in range mode.
+  `Intl.DateTimeFormat#formatRange` in range mode. It announces changes, not
+  the value at mount: it stays empty until the selection differs from the one
+  the Calendar mounted with.
 - Unavailable days carry `aria-disabled="true"` and stay focusable, so a keyboard
   user can discover why they cannot be picked rather than having them silently
   skipped.
 
 Focus goes to the selected day on open, or to today, or to the first day of the
-visible month, in that order. `Esc` closes and returns focus to the field.
+visible month, in that order. `Esc` closes and returns focus to the trigger, the
+calendar button beside the field.
 
 ---
 
@@ -356,12 +377,16 @@ visible month, in that order. `Esc` closes and returns focus to the field.
 | `Page Up` / `Page Down` | Previous / next month |
 | `Shift + Page Up` / `Page Down` | Previous / next year |
 | `Enter` / `Space` | Select the focused day |
-| `Esc` | Close, return focus to the field. In range mode with a pending start, cancel the pending start first |
+| `Esc` | Close, return focus to the trigger. In range mode with a pending start, cancel the pending start first |
 | `Tab` | Cycles within the dialog and wraps |
 
 In range mode the second click, or the second `Enter`, closes the panel. The
 first does not. If the end lands before the start they swap, silently — the user
 has expressed an interval, not an order.
+
+The first click or `Enter` paints a pending start and calls nothing. `Esc`, or
+the panel closing, discards it and leaves the value as it was; `onSelect` only
+ever receives a complete range.
 
 ---
 
@@ -395,8 +420,18 @@ cycles within the dialog and wraps at both ends.
 Without anchor positioning it falls back to a centred panel, the same
 degraded path `DropdownMenu` uses.
 
-Esc, the outside press, focus return, the top layer and the flip are verified
-in a real browser, not in the suite.
+The panel's `Calendar` mounts only while it is open, set from `beforetoggle`
+so it is in place before the panel first paints. Kept mounted in the hidden
+panel, it had three costs: the build month reached the server HTML of any
+picker with no value and no `defaultMonth`; a closed picker reopened on the
+month it was left on rather than the value it holds now; and a hidden 42-cell
+grid re-rendered on every keystroke in the field.
+
+Esc (including the range layering), the outside press, focus leaving, focus
+returning to the trigger and the Tab wrap are the component's own handlers,
+and the suite tests them through the jsdom stub. The top layer, anchor
+placement, the flip and focus in a real browser are not covered by the suite
+and have not yet been checked by hand.
 
 ---
 
@@ -419,13 +454,16 @@ threshold named.
 | Pagination chevron on its resting fill | 10.58 | 10.58 | 4.5 |
 | Pagination chevron on its hover fill | 9.67 | 9.08 | 4.5 |
 
-Two are recorded as measured and *not* asserted, because they are exempt rather
-than passing:
+All eleven rows are asserted, the weekend row included.
+
+Two are exempt rather than passing, and are recorded differently:
 
 - Disabled and unavailable day labels, `text/disabled`, **2.77 / 2.66**. WCAG
   exempts inactive controls, and the system already carries this token with that
   note attached.
-- Days outside the month, **1.65:1** in light. Exempt because inert — see above.
+- Days outside the month, `text/inert`, **1.65 / 1.60**. Exempt because inert —
+  see above. Asserted only as lower than `text/disabled` on the panel in both
+  modes, which is the ordering the primitive inverted in dark.
 
 And one is recorded as a known gap, matching how the input's resting border is
 already recorded: the panel's edge against a card in light is **1.00:1**, carried
@@ -477,8 +515,13 @@ the appearance, and read the stylesheet source where the invariant lives in CSS.
   the 32px pill, and that the focus ring is drawn at an offset rather than inset.
   Both are one careless edit away from silently reverting to the drawing.
 - **Focus contract.** Focus on open lands on selected, else today, else the first
-  of the month; `Esc` returns it to the field.
-- **`contrast.test.ts`.** The eleven asserted pairs above.
+  of the month; `Esc` returns it to the trigger.
+- **`contrast.test.ts`.** The eleven asserted pairs above, and `text/inert` held
+  below `text/disabled` in both modes.
+- **Hydration.** A `hydrateRoot` test renders a calendar with no month seed to a
+  string in one month, moves the clock to the next, and hydrates: the server HTML
+  holds no month, no recoverable error is reported, and the heading reads the
+  new month once hydrated.
 
 ---
 
@@ -496,8 +539,8 @@ the appearance, and read the stylesheet source where the invariant lives in CSS.
 | `src/components/DatePicker/DatePicker.test.tsx` | Open/close, focus contract, parse, Field wiring. |
 | `src/components/DatePicker/index.ts` | Public surface of the folder. |
 | `src/index.ts` | Library exports. |
-| `src/tokens/theme.ts` | Nothing to change — `surface/overlay`'s `use` string is already correct, and this component is what makes it true. |
-| `src/tokens/contrast.test.ts` | The eleven pairs. |
+| `src/tokens/theme.ts` | Adds `text/inert`, for the spilled days. `surface/overlay`'s `use` string is already correct, and this component is what makes it true. |
+| `src/tokens/contrast.test.ts` | The eleven pairs, and `text/inert` held below `text/disabled`. |
 | `app/date-picker/page.tsx` | Docs page. |
 | `app/ui/Nav.tsx` | Nav entry. |
 | `MEMORY.md` | Remove `surface/overlay` from the unclaimed list; record the inert-but-painted rule and the continuous band as named deviations. |
@@ -510,7 +553,16 @@ The two things a reader might expect and will not find, so that neither reads as
 an oversight:
 
 **A `Popover` primitive**, for the reason argued in scope. When it arrives it
-takes the top layer with it and this component loses its clipping caveat.
+lifts the manual popover, its anchor and its dismissal out of `DatePicker`.
+
+**An unavailable day inside a range.** The band paints over it, so a range that
+spans a booked day hides that the day is booked. Whether a range may span
+unavailable days at all is an open product decision.
+
+**A typed draft masks a controlled value change until blur.** While the field
+holds uncommitted text, a new `value` from the parent is not shown until the
+draft is committed or abandoned. The input-mask plan replaces the draft and owns
+this.
 
 **Sizing that composes.** `DatePicker` takes `sm | md | lg` because `Input`
 does; `Calendar` takes no size at all, and its cells are fixed at 40px. That is
