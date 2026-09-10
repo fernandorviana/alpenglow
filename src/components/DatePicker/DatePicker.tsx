@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type {
   ChangeEvent,
   CompositionEvent,
@@ -20,6 +20,7 @@ import {
   dateShape,
   digitsFor,
   formatValue,
+  hintFor,
   insertedRange,
   normaliseDigits,
   placeholderFor,
@@ -150,6 +151,27 @@ export function DatePicker({
   const [invalidReason, setInvalidReason] = useState<DatePickerInvalidReason | null>(null);
   const text = draft ?? fieldText;
 
+  const editable = !disabled && !readOnly;
+  const hint = hintFor(shape, mode);
+  const hintId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [composing, setComposing] = useState(false);
+
+  // A field too narrow for its text scrolls it, and a shell drawn behind a
+  // scrolled input would sit misaligned — so it is not drawn then. Measured
+  // after every change of text.
+  const [overflowing, setOverflowing] = useState(false);
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+    if (input) setOverflowing(input.scrollWidth > input.clientWidth);
+  }, [text]);
+
+  // The part of the format still to type. Every formatted character lines up
+  // with one placeholder character, so what is left is the placeholder past
+  // the text's length. Not drawn mid-composition, when the text is the IME's.
+  const remainder =
+    editable && !composing && !overflowing ? placeholder.slice(text.length) : '';
+
   // A value that changes from outside — a calendar pick, or the parent —
   // replaces whatever was mid-typed. Adjusted during render, React's
   // documented pattern for state that follows a changed prop, so a stale
@@ -167,9 +189,9 @@ export function DatePicker({
   const composingFrom = useRef<string | null>(null);
   // The draft when that composition began. Restored before `edit` runs, so a
   // composition the mask refuses — or one that nets out to no change — never
-  // leaves raw, IME-authored characters sitting in the field. An edit `edit`
-  // does accept still wins: its own `setDraft` runs afterward, in the same
-  // handler.
+  // leaves raw, IME-authored characters sitting in the field. When `edit`
+  // accepts the composition, its own `setDraft` runs afterward in the same
+  // handler and wins.
   const composingDraft = useRef<string | null>(null);
 
   /**
@@ -328,70 +350,86 @@ export function DatePicker({
           // A disabled control submits nothing, as a disabled input would.
           disabled={disabled}
         />
-        <input
-          id={controlId}
-          className={control.field}
-          type="text"
-          // A numeric keypad on a phone. Not type="number", which takes `e`
-          // and `-`, steps with the arrow keys, and has no room for a separator.
-          inputMode="numeric"
-          // The browser's autofill knows nothing of this mask.
-          autoComplete="off"
-          value={text}
-          placeholder={placeholder}
-          disabled={disabled}
-          readOnly={readOnly}
-          required={required}
-          aria-invalid={isInvalid || invalidReason !== null || undefined}
-          aria-describedby={describedBy}
-          // Inside a Field the label element already names the input; adding
-          // this too would give it a redundant accessible name. A bare
-          // DatePicker has no such label, so it names itself.
-          aria-label={field ? undefined : label}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            if (composingFrom.current !== null) {
-              setDraft(event.target.value);
-              return;
+        <span className={styles.entry}>
+          {remainder && (
+            <span className={styles.shell} aria-hidden="true">
+              <span className={styles.typed}>{text}</span>
+              {remainder}
+            </span>
+          )}
+          <input
+            ref={inputRef}
+            id={controlId}
+            className={control.field}
+            type="text"
+            // A numeric keypad on a phone. Not type="number", which takes `e`
+            // and `-`, steps with the arrow keys, and has no room for a separator.
+            inputMode="numeric"
+            // The browser's autofill knows nothing of this mask.
+            autoComplete="off"
+            value={text}
+            // The shell draws the format while the field can be typed into;
+            // the native placeholder is the fallback when it cannot.
+            placeholder={editable ? undefined : placeholder}
+            disabled={disabled}
+            readOnly={readOnly}
+            required={required}
+            aria-invalid={isInvalid || invalidReason !== null || undefined}
+            // The Field's description and error first, then how to type.
+            aria-describedby={
+              [describedBy, editable ? hintId : null].filter(Boolean).join(' ') || undefined
             }
-            edit(event.target, text, (event.nativeEvent as InputEvent).inputType);
-          }}
-          onCompositionStart={() => {
-            composingFrom.current = text;
-            composingDraft.current = draft;
-          }}
-          onCompositionEnd={(event: CompositionEvent<HTMLInputElement>) => {
-            const previous = composingFrom.current ?? text;
-            composingFrom.current = null;
-            // Restore the pre-composition draft first: a composition `edit`
-            // refuses, or that nets out unchanged, returns before touching
-            // `draft`, so without this the raw composed text — even a bare
-            // non-digit — would stay in the field. An accepted edit's own
-            // `setDraft` below still wins; both run in this one handler.
-            setDraft(composingDraft.current);
-            edit(event.currentTarget, previous, 'insertCompositionText');
-          }}
-          onBlur={() => {
-            // A blur mid-composition (rare, but IMEs can commit on blur)
-            // must not evaluate the still-uncommitted composition text.
-            if (composingFrom.current !== null) return;
-            if (draft !== null) evaluate(draft);
-          }}
-          onKeyDown={(event) => {
-            if (
-              event.key !== 'Enter' ||
-              event.nativeEvent.isComposing ||
-              // Safari sends the Enter that commits a composition afterward,
-              // with keyCode 229 and isComposing already false, so that flag
-              // alone would miss it.
-              event.keyCode === 229 ||
-              composingFrom.current !== null
-            ) {
-              return;
-            }
-            event.preventDefault();
-            if (draft !== null) evaluate(draft);
-          }}
-        />
+            // Inside a Field the label element already names the input; adding
+            // this too would give it a redundant accessible name. A bare
+            // DatePicker has no such label, so it names itself.
+            aria-label={field ? undefined : label}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              if (composingFrom.current !== null) {
+                setDraft(event.target.value);
+                return;
+              }
+              edit(event.target, text, (event.nativeEvent as InputEvent).inputType);
+            }}
+            onCompositionStart={() => {
+              composingFrom.current = text;
+              composingDraft.current = draft;
+              setComposing(true);
+            }}
+            onCompositionEnd={(event: CompositionEvent<HTMLInputElement>) => {
+              const previous = composingFrom.current ?? text;
+              composingFrom.current = null;
+              setComposing(false);
+              // Restore the pre-composition draft first: a composition `edit`
+              // refuses, or that nets out unchanged, returns before touching
+              // `draft`, so without this the raw composed text — even a bare
+              // non-digit — would stay in the field. An accepted edit's own
+              // `setDraft` below still wins; both run in this one handler.
+              setDraft(composingDraft.current);
+              edit(event.currentTarget, previous, 'insertCompositionText');
+            }}
+            onBlur={() => {
+              // A blur mid-composition (rare, but IMEs can commit on blur)
+              // must not evaluate the still-uncommitted composition text.
+              if (composingFrom.current !== null) return;
+              if (draft !== null) evaluate(draft);
+            }}
+            onKeyDown={(event) => {
+              if (
+                event.key !== 'Enter' ||
+                event.nativeEvent.isComposing ||
+                // Safari sends the Enter that commits a composition afterward,
+                // with keyCode 229 and isComposing already false, so that flag
+                // alone would miss it.
+                event.keyCode === 229 ||
+                composingFrom.current !== null
+              ) {
+                return;
+              }
+              event.preventDefault();
+              if (draft !== null) evaluate(draft);
+            }}
+          />
+        </span>
         <button
           type="button"
           ref={triggerRef}
@@ -413,6 +451,16 @@ export function DatePicker({
           <CalendarIcon />
         </button>
       </div>
+
+      {editable && (
+        // In words, because a screen reader reads "DD/MM/YYYY" letter by
+        // letter. A digit the mask refuses is silent — announcing each one
+        // would talk over the reader's own echo of the key — so this states
+        // the rule before anyone meets it.
+        <span id={hintId} className="ap-sr-only">
+          {hint}
+        </span>
+      )}
 
       {/*
        * `manual`, not `auto`: dismissal stays in this component's own tested

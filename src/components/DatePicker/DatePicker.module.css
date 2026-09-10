@@ -51,6 +51,45 @@
 
 .trigger:disabled { cursor: not-allowed; color: var(--ap-color-text-disabled); }
 
+/* --- the typed field ------------------------------------------------------ */
+
+/* The input and the shell behind it share one box, so the shell's text starts
+   exactly where the input's own does: both inherit the control's font, size
+   and tracking, and neither has padding. */
+.entry {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Above the shell. The input's background is already none, so the shell
+   shows through it. */
+.entry input {
+  position: relative;
+}
+
+/* The format still to type. text/placeholder, exactly as Input's placeholder,
+   so it carries that token's measured values and adds no new obligation. It
+   stands in for the native placeholder while the field is editable, and
+   `pre` keeps the spaces of the range's " – ". */
+.shell {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: pre;
+  pointer-events: none;
+  color: var(--ap-color-text-placeholder);
+}
+
+/* What has been typed, invisible: it only reserves the width the input's
+   text takes, so the remainder lines up after it. */
+.typed {
+  visibility: hidden;
+}
+
 /* surface/overlay, NOT the drawn surface/raised. In light both resolve to
    white, so the drawing cannot tell them apart. In dark they diverge on
    purpose — raised is gray-dark/700, overlay is gray-dark/600 — because

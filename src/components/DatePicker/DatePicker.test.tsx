@@ -8,6 +8,7 @@ import type { DateRange } from '../Calendar';
 import { DatePicker, type DatePickerProps } from './DatePicker';
 import { Field } from '../Field';
 import calendarStyles from '../Calendar/Calendar.module.css';
+import styles from './DatePicker.module.css';
 import { installPopoverStub } from '../../test/popover';
 
 installPopoverStub();
@@ -288,7 +289,9 @@ describe('DatePicker', () => {
         <p id="own">From the caller.</p>
       </>,
     );
-    expect(screen.getByRole('textbox')).toHaveAccessibleDescription('From the caller.');
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+      'From the caller. Type digits only, as month, day, year. Separators are added for you.',
+    );
   });
 
   it('lets an explicit required win over the Field', () => {
@@ -858,8 +861,8 @@ describe('DatePicker typing', () => {
     expect(onSelect).toHaveBeenCalledWith('2023-04-09');
   });
 
-  it('takes its placeholder from the locale, compact, with its separator', () => {
-    render(<DatePicker label="Data" locale="de-DE" />);
+  it('takes its native placeholder from the locale when it cannot be typed into', () => {
+    render(<DatePicker label="Data" locale="de-DE" readOnly />);
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'DD.MM.YYYY');
   });
 
@@ -899,5 +902,76 @@ describe('DatePicker typing', () => {
     expect(onSelect).toHaveBeenCalledWith('2023-04-26');
     expect(input).toHaveValue('04/26/2023');
     expect(input).not.toHaveAttribute('aria-invalid');
+  });
+});
+
+describe('DatePicker mask shell and hint', () => {
+  const shellOf = (container: HTMLElement) =>
+    container.querySelector<HTMLElement>(`.${styles.shell!}`);
+
+  it('draws the rest of the format behind what has been typed', async () => {
+    const { container } = render(<DatePicker label="Data" locale="pt-PT" />);
+    await userEvent.type(screen.getByRole('textbox'), '120');
+    const shell = shellOf(container)!;
+    expect(shell).toHaveAttribute('aria-hidden', 'true');
+    expect(shell).toHaveTextContent('12/0M/YYYY');
+    expect(shell.lastChild?.textContent).toBe('M/YYYY');
+  });
+
+  it('shows the whole format in an empty field, instead of a native placeholder', () => {
+    const { container } = render(<DatePicker label="Data" locale="de-DE" />);
+    expect(shellOf(container)).toHaveTextContent('DD.MM.YYYY');
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('placeholder');
+  });
+
+  it('draws no shell once the format is complete', () => {
+    const { container } = render(<DatePicker label="Data" value="2023-04-26" />);
+    expect(shellOf(container)).toBeNull();
+  });
+
+  it('uses the native placeholder, with no shell and no hint, when read-only or disabled', () => {
+    const { container, rerender } = render(<DatePicker label="Data" readOnly />);
+    expect(shellOf(container)).toBeNull();
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'MM/DD/YYYY');
+    expect(screen.getByRole('textbox')).not.toHaveAccessibleDescription();
+
+    rerender(<DatePicker label="Data" disabled />);
+    expect(shellOf(container)).toBeNull();
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'MM/DD/YYYY');
+  });
+
+  it("describes the mask in words, after the Field's own description", () => {
+    render(
+      <Field label="Data" description="From the Field.">
+        <DatePicker label="Data" locale="pt-PT" />
+      </Field>,
+    );
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+      'From the Field. Type digits only, as day, month, year. Separators are added for you.',
+    );
+  });
+
+  it('tells a range how to type its end', () => {
+    render(<DatePicker label="Stay" mode="range" />);
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+      'Type digits only, as month, day, year. Separators are added for you. Then the end date the same way.',
+    );
+  });
+
+  it('hides the shell while an IME composition is under way', () => {
+    const { container } = render(<DatePicker label="Data" locale="pt-PT" />);
+    const input = screen.getByRole('textbox');
+    fireEvent.compositionStart(input);
+    expect(shellOf(container)).toBeNull();
+    fireEvent.compositionEnd(input);
+    expect(shellOf(container)).not.toBeNull();
+  });
+
+  it('paints the shell from the placeholder token, out of the pointer’s way, with the typed part invisible', () => {
+    const css = stylesheet();
+    expect(css).toMatch(/\.shell\s*\{[^}]*color:\s*var\(--ap-color-text-placeholder\)/);
+    expect(css).toMatch(/\.shell\s*\{[^}]*pointer-events:\s*none/);
+    expect(css).toMatch(/\.shell\s*\{[^}]*white-space:\s*pre/);
+    expect(css).toMatch(/\.typed\s*\{[^}]*visibility:\s*hidden/);
   });
 });
