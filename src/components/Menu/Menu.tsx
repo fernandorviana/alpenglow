@@ -1,9 +1,15 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
-import type { CSSProperties, KeyboardEventHandler, ReactNode, ToggleEvent } from 'react';
+import type {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  KeyboardEventHandler,
+  ReactNode,
+  ToggleEvent,
+} from 'react';
 import styles from './Menu.module.css';
-import { actionText, isGroup, isSeparator } from './rows';
+import { actionText, isGroup, isSeparator, matchIndex, nextIndex } from './rows';
 import type { MenuAction, MenuEntry } from './rows';
 
 export type MenuTriggerProps = {
@@ -33,6 +39,9 @@ function Row({ action, onClose }: { action: MenuAction; onClose: () => void }) {
         action.onSelect?.();
         onClose();
       }}
+      // The pointer moves focus, so the highlight has one owner. See the
+      // :focus rule in Menu.module.css.
+      onMouseEnter={(event) => event.currentTarget.focus()}
     >
       {action.icon && (
         <span className={`${styles.icon} ${styles.iconStart}`} aria-hidden="true">
@@ -61,8 +70,79 @@ export function Menu({ trigger, items }: MenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const close = () => menuRef.current?.hidePopover();
 
-  const onKeyDown: KeyboardEventHandler = () => {
-    // Opening with the arrow keys lands in Task 6.
+  /**
+   * Navigation reads the live DOM rather than mirroring the row list in state.
+   * There is then only one source of truth for what is focusable, and the
+   * disabled filter lives in one selector instead of in both the markup and a
+   * parallel array that can fall out of step with it.
+   */
+  const focusables = (): HTMLElement[] => {
+    const menu = menuRef.current;
+    if (!menu) return [];
+    return [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')];
+  };
+
+  const focusAt = (index: number) => {
+    const rows = focusables();
+    if (index < 0 || rows.length === 0) {
+      // Every row disabled: park focus on the surface so the popover is not a
+      // focus black hole.
+      menuRef.current?.focus();
+      return;
+    }
+    rows[index]?.focus();
+  };
+
+  const currentIndex = () => focusables().indexOf(document.activeElement as HTMLElement);
+
+  const onTriggerKeyDown = (event: ReactKeyboardEvent) => {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    event.preventDefault();
+    menuRef.current?.showPopover();
+    focusAt(event.key === 'ArrowDown' ? 0 : focusables().length - 1);
+  };
+
+  const onMenuKeyDown = (event: ReactKeyboardEvent) => {
+    const rows = focusables();
+    const at = currentIndex();
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        focusAt(nextIndex(at, 1, rows.length));
+        return;
+      case 'ArrowUp':
+        event.preventDefault();
+        // From the surface itself (at === -1) a wrapping step back would land
+        // on the second-to-last row, not the last.
+        focusAt(at < 0 ? rows.length - 1 : nextIndex(at, -1, rows.length));
+        return;
+      case 'Home':
+        event.preventDefault();
+        focusAt(0);
+        return;
+      case 'End':
+        event.preventDefault();
+        focusAt(rows.length - 1);
+        return;
+      case 'Tab':
+        // popover="auto" does not close on Tab; the APG pattern asks for it.
+        // The default is not prevented, so tabbing continues past the trigger.
+        close();
+        return;
+      default:
+        break;
+    }
+
+    // Typeahead. Single printable characters only — a modifier means a
+    // shortcut, and a longer key name is a key, not a character.
+    if (event.key.length !== 1 || event.metaKey || event.ctrlKey || event.altKey) return;
+    const texts = rows.map((row) => row.dataset.text ?? '');
+    const found = matchIndex(texts, at, event.key);
+    if (found >= 0) {
+      event.preventDefault();
+      focusAt(found);
+    }
   };
 
   return (
@@ -72,7 +152,7 @@ export function Menu({ trigger, items }: MenuProps) {
         popoverTarget: menuId,
         'aria-haspopup': 'menu',
         'aria-expanded': open,
-        onKeyDown,
+        onKeyDown: onTriggerKeyDown,
         style: { anchorName: anchor },
       })}
 
@@ -82,9 +162,19 @@ export function Menu({ trigger, items }: MenuProps) {
         popover="auto"
         role="menu"
         aria-labelledby={triggerId}
+        tabIndex={-1}
         className={styles.menu}
         style={{ '--menu-anchor': anchor } as CSSProperties}
-        onToggle={(event: ToggleEvent) => setOpen(event.newState === 'open')}
+        onKeyDown={onMenuKeyDown}
+        onToggle={(event: ToggleEvent) => {
+          const isOpen = event.newState === 'open';
+          setOpen(isOpen);
+          // popover moves focus only for an element with `autofocus`, so a
+          // menu opened by a click has to land on its first row. The toggle
+          // event is queued and arrives after onTriggerKeyDown has placed
+          // focus — ArrowUp's last row must not be overwritten.
+          if (isOpen && !menuRef.current?.contains(document.activeElement)) focusAt(0);
+        }}
       >
         {items.map((entry, i) => {
           if (isSeparator(entry)) {

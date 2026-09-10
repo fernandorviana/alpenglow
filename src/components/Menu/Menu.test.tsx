@@ -257,3 +257,88 @@ describe('Menu groups and separators', () => {
     expect(css).not.toContain('--ap-color-surface-sunken');
   });
 });
+
+const THREE: MenuEntry[] = [
+  { id: 'archive', label: 'Archive' },
+  { id: 'copy', label: 'Copy' },
+  { id: 'delete', label: 'Delete' },
+];
+
+describe('Menu keyboard', () => {
+  it('opens on ArrowDown with the first row focused', async () => {
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    screen.getByRole('button', { name: 'Actions' }).focus();
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Archive' })).toHaveFocus();
+  });
+
+  it('opens on ArrowUp with the last row focused', async () => {
+    // Reaching the bottom of a long menu should not cost a full traversal.
+    // The toggle event arrives after this key has placed focus, so this is
+    // also the test that it does not drag focus back to the first row.
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    screen.getByRole('button', { name: 'Actions' }).focus();
+    await user.keyboard('{ArrowUp}');
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+  });
+
+  it('wraps at both ends', async () => {
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    await open(user);
+    await user.keyboard('{ArrowUp}');
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Archive' })).toHaveFocus();
+  });
+
+  it('jumps to the ends with Home and End', async () => {
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    await open(user);
+    await user.keyboard('{End}');
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+    await user.keyboard('{Home}');
+    expect(screen.getByRole('menuitem', { name: 'Archive' })).toHaveFocus();
+  });
+
+  it('moves on the first character typed', async () => {
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    await open(user);
+    await user.keyboard('c');
+    expect(screen.getByRole('menuitem', { name: 'Copy' })).toHaveFocus();
+  });
+
+  // No Escape test. Esc and focus return are the platform's, and the popover
+  // stub deliberately does not imitate them — a test here would test the stub.
+
+  it('closes on Tab, which popover does not do and the APG asks for', async () => {
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    await open(user);
+    await user.keyboard('{Tab}');
+    expect(screen.getByRole('button', { name: 'Actions' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('activates the focused row on Enter and closes', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(<Open items={[{ id: 'archive', label: 'Archive', onSelect }]} />);
+    await open(user);
+    await user.keyboard('{Enter}');
+    expect(onSelect).toHaveBeenCalledOnce();
+  });
+
+  it('lets the pointer move focus, so one row is highlighted and not two', async () => {
+    // Without this the pointer highlights one row while the keyboard holds
+    // another, and neither answers "what happens if I press Enter now".
+    const user = userEvent.setup();
+    render(<Open items={THREE} />);
+    await open(user);
+    await user.hover(screen.getByRole('menuitem', { name: 'Copy' }));
+    expect(screen.getByRole('menuitem', { name: 'Copy' })).toHaveFocus();
+  });
+});
