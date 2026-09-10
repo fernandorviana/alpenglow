@@ -118,23 +118,51 @@ have all been mistaken for errors at least once.
     shared neutral — `text/accent` on the neutral fill is 3.50:1 in dark.
     Both are asserted in `DropdownMenu.test.tsx` and `contrast.test.ts`.
 
-12. **The DropdownMenu's tests stub the popover API, and only part of it.**
-    jsdom 30 implements none of it. The stub in `DropdownMenu.test.tsx` covers
-    show, hide, toggle, the queued `toggle` event and invoker clicks. Esc, light dismiss,
-    focus return and placement are deliberately absent — they are the
-    browser's, and all four were checked in Chrome — Esc by hand, because the
-    browser automation's Esc is ignored. Rechecked by hand on 2026-09-10 in
-    Chrome and Safari 26.6 (Firefox not yet): Esc and the outside click close
-    the menu, after a click or ArrowDown, and Esc returns focus to the trigger.
-    The automation's keydown is trusted but carries `keyCode` 0 and an empty
+12. **The popover stub is shared, and only covers part of the API.** jsdom 30
+    implements none of it. `src/test/popover.ts` covers show, hide, toggle, the
+    queued `toggle` event and invoker clicks, and has two consumers —
+    `DropdownMenu` and `DatePicker`. Esc, light dismiss, focus return and
+    placement are deliberately absent — they are the browser's, and all four
+    were checked in Chrome for DropdownMenu — Esc by hand, because the browser
+    automation's Esc is ignored. Rechecked by hand on 2026-09-10 in Chrome and
+    Safari 26.6 (Firefox not yet): Esc and the outside click close the menu,
+    after a click or ArrowDown, and Esc returns focus to the trigger. The
+    automation's keydown is trusted but carries `keyCode` 0 and an empty
     `code`, and Chromium's close watcher does not read it as Esc. Pressed by
     hand in the same Browser pane, `keyCode` is 27 and the menu closes. An
     automated outside click closes it too. A menu left open by an automated Esc
-    is the tool, not the component — do not add Esc or outside-click handlers.
-    Do not grow the stub to imitate them; delete it when jsdom ships popover,
-    which a guard test will announce. The same Chrome check caught a keyboard
-    ring losing on specificity, which jsdom cannot compute — look at
+    is the tool, not the component — do not add Esc or outside-click handlers
+    to DropdownMenu. Do not grow the stub to imitate them; delete it when jsdom
+    ships popover, which a guard test will announce. The same Chrome check
+    caught a keyboard ring losing on specificity, which jsdom cannot compute —
+    look at
     `:focus-visible` in a real browser after touching a focus rule.
+
+13. **The calendar's spilled days are inert but still painted.** The days from
+    the adjacent months are rendered, greyed, not focusable and not clickable,
+    and their numbers are `aria-hidden`. That is what makes their 1.65:1
+    defensible — decoration is exempt, an interactive control is not. But a
+    spilled day inside a selected range still takes the range band, because
+    with March 2023 visible the cells spilled in at the top are 26–28 February
+    and a range that started on 20 February covers them. Unpainted, the band
+    would break at exactly the boundary the range crosses. Both halves of that
+    rule are tested; removing either one looks like a tidy-up and is a
+    regression.
+
+14. **The range band spans the whole 40px cell, not the drawn 32px pill.** At
+    the drawn size, consecutive days sit 8px apart and an interval reads as
+    loose squares rather than a period. The ends are shaped by the cell's own
+    rounded inline ends, not by a pill drawn on top — start, middle and end are
+    one solid accent fill with on-accent labels throughout.
+    `Calendar.test.tsx` reads the stylesheet and fails if the band moves back
+    onto the pill.
+
+15. **The DatePicker panel is `popover="manual"`, not `auto` like the
+    DropdownMenu, on purpose.** In range mode the first Esc must only cancel a
+    pending start, and with `auto` the platform's close request would dismiss
+    the panel instead. Dismissal — Esc, an outside press, focus leaving — is
+    the component's own and is tested. Aligning it to the menu's `auto` looks
+    like a tidy-up and is a regression.
 
 ---
 
@@ -204,7 +232,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 395 tests across 17 files
+npm test            # 530 tests across 18 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
@@ -242,8 +270,8 @@ documentation site, so an absent component costs more than an absent package.
 
 Three tokens still name components that do not exist: `surface/sunken`
 (wells, progress tracks), `surface/scrim` (modal backdrop), `surface/inverse`
-(tooltips, inverted banners). DropdownMenu claimed `surface/overlay`, and is its only
-consumer until a modal or a popover exists. Table claimed two more off this list — it is the consumer of
+(tooltips, inverted banners). `surface/overlay` now has two consumers —
+DropdownMenu and the DatePicker panel. Table claimed two more off this list — it is the consumer of
 `surface/raised` (table body) and of `interactive/selected` (row), which is
 why `surface/sunken` no longer claims table headers: the header band is
 `surface/base`, and the reason is recorded on the token itself.

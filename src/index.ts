@@ -62,3 +62,9 @@ export { fontFamily, fontWeight, textStyle } from './tokens/typography';
 export { elevation, shadowCss } from './tokens/elevation';
 export type { ElevationName, ShadowLayer } from './tokens/elevation';
 export { contrast, resolve, tokenContrast } from './tokens/contrast';
+
+export { Calendar } from './components/Calendar/index';
+export type { CalendarProps, CalendarMode, DateRange, ISODate } from './components/Calendar/index';
+
+export { DatePicker } from './components/DatePicker/index';
+export type { DatePickerProps, DatePickerSize } from './components/DatePicker/index';
