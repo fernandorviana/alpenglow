@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import {
@@ -166,16 +167,24 @@ describe('Calendar structure', () => {
     expect(grid).toBeInTheDocument();
   });
 
-  it('renders seven column headers with full weekday names', () => {
-    // The visible glyph is one letter, and two of the seven are S and two are
-    // T. A single letter disambiguates nothing, so the accessible name is the
-    // whole weekday and the letter is hidden.
+  it('names the seven column headers with full weekday names', () => {
+    // Asserted on the accessible name, not textContent: textContent includes
+    // aria-hidden text, so it reads "SSunday" for markup that is correct. The
+    // visible glyph is one letter and two of the seven are S — it
+    // disambiguates nothing, so it is hidden and the name is the whole day.
     render(<Calendar label="Date" defaultMonth="2023-04-01" />);
     const headers = screen.getAllByRole('columnheader');
+    const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     expect(headers).toHaveLength(7);
-    expect(headers.map((h) => h.textContent)).toEqual([
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
-    ]);
+    headers.forEach((header, i) => expect(header).toHaveAccessibleName(names[i]));
+  });
+
+  it('never draws the weekday letter with CSS generated content', () => {
+    // The render test above cannot catch this: jsdom does not compute ::before.
+    // Browsers do, and fold it into the accessible name, which would put the
+    // letter back into "S Sunday".
+    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8');
+    expect(css).not.toMatch(/\.weekday[^{]*::?(before|after)/);
   });
 
   it('renders six rows of days whatever the month', () => {

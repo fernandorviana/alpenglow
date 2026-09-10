@@ -150,20 +150,14 @@ export function Calendar({
         <thead>
           <tr>
             {weekdays.map((day) => (
-              <th
-                key={day.long}
-                scope="col"
-                className={styles.weekday}
-                data-narrow={day.narrow}
-              >
-                {/* The visible glyph is drawn from `data-narrow` by the
-                    stylesheet's `::before`, which is not a DOM text node — an
-                    `aria-hidden` sibling span would still show up in
-                    `.textContent`, concatenated with the name below it. This
-                    way `.textContent` (and the accessible name) is exactly
-                    the full weekday: the visible glyph is one letter and two
-                    of the seven are S, so a screen reader must never rely on
-                    it. */}
+              <th key={day.long} scope="col" className={styles.weekday}>
+                {/* The visible glyph is one letter and two of the seven are S. The name a
+                    screen reader gets is the whole weekday, so the letter is aria-hidden.
+                    Not CSS generated content: ::before text is part of accessible-name
+                    computation (accname 1.2, step 2F.ii) in every major browser, so it
+                    would put the letter back into the name — and jsdom cannot see it, so
+                    no render test would notice. */}
+                <span aria-hidden="true">{day.narrow}</span>
                 <span className={styles.hidden}>{day.long}</span>
               </th>
             ))}

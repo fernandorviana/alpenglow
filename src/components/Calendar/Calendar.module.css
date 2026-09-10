@@ -68,15 +68,6 @@
   color: var(--ap-color-text-tertiary);
 }
 
-/* The visible glyph, from the `data-narrow` attribute rather than a second
-   text node: generated content is not part of the DOM, so it cannot leak
-   into `.textContent` or the accessible name the way an `aria-hidden` sibling
-   span would. The real text — the full weekday, for a screen reader — is the
-   `.hidden` span below. */
-.weekday::before {
-  content: attr(data-narrow);
-}
-
 .cell {
   height: 40px;
   padding: 0;
