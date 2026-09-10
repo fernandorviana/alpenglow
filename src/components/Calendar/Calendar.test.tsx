@@ -12,15 +12,11 @@ import {
   compare,
   dateFormat,
   daysInMonth,
-  formatTyped,
   isValidISO,
   isWithin,
   monthGrid,
   orderRange,
-  parseTyped,
   parts,
-  placeholderFor,
-  segmentOrder,
   startOfMonth,
   today,
   toISO,
@@ -1126,55 +1122,6 @@ describe('Calendar on the server', () => {
       expect(tabbable[0]!.getAttribute('aria-label')).toMatch(/april 1,/i);
     } finally {
       vi.useRealTimers();
-    }
-  });
-});
-
-describe('typed dates', () => {
-  it('reads the segment order from the locale', () => {
-    expect(segmentOrder('en-US')).toEqual(['month', 'day', 'year']);
-    expect(segmentOrder('pt-PT')).toEqual(['day', 'month', 'year']);
-  });
-
-  it('builds the placeholder from that order', () => {
-    expect(placeholderFor('en-US')).toBe('MM / DD / YYYY');
-    expect(placeholderFor('pt-PT')).toBe('DD / MM / YYYY');
-  });
-
-  it('parses the locale order', () => {
-    // 04/05/2026 is two different days either side of the Atlantic, and
-    // neither user is wrong. This is why the order is not hardcoded.
-    expect(parseTyped('04/05/2026', 'en-US')).toBe('2026-04-05');
-    expect(parseTyped('04/05/2026', 'pt-PT')).toBe('2026-05-04');
-  });
-
-  it('accepts ISO in every locale, as the unambiguous escape hatch', () => {
-    expect(parseTyped('2026-04-26', 'en-US')).toBe('2026-04-26');
-    expect(parseTyped('2026-04-26', 'pt-PT')).toBe('2026-04-26');
-  });
-
-  it('is forgiving about separators and padding', () => {
-    expect(parseTyped('4-5-2026', 'en-US')).toBe('2026-04-05');
-    expect(parseTyped('4 / 5 / 2026', 'en-US')).toBe('2026-04-05');
-    expect(parseTyped('04.05.2026', 'en-US')).toBe('2026-04-05');
-  });
-
-  it('rejects a date that does not exist rather than rolling it over', () => {
-    // 31 February must not silently become 3 March.
-    expect(parseTyped('02/31/2026', 'en-US')).toBeNull();
-    expect(parseTyped('13/01/2026', 'en-US')).toBeNull();
-    expect(parseTyped('not a date', 'en-US')).toBeNull();
-    expect(parseTyped('04/05', 'en-US')).toBeNull();
-  });
-
-  it('formats a date in the order the locale writes it', () => {
-    expect(formatTyped('2026-04-05', 'en-US')).toBe('04 / 05 / 2026');
-    expect(formatTyped('2026-04-05', 'pt-PT')).toBe('05 / 04 / 2026');
-  });
-
-  it('round-trips formatTyped through parseTyped, in either locale', () => {
-    for (const locale of ['en-US', 'pt-PT']) {
-      expect(parseTyped(formatTyped('2026-04-05', locale), locale)).toBe('2026-04-05');
     }
   });
 });

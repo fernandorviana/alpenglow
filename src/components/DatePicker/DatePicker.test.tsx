@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import type { DateRange } from '../Calendar';
-import { DatePicker } from './DatePicker';
+import { DatePicker, type DatePickerProps } from './DatePicker';
 import { Field } from '../Field';
 import calendarStyles from '../Calendar/Calendar.module.css';
 import { installPopoverStub } from '../../test/popover';
@@ -235,6 +235,8 @@ describe('DatePicker', () => {
     // viewport by hand.
     expect(code).not.toContain('getBoundingClientRect');
     expect(code).not.toContain('innerHeight');
+    // The free-text parse and its callback are gone; the mask reports reasons.
+    expect(code).not.toContain('onParseError');
   });
 
   it('carries no colour literal, no primitive token, and paints the panel entirely from tokens', () => {
@@ -304,7 +306,7 @@ describe('DatePicker', () => {
   });
 
   it('submits the ISO date under its name, not the locale display text', () => {
-    // pt-PT displays 26 / 04 / 2023. A native form gets the unambiguous value.
+    // pt-PT displays 26/04/2023. A native form gets the unambiguous value.
     const { container } = render(
       <form>
         <DatePicker label="Data" name="appointment" locale="pt-PT" value="2023-04-26" />
@@ -550,127 +552,271 @@ describe('DatePicker', () => {
 });
 
 describe('DatePicker typing', () => {
-  it('parses on blur and reports the date', async () => {
-    const onSelect = vi.fn();
-    render(<DatePicker label="Appointment" onSelect={onSelect} />);
-    const input = screen.getByRole('textbox');
-
-    await userEvent.type(input, '04/26/2023');
-    await userEvent.tab();
-    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
-  });
-
-  it('parses on Enter without waiting for blur', async () => {
-    const onSelect = vi.fn();
-    render(<DatePicker label="Appointment" onSelect={onSelect} />);
-    await userEvent.type(screen.getByRole('textbox'), '04/26/2023{Enter}');
-    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
-  });
-
-  it('does not validate on every keystroke', async () => {
-    // Half a date is not an invalid date, it is an unfinished one.
-    const onParseError = vi.fn();
-    render(<DatePicker label="Appointment" onParseError={onParseError} />);
-    await userEvent.type(screen.getByRole('textbox'), '04/2');
-    expect(onParseError).not.toHaveBeenCalled();
-  });
-
-  it('keeps what the user typed when it cannot be parsed', async () => {
-    // Clearing the field would throw away the only record of their intent.
-    const onParseError = vi.fn();
-    const onSelect = vi.fn();
-    render(
-      <DatePicker label="Appointment" onParseError={onParseError} onSelect={onSelect} />,
+  /** A picker holding its own value, as a page would. */
+  function Typed({
+    initial = null,
+    onSelect,
+    ...props
+  }: Omit<DatePickerProps, 'label' | 'value'> & { initial?: DatePickerProps['value'] }) {
+    const [value, setValue] = useState(initial);
+    return (
+      <DatePicker
+        label="Appointment"
+        {...props}
+        value={value}
+        onSelect={(next) => {
+          setValue(next);
+          onSelect?.(next);
+        }}
+      />
     );
+  }
+
+  it('frames digits as they are typed, in the locale order and with its separator', async () => {
+    const onSelect = vi.fn();
+    render(<Typed locale="pt-PT" onSelect={onSelect} />);
     const input = screen.getByRole('textbox');
 
-    await userEvent.type(input, '02/31/2026');
-    await userEvent.tab();
+    await userEvent.type(input, '12');
+    expect(input).toHaveValue('12/');
 
-    expect(onParseError).toHaveBeenCalledWith('02/31/2026');
+    await userEvent.type(input, '022025');
+    expect(input).toHaveValue('12/02/2025');
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith('2025-02-12');
+  });
+
+  it('pads a first digit that cannot start its segment', async () => {
+    render(<Typed locale="pt-PT" />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '45');
+    expect(input).toHaveValue('04/05/');
+  });
+
+  it('refuses a digit that would make the month impossible, and leaves the caret where it was', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await userEvent.type(input, '13');
+    expect(input).toHaveValue('1');
+    expect(input.selectionStart).toBe(1);
+  });
+
+  it('inserts nothing from a paste that would not fit, rather than shifting its digits', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox');
+    await userEvent.click(input);
+    await userEvent.paste('13022025');
+    expect(input).toHaveValue('');
+  });
+
+  it('ignores a digit typed into a field that is already full', async () => {
+    const onSelect = vi.fn();
+    render(<Typed onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '04262023');
+    await userEvent.type(input, '1');
+    expect(input).toHaveValue('04/26/2023');
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('never refuses a deletion, and lets the digits after it reflow', async () => {
+    const onSelect = vi.fn();
+    const onInvalid = vi.fn();
+    render(
+      <Typed locale="pt-PT" initial="2025-02-12" onSelect={onSelect} onInvalid={onInvalid} />,
+    );
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    // The caret sits after "12": Backspace removes the 2 of the day.
+    await userEvent.type(input, '{Backspace}', { initialSelectionStart: 2, initialSelectionEnd: 2 });
+    expect(input).toHaveValue('10/22/025');
+    expect(input.selectionStart).toBe(1);
     expect(onSelect).not.toHaveBeenCalled();
-    expect(input).toHaveValue('02/31/2026');
+    expect(onInvalid).not.toHaveBeenCalled();
+  });
+
+  it('deletes the digit before a separator on Backspace, rather than putting the separator back', async () => {
+    render(<Typed locale="pt-PT" />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '12');
+    await userEvent.keyboard('{Backspace}');
+    expect(input).toHaveValue('1');
+  });
+
+  it('reports an incomplete date on blur, and never while it is being typed', async () => {
+    const onInvalid = vi.fn();
+    render(<Typed onInvalid={onInvalid} />);
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '120');
+    expect(input).toHaveValue('12/0');
+    expect(onInvalid).not.toHaveBeenCalled();
+    expect(input).not.toHaveAttribute('aria-invalid');
+
+    await userEvent.tab();
+    expect(onInvalid).toHaveBeenCalledWith('12/0', 'incomplete');
     expect(input).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('takes its placeholder from the locale', () => {
-    render(<DatePicker label="Data" locale="pt-PT" />);
-    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'DD / MM / YYYY');
+  it('evaluates on Enter without waiting for blur', async () => {
+    const onInvalid = vi.fn();
+    render(<Typed onInvalid={onInvalid} />);
+    await userEvent.type(screen.getByRole('textbox'), '0426{Enter}');
+    expect(onInvalid).toHaveBeenCalledWith('04/26/', 'incomplete');
   });
 
-  it('does not accept typing when readOnly', async () => {
+  it('flags a date that does not exist as soon as its last digit is in, and keeps the text', async () => {
+    const onInvalid = vi.fn();
+    const onSelect = vi.fn();
+    render(<Typed onInvalid={onInvalid} onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '02312025');
+    expect(onInvalid).toHaveBeenCalledWith('02/31/2025', 'not-a-date');
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(input).toHaveValue('02/31/2025');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('reports min, max and an unavailable day, in that order of priority', async () => {
+    const onInvalid = vi.fn();
+    const saturday = (date: string) => date === '2023-04-08';
+    render(
+      <Typed min="2023-04-03" max="2023-04-24" isDateUnavailable={saturday} onInvalid={onInvalid} />,
+    );
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '04012023');
+    expect(onInvalid).toHaveBeenLastCalledWith('04/01/2023', 'before-min');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '04302023');
+    expect(onInvalid).toHaveBeenLastCalledWith('04/30/2023', 'after-max');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '04082023');
+    expect(onInvalid).toHaveBeenLastCalledWith('04/08/2023', 'unavailable');
+  });
+
+  it('emits null when the field is emptied and left', async () => {
+    const onSelect = vi.fn();
+    render(<Typed initial="2023-04-26" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.clear(input);
+    await userEvent.tab();
+    expect(onSelect).toHaveBeenCalledWith(null);
+    expect(input).toHaveValue('');
+  });
+
+  it('calls nothing when focus only passes through', async () => {
+    const onSelect = vi.fn();
+    const onInvalid = vi.fn();
+    render(<Typed initial="2023-04-26" onSelect={onSelect} onInvalid={onInvalid} />);
+    await userEvent.click(screen.getByRole('textbox'));
+    await userEvent.tab();
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(onInvalid).not.toHaveBeenCalled();
+  });
+
+  it('types a range, joining the two dates and ordering a reversed pair', async () => {
+    const onSelect = vi.fn();
+    render(<Typed mode="range" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+
+    await userEvent.type(input, '04102023');
+    expect(input).toHaveValue('04/10/2023 – ');
+    expect(onSelect).not.toHaveBeenCalled();
+
+    await userEvent.type(input, '04052023');
+    expect(onSelect).toHaveBeenCalledWith({ start: '2023-04-05', end: '2023-04-10' });
+    expect(input).toHaveValue('04/05/2023 – 04/10/2023');
+  });
+
+  it('deletes the last digit of the start on Backspace after the range separator', async () => {
+    render(<Typed mode="range" />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '04102023');
+    await userEvent.keyboard('{Backspace}');
+    expect(input).toHaveValue('04/10/202');
+  });
+
+  it('reports a range with only its start as incomplete on blur', async () => {
+    const onInvalid = vi.fn();
+    render(<Typed mode="range" onInvalid={onInvalid} />);
+    await userEvent.type(screen.getByRole('textbox'), '04102023');
+    await userEvent.tab();
+    expect(onInvalid).toHaveBeenCalledWith('04/10/2023 – ', 'incomplete');
+  });
+
+  it('reads ISO that arrives whole, in the locale order', async () => {
+    const onSelect = vi.fn();
+    render(<Typed locale="pt-PT" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.click(input);
+    await userEvent.paste('2025-02-12');
+    expect(onSelect).toHaveBeenCalledWith('2025-02-12');
+    expect(input).toHaveValue('12/02/2025');
+  });
+
+  it('drops a draft when the value changes from outside', async () => {
+    const { rerender } = render(<DatePicker label="Appointment" value="2023-04-26" />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '{Backspace}');
+    expect(input).toHaveValue('04/26/202');
+
+    rerender(<DatePicker label="Appointment" value="2023-06-15" />);
+    expect(input).toHaveValue('06/15/2023');
+  });
+
+  it('leaves an IME composition alone until it ends', () => {
+    render(<Typed locale="pt-PT" />);
+    const input = screen.getByRole('textbox');
+    input.focus();
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: '１２' } });
+    expect(input).toHaveValue('１２');
+    fireEvent.compositionEnd(input);
+    expect(input).toHaveValue('12/');
+  });
+
+  it('takes its placeholder from the locale, compact, with its separator', () => {
+    render(<DatePicker label="Data" locale="de-DE" />);
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'DD.MM.YYYY');
+  });
+
+  it('does not mask or accept typing when read-only', async () => {
     render(<DatePicker label="Appointment" value="2023-04-26" readOnly />);
     const input = screen.getByRole('textbox');
-    await userEvent.type(input, '01/01/2020');
-    expect(input).toHaveValue('04 / 26 / 2023');
+    await userEvent.type(input, '01012020');
+    expect(input).toHaveValue('04/26/2023');
   });
-
-  // --- Rulings for Task 9 ----------------------------------------------------
 
   it('shows the field text in the locale order, and names the trigger with the long form', () => {
     render(<DatePicker label="Appointment" value="2023-04-26" />);
-    expect(screen.getByRole('textbox')).toHaveValue('04 / 26 / 2023');
+    expect(screen.getByRole('textbox')).toHaveValue('04/26/2023');
     expect(
       screen.getByRole('button', { name: 'Change date, April 26, 2023' }),
     ).toBeInTheDocument();
   });
 
-  it('keeps the field read-only in range mode, because - cannot be both a date separator and a range separator', async () => {
-    render(<DatePicker label="Stay" mode="range" defaultMonth="2023-04-01" />);
+  it('opens the numeric keypad and keeps autofill out of the field', () => {
+    render(<DatePicker label="Appointment" />);
     const input = screen.getByRole('textbox');
-    expect(input).toHaveAttribute('readonly');
-
-    await userEvent.type(input, '04/10/2023');
-    expect(input).toHaveValue('');
+    expect(input).toHaveAttribute('type', 'text');
+    expect(input).toHaveAttribute('inputmode', 'numeric');
+    expect(input).toHaveAttribute('autocomplete', 'off');
   });
 
-  it('clears the draft and the parse failure on a calendar pick', async () => {
+  it('clears the draft and the invalid state on a calendar pick', async () => {
     const onSelect = vi.fn();
-    const { rerender } = render(
-      <DatePicker label="Appointment" defaultMonth="2023-04-01" onSelect={onSelect} />,
-    );
+    render(<Typed defaultMonth="2023-04-01" onSelect={onSelect} />);
     const input = screen.getByRole('textbox');
 
-    await userEvent.type(input, '02/31/2026');
-    await userEvent.tab();
+    await userEvent.type(input, '02312025');
     expect(input).toHaveAttribute('aria-invalid', 'true');
 
     await openPanel();
     await userEvent.click(screen.getByRole('button', { name: /april 26/i }));
     expect(onSelect).toHaveBeenCalledWith('2023-04-26');
-
-    rerender(
-      <DatePicker
-        label="Appointment"
-        defaultMonth="2023-04-01"
-        value="2023-04-26"
-        onSelect={onSelect}
-      />,
-    );
-
-    expect(input).toHaveValue('04 / 26 / 2023');
+    expect(input).toHaveValue('04/26/2023');
     expect(input).not.toHaveAttribute('aria-invalid');
-  });
-
-  it('rejects a typed date the calendar would refuse, like one outside min/max', async () => {
-    const onParseError = vi.fn();
-    const onSelect = vi.fn();
-    render(
-      <DatePicker
-        label="Appointment"
-        min="2023-04-10"
-        onParseError={onParseError}
-        onSelect={onSelect}
-      />,
-    );
-    const input = screen.getByRole('textbox');
-
-    await userEvent.type(input, '04/01/2023');
-    await userEvent.tab();
-
-    expect(onParseError).toHaveBeenCalledWith('04/01/2023');
-    expect(onSelect).not.toHaveBeenCalled();
-    expect(input).toHaveValue('04/01/2023');
-    expect(input).toHaveAttribute('aria-invalid', 'true');
   });
 });

@@ -1,20 +1,35 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import type { CSSProperties, FocusEvent, KeyboardEvent, ToggleEvent } from 'react';
+import type {
+  ChangeEvent,
+  CompositionEvent,
+  CSSProperties,
+  FocusEvent,
+  KeyboardEvent,
+  ToggleEvent,
+} from 'react';
 import { Calendar, type CalendarProps, type DateRange } from '../Calendar';
-import {
-  dateFormat,
-  formatTyped,
-  isWithin,
-  parseTyped,
-  placeholderFor,
-  utcTimestamp,
-} from '../Calendar/date';
+import { dateFormat, utcTimestamp } from '../Calendar/date';
 import { useField } from '../Field/FieldContext';
 import { useHydrated } from '../useHydrated';
 import control from '../control.module.css';
+import {
+  applyMask,
+  caretIndex,
+  dateShape,
+  digitsFor,
+  formatValue,
+  insertedRange,
+  normaliseDigits,
+  placeholderFor,
+  readValue,
+  replaceWholeIso,
+  type DatePickerInvalidReason,
+} from './mask';
 import styles from './DatePicker.module.css';
+
+export type { DatePickerInvalidReason } from './mask';
 
 /** The calendar glyph as drawn: a 24px box, 1.5px stroke. */
 function CalendarIcon() {
@@ -49,10 +64,13 @@ export type DatePickerProps = CalendarProps & {
   required?: boolean;
   'aria-describedby'?: string;
   /**
-   * Fires when the typed text is not a date, or is a date the calendar would
-   * refuse — outside `min`/`max`, or excluded by `isDateUnavailable`.
+   * Fires when an evaluation finds the typed text is not a date this picker
+   * accepts. The field evaluates when the digits of a complete date (or
+   * range) are in, on blur and on Enter — never on half a date, which is
+   * unfinished rather than wrong. `raw` is the field's text; the caller turns
+   * `reason` into the Field's `error`.
    */
-  onParseError?: (raw: string) => void;
+  onInvalid?: (raw: string, reason: DatePickerInvalidReason) => void;
 };
 
 export function DatePicker({
@@ -68,7 +86,7 @@ export function DatePicker({
   mode = 'single',
   value,
   onSelect,
-  onParseError,
+  onInvalid,
   locale = 'en-US',
   min,
   max,
@@ -95,9 +113,9 @@ export function DatePicker({
   const anchor = `--picker-${panelId.replace(/[^a-zA-Z0-9]/g, '')}`;
 
   // The only place a formatter is built for this component: it goes through
-  // `dateFormat`, which pins the zone to UTC, so the trigger's label and the
-  // field's display text read the same calendar day the grid drew — not the
-  // day before it for anyone west of UTC.
+  // `dateFormat`, which pins the zone to UTC, so the trigger's label reads the
+  // same calendar day the grid drew — not the day before it for anyone west
+  // of UTC.
   const formatter = useMemo(
     () => dateFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }),
     [locale],
@@ -114,41 +132,107 @@ export function DatePicker({
       ? `${formatter.format(utcTimestamp(range.start))} – ${formatter.format(utcTimestamp(range.end))}`
       : '';
 
-  // Field form: the locale's own digit order, so the placeholder, the field
-  // and `parseTyped` all agree on what a typed date looks like.
-  const fieldText = single
-    ? formatTyped(single, locale)
-    : range
-      ? `${formatTyped(range.start, locale)} – ${formatTyped(range.end, locale)}`
-      : '';
+  // What a native form submits: ISO, never the display text, whose digit
+  // order is the locale's and is the ambiguity this component exists to
+  // avoid. A range is an ISO 8601 interval.
+  const isoValue = single ?? (range ? `${range.start}/${range.end}` : '');
 
-  // What the user has typed but not yet committed. `null` means the field is
-  // showing the formatted value rather than a draft.
+  // The locale's order and separator, read once per locale. The placeholder,
+  // the formatted value and the mask all come from this one shape, so the
+  // field can never show a date it would then read back differently.
+  const shape = useMemo(() => dateShape(locale), [locale]);
+  const fieldText = formatValue(value, shape);
+  const placeholder = placeholderFor(shape, mode);
+
+  // What the user is typing, as the mask has framed it. `null` means the field
+  // shows the formatted value rather than a draft.
   const [draft, setDraft] = useState<string | null>(null);
-  const [parseFailed, setParseFailed] = useState(false);
+  const [invalidReason, setInvalidReason] = useState<DatePickerInvalidReason | null>(null);
+  const text = draft ?? fieldText;
 
-  function commit() {
-    if (draft === null) return;
-    if (draft.trim() === '') {
+  // A value that changes from outside — a calendar pick, or the parent —
+  // replaces whatever was mid-typed. Adjusted during render, React's
+  // documented pattern for state that follows a changed prop, so a stale
+  // draft never paints.
+  const [seenValue, setSeenValue] = useState(isoValue);
+  if (isoValue !== seenValue) {
+    setSeenValue(isoValue);
+    setDraft(null);
+    setInvalidReason(null);
+  }
+
+  // The field's text when an IME composition began, or null outside one. The
+  // mask waits for the composition to end: rewriting the value mid-way would
+  // fight the IME for the same characters.
+  const composingFrom = useRef<string | null>(null);
+
+  /**
+   * Ends in exactly one call: `onSelect` with a value, `onSelect(null)` for an
+   * emptied field, or `onInvalid` with a reason. A caller clears its message
+   * in the first two and writes it in the third, and needs nothing else.
+   */
+  function evaluate(current: string) {
+    const digits = normaliseDigits(current);
+    if (digits === '') {
       setDraft(null);
-      setParseFailed(false);
+      setInvalidReason(null);
       onSelect?.(null);
       return;
     }
-    const parsed = parseTyped(draft, locale);
-    // A date the calendar would refuse — outside min/max, or excluded by
-    // isDateUnavailable — is rejected exactly like one that does not parse:
-    // both are "not a date this picker will accept".
-    const refused =
-      parsed === null || !isWithin(parsed, min, max) || Boolean(isDateUnavailable?.(parsed));
-    if (refused) {
-      setParseFailed(true);
-      onParseError?.(draft);
+    const result = readValue(digits, shape, mode, { min, max, isDateUnavailable });
+    if ('reason' in result) {
+      // The text stays as typed and the value stays as it was: the user knows
+      // more about what they meant than the reader does.
+      setInvalidReason(result.reason);
+      onInvalid?.(current, result.reason);
       return;
     }
     setDraft(null);
-    setParseFailed(false);
-    onSelect?.(parsed);
+    setInvalidReason(null);
+    // Called even when the value is unchanged, so a caller's error message
+    // clears when a mistyped date is corrected back to the one it held.
+    onSelect?.(result.value);
+  }
+
+  /**
+   * Rebuilds the field from its digits after any edit — typing, a paste, a
+   * deletion, autofill, the end of a composition — instead of intercepting
+   * keys, which Android keyboards report as `Unidentified`. See invariant 18.
+   */
+  function edit(input: HTMLInputElement, previous: string, inputType: string | undefined) {
+    const raw = input.value;
+    const selection = input.selectionStart ?? raw.length;
+    const previousDigits = normaliseDigits(previous);
+    let digits = normaliseDigits(replaceWholeIso(raw, shape));
+    let before = normaliseDigits(raw.slice(0, selection)).length;
+
+    // The edit removed a separator and no digit. Putting the separator back
+    // would make the key do nothing, so the digit beside it goes instead.
+    if (digits === previousDigits && raw.length < previous.length) {
+      if (inputType === 'deleteContentBackward' && before > 0) {
+        digits = digits.slice(0, before - 1) + digits.slice(before);
+        before -= 1;
+      } else if (inputType === 'deleteContentForward') {
+        digits = digits.slice(0, before) + digits.slice(before + 1);
+      }
+    }
+
+    const masked = applyMask(digits, shape, mode, insertedRange(previousDigits, digits));
+
+    // A rejected edit leaves the text as it was, with the caret back where the
+    // edit began. React restores a controlled input's value after this handler
+    // returns, which would put the caret at the end, so it is placed in a
+    // microtask, after that.
+    const caret = masked
+      ? caretIndex(masked.text, masked.acceptedAfter[Math.min(before, digits.length)]!)
+      : Math.max(0, selection - (raw.length - previous.length));
+    queueMicrotask(() => {
+      if (document.activeElement === input) input.setSelectionRange(caret, caret);
+    });
+
+    if (!masked || masked.text === previous) return;
+    setDraft(masked.text);
+    if (masked.digits.length === digitsFor(mode)) evaluate(masked.text);
   }
 
   function close({ restoreFocus = true } = {}) {
@@ -231,46 +315,55 @@ export function DatePicker({
           .join(' ')}
         style={{ anchorName: anchor }}
       >
-        {/* What a native form submits: ISO, never the display text, whose
-            digit order is the locale's and is the ambiguity this component
-            exists to avoid. A range is an ISO 8601 interval. */}
         <input
           type="hidden"
           name={name}
-          value={single ?? (range ? `${range.start}/${range.end}` : '')}
+          value={isoValue}
           // A disabled control submits nothing, as a disabled input would.
           disabled={disabled}
         />
         <input
           id={controlId}
           className={control.field}
-          value={draft ?? fieldText}
-          placeholder={placeholderFor(locale)}
+          type="text"
+          // A numeric keypad on a phone. Not type="number", which takes `e`
+          // and `-`, steps with the arrow keys, and has no room for a separator.
+          inputMode="numeric"
+          // The browser's autofill knows nothing of this mask.
+          autoComplete="off"
+          value={text}
+          placeholder={placeholder}
           disabled={disabled}
-          // A range needs two locale-ordered dates in one free-text field, and
-          // `-` is both a date separator and a range separator — so a typed
-          // range would be ambiguous in exactly the locales that use it as
-          // either. The calendar stays the only way to set one.
-          readOnly={readOnly || mode === 'range'}
+          readOnly={readOnly}
           required={required}
-          aria-invalid={isInvalid || parseFailed || undefined}
+          aria-invalid={isInvalid || invalidReason !== null || undefined}
           aria-describedby={describedBy}
           // Inside a Field the label element already names the input; adding
           // this too would give it a redundant accessible name. A bare
           // DatePicker has no such label, so it names itself.
           aria-label={field ? undefined : label}
-          onChange={(event) => {
-            setDraft(event.target.value);
-            // Not validated per keystroke: half a date is unfinished, not
-            // wrong, and marking it invalid mid-word is noise.
-            setParseFailed(false);
-          }}
-          onBlur={commit}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              commit();
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            if (composingFrom.current !== null) {
+              setDraft(event.target.value);
+              return;
             }
+            edit(event.target, text, (event.nativeEvent as InputEvent).inputType);
+          }}
+          onCompositionStart={() => {
+            composingFrom.current = text;
+          }}
+          onCompositionEnd={(event: CompositionEvent<HTMLInputElement>) => {
+            const previous = composingFrom.current ?? text;
+            composingFrom.current = null;
+            edit(event.currentTarget, previous, 'insertCompositionText');
+          }}
+          onBlur={() => {
+            if (draft !== null) evaluate(draft);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            if (draft !== null) evaluate(draft);
           }}
         />
         <button
@@ -348,9 +441,9 @@ export function DatePicker({
             isDateUnavailable={isDateUnavailable}
             onSelect={(next) => {
               // A calendar pick always wins over whatever was mid-typed: the
-              // draft it is replacing, and any parse failure attached to it.
+              // draft it replaces, and any invalid state attached to it.
               setDraft(null);
-              setParseFailed(false);
+              setInvalidReason(null);
               onSelect?.(next);
               // Calendar reports only a finished choice — a single date, or a
               // range with both ends — so every report closes the panel.
