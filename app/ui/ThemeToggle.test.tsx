@@ -165,6 +165,26 @@ describe('ThemeToggle', () => {
       expect(toggle()).not.toBeChecked();
       expect(system.listening).toBe(0);
     });
+
+    it('puts a stored choice back on the root when React has taken it away', () => {
+      // The no-flash script sets the attribute while the page parses. When
+      // React renders the root on the client instead of hydrating it, the root
+      // comes back with only the attributes React knows about, and a viewer who
+      // chose light on a dark system would be handed dark.
+      localStorage.setItem(KEY, 'light');
+      stubSystem(true);
+      render(<ThemeToggle />);
+
+      expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+    });
+
+    it('leaves the root alone when nothing was chosen', () => {
+      // No attribute is what lets the system rules in the stylesheet apply.
+      stubSystem(true);
+      render(<ThemeToggle />);
+
+      expect(document.documentElement).not.toHaveAttribute('data-theme');
+    });
   });
 
   it('still works where storage throws', async () => {

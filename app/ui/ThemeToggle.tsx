@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Asleep, Sun } from '@carbon/icons-react';
 
 const KEY = 'alpenglow-theme';
@@ -28,7 +28,8 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(false);
   const [chosen, setChosen] = useState(false);
 
-  useEffect(() => {
+  // A layout effect, so whatever it puts back is there before the next paint.
+  useLayoutEffect(() => {
     let stored: string | null = null;
     try {
       stored = localStorage.getItem(KEY);
@@ -36,11 +37,14 @@ export function ThemeToggle() {
       // Private windows and blocked site data both throw here. Fall through.
     }
 
-    // A stored choice is already on the root — the layout's no-flash script put
-    // it there before the first paint. All that is left is to say so out loud.
-    // Anything else, including the 'system' the three-button control used to
-    // write, means the same as nothing at all.
+    // A stored choice is normally already on the root — the layout's no-flash
+    // script put it there before the first paint. It is written again because
+    // React takes it away whenever it renders the root on the client rather
+    // than hydrating it — after a hydration mismatch, for one — and the script
+    // does not run a second time. Anything else, including the 'system' the
+    // three-button control used to write, means the same as nothing at all.
     const isChosen = stored === 'light' || stored === 'dark';
+    if (isChosen) document.documentElement.setAttribute('data-theme', stored!);
     setChosen(isChosen);
     setDark(
       isChosen
