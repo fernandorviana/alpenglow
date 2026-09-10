@@ -464,11 +464,16 @@ stylesheet and asserts the selector invariant.
   Button's `:not(.loading)` guard, and the regression guard for 4.3.
 - The `@supports not (anchor-name: --a)` branch exists.
 
-**Against the DOM.** jsdom 24 and later implement the popover API; the project
-is on 30.
+**Against the DOM.** jsdom 30 implements none of the popover API, and its UA
+sheet hides every `[popover]`. (This section first said the opposite; the
+probe during implementation corrected it.) The test file stubs show, hide,
+toggle, the queued `toggle` event and invoker clicks — what the component calls
+and what the trigger relies on — with a guard test that fails once jsdom ships
+the real API. Esc, light dismiss, focus return, the top layer and placement are
+the platform's: verified in a real browser, not asserted here.
 
 Arrows skip disabled rows · Home/End land on the first and last *enabled* row ·
-Esc closes and returns focus to the trigger · Tab closes · typeahead skips
+Tab closes · typeahead skips
 disabled rows · `onSelect` fires and the menu closes · a disabled row fires
 nothing · the `role`, `aria-expanded` and `aria-labelledby` wiring · every row
 disabled focuses the surface.
