@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-10**, commit `f341d19`.
+Last verified against the tree on **2026-09-10**, commit `df1891c`.
 
 ---
 
