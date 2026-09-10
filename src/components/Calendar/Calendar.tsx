@@ -6,12 +6,15 @@ import {
   addDays,
   addMonths,
   clamp,
+  compare,
   dateFormat,
+  daysInMonth,
   isWithin,
   monthGrid,
   parts,
   startOfMonth,
   today,
+  toISO,
   utcTimestamp,
   weekday,
   type CalendarCell,
@@ -67,6 +70,30 @@ function useWeekdayNames(locale: string, weekStartsOn: number) {
       return { narrow: narrow.format(day), long: long.format(day) };
     });
   }, [locale, weekStartsOn]);
+}
+
+/**
+ * The chevrons as drawn: a 1.5px stroke on a 12 x 9.33 path inside a 40px box.
+ * 1.5 is `border-width/control`, which is what the drawing bound here. Drawn
+ * inline from the file's own geometry rather than pulled from Carbon — the
+ * same choice `Select` made for its own chevron, and it keeps the library
+ * from importing an icon package for two glyphs.
+ */
+function Chevron({ direction }: { direction: 'previous' | 'next' }) {
+  const d =
+    direction === 'previous'
+      ? 'M21.6 24.6667L16.9333 20L21.6 15.3333'
+      : 'M18.4 15.3333L23.0667 20L18.4 24.6667';
+  return (
+    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <path
+        d={d}
+        stroke="currentColor"
+        style={{ strokeWidth: 'var(--ap-border-width-control)' }}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }
 
 export function Calendar({
@@ -169,6 +196,16 @@ export function Calendar({
     gridRef.current?.querySelector<HTMLButtonElement>('button[tabindex="0"]')?.focus();
   });
 
+  // The single place the month changes. Both the arrow-key paging in
+  // `moveFocus` and the Previous/Next buttons below route through this, so
+  // there is exactly one call to `setInternalMonth`/`onMonthChange` to reason
+  // about.
+  function goToMonth(target: ISODate) {
+    const first = startOfMonth(target);
+    if (month === undefined) setInternalMonth(first);
+    onMonthChange?.(first);
+  }
+
   function moveFocus(next: ISODate) {
     const target = clamp(next, min, max);
     shouldRestoreFocus.current = true;
@@ -177,10 +214,7 @@ export function Calendar({
     // A move that leaves the visible month pages the grid. This is what makes
     // the spilled days unnecessary as controls.
     const targetMonth = startOfMonth(target);
-    if (targetMonth !== visibleMonth) {
-      if (month === undefined) setInternalMonth(targetMonth);
-      onMonthChange?.(targetMonth);
-    }
+    if (targetMonth !== visibleMonth) goToMonth(targetMonth);
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTableElement>) {
@@ -272,9 +306,34 @@ export function Calendar({
     );
   }
 
+  // A month is reachable if any day in it is: the two intervals — the
+  // month's own [first, last] and the allowed [min, max] — overlap. Checking
+  // only whether the month's own ends fall inside the bounds (or vice versa)
+  // is wrong whenever one interval sits strictly inside the other, e.g. a
+  // month that fully contains a narrow [min, max] window.
+  const previousMonth = addMonths(visibleMonth, -1);
+  const nextMonth = addMonths(visibleMonth, 1);
+  const canGo = (target: ISODate) => {
+    const { year, month: m } = parts(target);
+    const last = toISO(year, m, daysInMonth(year, m));
+    const notAfterMax = max === undefined || compare(target, max) <= 0;
+    const notBeforeMin = min === undefined || compare(last, min) >= 0;
+    return notAfterMax && notBeforeMin;
+  };
+
   return (
     <div className={styles.calendar}>
       <div className={styles.header}>
+        <button
+          type="button"
+          className={styles.page}
+          aria-label="Previous month"
+          disabled={!canGo(previousMonth)}
+          onClick={() => goToMonth(previousMonth)}
+        >
+          <Chevron direction="previous" />
+        </button>
+
         <h2 className={styles.heading} id={headingId} aria-live="polite">
           {/* One heading, two weights: the drawing sets the month Medium and
               the year Regular. Split into spans rather than two headings so
@@ -282,6 +341,16 @@ export function Calendar({
           <span className={styles.month}>{monthFormat.format(utcTimestamp(visibleMonth))}</span>{' '}
           <span className={styles.year}>{visibleYear}</span>
         </h2>
+
+        <button
+          type="button"
+          className={styles.page}
+          aria-label="Next month"
+          disabled={!canGo(nextMonth)}
+          onClick={() => goToMonth(nextMonth)}
+        >
+          <Chevron direction="next" />
+        </button>
       </div>
 
       <table

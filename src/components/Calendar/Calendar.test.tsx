@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   addDays,
@@ -230,8 +230,10 @@ describe('Calendar structure', () => {
     // not how the pointer or the keyboard crosses a month, so they are not
     // controls, and being decoration is what makes their 1.65:1 defensible.
     render(<Calendar label="Date" defaultMonth="2023-04-01" />);
-    // April has 30 days, so exactly 30 buttons: no spilled day is one.
-    expect(screen.getAllByRole('button')).toHaveLength(30);
+    // April has 30 days, so exactly 30 day buttons: no spilled day is one.
+    // Scoped to the grid so the pagination buttons flanking the heading,
+    // which are real buttons too, don't get counted here.
+    expect(within(screen.getByRole('grid')).getAllByRole('button')).toHaveLength(30);
     // 26 March opens the grid and has no button; 26 April has one.
     expect(screen.queryByRole('button', { name: /march 26/i })).toBeNull();
     expect(screen.getByRole('button', { name: /april 26/i })).toBeInTheDocument();
@@ -405,9 +407,14 @@ describe('Calendar initial month', () => {
 });
 
 describe('Calendar keyboard', () => {
+  // Scoped to the grid, not the whole document: the pagination buttons
+  // flanking the heading are also real buttons and are tabbable in their own
+  // right, but they are not part of the day grid's roving tab stop.
   it('puts exactly one day in the tab order', () => {
     render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-26" />);
-    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    const tabbable = within(screen.getByRole('grid'))
+      .getAllByRole('button')
+      .filter((b) => b.tabIndex === 0);
     expect(tabbable).toHaveLength(1);
     expect(tabbable[0]).toHaveAccessibleName(/april 26/i);
   });
@@ -415,14 +422,18 @@ describe('Calendar keyboard', () => {
   it('starts on today when nothing is selected', () => {
     const now = today();
     render(<Calendar label="Date" defaultMonth={now} />);
-    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    const tabbable = within(screen.getByRole('grid'))
+      .getAllByRole('button')
+      .filter((b) => b.tabIndex === 0);
     expect(tabbable).toHaveLength(1);
     expect(tabbable[0]!.closest('td')!.className).toContain(styles.today!);
   });
 
   it('starts on the first of the month when neither today nor a value is in it', () => {
     render(<Calendar label="Date" defaultMonth="2023-04-01" />);
-    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    const tabbable = within(screen.getByRole('grid'))
+      .getAllByRole('button')
+      .filter((b) => b.tabIndex === 0);
     expect(tabbable[0]).toHaveAccessibleName(/april 1,/i);
   });
 
@@ -536,7 +547,9 @@ describe('Calendar keyboard', () => {
 
     await userEvent.keyboard('{ArrowRight}');
 
-    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    const tabbable = within(screen.getByRole('grid'))
+      .getAllByRole('button')
+      .filter((b) => b.tabIndex === 0);
     expect(tabbable).toHaveLength(1);
     expect(tabbable[0]).toHaveFocus();
     expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
@@ -547,7 +560,9 @@ describe('Calendar keyboard', () => {
     try {
       vi.setSystemTime(new Date(2023, 3, 12, 12));
       render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-02-10" />);
-      const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+      const tabbable = within(screen.getByRole('grid'))
+        .getAllByRole('button')
+        .filter((b) => b.tabIndex === 0);
       expect(tabbable).toHaveLength(1);
       expect(tabbable[0]).toHaveAccessibleName(/april 12,/i);
     } finally {
@@ -589,5 +604,66 @@ describe('Calendar west of UTC', () => {
     // is one that can forget it.
     const source = readFileSync('src/components/Calendar/Calendar.tsx', 'utf8');
     expect(source).not.toMatch(/new Intl\.DateTimeFormat/);
+  });
+});
+
+describe('Calendar pagination', () => {
+  it('pages the month with the two buttons', async () => {
+    const onMonthChange = vi.fn();
+    render(
+      <Calendar label="Date" defaultMonth="2023-04-01" onMonthChange={onMonthChange} />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Next month' }));
+    expect(screen.getByRole('grid', { name: /may 2023/i })).toBeInTheDocument();
+    expect(onMonthChange).toHaveBeenLastCalledWith('2023-05-01');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Previous month' }));
+    expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
+    expect(onMonthChange).toHaveBeenLastCalledWith('2023-04-01');
+  });
+
+  it('keeps the pagination buttons out of the grid', () => {
+    // They are not gridcells and must not be reachable by the arrow keys that
+    // move between days.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    const next = screen.getByRole('button', { name: 'Next month' });
+    expect(next.closest('table')).toBeNull();
+  });
+
+  it('disables the button that would leave the allowed months', async () => {
+    render(
+      <Calendar label="Date" defaultMonth="2023-04-01" min="2023-04-01" max="2023-04-30" />,
+    );
+    expect(screen.getByRole('button', { name: 'Previous month' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next month' })).toBeDisabled();
+  });
+
+  it('enables a month that only overlaps the bounds, not just contains them', () => {
+    // min/max (04-10..04-20) is a narrow window that sits entirely inside
+    // April, with neither April's first day (04-01) nor its last (04-30)
+    // falling inside it. A formula that checks only the target month's own
+    // ends against the bounds sees that and wrongly disables April — but
+    // April plainly has reachable days in it. Overlap is the right test:
+    // March has none (its last day, 03-31, is before min), so "Previous
+    // month" stays disabled, while April overlaps, so "Next month" —
+    // starting from March — must stay enabled.
+    render(
+      <Calendar
+        label="Date"
+        defaultMonth="2023-03-01"
+        min="2023-04-10"
+        max="2023-04-20"
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Next month' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Previous month' })).toBeDisabled();
+  });
+
+  it('announces the month politely when it changes', () => {
+    // The heading is the live region, so paging reports itself without a
+    // second element saying the same thing.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    expect(screen.getByRole('heading', { level: 2 })).toHaveAttribute('aria-live', 'polite');
   });
 });

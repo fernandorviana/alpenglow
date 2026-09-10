@@ -47,6 +47,47 @@
 .month { font-weight: var(--ap-font-weight-medium); }
 .year { font-weight: var(--ap-font-weight-regular); }
 
+/* A small neutral button, not a bare icon. The drawn fill surface/base is
+   byte-identical to interactive/neutral in light and moves the wrong way in
+   dark — the same collision as the day hover. The chevron takes
+   interactive/on-neutral, which measures 10.58:1 on the resting fill in both
+   modes and 9.67 / 9.08 on the hover fill. The drawn gray-dark/300 is a
+   primitive with no semantic name. */
+.page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin: 4px;
+  border: none;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-interactive-neutral);
+  color: var(--ap-color-interactive-on-neutral);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page { transition: none; }
+}
+
+.page:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
+
+.page:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.page:disabled {
+  background: var(--ap-color-interactive-disabled);
+  color: var(--ap-color-interactive-on-disabled);
+  cursor: not-allowed;
+}
+
+.page svg { width: 40px; height: 40px; }
+
 /* --- grid ---------------------------------------------------------------- */
 
 .grid {
