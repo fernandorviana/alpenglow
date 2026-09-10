@@ -342,3 +342,99 @@ describe('Menu keyboard', () => {
     expect(screen.getByRole('menuitem', { name: 'Copy' })).toHaveFocus();
   });
 });
+
+const WITH_DISABLED: MenuEntry[] = [
+  { id: 'archive', label: 'Archive' },
+  { id: 'copy', label: 'Copy', disabled: true },
+  { id: 'delete', label: 'Delete' },
+];
+
+describe('Menu disabled rows', () => {
+  it('stays in the accessibility tree so it is still discoverable', () => {
+    render(<Open items={WITH_DISABLED} />);
+    const row = screen.getByRole('menuitem', { name: 'Copy', hidden: true });
+    expect(row).toHaveAttribute('aria-disabled', 'true');
+    expect(row).not.toHaveAttribute('tabindex');
+  });
+
+  it('is skipped by the arrows rather than focused and inert', async () => {
+    // A row that takes focus and reacts to nothing is a dead end.
+    const user = userEvent.setup();
+    render(<Open items={WITH_DISABLED} />);
+    await open(user);
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+  });
+
+  it('is skipped by End', async () => {
+    const user = userEvent.setup();
+    render(<Open items={[{ id: 'a', label: 'A' }, { id: 'b', label: 'B', disabled: true }]} />);
+    await open(user);
+    await user.keyboard('{End}');
+    expect(screen.getByRole('menuitem', { name: 'A' })).toHaveFocus();
+  });
+
+  it('is skipped by typeahead', async () => {
+    const user = userEvent.setup();
+    render(
+      <Open
+        items={[
+          { id: 'a', label: 'Archive' },
+          { id: 'c1', label: 'Copy', disabled: true },
+          { id: 'c2', label: 'Copy link' },
+        ]}
+      />,
+    );
+    await open(user);
+    await user.keyboard('c');
+    expect(screen.getByRole('menuitem', { name: 'Copy link' })).toHaveFocus();
+  });
+
+  it('fires nothing when clicked', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(<Open items={[{ id: 'copy', label: 'Copy', disabled: true, onSelect }]} />);
+    await open(user);
+    await user.click(screen.getByRole('menuitem', { name: 'Copy' }));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('does not take focus from the pointer', async () => {
+    const user = userEvent.setup();
+    render(<Open items={WITH_DISABLED} />);
+    await open(user);
+    await user.hover(screen.getByRole('menuitem', { name: 'Copy' }));
+    expect(screen.getByRole('menuitem', { name: 'Copy' })).not.toHaveFocus();
+  });
+
+  it('parks focus on the surface when every row is disabled', async () => {
+    // Otherwise the popover opens with focus nowhere and Tab leaves the page.
+    const user = userEvent.setup();
+    render(<Open items={[{ id: 'a', label: 'A', disabled: true }]} />);
+    await open(user);
+    expect(document.querySelector('[role="menu"]')).toHaveFocus();
+  });
+
+  describe('the stylesheet', () => {
+    it('guards every paint-bearing focus rule against a disabled row', () => {
+      // The same shape as Button's :not(.loading) guard, and the reason is the
+      // same: one unguarded rule beside a guarded one repaints the state the
+      // guard exists to suppress.
+      // Comments are stripped first. Left in, the prose above `.item:focus`
+      // ("The fill is on :focus, not :hover") is read as part of its selector
+      // and reported as two unguarded rules that do not exist.
+      const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
+      const offenders = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+        .filter(([, , body]) => /(^|[\s;])background\s*:/.test(body!))
+        .flatMap(([, selector]) => selector!.split(',').map((part) => part.trim()))
+        .filter((part) => /:focus|:hover/.test(part))
+        .filter((part) => !part.includes("[aria-disabled='true']"));
+
+      expect(offenders).toEqual([]);
+    });
+
+    it('marks the row unavailable to the pointer', () => {
+      expect(css).toMatch(/\[aria-disabled='true'\][^{]*\{[^}]*cursor:\s*not-allowed/);
+    });
+  });
+});

@@ -46,6 +46,17 @@ describe('documented exemptions hold at their recorded values', () => {
   }
 });
 
+describe('a disabled menu row is exempt, at the figure it actually shows', () => {
+  // The recorded exemption is measured on surface/raised. On surface/overlay
+  // dark is 2.66 rather than 3.02, and that is the surface the Menu uses.
+  const EXPECTED: Record<Mode, number> = { light: 2.77, dark: 2.66 };
+  for (const mode of MODES) {
+    it(`text/disabled on surface/overlay — ${mode}`, () => {
+      expect(tokenContrast('text/disabled', 'surface/overlay', mode)).toBeCloseTo(EXPECTED[mode], 1);
+    });
+  }
+});
+
 describe('status text meets AA on its own subtle surface', () => {
   const PAIRS = [
     ['text/success', 'surface/success-subtle'],

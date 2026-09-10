@@ -32,16 +32,23 @@ function Row({ action, onClose }: { action: MenuAction; onClose: () => void }) {
     <button
       type="button"
       role="menuitem"
-      tabIndex={-1}
+      // Disabled rows take no tabindex and no focus at all — not even the
+      // APG's focusable-but-inert. See the disabled block in Menu.module.css.
+      aria-disabled={action.disabled || undefined}
+      tabIndex={action.disabled ? undefined : -1}
       className={[styles.item, action.tone && styles[action.tone]].filter(Boolean).join(' ')}
       data-text={actionText(action)}
       onClick={() => {
+        if (action.disabled) return;
         action.onSelect?.();
         onClose();
       }}
       // The pointer moves focus, so the highlight has one owner. See the
       // :focus rule in Menu.module.css.
-      onMouseEnter={(event) => event.currentTarget.focus()}
+      onMouseEnter={(event) => {
+        if (action.disabled) return;
+        event.currentTarget.focus();
+      }}
     >
       {action.icon && (
         <span className={`${styles.icon} ${styles.iconStart}`} aria-hidden="true">

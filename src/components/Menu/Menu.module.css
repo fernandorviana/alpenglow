@@ -145,6 +145,22 @@
   background: var(--ap-color-surface-danger-subtle);
 }
 
+/* --- disabled ------------------------------------------------------------- */
+
+/**
+ * A disabled row is skipped by the arrows, by Home/End and by typeahead, and
+ * carries no tabindex — a row that takes focus and reacts to nothing is a dead
+ * end. It keeps role="menuitem" and aria-disabled, so a screen reader in
+ * browse mode still finds it: the discoverability stays, the dead end does not.
+ *
+ * text/disabled is 2.77:1 on surface/overlay in light and 2.66:1 in dark. Both
+ * are below AA and both are exempt — WCAG 2.1 excludes inactive components.
+ */
+.item[aria-disabled='true'] {
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
 /* --- groups and separators ------------------------------------------------ */
 
 .group {
