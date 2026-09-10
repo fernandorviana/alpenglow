@@ -119,3 +119,52 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* --- day states ---------------------------------------------------------- */
+
+/* interactive/neutral-hover, NOT the drawn surface/sunken. In light the two
+   are byte-identical (#EBEEF1). In dark they move opposite ways against the
+   #2F303D panel: sunken resolves to #10111A, darker, and reads as a hole in
+   the surface rather than a highlight. */
+.cell:not(.outside):not(.unavailable) .pill:hover {
+  background: var(--ap-color-interactive-neutral-hover);
+}
+
+/* interactive/selected, NOT the drawn brand-1/100. The drawn pill under an
+   accent label measures 4.18:1; this measures 4.93 in light and 5.00 in dark. */
+.today .pill {
+  background: var(--ap-color-interactive-selected);
+  color: var(--ap-color-text-accent);
+}
+
+.dot {
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-interactive-accent);
+}
+
+.pill { position: relative; }
+
+.selected .pill {
+  background: var(--ap-color-interactive-accent);
+  /* interactive/on-accent, not text/inverse. The two agree in both modes
+     today, but only one of them means "label on an accent fill", and the
+     other is "text on surface/inverse". They agree by coincidence. */
+  color: var(--ap-color-interactive-on-accent);
+}
+
+/* Today, when today is also selected: an accent dot on an accent fill
+   measures 1.00:1 and disappears. */
+.today.selected .pill { color: var(--ap-color-interactive-on-accent); }
+.today.selected .dot { background: var(--ap-color-interactive-on-accent); }
+
+/* WCAG exempts inactive controls, which is the only reason 2.77:1 in light and
+   2.66:1 in dark are allowed to stand. The token carries that note already. */
+.unavailable .pill {
+  color: var(--ap-color-text-disabled);
+  background: none;
+  cursor: not-allowed;
+}

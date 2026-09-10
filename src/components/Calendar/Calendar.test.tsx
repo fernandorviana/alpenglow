@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   addDays,
   addMonths,
@@ -13,6 +14,7 @@ import {
   orderRange,
   parts,
   startOfMonth,
+  today,
   toISO,
   weekday,
 } from './date';
@@ -241,5 +243,98 @@ describe('Calendar structure', () => {
     render(<Calendar label="Date" defaultMonth="2023-04-01" weekStartsOn={1} />);
     const headers = screen.getAllByRole('columnheader');
     expect(headers[0]).toHaveTextContent('Monday');
+  });
+});
+
+describe('Calendar single selection', () => {
+  it('marks the selected day on its cell, not its button', () => {
+    // aria-selected belongs on the gridcell. Putting it on the button would
+    // put a state on an element whose role does not support it.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-26" />);
+    const button = screen.getByRole('button', { name: /april 26/i });
+    expect(button.closest('td')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('marks exactly one day selected', () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-26" />);
+    const selected = screen
+      .getAllByRole('gridcell')
+      .filter((c) => c.getAttribute('aria-selected') === 'true');
+    expect(selected).toHaveLength(1);
+  });
+
+  it('reports the day that was clicked', async () => {
+    const onSelect = vi.fn();
+    render(<Calendar label="Date" defaultMonth="2023-04-01" onSelect={onSelect} />);
+    await userEvent.click(screen.getByRole('button', { name: /april 26/i }));
+    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
+  });
+
+  it('marks today, and keeps marking it when it is also selected', async () => {
+    // The today marker is a dot below the number. On a selected day the pill
+    // is already accent, so an accent dot measures 1.00:1 against it and
+    // vanishes — the dot has to switch to the on-accent label colour. The
+    // class is what the stylesheet hangs that switch on.
+    const now = today();
+    const todayCell = () =>
+      screen.getAllByRole('gridcell').find((c) => c.className.includes(styles.today!));
+
+    const { rerender } = render(<Calendar label="Date" defaultMonth={now} />);
+    expect(todayCell()).toBeDefined();
+    expect(todayCell()).not.toHaveAttribute('aria-selected');
+
+    rerender(<Calendar label="Date" defaultMonth={now} value={now} />);
+    expect(todayCell()).toHaveAttribute('aria-selected', 'true');
+    expect(todayCell()!.className).toContain(styles.selected!);
+  });
+
+  it('disables days outside min and max and does not report them', async () => {
+    const onSelect = vi.fn();
+    render(
+      <Calendar
+        label="Date"
+        defaultMonth="2023-04-01"
+        min="2023-04-10"
+        max="2023-04-20"
+        onSelect={onSelect}
+      />,
+    );
+    const early = screen.getByRole('button', { name: /april 5/i });
+    expect(early).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.click(early);
+    expect(onSelect).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: /april 15/i }));
+    expect(onSelect).toHaveBeenCalledWith('2023-04-15');
+  });
+
+  it('keeps an unavailable day focusable rather than skipping it silently', () => {
+    // aria-disabled and not the disabled attribute: a keyboard user has to be
+    // able to land on the day to discover that it cannot be picked. A day that
+    // is simply not there is indistinguishable from a rendering bug.
+    render(
+      <Calendar
+        label="Date"
+        defaultMonth="2023-04-01"
+        isDateUnavailable={(d) => d === '2023-04-15'}
+      />,
+    );
+    const day = screen.getByRole('button', { name: /april 15/i });
+    expect(day).toHaveAttribute('aria-disabled', 'true');
+    expect(day).not.toBeDisabled();
+  });
+
+  it('never asks isDateUnavailable about a spilled day', () => {
+    // They are inert, so the answer would go unread, and a caller doing
+    // anything expensive there would pay for twelve of them per month.
+    // Asserted on the arguments rather than the call count, which a second
+    // render would change without anything being wrong.
+    const isDateUnavailable = vi.fn((_date: string) => false);
+    render(
+      <Calendar label="Date" defaultMonth="2023-04-01" isDateUnavailable={isDateUnavailable} />,
+    );
+    const asked = isDateUnavailable.mock.calls.map(([date]) => date);
+    expect(asked.length).toBeGreaterThan(0);
+    expect(asked.every((date) => date.startsWith('2023-04-'))).toBe(true);
   });
 });

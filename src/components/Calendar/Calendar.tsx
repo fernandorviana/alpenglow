@@ -2,9 +2,11 @@
 
 import { useId, useMemo, useState } from 'react';
 import {
+  isWithin,
   monthGrid,
   parts,
   startOfMonth,
+  today,
   toISO,
   type CalendarCell,
   type ISODate,
@@ -34,6 +36,18 @@ export type CalendarProps = {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /** Drives month and weekday names and every cell's accessible name. */
   locale?: string;
+  /** `ISODate` in single mode, `DateRange` in range mode. */
+  value?: ISODate | DateRange | null;
+  onSelect?: (next: ISODate | DateRange | null) => void;
+  /** Inclusive bounds. Days outside them are disabled. */
+  min?: ISODate;
+  max?: ISODate;
+  /**
+   * Per-day exclusion — closed days, booked days. Called only for days in the
+   * visible month, because the spilled ones are inert and the answer would go
+   * unread.
+   */
+  isDateUnavailable?: (date: ISODate) => boolean;
 };
 
 /** The seven column headers, in the order the grid draws them. */
@@ -57,6 +71,11 @@ export function Calendar({
   onMonthChange,
   weekStartsOn = 0,
   locale = 'en-US',
+  value,
+  onSelect,
+  min,
+  max,
+  isDateUnavailable,
 }: CalendarProps) {
   const headingId = useId();
 
@@ -96,6 +115,15 @@ export function Calendar({
     return Date.UTC(year, m - 1, day);
   };
 
+  const now = today();
+
+  // In single mode `value` is the date; in range mode it is the interval. Both
+  // are read through one helper so the cell does not have to know the mode.
+  const single = mode === 'single' && typeof value === 'string' ? value : null;
+
+  const unavailable = (date: ISODate) =>
+    !isWithin(date, min, max) || (isDateUnavailable?.(date) ?? false);
+
   // Called directly rather than declared as a component: a function declared
   // in the render body is a new component type on every render, so React
   // would unmount and remount all 42 cells each time. That destroys keyboard
@@ -121,10 +149,40 @@ export function Calendar({
       );
     }
 
+    const isSelected = single === cell.date;
+    const isToday = cell.date === now;
+    const isUnavailable = unavailable(cell.date);
+
+    const dayClasses = [
+      styles.cell,
+      isToday && styles.today,
+      isSelected && styles.selected,
+      isUnavailable && styles.unavailable,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
     return (
-      <td key={cell.date} role="gridcell" className={classes}>
-        <button type="button" className={styles.pill} aria-label={name}>
+      <td
+        key={cell.date}
+        role="gridcell"
+        className={dayClasses}
+        aria-selected={isSelected || undefined}
+      >
+        <button
+          type="button"
+          className={styles.pill}
+          aria-label={name}
+          aria-disabled={isUnavailable || undefined}
+          onClick={() => {
+            // aria-disabled does not stop a click, which is the point: the day
+            // is reachable. Refusing here is what makes it unpickable.
+            if (isUnavailable) return;
+            onSelect?.(cell.date);
+          }}
+        >
           <span aria-hidden="true">{parts(cell.date).day}</span>
+          {isToday && <span className={styles.dot} aria-hidden="true" />}
         </button>
       </td>
     );
