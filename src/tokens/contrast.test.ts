@@ -64,6 +64,33 @@ describe('status text meets AA on its own subtle surface', () => {
   }
 });
 
+describe('a menu row label meets AA on the fill its tone hovers to', () => {
+  // Each tone hovers to its own subtle surface rather than to one shared
+  // neutral fill. That started as a rule for the danger row only; it became
+  // uniform when text/accent was measured on the neutral fill and came back at
+  // 3.50:1 in dark. Pairs are listed rather than derived because the pairing
+  // is the design decision, not a property of the token names.
+  const PAIRS = [
+    ['text/primary', 'interactive/neutral-hover'],
+    ['text/accent',  'surface/accent-subtle'],
+    ['text/danger',  'surface/danger-subtle'],
+  ] as const;
+
+  for (const mode of MODES) {
+    for (const [fg, bg] of PAIRS) {
+      it(`${fg} on ${bg} — ${mode}`, () => {
+        expect(tokenContrast(fg, bg, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      });
+    }
+  }
+
+  it('records why the accent row does not take the neutral fill', () => {
+    // Kept as an assertion so that a future edit which makes this pairing
+    // usable is noticed rather than assumed.
+    expect(tokenContrast('text/accent', 'interactive/neutral-hover', 'dark')).toBeLessThan(AA_NORMAL);
+  });
+});
+
 describe('every on-* label meets AA on all of its fill states', () => {
   // Families are derived from the tokens, not listed here. A hand-kept list is
   // how `success` shipped untested: the family was added to the theme and the
