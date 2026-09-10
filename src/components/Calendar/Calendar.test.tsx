@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import {
   addDays,
   addMonths,
@@ -14,6 +15,8 @@ import {
   toISO,
   weekday,
 } from './date';
+import { Calendar } from './Calendar';
+import styles from './Calendar.module.css';
 
 describe('date', () => {
   it('round-trips an ISO date through its parts', () => {
@@ -153,5 +156,81 @@ describe('date', () => {
       expect(first.date).toBe(month);
       expect(weekday(grid[0]![0]!.date)).toBe(0);
     }
+  });
+});
+
+describe('Calendar structure', () => {
+  it('names the grid and labels it with the visible month', () => {
+    render(<Calendar label="Appointment date" defaultMonth="2023-04-01" />);
+    const grid = screen.getByRole('grid', { name: /april 2023/i });
+    expect(grid).toBeInTheDocument();
+  });
+
+  it('renders seven column headers with full weekday names', () => {
+    // The visible glyph is one letter, and two of the seven are S and two are
+    // T. A single letter disambiguates nothing, so the accessible name is the
+    // whole weekday and the letter is hidden.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(7);
+    expect(headers.map((h) => h.textContent)).toEqual([
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+    ]);
+  });
+
+  it('renders six rows of days whatever the month', () => {
+    render(<Calendar label="Date" defaultMonth="2026-02-01" />);
+    // Six day rows plus the header row.
+    expect(screen.getAllByRole('row')).toHaveLength(7);
+  });
+
+  it('gives each day in the month a full localised accessible name', () => {
+    // A screen reader moving cell to cell must never have to remember which
+    // column it is in to know the weekday.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    expect(
+      screen.getByRole('button', { name: 'Wednesday, April 26, 2023' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the spilled days but keeps them out of reach', () => {
+    // Inert, not absent: they show where the month begins and ends. They are
+    // not how the pointer or the keyboard crosses a month, so they are not
+    // controls, and being decoration is what makes their 1.65:1 defensible.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    // April has 30 days, so exactly 30 buttons: no spilled day is one.
+    expect(screen.getAllByRole('button')).toHaveLength(30);
+    // 26 March opens the grid and has no button; 26 April has one.
+    expect(screen.queryByRole('button', { name: /march 26/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /april 26/i })).toBeInTheDocument();
+  });
+
+  it('marks the spilled cells so the stylesheet can grey them', () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    const cells = screen.getAllByRole('gridcell');
+    expect(cells).toHaveLength(42);
+    const outside = cells.filter((c) => c.className.includes(styles.outside!));
+    expect(outside).toHaveLength(12); // 6 leading in March, 6 trailing in May
+  });
+
+  it('renders the month name and the year as separate weights', () => {
+    // The drawing sets the month Medium and the year Regular. One <h2> with
+    // two spans, so the heading is still one string to a screen reader.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading).toHaveTextContent('April 2023');
+  });
+
+  it('follows the locale for month and weekday names', () => {
+    render(<Calendar label="Data" defaultMonth="2023-04-01" locale="pt-PT" />);
+    expect(screen.getByRole('grid', { name: /abril de 2023/i })).toBeInTheDocument();
+  });
+
+  it('starts the week where it is told, not where the locale claims', () => {
+    // Intl.Locale#getWeekInfo reports firstDay 7 for pt-PT, which is wrong.
+    // The prop is the only source of truth.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" weekStartsOn={1} />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers[0]).toHaveTextContent('Monday');
   });
 });

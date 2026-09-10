@@ -1,0 +1,130 @@
+/**
+ * Calendar
+ *
+ * The month grid. Every colour is a token; the 40px cell, the 32px pill, the
+ * 40px header and the 296px content width are geometry from the drawing.
+ *
+ * Six rows, always — the drawn 340px panel closes exactly at six, and a grid
+ * that shrinks for a short February would make the panel jump height as the
+ * user pages through the year.
+ *
+ * The weekday header is `caption/md` with `text-transform: uppercase`, not the
+ * drawing's `caption/md/All Caps`, which the code's typography layer does not
+ * carry. The only difference is 0.5px of tracking against 0.2px — and the cell
+ * holds a single letter, where `letter-spacing` has almost nothing to act on.
+ * Not worth a token in a layer that exists to be small.
+ */
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-050);
+  width: 280px;
+  font-family: var(--ap-font-sans);
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.heading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-spacing-050);
+  margin: 0;
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.month { font-weight: var(--ap-font-weight-medium); }
+.year { font-weight: var(--ap-font-weight-regular); }
+
+/* --- grid ---------------------------------------------------------------- */
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.weekday {
+  height: 40px;
+  padding: 0;
+  font-weight: var(--ap-font-weight-medium);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  text-transform: uppercase;
+  /* text/tertiary, not the drawn gray-light/900, which measures 3.98:1. This
+     measures 5.74 in light and 5.69 in dark. */
+  color: var(--ap-color-text-tertiary);
+}
+
+/* The visible glyph, from the `data-narrow` attribute rather than a second
+   text node: generated content is not part of the DOM, so it cannot leak
+   into `.textContent` or the accessible name the way an `aria-hidden` sibling
+   span would. The real text — the full weekday, for a screen reader — is the
+   `.hidden` span below. */
+.weekday::before {
+  content: attr(data-narrow);
+}
+
+.cell {
+  height: 40px;
+  padding: 0;
+  text-align: center;
+}
+
+/* The pill is 32px inside a 40px cell, which leaves 4px on every side — room
+   for the focus ring to sit outside it at the system's offset. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--ap-radius-full);
+  background: none;
+  color: var(--ap-color-text-primary);
+  font-family: inherit;
+  font-weight: var(--ap-font-weight-medium);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  cursor: pointer;
+}
+
+/* Spilled days: rendered, greyed, and inert. At 1.65:1 no text may do this —
+   but a thing that cannot be focused, clicked or reached is decoration, which
+   1.4.3 exempts. Making them interactive would force text/tertiary at 5.74,
+   at which point they stop reading as outside the month at all. Task 6 adds
+   the one exception: a spilled day inside a range takes the band. */
+.outside .pill {
+  color: var(--ap-gray-light-400);
+  cursor: default;
+}
+
+/* --- screen-reader-only -------------------------------------------------- */
+
+/* `display: none` and `visibility: hidden` both remove the text from the
+   accessibility tree, which is the opposite of what this is for. */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
