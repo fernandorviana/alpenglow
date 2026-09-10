@@ -430,6 +430,7 @@ describe('the calendar meets the thresholds its drawing did not', () => {
   // docs/superpowers/specs/2026-09-10-date-picker-design.md.
   const TEXT_PAIRS = [
     ['a day label on the panel', 'text/primary', 'surface/overlay'],
+    ['weekend label on the panel', 'text/tertiary', 'surface/overlay'],
     ['the weekday header on the panel', 'text/tertiary', 'surface/overlay'],
     ["today's label on today's pill", 'text/accent', 'interactive/selected'],
     ['a selected label on the accent pill', 'interactive/on-accent', 'interactive/accent'],

@@ -377,9 +377,13 @@ export function Calendar({
         : single === cell.date;
     const isToday = now !== null && cell.date === now;
     const isUnavailable = unavailable(cell.date);
+    // By date, not by column, so weekStartsOn cannot move it — and not by the
+    // locale's week data, which is wrong for pt-PT (see weekStartsOn).
+    const isWeekend = weekday(cell.date) === 0 || weekday(cell.date) === 6;
 
     const dayClasses = [
       styles.cell,
+      isWeekend && styles.weekend,
       isToday && styles.today,
       isSelected && styles.selected,
       isUnavailable && styles.unavailable,

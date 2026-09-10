@@ -277,6 +277,26 @@ describe('Calendar structure', () => {
     expect(screen.getByRole('grid', { name: /abril de 2023/i })).toBeInTheDocument();
   });
 
+  it('marks weekend days by date, wherever the week starts', () => {
+    // Saturday and Sunday are decided by the date, not the column, so
+    // weekStartsOn cannot move them — and not by the locale's week data.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" weekStartsOn={1} />);
+    const cellFor = (name: RegExp) => screen.getByRole('button', { name }).closest('td')!;
+
+    expect(cellFor(/april 1,/i).className).toContain(styles.weekend!);
+    expect(cellFor(/april 2,/i).className).toContain(styles.weekend!);
+    expect(cellFor(/april 3,/i).className).not.toContain(styles.weekend!);
+  });
+
+  it('never marks a spilled day as a weekend', () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    const spilled = screen
+      .getAllByRole('gridcell')
+      .filter((cell) => cell.className.includes(styles.outside!));
+    expect(spilled.length).toBeGreaterThan(0);
+    for (const cell of spilled) expect(cell.className).not.toContain(styles.weekend!);
+  });
+
   it('starts the week where it is told, not where the locale claims', () => {
     // Intl.Locale#getWeekInfo reports firstDay 7 for pt-PT, which is wrong.
     // The prop is the only source of truth.
@@ -959,6 +979,20 @@ describe('Calendar stylesheet source', () => {
     // in the suite would notice.
     expect(block('.inRange')).toMatch(/background:\s*var\(--ap-color-interactive-accent\)/);
     expect(block('.inRange .pill')).toMatch(/background:\s*none/);
+  });
+
+  it('greys weekend days before every state rule, so each state still wins', () => {
+    // Equal specificity, so source order decides: a weekend day that is today,
+    // selected, unavailable or in the band must still paint as that state.
+    expect(block('.weekend .pill')).toMatch(/color:\s*var\(--ap-color-text-tertiary\)/);
+    const at = (selector: string) =>
+      css.search(
+        new RegExp(`(?:^|\\})\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{`),
+      );
+    const weekend = at('.weekend .pill');
+    for (const state of ['.today .pill', '.selected .pill', '.unavailable .pill', '.inRange .pill']) {
+      expect(at(state), state).toBeGreaterThan(weekend);
+    }
   });
 
   it('draws the focus ring outside the pill, at the system offset', () => {

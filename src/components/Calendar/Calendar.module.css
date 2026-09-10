@@ -194,6 +194,13 @@
   background: var(--ap-color-interactive-neutral-hover);
 }
 
+/* Weekend days, as drawn: text/tertiary, 5.74 in light and 5.69 in dark. Before
+   every state rule — today, selected, unavailable, range — which have equal
+   specificity and come later in the source, so a state still wins. */
+.weekend .pill {
+  color: var(--ap-color-text-tertiary);
+}
+
 /* interactive/selected, NOT the drawn brand-1/100. The drawn pill under an
    accent label measures 4.18:1; this measures 4.93 in light and 5.00 in dark. */
 .today .pill {
