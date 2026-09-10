@@ -28,11 +28,6 @@ export type DropdownMenuEntry = DropdownMenuAction | DropdownMenuGroup | 'separa
 export const isSeparator = (e: DropdownMenuEntry): e is 'separator' => typeof e === 'string';
 export const isGroup = (e: DropdownMenuEntry): e is DropdownMenuGroup => !isSeparator(e) && 'items' in e;
 
-/** Every action in render order, groups flattened. Separators are not rows. */
-export function flattenActions(items: DropdownMenuEntry[]): DropdownMenuAction[] {
-  return items.flatMap((e) => (isSeparator(e) ? [] : isGroup(e) ? e.items : [e]));
-}
-
 /** The characters typeahead matches against. */
 export function actionText(action: DropdownMenuAction): string {
   if (action.textValue !== undefined) return action.textValue;

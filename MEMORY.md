@@ -163,7 +163,7 @@ have all been mistaken for errors at least once.
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 391 tests across 16 files
+npm test            # 389 tests across 16 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

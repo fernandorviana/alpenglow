@@ -1,23 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { flattenActions, actionText, nextIndex, matchIndex } from './rows';
-import type { DropdownMenuEntry } from './rows';
-
-const items: DropdownMenuEntry[] = [
-  { id: 'edit', label: 'Edit' },
-  'separator',
-  { label: 'Danger zone', items: [{ id: 'delete', label: 'Delete', tone: 'danger' }] },
-];
-
-describe('flattenActions', () => {
-  it('returns every action in the order it is rendered, groups included', () => {
-    expect(flattenActions(items).map((a) => a.id)).toEqual(['edit', 'delete']);
-  });
-
-  it('drops separators rather than counting them as rows', () => {
-    // A separator that occupies a keyboard position is a dead press.
-    expect(flattenActions(['separator', 'separator'])).toEqual([]);
-  });
-});
+import { actionText, nextIndex, matchIndex } from './rows';
 
 describe('actionText', () => {
   it('reads a plain string label', () => {

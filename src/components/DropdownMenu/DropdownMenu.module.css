@@ -112,16 +112,13 @@
 
 /**
  * The fill is on :focus, not :hover, because the pointer moves focus (see
- * DropdownMenu.tsx). One rule then covers both inputs, and there is never more than
- * one highlighted row.
+ * DropdownMenu.tsx): one rule covers both inputs, and one row is lit at most.
+ * The :not() guard is Button's :not(.loading) — without it a disabled row
+ * would light up under the pointer.
  *
- * The :not() guard is the same shape as Button's :not(.loading): without it a
- * disabled row would light up under the pointer. DropdownMenu.test.tsx asserts it.
+ * The default outline goes on the plain selector. Inside the guarded rule it
+ * out-ranked :focus-visible by one attribute, and the ring never showed.
  */
-/* The default outline is removed here, on the plain selector, and not inside
-   the guarded fill rule below. There it was one attribute more specific than
-   `.item:focus-visible`, so the ring lost and a keyboard user saw a fill with
-   no ring — measured in Chrome; jsdom computes no :focus-visible. */
 .item:focus {
   outline: none;
 }

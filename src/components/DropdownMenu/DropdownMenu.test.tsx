@@ -21,7 +21,7 @@ const css = readFileSync('src/components/DropdownMenu/DropdownMenu.module.css', 
  *
  * Esc, light dismiss, focus return and the top layer are absent on purpose.
  * They belong to the browser, and a test of them here would be a test of this
- * stub. They are verified in a real browser instead, and the DropdownMenu page says so.
+ * stub. They are checked in a real browser instead, and the docs page says which.
  *
  * Each test file gets its own jsdom, so nothing here leaks into other suites.
  */
@@ -74,11 +74,7 @@ beforeAll(() => {
   });
 });
 
-function Basic() {
-  return <DropdownMenu trigger={(props) => <button {...props}>Actions</button>} items={[]} />;
-}
-
-function Open({ items }: { items: DropdownMenuEntry[] }) {
+function Actions({ items = [] }: { items?: DropdownMenuEntry[] }) {
   return <DropdownMenu trigger={(props) => <button {...props}>Actions</button>} items={items} />;
 }
 
@@ -96,7 +92,7 @@ describe('DropdownMenu', () => {
   it('names the menu with the trigger rather than a second label', () => {
     // The APG menu button pattern labels the menu with its button. A separate
     // prop would be a second place for the same name to be wrong.
-    render(<Basic />);
+    render(<Actions />);
     const trigger = screen.getByRole('button', { name: 'Actions' });
     expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -107,7 +103,7 @@ describe('DropdownMenu', () => {
   });
 
   it('opens on the trigger and reports it', async () => {
-    render(<Basic />);
+    render(<Actions />);
     const trigger = screen.getByRole('button', { name: 'Actions' });
     await userEvent.click(trigger);
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -118,8 +114,8 @@ describe('DropdownMenu', () => {
     // whichever trigger rendered last.
     render(
       <>
-        <Basic />
-        <Basic />
+        <Actions />
+        <Actions />
       </>,
     );
     const [a, b] = screen.getAllByRole('button', { name: 'Actions' });
@@ -166,7 +162,7 @@ describe('DropdownMenu', () => {
 describe('DropdownMenu rows', () => {
   it('renders one menuitem per action', async () => {
     const user = userEvent.setup();
-    render(<Open items={[{ id: 'edit', label: 'Edit' }, { id: 'copy', label: 'Copy' }]} />);
+    render(<Actions items={[{ id: 'edit', label: 'Edit' }, { id: 'copy', label: 'Copy' }]} />);
     await open(user);
     expect(screen.getAllByRole('menuitem').map((el) => el.textContent)).toEqual(['Edit', 'Copy']);
   });
@@ -174,7 +170,7 @@ describe('DropdownMenu rows', () => {
   it('fires onSelect and closes', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    render(<Open items={[{ id: 'edit', label: 'Edit', onSelect }]} />);
+    render(<Actions items={[{ id: 'edit', label: 'Edit', onSelect }]} />);
     await open(user);
     await user.click(screen.getByRole('menuitem', { name: 'Edit' }));
     expect(onSelect).toHaveBeenCalledOnce();
@@ -184,7 +180,7 @@ describe('DropdownMenu rows', () => {
   it('hides decorative icons from assistive technology', async () => {
     const user = userEvent.setup();
     render(
-      <Open items={[{ id: 'edit', label: 'Edit', icon: <svg data-testid="lead" />, iconEnd: <svg data-testid="trail" /> }]} />,
+      <Actions items={[{ id: 'edit', label: 'Edit', icon: <svg data-testid="lead" />, iconEnd: <svg data-testid="trail" /> }]} />,
     );
     await open(user);
     expect(screen.getByTestId('lead').parentElement).toHaveAttribute('aria-hidden', 'true');
@@ -215,11 +211,9 @@ describe('DropdownMenu rows', () => {
     });
 
     it('lets the keyboard ring win over the rule that removes the default outline', () => {
-      // Found in Chrome, not in jsdom: with `outline: none` inside the guarded
-      // `.item:focus:not([aria-disabled='true'])` rule, that selector is one
-      // attribute more specific than `.item:focus-visible`, so the ring's
-      // outline-style lost and a keyboard user saw a fill and no ring. The
-      // default outline is removed on plain `.item:focus`, ahead of the ring.
+      // Found in Chrome: inside the guarded fill rule, `outline: none` out-ranked
+      // `.item:focus-visible` and the ring never showed. jsdom computes no
+      // :focus-visible, so the order of the rules is what can be asserted.
       const rules = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^}]*)\}/g)].map(
         ([, selector, body]) => ({ selector: selector!.trim(), body: body! }),
       );
@@ -236,7 +230,7 @@ describe('DropdownMenu groups and separators', () => {
   it('labels a group with its own heading', async () => {
     const user = userEvent.setup();
     render(
-      <Open items={[{ label: 'Danger zone', items: [{ id: 'delete', label: 'Delete' }] }]} />,
+      <Actions items={[{ label: 'Danger zone', items: [{ id: 'delete', label: 'Delete' }] }]} />,
     );
     await open(user);
     expect(screen.getByRole('group', { name: 'Danger zone' })).toBeInTheDocument();
@@ -244,7 +238,7 @@ describe('DropdownMenu groups and separators', () => {
 
   it('renders a separator as a separator, not as a row', async () => {
     const user = userEvent.setup();
-    render(<Open items={[{ id: 'a', label: 'A' }, 'separator', { id: 'b', label: 'B' }]} />);
+    render(<Actions items={[{ id: 'a', label: 'A' }, 'separator', { id: 'b', label: 'B' }]} />);
     await open(user);
     expect(screen.getAllByRole('separator')).toHaveLength(1);
     expect(screen.getAllByRole('menuitem')).toHaveLength(2);
@@ -253,7 +247,7 @@ describe('DropdownMenu groups and separators', () => {
   it('keeps rows in source order across groups', async () => {
     const user = userEvent.setup();
     render(
-      <Open
+      <Actions
         items={[
           { id: 'a', label: 'A' },
           'separator',
@@ -283,7 +277,7 @@ const THREE: DropdownMenuEntry[] = [
 describe('DropdownMenu keyboard', () => {
   it('opens on ArrowDown with the first row focused', async () => {
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     screen.getByRole('button', { name: 'Actions' }).focus();
     await user.keyboard('{ArrowDown}');
     expect(screen.getByRole('menuitem', { name: 'Archive' })).toHaveFocus();
@@ -294,7 +288,7 @@ describe('DropdownMenu keyboard', () => {
     // The toggle event arrives after this key has placed focus, so this is
     // also the test that it does not drag focus back to the first row.
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     screen.getByRole('button', { name: 'Actions' }).focus();
     await user.keyboard('{ArrowUp}');
     expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
@@ -302,7 +296,7 @@ describe('DropdownMenu keyboard', () => {
 
   it('wraps at both ends', async () => {
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     await open(user);
     await user.keyboard('{ArrowUp}');
     expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
@@ -312,7 +306,7 @@ describe('DropdownMenu keyboard', () => {
 
   it('jumps to the ends with Home and End', async () => {
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     await open(user);
     await user.keyboard('{End}');
     expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
@@ -322,7 +316,7 @@ describe('DropdownMenu keyboard', () => {
 
   it('moves on the first character typed', async () => {
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     await open(user);
     await user.keyboard('c');
     expect(screen.getByRole('menuitem', { name: 'Copy' })).toHaveFocus();
@@ -333,7 +327,7 @@ describe('DropdownMenu keyboard', () => {
 
   it('closes on Tab, which popover does not do and the APG asks for', async () => {
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     await open(user);
     await user.keyboard('{Tab}');
     expect(screen.getByRole('button', { name: 'Actions' })).toHaveAttribute('aria-expanded', 'false');
@@ -342,7 +336,7 @@ describe('DropdownMenu keyboard', () => {
   it('activates the focused row on Enter and closes', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    render(<Open items={[{ id: 'archive', label: 'Archive', onSelect }]} />);
+    render(<Actions items={[{ id: 'archive', label: 'Archive', onSelect }]} />);
     await open(user);
     await user.keyboard('{Enter}');
     expect(onSelect).toHaveBeenCalledOnce();
@@ -352,7 +346,7 @@ describe('DropdownMenu keyboard', () => {
     // Without this the pointer highlights one row while the keyboard holds
     // another, and neither answers "what happens if I press Enter now".
     const user = userEvent.setup();
-    render(<Open items={THREE} />);
+    render(<Actions items={THREE} />);
     await open(user);
     await user.hover(screen.getByRole('menuitem', { name: 'Copy' }));
     expect(screen.getByRole('menuitem', { name: 'Copy' })).toHaveFocus();
@@ -367,7 +361,7 @@ const WITH_DISABLED: DropdownMenuEntry[] = [
 
 describe('DropdownMenu disabled rows', () => {
   it('stays in the accessibility tree so it is still discoverable', () => {
-    render(<Open items={WITH_DISABLED} />);
+    render(<Actions items={WITH_DISABLED} />);
     const row = screen.getByRole('menuitem', { name: 'Copy', hidden: true });
     expect(row).toHaveAttribute('aria-disabled', 'true');
     expect(row).not.toHaveAttribute('tabindex');
@@ -376,7 +370,7 @@ describe('DropdownMenu disabled rows', () => {
   it('is skipped by the arrows rather than focused and inert', async () => {
     // A row that takes focus and reacts to nothing is a dead end.
     const user = userEvent.setup();
-    render(<Open items={WITH_DISABLED} />);
+    render(<Actions items={WITH_DISABLED} />);
     await open(user);
     await user.keyboard('{ArrowDown}');
     expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
@@ -384,7 +378,7 @@ describe('DropdownMenu disabled rows', () => {
 
   it('is skipped by End', async () => {
     const user = userEvent.setup();
-    render(<Open items={[{ id: 'a', label: 'A' }, { id: 'b', label: 'B', disabled: true }]} />);
+    render(<Actions items={[{ id: 'a', label: 'A' }, { id: 'b', label: 'B', disabled: true }]} />);
     await open(user);
     await user.keyboard('{End}');
     expect(screen.getByRole('menuitem', { name: 'A' })).toHaveFocus();
@@ -393,7 +387,7 @@ describe('DropdownMenu disabled rows', () => {
   it('is skipped by typeahead', async () => {
     const user = userEvent.setup();
     render(
-      <Open
+      <Actions
         items={[
           { id: 'a', label: 'Archive' },
           { id: 'c1', label: 'Copy', disabled: true },
@@ -409,7 +403,7 @@ describe('DropdownMenu disabled rows', () => {
   it('fires nothing when clicked', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    render(<Open items={[{ id: 'copy', label: 'Copy', disabled: true, onSelect }]} />);
+    render(<Actions items={[{ id: 'copy', label: 'Copy', disabled: true, onSelect }]} />);
     await open(user);
     await user.click(screen.getByRole('menuitem', { name: 'Copy' }));
     expect(onSelect).not.toHaveBeenCalled();
@@ -417,7 +411,7 @@ describe('DropdownMenu disabled rows', () => {
 
   it('does not take focus from the pointer', async () => {
     const user = userEvent.setup();
-    render(<Open items={WITH_DISABLED} />);
+    render(<Actions items={WITH_DISABLED} />);
     await open(user);
     await user.hover(screen.getByRole('menuitem', { name: 'Copy' }));
     expect(screen.getByRole('menuitem', { name: 'Copy' })).not.toHaveFocus();
@@ -426,19 +420,16 @@ describe('DropdownMenu disabled rows', () => {
   it('parks focus on the surface when every row is disabled', async () => {
     // Otherwise the popover opens with focus nowhere and Tab leaves the page.
     const user = userEvent.setup();
-    render(<Open items={[{ id: 'a', label: 'A', disabled: true }]} />);
+    render(<Actions items={[{ id: 'a', label: 'A', disabled: true }]} />);
     await open(user);
     expect(document.querySelector('[role="menu"]')).toHaveFocus();
   });
 
   describe('the stylesheet', () => {
     it('guards every paint-bearing focus rule against a disabled row', () => {
-      // The same shape as Button's :not(.loading) guard, and the reason is the
-      // same: one unguarded rule beside a guarded one repaints the state the
-      // guard exists to suppress.
-      // Comments are stripped first. Left in, the prose above `.item:focus`
-      // ("The fill is on :focus, not :hover") is read as part of its selector
-      // and reported as two unguarded rules that do not exist.
+      // Button's :not(.loading) guard, for the same reason: one unguarded rule
+      // repaints the state the guard suppresses. Comments are stripped first,
+      // or their prose is parsed as selectors.
       const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
       const offenders = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)]
         .filter(([, , body]) => /(^|[\s;])background\s*:/.test(body!))

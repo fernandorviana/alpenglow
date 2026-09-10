@@ -32,8 +32,8 @@ function Row({ action, onClose }: { action: DropdownMenuAction; onClose: () => v
     <button
       type="button"
       role="menuitem"
-      // Disabled rows take no tabindex and no focus at all — not even the
-      // APG's focusable-but-inert. See the disabled block in DropdownMenu.module.css.
+      // Disabled rows take no tabindex and no focus at all — not even the APG's
+      // focusable-but-inert. See the disabled block in the stylesheet.
       aria-disabled={action.disabled || undefined}
       tabIndex={action.disabled ? undefined : -1}
       className={[styles.item, action.tone && styles[action.tone]].filter(Boolean).join(' ')}
@@ -100,8 +100,6 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
     rows[index]?.focus();
   };
 
-  const currentIndex = () => focusables().indexOf(document.activeElement as HTMLElement);
-
   const onTriggerKeyDown = (event: ReactKeyboardEvent) => {
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     event.preventDefault();
@@ -111,7 +109,7 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
 
   const onMenuKeyDown = (event: ReactKeyboardEvent) => {
     const rows = focusables();
-    const at = currentIndex();
+    const at = rows.indexOf(document.activeElement as HTMLElement);
 
     switch (event.key) {
       case 'ArrowDown':
@@ -137,8 +135,6 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
         // The default is not prevented, so tabbing continues past the trigger.
         close();
         return;
-      default:
-        break;
     }
 
     // Typeahead. Single printable characters only — a modifier means a
