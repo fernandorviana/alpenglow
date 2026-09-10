@@ -423,3 +423,57 @@ describe('the table stays legible in both modes', () => {
     expect(ratio, 'border/subtle on surface/raised').toBeCloseTo(SEPARATOR[mode], 1);
   });
 });
+
+describe('the calendar meets the thresholds its drawing did not', () => {
+  // Every number here was measured before the component was written, and three
+  // of them are the reason it does not use the colour it was drawn with. See
+  // docs/superpowers/specs/2026-09-10-date-picker-design.md.
+  const TEXT_PAIRS = [
+    ['a day label on the panel', 'text/primary', 'surface/overlay'],
+    ['the weekday header on the panel', 'text/tertiary', 'surface/overlay'],
+    ["today's label on today's pill", 'text/accent', 'interactive/selected'],
+    ['a selected label on the accent pill', 'interactive/on-accent', 'interactive/accent'],
+    ['the range label on the band', 'interactive/on-accent', 'interactive/accent'],
+    ['the pagination chevron on its resting fill', 'interactive/on-neutral', 'interactive/neutral'],
+    ['the pagination chevron on its hover fill', 'interactive/on-neutral', 'interactive/neutral-hover'],
+  ] as const satisfies readonly (readonly [string, ThemeTokenName, ThemeTokenName])[];
+
+  const NON_TEXT_PAIRS = [
+    ['the range band against the panel', 'interactive/accent', 'surface/overlay'],
+    ['the focus ring against the panel', 'border/focus', 'surface/overlay'],
+    ["today's dot against the panel", 'interactive/accent', 'surface/overlay'],
+  ] as const satisfies readonly (readonly [string, ThemeTokenName, ThemeTokenName])[];
+
+  for (const mode of MODES) {
+    for (const [what, fg, bg] of TEXT_PAIRS) {
+      it(`${what} — ${mode}`, () => {
+        expect(tokenContrast(fg, bg, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      });
+    }
+    for (const [what, fg, bg] of NON_TEXT_PAIRS) {
+      it(`${what} — ${mode}`, () => {
+        expect(tokenContrast(fg, bg, mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      });
+    }
+  }
+
+  it('cannot draw the focus ring on the selected fill, which is why it is offset', () => {
+    // The measurement that rejected the drawing's own approach, kept as a test
+    // so nobody re-adopts it. border/focus and interactive/accent are the same
+    // value: a ring drawn on the fill is not a ring.
+    for (const mode of MODES) {
+      expect(tokenContrast('border/focus', 'interactive/accent', mode)).toBeLessThan(NON_TEXT);
+    }
+  });
+
+  it('records the panel edge in light as carried by the shadow alone', () => {
+    // Not a failure to fix — invariant 1 of the system working as designed.
+    // Asserted so that a change to either token surfaces here rather than in
+    // a screenshot. In dark, the panel also takes a border/default hairline,
+    // as the dropdown menu does.
+    expect(contrast(resolve('surface/overlay', 'light'), resolve('surface/raised', 'light')))
+      .toBeCloseTo(1, 2);
+    expect(contrast(resolve('surface/overlay', 'dark'), resolve('surface/raised', 'dark')))
+      .toBeGreaterThan(1.1);
+  });
+});
