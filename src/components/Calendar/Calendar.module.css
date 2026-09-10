@@ -2,7 +2,9 @@
  * Calendar
  *
  * The month grid. Every colour is a token; the 40px cell, the 32px pill, the
- * 40px header and the 296px content width are geometry from the drawing.
+ * 40px header and the 280px content width — set by `.calendar` below — are
+ * geometry from the drawing, whose panel is 296px with its 8px padding; the
+ * coded panel is 298px, with a 1px hairline border added on each side.
  *
  * Six rows, always — the drawn 340px panel closes exactly at six, and a grid
  * that shrinks for a short February would make the panel jump height as the
