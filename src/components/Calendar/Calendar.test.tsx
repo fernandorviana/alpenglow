@@ -379,6 +379,155 @@ describe('Calendar single selection', () => {
   });
 });
 
+describe('Calendar initial month', () => {
+  it('opens on the month of its value when no month is given', () => {
+    // A calendar holding 26 April 2023 shows April 2023. A hardcoded starting
+    // month is wrong under any reading, and it is what a date picker passing
+    // only a value would otherwise open on.
+    render(<Calendar label="Date" value="2023-04-26" />);
+    expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
+  });
+
+  it('opens on the month of a range start when no month is given', () => {
+    render(
+      <Calendar label="Stay" mode="range" value={{ start: '2023-04-10', end: '2023-04-14' }} />,
+    );
+    expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
+  });
+
+  it('opens on the current month when it has neither a month nor a value', () => {
+    const expected = dateFormat('en-US', { month: 'long', year: 'numeric' }).format(
+      utcTimestamp(startOfMonth(today())),
+    );
+    render(<Calendar label="Date" />);
+    expect(screen.getByRole('grid', { name: new RegExp(expected, 'i') })).toBeInTheDocument();
+  });
+});
+
+describe('Calendar keyboard', () => {
+  it('puts exactly one day in the tab order', () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-26" />);
+    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    expect(tabbable).toHaveLength(1);
+    expect(tabbable[0]).toHaveAccessibleName(/april 26/i);
+  });
+
+  it('starts on today when nothing is selected', () => {
+    const now = today();
+    render(<Calendar label="Date" defaultMonth={now} />);
+    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    expect(tabbable).toHaveLength(1);
+    expect(tabbable[0]!.closest('td')!.className).toContain(styles.today!);
+  });
+
+  it('starts on the first of the month when neither today nor a value is in it', () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    expect(tabbable[0]).toHaveAccessibleName(/april 1,/i);
+  });
+
+  it('moves a day with the arrow keys', async () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-12" />);
+    const start = screen.getByRole('button', { name: /april 12/i });
+    start.focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: /april 13/i })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    expect(screen.getByRole('button', { name: /april 20/i })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('button', { name: /april 19/i })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowUp}');
+    expect(screen.getByRole('button', { name: /april 12/i })).toHaveFocus();
+  });
+
+  it('moves to the ends of the focused week', async () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-12" />);
+    screen.getByRole('button', { name: /april 12/i }).focus();
+
+    await userEvent.keyboard('{Home}');
+    expect(screen.getByRole('button', { name: /april 9/i })).toHaveFocus();
+
+    await userEvent.keyboard('{End}');
+    expect(screen.getByRole('button', { name: /april 15/i })).toHaveFocus();
+  });
+
+  it('rolls into the next month rather than stopping at its edge', async () => {
+    // This is why the spilled days do not need to be interactive: the keyboard
+    // never has to land on one to cross a month.
+    const onMonthChange = vi.fn();
+    render(
+      <Calendar
+        label="Date"
+        defaultMonth="2023-04-01"
+        value="2023-04-30"
+        onMonthChange={onMonthChange}
+      />,
+    );
+    screen.getByRole('button', { name: /april 30/i }).focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByRole('grid', { name: /may 2023/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /may 1,/i })).toHaveFocus();
+    expect(onMonthChange).toHaveBeenCalledWith('2023-05-01');
+  });
+
+  it('rolls backwards across a year boundary', async () => {
+    render(<Calendar label="Date" defaultMonth="2023-01-01" value="2023-01-01" />);
+    screen.getByRole('button', { name: /january 1, 2023/i }).focus();
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('grid', { name: /december 2022/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /december 31, 2022/i })).toHaveFocus();
+  });
+
+  it('pages a month with PageUp and PageDown', async () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-12" />);
+    screen.getByRole('button', { name: /april 12/i }).focus();
+
+    await userEvent.keyboard('{PageDown}');
+    expect(screen.getByRole('grid', { name: /may 2023/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /may 12/i })).toHaveFocus();
+
+    await userEvent.keyboard('{PageUp}');
+    expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
+  });
+
+  it('pages a year with Shift held', async () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-12" />);
+    screen.getByRole('button', { name: /april 12/i }).focus();
+
+    await userEvent.keyboard('{Shift>}{PageDown}{/Shift}');
+    expect(screen.getByRole('grid', { name: /april 2024/i })).toBeInTheDocument();
+  });
+
+  it('clamps a keyboard move to min and max rather than leaving the range', async () => {
+    render(
+      <Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-10" min="2023-04-10" />,
+    );
+    screen.getByRole('button', { name: /april 10/i }).focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('button', { name: /april 10/i })).toHaveFocus();
+  });
+
+  it('selects the focused day with Enter and with Space', async () => {
+    const onSelect = vi.fn();
+    render(
+      <Calendar label="Date" defaultMonth="2023-04-01" value="2023-04-12" onSelect={onSelect} />,
+    );
+    screen.getByRole('button', { name: /april 12/i }).focus();
+
+    await userEvent.keyboard('{Enter}');
+    expect(onSelect).toHaveBeenLastCalledWith('2023-04-12');
+
+    await userEvent.keyboard(' ');
+    expect(onSelect).toHaveBeenLastCalledWith('2023-04-12');
+  });
+});
+
 describe('Calendar west of UTC', () => {
   // Every date in the grid is a UTC-midnight timestamp. Formatted on a
   // negative-offset zone without pinning UTC, the heading and every cell's name
