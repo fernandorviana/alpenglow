@@ -110,6 +110,8 @@
   --ap-alpha-white-32: rgb(255 255 255 / 0.32);
   --ap-alpha-white-48: rgb(255 255 255 / 0.48);
   --ap-alpha-white-64: rgb(255 255 255 / 0.64);
+  --ap-alpha-ink-10: rgb(16 17 26 / 0.1);
+  --ap-alpha-ink-12: rgb(16 17 26 / 0.12);
 }
 
 /* ---------------------------------------------------------------------------
@@ -172,6 +174,8 @@
   --ap-color-border-danger: var(--ap-red-600);
   --ap-color-border-success: var(--ap-green-700);
   --ap-color-border-inverse: var(--ap-gray-dark-500);
+
+  --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-ink-10), 0 6px 14px -6px var(--ap-alpha-ink-12);
 }
 
 /* Dark, for viewers whose system asks for it and who have not chosen light. */
@@ -230,6 +234,8 @@
     --ap-color-border-danger: var(--ap-red-400);
     --ap-color-border-success: var(--ap-green-400);
     --ap-color-border-inverse: var(--ap-gray-light-200);
+
+    --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-black-32), 0 6px 14px -6px var(--ap-alpha-black-48);
   }
 }
 
@@ -288,6 +294,8 @@
   --ap-color-border-danger: var(--ap-red-400);
   --ap-color-border-success: var(--ap-green-400);
   --ap-color-border-inverse: var(--ap-gray-light-200);
+
+  --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-black-32), 0 6px 14px -6px var(--ap-alpha-black-48);
 }
 
 /* ---------------------------------------------------------------------------

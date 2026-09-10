@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { theme } from '../tokens/theme';
 import { spacing, radius, borderWidth } from '../tokens/scale';
 import { textStyle } from '../tokens/typography';
+import { elevation, shadowCss } from '../tokens/elevation';
 
 /**
  * The generated stylesheets are build artefacts, and build artefacts drift the
@@ -43,6 +44,23 @@ describe('tokens.css is in step with the token source', () => {
     expect(tokensCss).toContain('@media (prefers-color-scheme: dark)');
     expect(tokensCss).toContain(':root:not([data-theme="light"])');
     expect(tokensCss).toContain(':root[data-theme="dark"]');
+  });
+
+  it('declares every elevation step in both modes', () => {
+    // The shadow is what separates raised from overlay in light — the claim
+    // theme.ts makes and, until the Menu, nothing drew.
+    for (const [name, byMode] of Object.entries(elevation)) {
+      expect(tokensCss, name).toContain(`--ap-elevation-${name}: ${shadowCss(byMode.light)};`);
+      expect(tokensCss, name).toContain(`--ap-elevation-${name}: ${shadowCss(byMode.dark)};`);
+    }
+  });
+
+  it('declares elevation in all three theme blocks, not just :root', () => {
+    // Dark is written twice — once for the system preference, once for an
+    // explicit choice. A shadow declared in only one of them is wrong for half
+    // the readers, and renders fine.
+    const occurrences = tokensCss.split('--ap-elevation-md:').length - 1;
+    expect(occurrences).toBe(3);
   });
 });
 

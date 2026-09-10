@@ -122,6 +122,22 @@ export const alphaPrimitives = {
   'alpha/white-32': { hex: '#FFFFFF', alpha: 0.32 },
   'alpha/white-48': { hex: '#FFFFFF', alpha: 0.48 },
   'alpha/white-64': { hex: '#FFFFFF', alpha: 0.64 },
+  /**
+   * Shadow ink. Deliberately off the doubling ramp above, and deliberately not
+   * called `black`: this is `gray-dark/900`, the system's own darkest ink, at
+   * the two opacities the elevation layer uses.
+   *
+   * The drawn shadow is #18274B at 10% and 12% — a navy that exists nowhere
+   * else in the palette. Rounding to the ramp was tried first and measured:
+   * over white, alpha/black-08 lands ΔE76 2.20 from the drawn ambient layer,
+   * but alpha/black-16 lands 5.70 from the drawn contact layer, well past the
+   * ~2.3 just noticeable difference. Reaching 10% and 12% needs new
+   * primitives either way, so the question was which ink: gray-dark/900 lands
+   * at 1.73 and 1.57. blue/900 is marginally closer on the ambient layer and
+   * was rejected — it is the info ramp, and a shadow is not information.
+   */
+  'alpha/ink-10': { hex: '#10111A', alpha: 0.1 },
+  'alpha/ink-12': { hex: '#10111A', alpha: 0.12 },
 } as const;
 
 export type PrimitiveName = keyof typeof primitives;

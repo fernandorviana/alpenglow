@@ -14,6 +14,7 @@ import { primitives, alphaPrimitives } from '../src/tokens/primitives.js';
 import { theme } from '../src/tokens/theme.js';
 import { spacing, radius, borderWidth, focusRingOffset } from '../src/tokens/scale.js';
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
+import { elevation, shadowCss } from '../src/tokens/elevation.js';
 
 const PREFIX = 'ap';
 
@@ -33,6 +34,12 @@ function primitiveBlock(): string {
 function themeBlock(mode: 'light' | 'dark', indent = '  '): string {
   return Object.entries(theme)
     .map(([name, entry]) => `${indent}${cssName(`color/${name}`)}: var(${cssName(entry[mode])});`)
+    .join('\n');
+}
+
+function elevationBlock(mode: 'light' | 'dark', indent = '  '): string {
+  return Object.entries(elevation)
+    .map(([name, byMode]) => `${indent}${cssName(`elevation/${name}`)}: ${shadowCss(byMode[mode])};`)
     .join('\n');
 }
 
@@ -96,18 +103,24 @@ ${primitiveBlock()}
   color-scheme: light dark;
 
 ${themeBlock('light')}
+
+${elevationBlock('light')}
 }
 
 /* Dark, for viewers whose system asks for it and who have not chosen light. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
 ${themeBlock('dark', '    ')}
+
+${elevationBlock('dark', '    ')}
   }
 }
 
 /* Dark, chosen explicitly. */
 :root[data-theme="dark"] {
 ${themeBlock('dark')}
+
+${elevationBlock('dark')}
 }
 
 /* ---------------------------------------------------------------------------
@@ -160,6 +173,7 @@ writeFileSync(new URL('../src/styles/tokens.css', import.meta.url), css);
 console.log(
   `tokens.css written — ${Object.keys(primitives).length + Object.keys(alphaPrimitives).length} primitives, ` +
     `${Object.keys(theme).length} theme tokens, ` +
+    `${Object.keys(elevation).length} elevation steps, ` +
     `${Object.keys(spacing).length + Object.keys(radius).length + Object.keys(borderWidth).length} scale values, ` +
     `${Object.keys(textStyle).length} text styles`,
 );
