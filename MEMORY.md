@@ -122,13 +122,12 @@ have all been mistaken for errors at least once.
     jsdom 30 implements none of it. The stub in `DropdownMenu.test.tsx` covers
     show, hide, toggle, the queued `toggle` event and invoker clicks. Esc, light dismiss,
     focus return and placement are deliberately absent — they are the
-    browser's. Placement and light dismiss were checked in Chrome; Esc and
-    focus return were not (the browser automation sends an untrusted Esc that
-    the close watcher ignores), so a manual keypress is still owed. Do not grow
-    the stub to imitate them; delete it when jsdom ships popover, which a guard
-    test will announce. The same Chrome check caught a keyboard ring losing on
-    specificity, which jsdom cannot compute — look at `:focus-visible` in a real
-    browser after touching a focus rule.
+    browser's, and all four were checked in Chrome — Esc by hand, because the
+    browser automation sends an untrusted Esc that the close watcher ignores.
+    Do not grow the stub to imitate them; delete it when jsdom ships popover,
+    which a guard test will announce. The same Chrome check caught a keyboard
+    ring losing on specificity, which jsdom cannot compute — look at
+    `:focus-visible` in a real browser after touching a focus rule.
 
 ---
 

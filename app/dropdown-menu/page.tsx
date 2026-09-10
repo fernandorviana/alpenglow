@@ -209,9 +209,8 @@ export default function Page() {
         jsdom, which runs the test suite, implements none of the popover API. The suite stubs the
         calls the component makes and asserts everything the component decides: the roles and
         their wiring, the rows, every key, the disabled rows, and the stylesheet&rsquo;s choices of
-        token. Esc, the outside click, focus return and placement belong to the browser. Placement
-        and the outside click were checked in Chrome; Esc and focus return rest on the
-        platform&rsquo;s specification.
+        token. Esc, the outside click, focus return and placement belong to the browser, and all
+        four were checked in Chrome.
       </p>
       <p>
         That check found one defect the suite could not. The rule removing the default outline

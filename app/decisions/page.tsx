@@ -119,9 +119,8 @@ export default function Page() {
         scroll container clips anything positioned inside it — and escaping that clip is the
         reason for an overlay to exist. The suite stubs the calls the component makes and asserts
         everything the component decides: roles, rows, keys, disabled rows, the stylesheet. Esc,
-        the outside click, focus return and placement belong to the browser. Placement and the
-        outside click were checked in Chrome; Esc and focus return rest on the platform&rsquo;s
-        specification. This entry says which is which rather than letting a stub claim them.
+        the outside click, focus return and placement belong to the browser. All four were
+        checked in Chrome, and this entry says so rather than letting a stub claim them.
       </p>
     </DocPage>
   );

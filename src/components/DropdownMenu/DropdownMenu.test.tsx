@@ -21,7 +21,7 @@ const css = readFileSync('src/components/DropdownMenu/DropdownMenu.module.css', 
  *
  * Esc, light dismiss, focus return and the top layer are absent on purpose.
  * They belong to the browser, and a test of them here would be a test of this
- * stub. They are checked in a real browser instead, and the docs page says which.
+ * stub. They are checked in a real browser instead, and the docs page says so.
  *
  * Each test file gets its own jsdom, so nothing here leaks into other suites.
  */
