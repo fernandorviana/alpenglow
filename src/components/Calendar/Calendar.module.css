@@ -125,8 +125,14 @@
 /* interactive/neutral-hover, NOT the drawn surface/sunken. In light the two
    are byte-identical (#EBEEF1). In dark they move opposite ways against the
    #2F303D panel: sunken resolves to #10111A, darker, and reads as a hole in
-   the surface rather than a highlight. */
-.cell:not(.outside):not(.unavailable) .pill:hover {
+   the surface rather than a highlight.
+
+   The pointer paints only a pill with no fill of its own. Today and a
+   selected day already carry one, and this rule outranks both of theirs, so
+   without the guards it would repaint a selected day grey under its on-accent
+   label. Guards rather than a lower-specificity rule, the same explicit
+   pattern Button uses for its loading state. */
+.cell:not(.outside):not(.unavailable):not(.today):not(.selected) .pill:hover {
   background: var(--ap-color-interactive-neutral-hover);
 }
 

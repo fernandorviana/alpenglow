@@ -337,4 +337,23 @@ describe('Calendar single selection', () => {
     expect(asked.length).toBeGreaterThan(0);
     expect(asked.every((date) => date.startsWith('2023-04-'))).toBe(true);
   });
+
+  it('never lets the pointer repaint a pill that already has a fill', () => {
+    // jsdom renders no :hover, so no render test can see this. Hovering a
+    // selected day would paint it grey under its on-accent label, because the
+    // hover rule outranks the state fills. The stylesheet is the only place
+    // the guard can be asserted.
+    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      '',
+    );
+    const painters = [...css.matchAll(/([^{}]*\.pill:hover[^{]*)\{([^}]*)\}/g)].filter(
+      ([, , body]) => /background\s*:/.test(body!) && !/background\s*:\s*none/.test(body!),
+    );
+    expect(painters.length).toBeGreaterThan(0);
+    for (const [, selector] of painters) {
+      expect(selector).toContain(':not(.selected)');
+      expect(selector).toContain(':not(.today)');
+    }
+  });
 });
