@@ -165,7 +165,7 @@ export function Calendar({
         </thead>
         <tbody>
           {grid.map((week) => (
-            <tr key={week[0]!.date} className={styles.week}>
+            <tr key={week[0]!.date}>
               {week.map((cell) => renderDay(cell))}
             </tr>
           ))}
