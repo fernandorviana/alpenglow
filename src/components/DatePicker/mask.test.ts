@@ -13,6 +13,7 @@ import {
   placeholderFor,
   readValue,
   replaceWholeIso,
+  typedSeparators,
   type DateShape,
   type MaskMode,
 } from './mask';
@@ -136,6 +137,77 @@ describe('applyMask on a whole edit', () => {
   });
 });
 
+describe('applyMask with a typed separator', () => {
+  const at = (start: number, end: number, separators: number[]) => ({ start, end, separators });
+
+  it.each<[string, string, DateShape, ReturnType<typeof at>, string]>([
+    ['a month typed key by key', '1', us, at(1, 1, [1]), '01/'],
+    ['a day typed key by key', '1', pt, at(1, 1, [1]), '01/'],
+    ['an inserted day digit', '041', us, at(2, 3, [3]), '04/01/'],
+    ['an inserted month digit', '011', pt, at(2, 3, [3]), '01/01/'],
+    ['a lone digit before a pasted separator and digits', '1152025', us, at(1, 7, [1, 3]), '01/15/2025'],
+  ])('pads %s that sits alone in its part', (_case, digits, shape, inserted, text) => {
+    expect(applyMask(digits, shape, 'single', inserted)?.text).toBe(text);
+  });
+
+  it.each<[string, string, ReturnType<typeof at>, string]>([
+    ['after a year digit, so a two-digit year stays short', '01052', at(4, 5, [5]), '01/05/2'],
+    ['with no digit before it', '', at(0, 0, [0]), ''],
+    ['after a part that is already complete', '12', at(2, 2, [2]), '12/'],
+    ['after a part the first-digit rule already padded', '5', at(0, 1, [1]), '05/'],
+    ['between two digits the field already held', '0426', at(3, 3, [3]), '04/26/'],
+  ])('does nothing %s', (_case, digits, inserted, text) => {
+    expect(applyMask(digits, us, 'single', inserted)?.text).toBe(text);
+  });
+
+  it('refuses the whole edit when the padded part would be 00', () => {
+    expect(applyMask('0', us, 'single', at(1, 1, [1]))).toBeNull();
+    expect(applyMask('10', pt, 'single', at(0, 2, [1, 2]))).toBeNull();
+  });
+
+  it('counts the padding zero in acceptedAfter, so the caret lands past the separator', () => {
+    const masked = applyMask('1', us, 'single', at(1, 1, [1]));
+    expect(masked?.acceptedAfter).toEqual([0, 2]);
+    expect(caretIndex(masked!.text, masked!.acceptedAfter[1]!)).toBe(3);
+  });
+
+  it('completes the one-digit parts of both dates in a range', () => {
+    const raw = '1/5/2023 – 1/10/2023';
+    const digits = normaliseDigits(raw);
+    const inserted = { ...insertedRange('', digits), separators: typedSeparators('', raw, raw.length, us) };
+    expect(applyMask(digits, us, 'range', inserted)?.text).toBe(`01/05/2023${RANGE_SEPARATOR}01/10/2023`);
+  });
+});
+
+describe('typedSeparators', () => {
+  it('finds the gaps, counted in digits, where the inserted text holds a separator', () => {
+    expect(typedSeparators('', '1/15/2025', 9, us)).toEqual([1, 3]);
+    expect(typedSeparators('', '1 .2,2025', 9, pt)).toEqual([1, 2]);
+  });
+
+  it('reads a lone separator typed after the digits already there', () => {
+    expect(typedSeparators('1', '1/', 2, us)).toEqual([1]);
+  });
+
+  it('counts a run of separators once', () => {
+    expect(typedSeparators('', '04/10/2023 – 1', 14, us)).toEqual([2, 4, 8]);
+  });
+
+  it('ignores the separators the field already showed, and characters that are not separators', () => {
+    expect(typedSeparators('12/', '12/0', 4, pt)).toEqual([]);
+    expect(typedSeparators('', '1x', 2, us)).toEqual([]);
+  });
+
+  it('takes the locale’s own separator even where it is not a common one', () => {
+    const shape: DateShape = { order: ['year', 'month', 'day'], separator: '年' };
+    expect(typedSeparators('', '2025年1', 6, shape)).toEqual([4]);
+  });
+
+  it('sees no separator in ISO that arrives whole', () => {
+    expect(typedSeparators('', '2025-02-12', 10, pt)).toEqual([]);
+  });
+});
+
 describe('insertedRange', () => {
   it('finds what an edit inserted between an unchanged prefix and suffix', () => {
     expect(insertedRange('1202', '12302')).toEqual({ start: 2, end: 3 });
@@ -143,6 +215,20 @@ describe('insertedRange', () => {
 
   it('is empty for a pure deletion', () => {
     const { start, end } = insertedRange('12022025', '1022025');
+    expect(end - start).toBe(0);
+  });
+
+  it('ends the insertion at the caret when the caret is known, inside a run of the same digit', () => {
+    // "04" with the caret between 0 and 4, and a 4 typed: the new digit is the
+    // first 4, not the last one prefix and suffix alone would pick.
+    expect(insertedRange('04', '044')).toEqual({ start: 2, end: 3 });
+    expect(insertedRange('04', '044', 2)).toEqual({ start: 1, end: 2 });
+    expect(applyMask('044', pt, 'single', insertedRange('04', '044', 2))?.text).toBe('04/4');
+  });
+
+  it('keeps a selection replacement and a deletion the same when anchored at the caret', () => {
+    expect(insertedRange('04262023', '0492023', 3)).toEqual({ start: 2, end: 3 });
+    const { start, end } = insertedRange('12022025', '1022025', 1);
     expect(end - start).toBe(0);
   });
 });

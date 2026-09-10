@@ -189,7 +189,10 @@ have all been mistaken for errors at least once.
     the browser can disagree on may reach the server HTML. The flag is
     `useHydrated` (`src/components/useHydrated.ts`), shared with DatePicker,
     whose trigger carries `popovertarget` only once hydrated so a click before
-    hydration cannot open an empty panel.
+    hydration cannot open an empty panel. One exception is accepted on
+    purpose: the date field's separator and digit order come from `Intl` and
+    reach the server HTML (the value, the shell and the hint), because numeric
+    two-digit date literals are stable across CLDR builds.
 
 18. **The date field's mask rebuilds from digits and never intercepts keys.**
     Every edit — typing, a paste, autofill, a deletion in the middle, the end
@@ -200,7 +203,9 @@ have all been mistaken for errors at least once.
     `Unidentified`. Two more rules only look inconsistent: an insertion is
     checked and rejected whole while a deletion is never refused (checking
     deletions "for consistency" traps Backspace), and a Backspace that only
-    removed a separator removes the digit beside it instead.
+    removed a separator removes the digit beside it instead, and a separator
+    inserted after a lone day or month digit completes that part (`1/` becomes
+    `01/`).
 
 ---
 

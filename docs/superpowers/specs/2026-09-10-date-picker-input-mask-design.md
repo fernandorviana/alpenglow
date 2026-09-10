@@ -1,7 +1,7 @@
 # Date picker — input mask design
 
 **Date:** 2026-09-10
-**Status:** approved 2026-09-10; amended 2026-09-11 to match the implementation (caret timing, what a draft is, composition)
+**Status:** approved 2026-09-10; amended 2026-09-11 to match the implementation (caret timing, what a draft is, composition), and again after the final review (typed separators, the insertion anchored at the caret, where the typed-date helpers went, `applyMask`'s fourth argument)
 **Amends:** `2026-09-10-date-picker-design.md`:
 - §"Four choices worth defending": the text field is free text
 - §"A field whose text does not parse"
@@ -86,8 +86,11 @@ calendar: 'gregory', numberingSystem: 'latn' }).formatToParts(…)`.
   Non-Gregorian calendars are out of scope for the component, and a separator
   must not be read from one.
 
-`formatTyped` and `placeholderFor` in `date.ts` switch from `' / '` to this
-separator. `parseTyped` is deleted; `readValue` below replaces it.
+**As built, the typed-date helpers left `date.ts` entirely.** This section
+first said `formatTyped` and `placeholderFor` in `date.ts` would switch from
+`' / '` to this separator; a ruling before execution moved them instead.
+`mask.ts` owns the shape, the placeholder (`placeholderFor`), the formatting
+(`formatValue`) and the reading (`readValue`). `parseTyped` is deleted.
 
 ### Input digits
 
@@ -98,12 +101,41 @@ digit ranges to ASCII:
 - Arabic-Indic (U+0660–0669);
 - Extended Arabic-Indic (U+06F0–06F9).
 
-Everything else is dropped.
+These characters are **separators**. Where an edit inserts one, it is read
+(see the separator bullet under §applyMask) and then dropped like any other
+non-digit:
 
-### `applyMask(digits, shape, mode)`
+- whitespace;
+- `/`, `.`, `-`, `–` (U+2013) and `,`;
+- the locale's own separator (`shape.separator`).
 
-Returns `{ digits, text }`. `digits` is what was accepted, including any zeros
-the mask added, and `text` is the formatted string.
+Every other character is dropped.
+
+### `applyMask(digits, shape, mode, inserted)`
+
+Returns `{ digits, text, acceptedAfter }`, or `null` when the edit is rejected.
+`digits` is what was accepted, including any zeros the mask added, and `text`
+is the formatted string. `acceptedAfter[i]` is how many accepted digits the
+first `i` input digits became, padding included; the caret is placed by it.
+
+**As built, it takes a fourth argument**, `inserted`, which this section first
+left out. A three-argument form sees only the new digits, so it cannot tell an
+insertion from a deletion and cannot express the asymmetry below. `inserted`
+is `{ start, end, separators }`:
+
+- `start` and `end` are the digit positions the edit inserted, from
+  `insertedRange(previousDigits, digits, caret)`, where `caret` is the number
+  of digits before the caret. The range ends at the caret and starts where the
+  new digits stop matching the old ones ahead of the unchanged tail. A common
+  prefix and suffix alone cannot place an insertion inside a run of the same
+  digit: with `04/` showing in pt-PT and the caret between `0` and `4`, a typed
+  `4` must give `04/4`, not `04/04/`. Without a caret, or when the digits after
+  the caret changed too, the range is everything between the common prefix and
+  suffix.
+- `separators` are the gaps, counted in digits, where the edit's inserted text
+  holds a separator, from `typedSeparators(previous, raw, selectionStart,
+  shape)`. The inserted text is found the same way, on the text. Whole ISO in
+  it is read as digits first, and a run of separators counts once.
 
 Segments fill in `shape.order`: day and month take two digits, and the year
 takes four. Each digit is checked against the segment it would land in:
@@ -134,7 +166,23 @@ the middle of a date could throw away the digits after it, or trap Backspace.
   typing, pasting, or replacing a selection.
   - Only the inserted digits are checked, each against the segment it lands in
     once the digits re-flow.
-  - Padding applies only to an inserted digit.
+  - Padding applies only to an inserted digit, or to the lone digit a typed
+    separator completes (next bullet).
+  - **A typed separator completes a one-digit day or month.** When the
+    inserted text holds a separator directly after a day or month digit that
+    is alone in its part, that digit gains a leading `0`; the part is then
+    complete, so the mask's separator follows. Typed key by key, `1/` becomes
+    `01/` with the caret after the `/`. A paste of `1/15/2025` into an empty
+    en-US field becomes `01/15/2025`, where dropping the `/` would give
+    `11/05/2025`.
+    - The padding `0` counts as inserted. It is checked, so `0/` (a part of
+      `00`) rejects the whole edit, and it counts in `acceptedAfter`.
+    - The digit before the separator may be one the field already held — that
+      is the key-by-key case — as long as what follows the separator was
+      inserted by the same edit, or nothing follows it.
+    - The separator does nothing after a year digit (two-digit years stay
+      rejected), with no digit before it, after a complete part (`12/` then
+      `/` stays `12/`), or between two digits the edit did not insert.
   - If any inserted digit is refused, or the event would exceed the digit
     limit, the whole event is rejected. The text and the caret stay as they
     were.
@@ -144,6 +192,7 @@ the middle of a date could throw away the digits after it, or trap Backspace.
 - **A deletion is never refused.** A deletion is any event that only removes
   digits.
   - The remaining digits re-flow into the segments unchecked, with no padding.
+    A deletion types no separator, so the separator rule never applies to it.
   - Deleting the `2` of `12/02/2025` gives `10/22/025`. Nothing is silently
     lost, and evaluation reports what is wrong: `incomplete` on blur, or
     `not-a-date` once the digits are complete again.
@@ -206,7 +255,9 @@ It is still the `control.module.css` input, with these attributes:
    shorter, a separator was deleted. Remove the digit before it.
    `deleteContentForward` removes the digit after it. Without this rule the
    mask would put the separator straight back and the key would do nothing.
-4. `applyMask`. Set the text, and restore the caret with `caretIndex` in a
+4. `applyMask`, given the inserted digits (`insertedRange`, anchored at the
+   count from step 1) and the typed separators (`typedSeparators`). Set the
+   text, and restore the caret with `caretIndex` in a
    microtask. React restores a controlled input's value after the change
    handler returns, which would put the caret at the end, and a rejected edit
    sets no state, so no layout effect would run for it; the microtask runs
@@ -388,6 +439,11 @@ Also:
 - normalising fullwidth and Arabic-Indic digits;
 - 16-digit range mode and the ` – `;
 - `caretIndex` around separators;
+- the separator rule: padding after a day and after a month; none after a
+  year, with no digit before it, after a complete part, or between two digits
+  already there; the refused `0` + separator; `acceptedAfter` counting the
+  pad; `typedSeparators` finding the gaps;
+- `insertedRange` anchored at the caret inside a run of the same digit;
 - ISO arriving whole, in both modes;
 - `readValue` reason priority, with 29 February in 2024 and 2025, and a
   reversed range.
@@ -399,7 +455,13 @@ Also:
   into a full field does nothing;
 - deleting the `2` of `12/02/2025` gives `10/22/025` and is never refused;
 - a mid-string edit via `setSelectionRange`;
-- Backspace just after `/` and just after ` – `;
+- Backspace just after `/` and just after ` – `, and Delete just before `/`;
+- in en-US, typing `1/15/2025` gives `01/15/2025` and exactly one
+  `onSelect('2025-01-15')`; `1/` gives `01/` with the caret at 3, `0/` leaves
+  `0`, and `12` then `/` leaves `12/`;
+- a pasted separator completes a one-digit part: `1/12/2025` in pt-PT,
+  `1.2.2025` in de-DE, and `1/5/2023 – 1/10/2023` in range mode;
+- in pt-PT, a `4` typed between the `0` and `4` of `04/` gives `04/4`;
 - blur at `12/0` gives `onInvalid('12/0', 'incomplete')`;
 - a typed reversed range emits the ordered range;
 - `31/02/2025` gives `not-a-date` immediately at the eighth digit;
@@ -415,16 +477,17 @@ primitives.
 
 **The existing tests.** The "typed dates" tests in `Calendar.test.tsx` that
 cover `parseTyped` move into the `mask.ts` tests, rewritten against
-`readValue`. `formatTyped` and `placeholderFor` are asserted with the compact
+`readValue`. As built, `formatTyped` and `placeholderFor` are `mask.ts`'s
+`formatValue` and `placeholderFor`, asserted in `mask.test.ts` with the compact
 locale separator.
 
 ## Files
 
 | File | Change |
 |---|---|
-| `src/components/DatePicker/mask.ts` | New: `dateShape`, `applyMask`, `caretIndex`, `readValue`, digit normalisation, ISO replacement. |
+| `src/components/DatePicker/mask.ts` | New: `dateShape`, `applyMask`, `insertedRange`, `typedSeparators`, `caretIndex`, `readValue`, `formatValue`, `placeholderFor`, `hintFor`, digit normalisation, ISO replacement. |
 | `src/components/DatePicker/mask.test.ts` | New. |
-| `src/components/Calendar/date.ts` | `formatTyped` / `placeholderFor` use the locale separator; `parseTyped` deleted. |
+| `src/components/Calendar/date.ts` | As built, the typed-date helpers (`formatTyped`, `placeholderFor`, `parseTyped`) were removed, not switched: `mask.ts` owns them. |
 | `src/components/DatePicker/DatePicker.tsx` | The masked field, caret, composition, evaluation, `onInvalid`, the shell, the hint. |
 | `src/components/DatePicker/DatePicker.module.css` | The shell. |
 | `src/components/DatePicker/DatePicker.test.tsx` | The tests above; `onParseError` tests rewritten. |
@@ -438,10 +501,12 @@ locale separator.
 
 **The mask rebuilds from digits and never intercepts keys.** Handling
 `keydown` looks like a simplification and would break paste, autofill, IME and
-Android input. Three rules make the rebuild behave like typing:
+Android input. Four rules make the rebuild behave like typing:
 
 - the deleted-separator rule;
 - the caret-by-digit-count rule;
+- the separator rule: a separator the edit inserted completes a one-digit day
+  or month, read from the inserted text and not from `keydown`;
 - the asymmetry: an insertion is checked and rejected whole, a deletion is
   never refused.
 

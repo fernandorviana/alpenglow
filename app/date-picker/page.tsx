@@ -380,7 +380,8 @@ export default function Page() {
       <p>
         The field is one masked input. Type digits only: the separator appears as each part is
         complete, a first digit that cannot start its part gains a leading zero (a month of{' '}
-        <code>4</code> becomes <code>04</code>), and a digit that would make a part impossible (a
+        <code>4</code> becomes <code>04</code>), so does a single digit you type a separator after
+        (<code>1/</code> becomes <code>01/</code>), and a digit that would make a part impossible (a
         month of <code>13</code>) is not taken. Pasting, autofill and deleting in the middle all go
         through the same rebuild from the digits, and a deletion is never refused. ISO (
         <code>2023-04-26</code>) is read when it arrives whole — pasted or autofilled — in any
@@ -447,8 +448,9 @@ export default function Page() {
         />
       </div>
       <p>
-        In range mode the field takes both dates: sixteen digits, joined by an en dash after the
-        first eight, and a pair typed in reverse is put in order, as the calendar would.
+        In range mode the field takes both dates: sixteen digits, joined after the first eight by
+        an en dash with a space on each side (<code>04/05/2023 – 04/10/2023</code>), and a pair
+        typed in reverse is put in order, as the calendar would.
       </p>
 
       <h2>Accessibility</h2>
@@ -461,7 +463,9 @@ export default function Page() {
       </p>
       <p>
         The field describes its mask in words — <em>&ldquo;Type digits only, as month, day, year.
-        Separators are added for you.&rdquo;</em> — through <code>aria-describedby</code>, after the{' '}
+        Separators are added for you.&rdquo;</em>, with the three parts in the locale&rsquo;s order
+        (the pt-PT and de-DE fields above say &ldquo;day, month, year&rdquo;) — through{' '}
+        <code>aria-describedby</code>, after the{' '}
         <code>Field</code>&rsquo;s own description and error, because a screen reader reads{' '}
         <code>MM/DD/YYYY</code> letter by letter. A digit the mask refuses makes no sound:
         announcing each one would talk over the reader&rsquo;s own echo of the key, so the rule is

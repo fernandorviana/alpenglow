@@ -8,6 +8,11 @@
  * `DateShape` a locale produces here, so the placeholder, the formatted value
  * and the reader can never disagree about the order.
  *
+ * Digits are all the field keeps, but a separator the user types is still
+ * read before it is dropped: after a lone day or month digit it completes that
+ * part, so `1/15/2025` is January 15th and not `11/05/2025`. Every other
+ * character is dropped without a trace.
+ *
  * Copied, not invented: GOV.UK's numeric input and its error priority, React
  * Aria's prevention of impossible segment values, and Estelle Weyl's
  * accessible masking (a visible shell of the format still to type, deletion
@@ -92,6 +97,14 @@ export function normaliseDigits(raw: string): string {
   return digits;
 }
 
+const isDigit = (char: string) => normaliseDigits(char).length === 1;
+
+/** What people type between the parts of a date, whatever their locale writes. */
+const COMMON_SEPARATORS = /[\s/.,–-]/;
+
+const isSeparator = (char: string, shape: DateShape) =>
+  COMMON_SEPARATORS.test(char) || char === shape.separator;
+
 const WHOLE_ISO = /(\d{4})-(\d{2})-(\d{2})/g;
 
 /**
@@ -107,10 +120,35 @@ export function replaceWholeIso(raw: string, shape: DateShape): string {
 }
 
 /** Digit positions `[start, end)` in the new digits that an edit inserted. */
-export type Inserted = { start: number; end: number };
+export type Inserted = {
+  start: number;
+  end: number;
+  /**
+   * Gaps where the edit typed a separator, counted in digits: gap `g` sits
+   * between digit `g - 1` and digit `g`. From `typedSeparators`.
+   */
+  separators?: number[];
+};
 
-/** What changed between two digit strings: everything between their common prefix and suffix. */
-export function insertedRange(previous: string, next: string): Inserted {
+/**
+ * The span `[start, end)` of `next` an edit wrote. When the caret is known the
+ * span ends there, since an insertion leaves the caret just after itself, and
+ * starts where `next` stops matching what `previous` held before the part the
+ * edit left alone. Prefix and suffix alone cannot place an insertion inside a
+ * run of the same character: typing 4 between the 0 and 4 of "04" gives "044",
+ * and they would pick the last 4. Without a caret, or when the text after the
+ * caret changed too, the span is everything between the common prefix and
+ * suffix.
+ */
+function changedSpan(previous: string, next: string, caret?: number): Inserted {
+  if (caret !== undefined && caret <= next.length) {
+    const head = previous.length - (next.length - caret);
+    if (head >= 0 && previous.slice(head) === next.slice(caret)) {
+      let start = 0;
+      while (start < head && start < caret && previous[start] === next[start]) start += 1;
+      return { start, end: caret };
+    }
+  }
   let start = 0;
   while (start < previous.length && start < next.length && previous[start] === next[start]) {
     start += 1;
@@ -124,6 +162,38 @@ export function insertedRange(previous: string, next: string): Inserted {
     suffix += 1;
   }
   return { start, end: next.length - suffix };
+}
+
+/**
+ * The digits an edit inserted, given the digits before and after it and, when
+ * known, how many digits sit before the caret.
+ */
+export function insertedRange(previous: string, next: string, caret?: number): Inserted {
+  return changedSpan(previous, next, caret);
+}
+
+/**
+ * Where the text an edit inserted holds a separator: whitespace, `/`, `.`,
+ * `-`, `–`, `,` or the locale's own. Each is returned as the gap, counted in
+ * the digits of `raw`, that it follows; a run of them counts once. ISO that
+ * arrives whole is read as digits first, so its hyphens are not separators.
+ * `previous` is the field's text before the edit and `caret` its selection
+ * start after it.
+ */
+export function typedSeparators(
+  previous: string,
+  raw: string,
+  caret: number,
+  shape: DateShape,
+): number[] {
+  const { start, end } = changedSpan(previous, raw, caret);
+  let gap = normaliseDigits(raw.slice(0, start)).length;
+  const gaps: number[] = [];
+  for (const char of replaceWholeIso(raw.slice(start, end), shape)) {
+    if (isDigit(char)) gap += 1;
+    else if (isSeparator(char, shape) && gaps[gaps.length - 1] !== gap) gaps.push(gap);
+  }
+  return gaps;
 }
 
 function slotOf(index: number, shape: DateShape): { segment: Segment; position: number } {
@@ -174,6 +244,14 @@ export type MaskResult = {
  * and is never refused: the digits after it re-flow unchecked, and
  * `readValue` says what is wrong. Checking deletions "for consistency" would
  * trap Backspace.
+ *
+ * A separator the edit typed (`inserted.separators`) completes a day or month
+ * holding a single digit just before it: that digit gains a leading zero, so
+ * `1/` becomes `01/`. The zero is checked like any inserted digit — `0/` would
+ * make `00`, and rejects the edit — and counts in `acceptedAfter`. The
+ * separator does nothing after a year digit, after a complete part, with no
+ * digit before it, or between two digits the edit did not insert, which it
+ * would otherwise split. A deletion types no separator, so it is never padded.
  */
 export function applyMask(
   digits: string,
@@ -182,6 +260,8 @@ export function applyMask(
   inserted: Inserted,
 ): MaskResult | null {
   const limit = digitsFor(mode);
+  const separators = new Set(inserted.separators);
+  const isInserted = (index: number) => index >= inserted.start && index < inserted.end;
   let accepted = '';
   const acceptedAfter = [0];
 
@@ -189,7 +269,7 @@ export function applyMask(
     if (accepted.length >= limit) return null;
     const digit = Number(digits[index]);
 
-    if (index >= inserted.start && index < inserted.end) {
+    if (isInserted(index)) {
       const { segment, position } = slotOf(accepted.length, shape);
       const verdict = check(segment, position, digit, Number(accepted[accepted.length - 1]));
       if (verdict === 'refuse') return null;
@@ -197,6 +277,19 @@ export function applyMask(
     }
 
     accepted += String(digit);
+
+    // A separator right after this digit. The digit, or what follows the
+    // separator, has to be this edit's: a lone typed "/" after the field's
+    // last digit counts, a "/" typed between two digits already there does not.
+    const gap = index + 1;
+    if (separators.has(gap) && (isInserted(index) || gap === digits.length || isInserted(gap))) {
+      const { segment, position } = slotOf(accepted.length - 1, shape);
+      if (segment !== 'year' && position === 0) {
+        if (check(segment, 1, digit, 0) === 'refuse') return null;
+        accepted = `${accepted.slice(0, -1)}0${digit}`;
+      }
+    }
+
     acceptedAfter.push(accepted.length);
   }
 
@@ -256,8 +349,6 @@ export function hintFor(shape: DateShape, mode: MaskMode): string {
   const hint = `Type digits only, as ${shape.order.join(', ')}. Separators are added for you.`;
   return mode === 'range' ? `${hint} Then the end date the same way.` : hint;
 }
-
-const isDigit = (char: string) => normaliseDigits(char).length === 1;
 
 /** Just after the `digitCount`-th digit of `text`, and past any separator that follows it. */
 export function caretIndex(text: string, digitCount: number): number {

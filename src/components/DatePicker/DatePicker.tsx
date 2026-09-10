@@ -26,6 +26,7 @@ import {
   placeholderFor,
   readValue,
   replaceWholeIso,
+  typedSeparators,
   type DatePickerInvalidReason,
 } from './mask';
 import styles from './DatePicker.module.css';
@@ -245,7 +246,12 @@ export function DatePicker({
       }
     }
 
-    const masked = applyMask(digits, shape, mode, insertedRange(previousDigits, digits));
+    // What the edit inserted: its digits, anchored at the caret, and any
+    // separator it typed, which completes a lone day or month digit.
+    const masked = applyMask(digits, shape, mode, {
+      ...insertedRange(previousDigits, digits, before),
+      separators: typedSeparators(previous, raw, selection, shape),
+    });
 
     // A rejected edit leaves the text as it was, with the caret back where the
     // edit began. React restores a controlled input's value after this handler

@@ -349,7 +349,9 @@ describe('DatePicker', () => {
     // Native popovertarget would open the panel before React listens: `open`
     // stays false, the Calendar stays unmounted, and the panel shows empty.
     const html = renderToString(<DatePicker label="Any day" />);
-    expect(html).not.toContain('popoverTarget');
+    // React writes the attribute lowercased, so the camel-cased prop name could
+    // never match; the test reads the attribute in any case.
+    expect(html).not.toMatch(/popovertarget/i);
   });
 
   it('submits nothing under its name when disabled', () => {
@@ -645,6 +647,88 @@ describe('DatePicker typing', () => {
     expect(input).toHaveValue('1');
   });
 
+  it('deletes the digit after a separator on Delete, rather than putting the separator back', async () => {
+    render(<Typed locale="pt-PT" initial="2025-02-12" />);
+    const input = screen.getByRole('textbox');
+    // The caret sits just before the first "/": Delete removes the 0 of the month.
+    await userEvent.type(input, '{Delete}', { initialSelectionStart: 2, initialSelectionEnd: 2 });
+    expect(input).toHaveValue('12/22/025');
+  });
+
+  it('completes a one-digit month when a separator is typed after it, so 1/15/2025 is January', async () => {
+    // Without the separator rule the slash is dropped and the digits read 11/05/2025.
+    const onSelect = vi.fn();
+    render(<Typed onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '1/15/2025');
+    expect(input).toHaveValue('01/15/2025');
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith('2025-01-15');
+  });
+
+  it('completes a one-digit day from a pasted separator, in the locale order', async () => {
+    const onSelect = vi.fn();
+    render(<Typed locale="pt-PT" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.click(input);
+    await userEvent.paste('1/12/2025');
+    expect(input).toHaveValue('01/12/2025');
+    expect(onSelect).toHaveBeenCalledWith('2025-12-01');
+  });
+
+  it('takes any common separator in a paste, not only the locale’s own', async () => {
+    render(<Typed locale="de-DE" />);
+    const input = screen.getByRole('textbox');
+    await userEvent.click(input);
+    await userEvent.paste('1.2.2025');
+    expect(input).toHaveValue('01.02.2025');
+  });
+
+  it('pads a lone digit the moment its separator is typed, with the caret just after the key', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await userEvent.type(input, '1/');
+    expect(input).toHaveValue('01/');
+    expect(input.selectionStart).toBe(3);
+  });
+
+  it('refuses a separator that would complete a month of 00', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '0/');
+    expect(input).toHaveValue('0');
+  });
+
+  it('ignores a separator typed after a part that is already complete', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '12');
+    await userEvent.type(input, '/');
+    expect(input).toHaveValue('12/');
+  });
+
+  it('never pads on a deletion: Backspace after a completed part removes its digit and leaves the rest', async () => {
+    render(<Typed />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, '1/');
+    expect(input).toHaveValue('01/');
+    await userEvent.keyboard('{Backspace}');
+    expect(input).toHaveValue('0');
+  });
+
+  it('inserts a digit at the caret inside a run of the same digit, not at the end of the run', async () => {
+    // "04/" with the caret between 0 and 4: a typed 4 completes the day as 04
+    // and the old 4 moves on to the month. Read from prefix and suffix alone,
+    // the new digit would be the second 4, padded to a month of 04.
+    render(<Typed locale="pt-PT" />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await userEvent.type(input, '4');
+    expect(input).toHaveValue('04/');
+    await userEvent.type(input, '4', { initialSelectionStart: 1, initialSelectionEnd: 1 });
+    expect(input).toHaveValue('04/4');
+    expect(input.selectionStart).toBe(3);
+  });
+
   it('reports an incomplete date on blur, and never while it is being typed', async () => {
     const onInvalid = vi.fn();
     render(<Typed onInvalid={onInvalid} />);
@@ -739,6 +823,16 @@ describe('DatePicker typing', () => {
     await userEvent.type(input, '04102023');
     await userEvent.keyboard('{Backspace}');
     expect(input).toHaveValue('04/10/202');
+  });
+
+  it('completes the one-digit parts of both dates in a pasted range, and orders the range', async () => {
+    const onSelect = vi.fn();
+    render(<Typed mode="range" onSelect={onSelect} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.click(input);
+    await userEvent.paste('1/5/2023 – 1/10/2023');
+    expect(input).toHaveValue('01/05/2023 – 01/10/2023');
+    expect(onSelect).toHaveBeenCalledWith({ start: '2023-01-05', end: '2023-01-10' });
   });
 
   it('reports a range with only its start as incomplete on blur', async () => {
