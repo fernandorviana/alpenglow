@@ -93,6 +93,15 @@ have all been mistaken for errors at least once.
    excluded from the same hide rule because they are the only content those
    two states have.
 
+9. **The theme toggle's dark rules are written twice, on purpose.** Once under
+   `@media (prefers-color-scheme: dark)` scoped with
+   `:root:not([data-theme='light'])`, once under `:root[data-theme='dark']` —
+   the same shape as the generated token file. It is what puts the knob in the
+   right place on the first paint instead of sliding it there once React has
+   read `localStorage`, and it is why the component holds no visual state at
+   all. `app/ui/ThemeToggle.test.tsx` reads `app/docs.css` and fails if the two
+   halves stop matching declaration for declaration.
+
 ---
 
 ## Conventions
@@ -117,7 +126,7 @@ have all been mistaken for errors at least once.
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 253 tests across 11 files
+npm test            # 327 tests across 13 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
