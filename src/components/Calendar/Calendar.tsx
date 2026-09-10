@@ -137,32 +137,37 @@ export function Calendar({
   const unavailable = (date: ISODate) =>
     !isWithin(date, min, max) || (isDateUnavailable?.(date) ?? false);
 
-  // The one cell in the tab order. Initialised to the selection, else today if
-  // today is in the visible month, else the first of it — the same order the
-  // dialog uses to place focus when it opens.
-  const [focused, setFocused] = useState<ISODate>(() => {
-    if (typeof value === 'string') return value;
-    if (
-      parts(now).month === parts(resolvedMonth).month &&
-      parts(now).year === parts(resolvedMonth).year
-    ) {
-      return now;
-    }
-    return resolvedMonth;
-  });
+  // The tab stop is derived every render rather than stored and corrected
+  // after the fact: `focused` if it is drawn in the visible month, else the
+  // selected value if that is drawn, else today if that is drawn, else the
+  // first of the visible month. The first of the month is NOT clamped to
+  // min/max — unavailable days are still focusable buttons with
+  // aria-disabled. Deriving it means a controlled `month` that refuses to
+  // move, or an initial `focused` outside the drawn month, can never leave
+  // the grid with zero tab stops.
+  const drawn = (date: ISODate | null): date is ISODate =>
+    date !== null && startOfMonth(date) === visibleMonth;
+  const [focused, setFocused] = useState<ISODate | null>(null);
+  const tabStop = drawn(focused)
+    ? focused
+    : drawn(single)
+      ? single
+      : drawn(now)
+        ? now
+        : visibleMonth;
 
   // Focus follows the roving tabindex, but only after the user has moved it —
-  // mounting the calendar must not steal focus from the page.
+  // mounting the calendar must not steal focus from the page. No dependency
+  // array: it must run after every render so DOM focus follows wherever the
+  // derivation above put the tab stop, not just after `focused` changes.
   const shouldRestoreFocus = useRef(false);
   const gridRef = useRef<HTMLTableElement>(null);
 
   useEffect(() => {
     if (!shouldRestoreFocus.current) return;
     shouldRestoreFocus.current = false;
-    gridRef.current
-      ?.querySelector<HTMLButtonElement>(`button[data-date="${focused}"]`)
-      ?.focus();
-  }, [focused]);
+    gridRef.current?.querySelector<HTMLButtonElement>('button[tabindex="0"]')?.focus();
+  });
 
   function moveFocus(next: ISODate) {
     const target = clamp(next, min, max);
@@ -180,18 +185,18 @@ export function Calendar({
 
   function onKeyDown(event: KeyboardEvent<HTMLTableElement>) {
     const keys: Record<string, () => ISODate> = {
-      ArrowLeft: () => addDays(focused, -1),
-      ArrowRight: () => addDays(focused, 1),
-      ArrowUp: () => addDays(focused, -7),
-      ArrowDown: () => addDays(focused, 7),
-      Home: () => addDays(focused, -((weekday(focused) - weekStartsOn + 7) % 7)),
-      End: () => addDays(focused, 6 - ((weekday(focused) - weekStartsOn + 7) % 7)),
+      ArrowLeft: () => addDays(tabStop, -1),
+      ArrowRight: () => addDays(tabStop, 1),
+      ArrowUp: () => addDays(tabStop, -7),
+      ArrowDown: () => addDays(tabStop, 7),
+      Home: () => addDays(tabStop, -((weekday(tabStop) - weekStartsOn + 7) % 7)),
+      End: () => addDays(tabStop, 6 - ((weekday(tabStop) - weekStartsOn + 7) % 7)),
     };
 
     if (event.key === 'PageUp' || event.key === 'PageDown') {
       const step = event.key === 'PageDown' ? 1 : -1;
       event.preventDefault();
-      moveFocus(addMonths(focused, event.shiftKey ? step * 12 : step));
+      moveFocus(addMonths(tabStop, event.shiftKey ? step * 12 : step));
       return;
     }
 
@@ -200,16 +205,6 @@ export function Calendar({
     event.preventDefault();
     moveFocus(move());
   }
-
-  // Keep `focused` inside the visible month when the month changes from
-  // outside — paging via a future control, or a controlled `month` prop.
-  useEffect(() => {
-    if (startOfMonth(focused) !== visibleMonth) {
-      setFocused(clamp(visibleMonth, min, max));
-    }
-    // `focused` is deliberately absent: this corrects focus when the MONTH
-    // moves, and including it would fight moveFocus, which moves both.
-  }, [visibleMonth, min, max]);
 
   // Called directly rather than declared as a component: a function declared
   // in the render body is a new component type on every render, so React
@@ -262,7 +257,7 @@ export function Calendar({
           aria-label={name}
           aria-disabled={isUnavailable || undefined}
           data-date={cell.date}
-          tabIndex={focused === cell.date ? 0 : -1}
+          tabIndex={tabStop === cell.date ? 0 : -1}
           onClick={() => {
             // aria-disabled does not stop a click, which is the point: the day
             // is reachable. Refusing here is what makes it unpickable.

@@ -526,6 +526,34 @@ describe('Calendar keyboard', () => {
     await userEvent.keyboard(' ');
     expect(onSelect).toHaveBeenLastCalledWith('2023-04-12');
   });
+
+  it('keeps exactly one tab stop when a controlled month refuses to move', async () => {
+    // `month` is controlled here and nothing updates it in response to
+    // onMonthChange, so ArrowRight past April's last day cannot page the
+    // grid. The tab stop still has to land somewhere drawn.
+    render(<Calendar label="Date" month="2023-04-01" value="2023-04-30" />);
+    screen.getByRole('button', { name: /april 30/i }).focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+
+    const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+    expect(tabbable).toHaveLength(1);
+    expect(tabbable[0]).toHaveFocus();
+    expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
+  });
+
+  it('puts the tab stop on today when the value is in another month', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date(2023, 3, 12, 12));
+      render(<Calendar label="Date" defaultMonth="2023-04-01" value="2023-02-10" />);
+      const tabbable = screen.getAllByRole('button').filter((b) => b.tabIndex === 0);
+      expect(tabbable).toHaveLength(1);
+      expect(tabbable[0]).toHaveAccessibleName(/april 12,/i);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe('Calendar west of UTC', () => {
