@@ -191,6 +191,17 @@ have all been mistaken for errors at least once.
     whose trigger carries `popovertarget` only once hydrated so a click before
     hydration cannot open an empty panel.
 
+18. **The date field's mask rebuilds from digits and never intercepts keys.**
+    Every edit — typing, a paste, autofill, a deletion in the middle, the end
+    of an IME composition — goes through `edit` in `DatePicker.tsx`, which
+    extracts the digits, runs `applyMask` from `mask.ts`, and puts the caret
+    back by digit count. Handling `keydown` looks like a simplification and
+    breaks paste, autofill, IME and Android, whose keyboards report
+    `Unidentified`. Two more rules only look inconsistent: an insertion is
+    checked and rejected whole while a deletion is never refused (checking
+    deletions "for consistency" traps Backspace), and a Backspace that only
+    removed a separator removes the digit beside it instead.
+
 ---
 
 ## Conventions
@@ -259,7 +270,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 558 tests across 18 files
+npm test            # 620 tests across 19 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

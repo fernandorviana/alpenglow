@@ -105,8 +105,8 @@ export type DatePickerProps = CalendarProps & {
   name?: string;
   required?: boolean;
   'aria-describedby'?: string;
-  /** Fires when the text field produces a date the parser rejects. */
-  onParseError?: (raw: string) => void;
+  /** See the input-mask design: fires when an evaluation finds the typed text is not a date this picker accepts. */
+  onInvalid?: (raw: string, reason: DatePickerInvalidReason) => void;
 };
 ```
 
@@ -125,6 +125,12 @@ boundary; the benefit is that the component has no timezone at all. It also
 means no date library: `@internationalized/date` is the correct dependency for a
 product and the wrong one for a system that has so far shipped with zero runtime
 dependencies of its own.
+
+> **Amended 2026-09-10.** The field is now one masked input, not free text —
+> see [`2026-09-10-date-picker-input-mask-design.md`](2026-09-10-date-picker-input-mask-design.md).
+> The case below against `<input type="date">` and the segmented field still
+> stands; the free-text parse does not, and ISO is read when it arrives whole
+> rather than key by key.
 
 **The text field is free text, not a segmented field, and not `<input
 type="date">`.** The convention in this repository is to prefer the native
@@ -485,11 +491,11 @@ Loader's rule (slow it, do not freeze it) does not generalise, and the differenc
 is worth a comment in the stylesheet so the next reader does not "fix" one to
 match the other.
 
-**A field whose text does not parse.** Typing is not validated on every
-keystroke; the parse runs on blur and on `Enter`. A string the parser rejects
-leaves the previous value intact, sets `aria-invalid`, and calls `onParseError`.
-It does not clear the field — a user who typed something has more information
-about their intent than the parser does.
+**A field whose text does not parse.** Superseded by the input-mask design,
+§"When it evaluates, and what it emits": the field evaluates when a complete
+date is typed, on blur and on Enter; refused text stays in the field with
+`aria-invalid`, the previous value stays intact, and `onInvalid(raw, reason)`
+reports why.
 
 ---
 

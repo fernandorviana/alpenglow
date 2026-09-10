@@ -1,7 +1,7 @@
 # Date picker — input mask design
 
 **Date:** 2026-09-10
-**Status:** design approved section by section; awaiting spec review
+**Status:** approved 2026-09-10; amended 2026-09-11 to match the implementation (caret timing, what a draft is, composition)
 **Amends:** `2026-09-10-date-picker-design.md`:
 - §"Four choices worth defending": the text field is free text
 - §"A field whose text does not parse"
@@ -207,10 +207,21 @@ It is still the `control.module.css` input, with these attributes:
    `deleteContentForward` removes the digit after it. Without this rule the
    mask would put the separator straight back and the key would do nothing.
 4. `applyMask`. Set the text, and restore the caret with `caretIndex` in a
-   layout effect.
+   microtask. React restores a controlled input's value after the change
+   handler returns, which would put the caret at the end, and a rejected edit
+   sets no state, so no layout effect would run for it; the microtask runs
+   after that restore in both cases.
 
 During IME composition (`compositionstart` to `compositionend`) the value is
-not rewritten. The mask runs once, on `compositionend`.
+not rewritten. The mask runs once, on `compositionend`, as one insertion:
+
+- A composition the mask refuses, or one that adds no digit, leaves the text
+  as it was before the composition began, like any rejected insertion. A
+  cancelled composition leaves no draft behind.
+- The Enter that commits a composition does not evaluate: Chrome sends it
+  with `isComposing`, and Safari sends it after `compositionend` with
+  `keyCode` 229. A blur while a composition is still open does not evaluate
+  either.
 
 ### The shell
 
@@ -270,8 +281,11 @@ The field evaluates at only three moments:
 Between those moments nothing is evaluated. Half a date is unfinished, not
 wrong.
 
-**Evaluation runs only when a draft exists**, meaning the text differs from the
-formatted current value. Tabbing through a field without typing calls nothing.
+**Evaluation runs only when a draft exists**, meaning the field has been edited
+since its value last changed or its last evaluation emitted a value. Tabbing
+through a field without typing calls nothing. A field with no value that is
+typed into and then emptied still emits `onSelect(null)` on blur, which clears
+any earlier `incomplete` message.
 
 **Each evaluation ends in exactly one call:**
 

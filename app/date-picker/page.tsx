@@ -8,6 +8,7 @@ import { Table } from '@/components/Table';
 import { Calendar } from '@/components/Calendar';
 import type { DateRange, ISODate } from '@/components/Calendar';
 import { DatePicker } from '@/components/DatePicker';
+import type { DatePickerInvalidReason } from '@/components/DatePicker';
 import { resolve } from '@/tokens/contrast';
 
 type PropRow = { prop: string; type: string; default: string };
@@ -44,7 +45,11 @@ const DATE_PICKER_PROPS: PropRow[] = [
     type: 'string',
     default: '— (submits ISO from a hidden input: a date, or start/end for a range)',
   },
-  { prop: 'onParseError', type: '(raw: string) => void', default: '—' },
+  {
+    prop: 'onInvalid',
+    type: '(raw: string, reason: DatePickerInvalidReason) => void',
+    default: '— (reason: incomplete | not-a-date | before-min | after-max | unavailable)',
+  },
 ];
 
 /** Weekends, for the bounds-and-exclusion specimen. Plain `Date`, deliberately:
@@ -54,6 +59,23 @@ function isWeekend(date: ISODate): boolean {
   const day = new Date(`${date}T00:00:00Z`).getUTCDay();
   return day === 0 || day === 6;
 }
+
+/** The messages the "Typing a date" specimen writes into its Field. The picker
+    reports a reason; the words are the page's, because only the page knows
+    what the field is called and why a day is unavailable. */
+const TYPED_MESSAGES: Record<DatePickerInvalidReason, string> = {
+  incomplete: 'Appointment date must include a day, month and year',
+  'not-a-date': 'Appointment date must be a real date',
+  'before-min': 'Appointment date must be on or after April 3, 2023',
+  'after-max': 'Appointment date must be on or before April 24, 2023',
+  unavailable: 'Appointment date must be a weekday',
+};
+
+type MessageRow = { reason: DatePickerInvalidReason; message: string };
+
+const MESSAGE_ROWS: MessageRow[] = (Object.keys(TYPED_MESSAGES) as DatePickerInvalidReason[]).map(
+  (reason) => ({ reason, message: TYPED_MESSAGES[reason] }),
+);
 
 export default function Page() {
   const [appointment, setAppointment] = useState<ISODate | null>('2023-04-26');
@@ -65,6 +87,11 @@ export default function Page() {
   const [small, setSmall] = useState<ISODate | null>(null);
   const [medium, setMedium] = useState<ISODate | null>(null);
   const [large, setLarge] = useState<ISODate | null>(null);
+  const [typed, setTyped] = useState<ISODate | null>(null);
+  const [typedError, setTypedError] = useState<string | null>(null);
+  // One value across three locales, on purpose: typing in any of the fields
+  // moves the other two, the quickest way to see the order and separator change.
+  const [sample, setSample] = useState<ISODate | null>('2023-04-26');
 
   return (
     <DocPage
@@ -221,7 +248,7 @@ export default function Page() {
         </div>
       </div>
       <p className="alias">
-        The field already reads <code>04 / 26 / 2023</code> — type over it, or open the panel
+        The field already reads <code>04/26/2023</code> — type over it, or open the panel
         with the trigger.
       </p>
 
@@ -351,22 +378,77 @@ export default function Page() {
 
       <h2>Typing a date</h2>
       <p>
-        The field shows and reads the locale&rsquo;s own numeric order — month, day, year in
-        en-US, day before month almost everywhere else — so the placeholder, the display and
-        what a keystroke is read as all agree with each other. ISO (<code>2023-04-26</code>) is
-        accepted in every locale regardless, because it is the one order nobody can misread.
+        The field is one masked input. Type digits only: the separator appears as each part is
+        complete, a first digit that cannot start its part gains a leading zero (a month of{' '}
+        <code>4</code> becomes <code>04</code>), and a digit that would make a part impossible (a
+        month of <code>13</code>) is not taken. Pasting, autofill and deleting in the middle all go
+        through the same rebuild from the digits, and a deletion is never refused. ISO (
+        <code>2023-04-26</code>) is read when it arrives whole — pasted or autofilled — in any
+        locale.
       </p>
+      <div className="specimen">
+        <div className="specimenRow">
+          {(['en-US', 'pt-PT', 'de-DE'] as const).map((locale) => (
+            <div key={locale} style={{ minWidth: 200 }}>
+              <Field label={locale}>
+                <DatePicker
+                  label={locale}
+                  locale={locale}
+                  value={sample}
+                  onSelect={(next) => setSample(next as ISODate | null)}
+                />
+              </Field>
+            </div>
+          ))}
+        </div>
+      </div>
       <p>
-        Parsing runs on blur and on Enter, not on every keystroke — half a typed date is
-        unfinished, not wrong. Text that will not parse, or that parses to a day the calendar
-        would refuse (outside <code>min</code>/<code>max</code>, or excluded by{' '}
-        <code>isDateUnavailable</code>), is left in the field, marked invalid, and reported
-        through <code>onParseError</code> rather than silently discarded or corrected.
+        The field checks a date when its last digit is in, on blur and on Enter — never half way,
+        since half a date is unfinished rather than wrong. Each check ends in exactly one call:{' '}
+        <code>onSelect</code> with the date (or <code>null</code> for an emptied field), or{' '}
+        <code>onInvalid</code> with a reason. Refused text stays as typed and the previous value
+        stays intact. The picker never writes the message: the caller does, into the{' '}
+        <code>Field</code>&rsquo;s <code>error</code>, because only the caller knows what the
+        field is called and why a day is unavailable.
       </p>
+      <div className="specimen">
+        <div style={{ maxWidth: 320 }}>
+          <Field
+            label="Appointment date"
+            description="A weekday from April 3 to April 24, 2023."
+            error={typedError ?? undefined}
+          >
+            <DatePicker
+              label="Appointment date"
+              defaultMonth="2023-04-01"
+              min="2023-04-03"
+              max="2023-04-24"
+              isDateUnavailable={isWeekend}
+              value={typed}
+              onSelect={(next) => {
+                setTyped(next as ISODate | null);
+                setTypedError(null);
+              }}
+              onInvalid={(_raw, reason) => setTypedError(TYPED_MESSAGES[reason])}
+            />
+          </Field>
+        </div>
+      </div>
+      <div className="tableScroll">
+        <Table
+          caption="Reasons, and the messages this page writes for them"
+          density="compact"
+          columns={[
+            { key: 'reason', header: 'Reason', primary: true, cell: (r: MessageRow) => <code>{r.reason}</code> },
+            { key: 'message', header: 'Message', cell: (r: MessageRow) => r.message },
+          ]}
+          rows={MESSAGE_ROWS}
+          getRowId={(r) => r.reason}
+        />
+      </div>
       <p>
-        Range mode&rsquo;s field is read-only. ISO input, accepted in every locale, already uses{' '}
-        <code>-</code> inside a date, so one field cannot also use it between two dates. The
-        calendar stays the only way to set one.
+        In range mode the field takes both dates: sixteen digits, joined by an en dash after the
+        first eight, and a pair typed in reverse is put in order, as the calendar would.
       </p>
 
       <h2>Accessibility</h2>
@@ -376,6 +458,15 @@ export default function Page() {
         field itself is showing an uncommitted draft. Inside a <code>Field</code> the visible
         label already names the text input; the trigger carries its own name regardless, since
         confirming the value is its job even for a screen-reader user who never reads the field.
+      </p>
+      <p>
+        The field describes its mask in words — <em>&ldquo;Type digits only, as month, day, year.
+        Separators are added for you.&rdquo;</em> — through <code>aria-describedby</code>, after the{' '}
+        <code>Field</code>&rsquo;s own description and error, because a screen reader reads{' '}
+        <code>MM/DD/YYYY</code> letter by letter. A digit the mask refuses makes no sound:
+        announcing each one would talk over the reader&rsquo;s own echo of the key, so the rule is
+        stated before anyone meets it. The format still to type is drawn behind the text in{' '}
+        <code>text/placeholder</code>, hidden from the accessibility tree.
       </p>
       <p>
         The grid is a single tab stop, roving with the arrow keys, Home, End and Page Up/Down
