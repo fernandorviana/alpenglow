@@ -457,6 +457,18 @@ describe('the calendar meets the thresholds its drawing did not', () => {
     }
   }
 
+  it('keeps a spilled day quieter than an unavailable one, in both modes', () => {
+    // Not a WCAG threshold: the spilled days are inert, so 1.4.3 exempts them.
+    // What is asserted is the ordering the primitive inverted in dark, where
+    // gray-light/400 measured 7.90:1 — brighter than the weekday header.
+    // Measured: text/inert 1.65 light / 1.60 dark; text/disabled 2.77 / 2.66.
+    for (const mode of MODES) {
+      expect(tokenContrast('text/inert', 'surface/overlay', mode), mode).toBeLessThan(
+        tokenContrast('text/disabled', 'surface/overlay', mode),
+      );
+    }
+  });
+
   it('cannot draw the focus ring on the selected fill, which is why it is offset', () => {
     // The measurement that rejected the drawing's own approach, kept as a test
     // so nobody re-adopts it. border/focus and interactive/accent are the same

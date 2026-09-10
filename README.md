@@ -16,7 +16,7 @@ Three layers, mirrored in Figma as three variable collections.
 | Layer | Varies by mode | What it holds |
 |---|---|---|
 | **Primitives** | no | The raw ramp. 81 opaque colours plus 14 alpha values — twelve on the black and white ramps, two shadow inks. Nothing references these directly. |
-| **Theme** | Light / Dark | 53 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
+| **Theme** | Light / Dark | 54 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
 | **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
 

@@ -73,7 +73,7 @@ export default function Page() {
       evidence={
         <>
           <p>81 primitives</p>
-          <p>49 theme tokens</p>
+          <p>54 theme tokens</p>
           <p>0 hex in the theme</p>
           <p>measured against</p>
           <p>surface/raised</p>
@@ -82,7 +82,7 @@ export default function Page() {
     >
       <h1>Colour</h1>
       <p className="lead">
-        Eighty-one raw values, forty-nine roles, and a rule that keeps them apart: nothing
+        Eighty-one raw values, fifty-four roles, and a rule that keeps them apart: nothing
         in the product references a primitive directly.
       </p>
 

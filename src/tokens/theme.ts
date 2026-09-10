@@ -48,6 +48,7 @@ export const theme = {
   'text/tertiary':    { light: 'gray-dark/100',  dark: 'gray-light/600', use: 'Helper text, timestamps' },
   'text/placeholder': { light: 'gray-light/900', dark: 'gray-light/800', use: 'Input placeholders' },
   'text/disabled':    { light: 'gray-light/700', dark: 'gray-dark/050',  use: 'Disabled text (WCAG-exempt)' },
+  'text/inert':       { light: 'gray-light/400', dark: 'gray-dark/300',  use: 'Inert text beside interactive content, such as days outside the month (WCAG-exempt)' },
   'text/inverse':     { light: 'white',          dark: 'gray-dark/900',  use: 'Text on surface/inverse' },
   'text/accent':      { light: 'brand-1/500',    dark: 'brand-1/300',    use: 'Links' },
   'text/success':     { light: 'green/800',      dark: 'green/300',      use: 'Success messages' },

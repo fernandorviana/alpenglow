@@ -140,13 +140,20 @@
   cursor: pointer;
 }
 
-/* Spilled days: rendered, greyed, and inert. At 1.65:1 no text may do this —
-   but a thing that cannot be focused, clicked or reached is decoration, which
-   1.4.3 exempts. Making them interactive would force text/tertiary at 5.74,
-   at which point they stop reading as outside the month at all. Task 6 adds
-   the one exception: a spilled day inside a range takes the band. */
+/* Spilled days: rendered, greyed, and inert. text/inert measures 1.65:1 in
+   light and 1.60:1 in dark against the panel. No text may do this — but a
+   thing that cannot be focused, clicked or reached is decoration, which 1.4.3
+   exempts. Making them interactive would force text/tertiary at 5.74 / 5.69,
+   at which point they stop reading as outside the month at all.
+
+   A semantic token, not the drawn gray-light/400: a primitive does not switch
+   with the theme, and on the dark panel it measured 7.90:1 — brighter than
+   the weekday header, and far brighter than an unavailable day (2.66). The
+   token keeps a spilled day quieter than an unavailable one in both modes.
+
+   One exception: a spilled day inside a range takes the band. */
 .outside .pill {
-  color: var(--ap-gray-light-400);
+  color: var(--ap-color-text-inert);
   cursor: default;
 }
 

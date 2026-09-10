@@ -944,15 +944,16 @@ describe('Calendar stylesheet source', () => {
     expect(css).not.toMatch(/--ap-color-surface-sunken/);
   });
 
-  it('carries no colour literal except the one named primitive', () => {
-    // gray-light/400 for the spilled days is argued in the stylesheet itself.
-    // Anything else is drift.
+  it('carries no colour literal and references no primitive', () => {
+    // The spilled days were the one exception, on gray-light/400, until it
+    // measured 7.90:1 on the dark panel. They take text/inert now, which
+    // switches with the theme. Any primitive here is drift.
     const literals = css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
     expect(literals).toEqual([]);
     // rgb()/rgba()/hsl()/hsla() are colour literals by another name.
     expect(css).not.toMatch(/\b(?:rgb|rgba|hsl|hsla)\(/);
-    const primitives = css.match(/--ap-(gray|brand|red|green|yellow|blue|alpha)-[\w-]+/g) ?? [];
-    expect(primitives).toEqual(['--ap-gray-light-400']);
+    const primitives = css.match(/--ap-(gray|brand|red|green|yellow|blue|alpha|white|black)-[\w-]+/g) ?? [];
+    expect(primitives).toEqual([]);
   });
 });
 

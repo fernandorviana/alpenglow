@@ -26,6 +26,7 @@
   --color-text-tertiary: var(--ap-color-text-tertiary);
   --color-text-placeholder: var(--ap-color-text-placeholder);
   --color-text-disabled: var(--ap-color-text-disabled);
+  --color-text-inert: var(--ap-color-text-inert);
   --color-text-inverse: var(--ap-color-text-inverse);
   --color-text-accent: var(--ap-color-text-accent);
   --color-text-success: var(--ap-color-text-success);

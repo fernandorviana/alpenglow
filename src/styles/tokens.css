@@ -137,6 +137,7 @@
   --ap-color-text-tertiary: var(--ap-gray-dark-100);
   --ap-color-text-placeholder: var(--ap-gray-light-900);
   --ap-color-text-disabled: var(--ap-gray-light-700);
+  --ap-color-text-inert: var(--ap-gray-light-400);
   --ap-color-text-inverse: var(--ap-white);
   --ap-color-text-accent: var(--ap-brand-1-500);
   --ap-color-text-success: var(--ap-green-800);
@@ -197,6 +198,7 @@
     --ap-color-text-tertiary: var(--ap-gray-light-600);
     --ap-color-text-placeholder: var(--ap-gray-light-800);
     --ap-color-text-disabled: var(--ap-gray-dark-050);
+    --ap-color-text-inert: var(--ap-gray-dark-300);
     --ap-color-text-inverse: var(--ap-gray-dark-900);
     --ap-color-text-accent: var(--ap-brand-1-300);
     --ap-color-text-success: var(--ap-green-300);
@@ -257,6 +259,7 @@
   --ap-color-text-tertiary: var(--ap-gray-light-600);
   --ap-color-text-placeholder: var(--ap-gray-light-800);
   --ap-color-text-disabled: var(--ap-gray-dark-050);
+  --ap-color-text-inert: var(--ap-gray-dark-300);
   --ap-color-text-inverse: var(--ap-gray-dark-900);
   --ap-color-text-accent: var(--ap-brand-1-300);
   --ap-color-text-success: var(--ap-green-300);

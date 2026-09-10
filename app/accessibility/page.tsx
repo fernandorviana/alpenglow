@@ -181,7 +181,7 @@ export default function Page() {
 
       <h2>Where the system falls short, on purpose</h2>
       <p>
-        Three pairs sit below 4.5:1, all three deliberate. Listing them is the point: a
+        Four pairs sit below 4.5:1, all four deliberate. Listing them is the point: a
         system that reports no exceptions is a system that has not looked.
       </p>
 
@@ -242,14 +242,30 @@ export default function Page() {
                 the control cannot be used.
               </td>
             </tr>
+            <tr>
+              <td className="tokenName">text/inert on surface/overlay</td>
+              <td className="ratio">
+                {contrast(resolve('text/inert', 'light'), resolve('surface/overlay', 'light')).toFixed(2)}
+              </td>
+              <td className="ratio">
+                {contrast(resolve('text/inert', 'dark'), resolve('surface/overlay', 'dark')).toFixed(2)}
+              </td>
+              <td>
+                The calendar&rsquo;s days from the adjacent months: not focusable, not
+                clickable, their numbers hidden from a screen reader. Decoration is exempt.
+                Kept quieter than <code>text/disabled</code> in both themes, so a day outside
+                the month never reads as more present than an unavailable one.
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <p>
-        Both are asserted in the test suite at their recorded figures, so an edit that makes
-        either <em>worse</em> still fails the build. An exemption is not a place to stop
-        measuring.
+        The first three are asserted in the test suite at their recorded figures, so an edit
+        that makes any of them <em>worse</em> still fails the build; <code>text/inert</code>{' '}
+        is asserted as quieter than <code>text/disabled</code> in both themes. An exemption is
+        not a place to stop measuring.
       </p>
 
       <h2>What the suite actually checks</h2>
