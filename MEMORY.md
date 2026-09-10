@@ -33,7 +33,7 @@ generated from it.
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
 | Primitives | `src/tokens/primitives.ts` | no | 81 opaque colours + 14 alpha (12 on the ramps, 2 shadow inks). Never referenced directly. |
-| Theme | `src/tokens/theme.ts` | Light / Dark | 53 semantic tokens: `surface` 11, `text` 11, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
+| Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, one step (`md`). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 
@@ -140,8 +140,13 @@ have all been mistaken for errors at least once.
 
 13. **The calendar's spilled days are inert but still painted.** The days from
     the adjacent months are rendered, greyed, not focusable and not clickable,
-    and their numbers are `aria-hidden`. That is what makes their 1.65:1
-    defensible — decoration is exempt, an interactive control is not. But a
+    and their numbers are `aria-hidden`. They take `text/inert`, which measures
+    1.65:1 in light and 1.60:1 in dark against the panel. That is what makes
+    those figures defensible — decoration is exempt, an interactive control is
+    not. The token is not the drawn primitive `gray-light/400` on purpose: a
+    primitive does not switch with the theme, and on the dark panel it measured
+    7.90:1, brighter than an unavailable day. `contrast.test.ts` asserts
+    `text/inert` stays below `text/disabled` in both modes. But a
     spilled day inside a selected range still takes the range band, because
     with March 2023 visible the cells spilled in at the top are 26–28 February
     and a range that started on 20 February covers them. Unpainted, the band
@@ -162,7 +167,26 @@ have all been mistaken for errors at least once.
     pending start, and with `auto` the platform's close request would dismiss
     the panel instead. Dismissal — Esc, an outside press, focus leaving — is
     the component's own and is tested. Aligning it to the menu's `auto` looks
-    like a tidy-up and is a regression.
+    like a tidy-up and is a regression. Outside a `Field` the text input names
+    itself with `label`, through its own `aria-label`; inside one, the Field's
+    label element names it and the `aria-label` is left off.
+
+16. **The DatePicker panel's Calendar mounts only while open.** Kept mounted in
+    the hidden panel, the build month reached the server HTML of any picker
+    with no value and no `defaultMonth`, a closed picker reopened on the month
+    it was left on rather than the value it holds now, and a hidden 42-cell
+    grid re-rendered on every keystroke in the field. `open` is set from
+    `beforetoggle`, so the grid is in place before the panel paints. Keeping it
+    mounted "to open faster" is a regression.
+
+17. **The Calendar's hydration flag.** `hydrated` is `false` on the server and
+    in the client's hydration pass. Today's date — the today marker, the tab
+    stop, and the month a calendar with no seed opens on — and the
+    `formatRange` text of the status region wait for it. A Calendar with no
+    month seed (no `month`, `defaultMonth` or value) renders an empty six-row
+    grid until then. React 19 does not patch a mismatched attribute or text
+    node on hydration; it keeps the server's, so nothing the build machine and
+    the browser can disagree on may reach the server HTML.
 
 ---
 
@@ -232,7 +256,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 530 tests across 18 files
+npm test            # 555 tests across 18 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
@@ -241,7 +265,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck + tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 95 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 120 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -283,9 +307,9 @@ why `surface/sunken` no longer claims table headers: the header band is
   `alpenglow/icons`, and `src/index.ts` does `export * from './icons/index'`.
 - Two near-duplicate "Running it" blocks, with different Carbon URLs.
 
-The counts were corrected with the DropdownMenu work: 53 semantic tokens, 81 + 14
-primitives, and 95 contrast cases — stated as cases, the number the suite
-reports, rather than as assertions, which nothing counts.
+The counts were last corrected with the date picker's fix pass: 54 semantic
+tokens, 81 + 14 primitives, and 120 contrast cases — stated as cases, the number
+the suite reports, rather than as assertions, which nothing counts.
 
 For a system whose pitch is *measured rather than assumed*, a drifted number in
 the README is the most expensive kind of typo. Cheap to fix, and it is the
@@ -353,6 +377,12 @@ The rest — `exports`, `files`, `sideEffects`, version, the build config,
 The contrast suite covers colour, which is the hard part. There is no `axe`
 pass, so role, accessible-name and state regressions are caught only by the
 hand-written tests — and three components have none.
+
+### 8. `text/inert` has no Figma variable yet
+
+The token exists in `theme.ts` and the generated stylesheets, and the Calendar
+uses it for the spilled days. The matching variable in the `Theme` collection
+(`gray-light/400` light, `gray-dark/300` dark) is still to be created.
 
 ---
 

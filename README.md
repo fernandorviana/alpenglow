@@ -40,7 +40,7 @@ npm run check        # types, then every documented contrast ratio
 
 ## The contrast suite
 
-95 test cases covering what the design actually depends on: text clearing AA on
+120 test cases covering what the design actually depends on: text clearing AA on
 every surface it can appear on, status text clearing AA on its own subtle
 background, every button label clearing AA on all of its fill states, control
 borders clearing WCAG 1.4.11, the dark elevation ladder staying ordered and
