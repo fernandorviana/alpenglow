@@ -23,6 +23,16 @@ import {
 import { Calendar } from './Calendar';
 import styles from './Calendar.module.css';
 
+// `import.meta.url` is not a file URL under the jsdom environment these
+// component tests run in, so resolve from the repository root instead.
+// Comments are prose and measurements, not paint — stripped here so a test
+// counting literals or token names does not also count what a comment cites.
+const stylesheet = () =>
+  readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
+    /\/\*[\s\S]*?\*\//g,
+    '',
+  );
+
 describe('date', () => {
   it('round-trips an ISO date through its parts', () => {
     expect(parts('2026-04-26')).toEqual({ year: 2026, month: 4, day: 26 });
@@ -206,7 +216,7 @@ describe('Calendar structure', () => {
     // The render test above cannot catch this: jsdom does not compute ::before.
     // Browsers do, and fold it into the accessible name, which would put the
     // letter back into "S Sunday".
-    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8');
+    const css = stylesheet();
     expect(css).not.toMatch(/\.weekday[^{]*::?(before|after)/);
   });
 
@@ -366,10 +376,7 @@ describe('Calendar single selection', () => {
     // selected day would paint it grey under its on-accent label, because the
     // hover rule outranks the state fills. The stylesheet is the only place
     // the guard can be asserted.
-    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
-      /\/\*[\s\S]*?\*\//g,
-      '',
-    );
+    const css = stylesheet();
     const painters = [...css.matchAll(/([^{}]*\.pill:hover[^{]*)\{([^}]*)\}/g)].filter(
       ([, , body]) => /background\s*:/.test(body!) && !/background\s*:\s*none/.test(body!),
     );
@@ -836,10 +843,7 @@ describe('Calendar range mode', () => {
     // ring measured against the panel goes invisible against the band it
     // sits on here. The fix repaints the offset gap between the ring and the
     // pill with the panel colour, rather than recolouring the ring itself.
-    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
-      /\/\*[\s\S]*?\*\//g,
-      '',
-    );
+    const css = stylesheet();
     const rules = [...css.matchAll(/([^{}]*)\{([^}]*)\}/g)];
 
     const gapFill = rules.filter(
@@ -864,10 +868,59 @@ describe('Calendar range mode', () => {
     // .today .dot is accent-on-accent when today falls inside the band, and a
     // preview day carries no .selected to fall back on — the band needs its
     // own rule.
-    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
-      /\/\*[\s\S]*?\*\//g,
-      '',
-    );
+    const css = stylesheet();
     expect(css).toMatch(/\.inRange\s+\.dot\s*\{[^}]*interactive-on-accent/);
+  });
+});
+
+describe('Calendar stylesheet source', () => {
+  const css = stylesheet();
+
+  // Escapes every regex metacharacter in the selector (not just the first, as
+  // a naive `.pill` -> `\.pill` would) and anchors the match at a rule
+  // boundary — the start of the stripped text, or right after a `}` — so
+  // `.inRange .pill` cannot match inside `.outside.inRange .pill`, and
+  // `.pill:focus-visible` cannot match inside `.inRange .pill:focus-visible`.
+  const block = (selector: string) => {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const match = new RegExp(`(?:^|\\})\\s*${escaped}\\s*\\{([^}]*)\\}`).exec(css);
+    expect(match, `no rule for ${selector}`).not.toBeNull();
+    return match![1]!;
+  };
+
+  it('paints the range band on the cell and not on the pill', () => {
+    // The band spans the full 40px cell. Moving it to .pill would restore the
+    // drawing's 32px squares with 8px of panel between them, and nothing else
+    // in the suite would notice.
+    expect(block('.inRange')).toMatch(/background:\s*var\(--ap-color-interactive-accent\)/);
+    expect(block('.inRange .pill')).toMatch(/background:\s*none/);
+  });
+
+  it('draws the focus ring outside the pill, at the system offset', () => {
+    // Inside, an accent ring on a selected day measures 1.00:1. The offset is
+    // what makes it 5.59:1 — it puts the ring on the panel instead of on the
+    // fill.
+    const focus = block('.pill:focus-visible');
+    expect(focus).toMatch(/outline:.*var\(--ap-color-border-focus\)/);
+    expect(focus).toMatch(/outline-offset:\s*var\(--ap-focus-ring-offset\)/);
+    expect(focus).not.toMatch(/border-color/);
+  });
+
+  it('never paints a day hover with surface/sunken', () => {
+    // In light the two tokens are byte-identical, so this cannot be caught by
+    // looking at the result. In dark, sunken is darker than the panel and the
+    // hover reads as a hole.
+    expect(css).not.toMatch(/--ap-color-surface-sunken/);
+  });
+
+  it('carries no colour literal except the one named primitive', () => {
+    // gray-light/400 for the spilled days is argued in the stylesheet itself.
+    // Anything else is drift.
+    const literals = css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
+    expect(literals).toEqual([]);
+    // rgb()/rgba()/hsl()/hsla() are colour literals by another name.
+    expect(css).not.toMatch(/\b(?:rgb|rgba|hsl|hsla)\(/);
+    const primitives = css.match(/--ap-(gray|brand|red|green|yellow|blue|alpha)-[\w-]+/g) ?? [];
+    expect(primitives).toEqual(['--ap-gray-light-400']);
   });
 });
