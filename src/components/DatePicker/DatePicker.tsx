@@ -87,15 +87,6 @@ export function DatePicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // A popover moves focus only to an element carrying `autofocus`, so a panel
-  // opened by a click has to place it itself: the day grid's roving tab stop.
-  // An effect on `open`, because the grid only exists once `open` renders it.
-  useEffect(() => {
-    if (!open) return;
-    panelRef.current
-      ?.querySelector<HTMLButtonElement>('[role="grid"] button[tabindex="0"]')
-      ?.focus();
-  }, [open]);
   const panelId = useId();
   // useId returns a value containing characters that are legal in an HTML id
   // and not in a CSS identifier, so the anchor name is sanitised separately.
@@ -319,6 +310,18 @@ export function DatePicker({
         // before the panel shows. `toggle` is queued as a task, so the panel
         // could paint empty for a frame before the Calendar mounted.
         onBeforeToggle={(event: ToggleEvent) => setOpen(event.newState === 'open')}
+        // A popover moves focus only to an element carrying `autofocus`, so a
+        // panel opened by a click has to place it itself: the day grid's
+        // roving tab stop. That has to wait for `toggle` rather than run from
+        // the `beforetoggle` state update above — that update's effects can
+        // commit, focusing a button, before the platform has shown the panel,
+        // and focus() on a still-hidden element is a no-op.
+        onToggle={(event: ToggleEvent) => {
+          if (event.newState !== 'open') return;
+          panelRef.current
+            ?.querySelector<HTMLButtonElement>('[role="grid"] button[tabindex="0"]')
+            ?.focus();
+        }}
       >
         {/* Mounted only while open. Kept mounted in the hidden panel, the
             build month reached the server HTML of a picker with no value, a

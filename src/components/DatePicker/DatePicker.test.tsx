@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { useState } from 'react';
 import { renderToString } from 'react-dom/server';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import type { DateRange } from '../Calendar';
@@ -75,13 +75,49 @@ describe('DatePicker', () => {
     // Scoped to the dialog: the trigger's own name is "Change date, April 26,
     // 2023" once a value is set, and it also matches this regex.
     const dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByRole('button', { name: /april 26, 2023/i })).toHaveFocus();
+    // Focus lands from the queued `toggle`, not from opening itself, so this
+    // waits for it rather than asserting straight after `openPanel`.
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: /april 26, 2023/i })).toHaveFocus(),
+    );
+  });
+
+  it('focuses the grid only once the panel has been shown', async () => {
+    render(<DatePicker label="Appointment" value="2023-04-26" />);
+    const trigger = screen.getByRole('button', { name: /change date/i });
+
+    // Fakes only `setTimeout`, so the stub's queued `toggle` — a real
+    // `setTimeout(0)` — is held, while everything else (React's own
+    // scheduling included) keeps running on real timers.
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    try {
+      fireEvent.click(trigger);
+
+      // The discrete `beforetoggle` update has committed by now — the panel
+      // is showing and the grid is mounted — but the queued `toggle` has not
+      // fired, so the popover has not actually been shown by the platform
+      // yet. Focus must not have moved to the grid at this point.
+      const dayButton = within(screen.getByRole('dialog')).getByRole('button', {
+        name: /april 26, 2023/i,
+      });
+      expect(dayButton).not.toHaveFocus();
+
+      act(() => {
+        vi.runAllTimers();
+      });
+
+      expect(dayButton).toHaveFocus();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('falls back to the first of the month when neither a value nor today is in it', async () => {
     render(<DatePicker label="Appointment" defaultMonth="2023-04-01" />);
     await openPanel();
-    expect(screen.getByRole('button', { name: /april 1, 2023/i })).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /april 1, 2023/i })).toHaveFocus(),
+    );
   });
 
   it('closes on Escape and gives focus back to the trigger', async () => {
@@ -162,7 +198,9 @@ describe('DatePicker', () => {
   it('cycles Tab within the dialog and wraps at both ends', async () => {
     render(<DatePicker label="Appointment" defaultMonth="2023-04-01" />);
     await openPanel();
-    expect(screen.getByRole('button', { name: /april 1, 2023/i })).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /april 1, 2023/i })).toHaveFocus(),
+    );
 
     await userEvent.tab();
     expect(screen.getByRole('button', { name: 'Previous month' })).toHaveFocus();
@@ -368,9 +406,13 @@ describe('DatePicker', () => {
     rerender(<Controlled value="2023-06-15" />);
 
     await openPanel(/change date/i);
-    expect(
-      within(screen.getByRole('dialog')).getByRole('button', { name: 'Thursday, June 15, 2023' }),
-    ).toHaveFocus();
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: 'Thursday, June 15, 2023',
+        }),
+      ).toHaveFocus(),
+    );
   });
 
   it('keeps no grid in the DOM while closed', () => {
