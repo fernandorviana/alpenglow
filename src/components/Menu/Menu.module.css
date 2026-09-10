@@ -1,0 +1,83 @@
+/**
+ * Menu — an anchored command list.
+ *
+ * The overlay is native. `popover="auto"` puts the surface in the top layer,
+ * so it escapes `overflow: hidden` and every stacking context without a
+ * portal, and it brings light dismiss, Esc and focus return with it. CSS
+ * anchor positioning places and flips it, so there is no positioning
+ * JavaScript to keep correct on scroll and resize.
+ *
+ * This is the same trade Select makes and records: take the platform's
+ * behaviour, lose some control over the rendering.
+ */
+
+.menu {
+  /* The UA sheet gives [popover] `inset: 0; margin: auto`, which centres it.
+     Anchor positioning needs both cleared. The @supports branch at the bottom
+     puts them back where anchor positioning is missing. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  padding: var(--ap-spacing-100);
+  overflow: visible;
+
+  /* The width is held at all times so the menu is the same size in both
+     modes; only the colour arrives in dark. */
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-color-surface-overlay);
+  color: var(--ap-color-text-primary);
+  box-shadow: var(--ap-elevation-md);
+
+  font-family: var(--ap-font-sans);
+
+  position-anchor: var(--menu-anchor);
+  position-area: block-end span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  /* Hide rather than float loose when the trigger scrolls out of view. */
+  position-visibility: anchors-visible;
+  margin-block-start: var(--ap-spacing-050);
+}
+
+/**
+ * In dark the surface takes a border, and light does not. This is not an
+ * oversight of symmetry — it is invariant 1 measured. Against the ground it
+ * falls on, black at 8% in light reaches 1.19:1 while black at 64% in dark
+ * reaches 1.16:1: the shadow stops carrying elevation. Invariant 4 says what
+ * to do when the ramp runs out — separate with a border. Against the canvas
+ * border/default is 1.77:1 in dark against 1.31:1 in light, so the border is
+ * stronger exactly where it is needed. Adding one in light would draw the
+ * edge twice.
+ *
+ * Written twice, like the generated token file and the theme toggle: once for
+ * viewers following the system preference, once for an explicit choice.
+ * Neither half alone is right for both.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .menu {
+    border-color: var(--ap-color-border-default);
+  }
+}
+
+:root[data-theme='dark'] .menu {
+  border-color: var(--ap-color-border-default);
+}
+
+/**
+ * The degraded path. CSS anchor positioning shipped in Chrome 05/2024, Safari
+ * 09/2025 and Firefox 10/2025. Below those the popover still opens, still
+ * dismisses on Esc and on an outside click, and still takes the keyboard — it
+ * loses its anchor and returns to the UA's centred placement.
+ *
+ * The alternative was to feature-detect in JavaScript and hand-write the old
+ * path: absolute positioning in a relative wrapper, with outside-click and Esc
+ * handlers. That restores fidelity on old browsers by writing exactly the code
+ * the native choice exists to avoid.
+ */
+@supports not (anchor-name: --a) {
+  .menu {
+    inset: 0;
+    margin: auto;
+  }
+}
