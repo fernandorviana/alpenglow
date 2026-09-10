@@ -427,6 +427,11 @@ describe('Calendar keyboard', () => {
     expect(tabbable[0]).toHaveAccessibleName(/april 26/i);
   });
 
+  it('does not steal focus from the page on a bare mount', () => {
+    render(<Calendar label="Date" value="2023-04-26" />);
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it('starts on today when nothing is selected', () => {
     const now = today();
     render(<Calendar label="Date" defaultMonth={now} />);
