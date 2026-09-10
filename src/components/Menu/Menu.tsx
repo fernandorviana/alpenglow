@@ -3,7 +3,7 @@
 import { useId, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEventHandler, ReactNode, ToggleEvent } from 'react';
 import styles from './Menu.module.css';
-import { actionText, flattenActions } from './rows';
+import { actionText, isGroup, isSeparator } from './rows';
 import type { MenuAction, MenuEntry } from './rows';
 
 export type MenuTriggerProps = {
@@ -86,9 +86,25 @@ export function Menu({ trigger, items }: MenuProps) {
         style={{ '--menu-anchor': anchor } as CSSProperties}
         onToggle={(event: ToggleEvent) => setOpen(event.newState === 'open')}
       >
-        {flattenActions(items).map((action) => (
-          <Row key={action.id} action={action} onClose={close} />
-        ))}
+        {items.map((entry, i) => {
+          if (isSeparator(entry)) {
+            // The index is the key because a separator has no identity of its
+            // own and never reorders relative to its neighbours.
+            return <div key={`sep-${i}`} role="separator" className={styles.separator} />;
+          }
+          if (isGroup(entry)) {
+            const labelId = `${menuId}-group-${i}`;
+            return (
+              <div key={`group-${i}`} role="group" aria-labelledby={labelId} className={styles.group}>
+                <p id={labelId} className={styles.groupLabel}>{entry.label}</p>
+                {entry.items.map((action) => (
+                  <Row key={action.id} action={action} onClose={close} />
+                ))}
+              </div>
+            );
+          }
+          return <Row key={entry.id} action={entry} onClose={close} />;
+        })}
       </div>
     </>
   );

@@ -215,3 +215,45 @@ describe('Menu rows', () => {
     });
   });
 });
+
+describe('Menu groups and separators', () => {
+  it('labels a group with its own heading', async () => {
+    const user = userEvent.setup();
+    render(
+      <Open items={[{ label: 'Danger zone', items: [{ id: 'delete', label: 'Delete' }] }]} />,
+    );
+    await open(user);
+    expect(screen.getByRole('group', { name: 'Danger zone' })).toBeInTheDocument();
+  });
+
+  it('renders a separator as a separator, not as a row', async () => {
+    const user = userEvent.setup();
+    render(<Open items={[{ id: 'a', label: 'A' }, 'separator', { id: 'b', label: 'B' }]} />);
+    await open(user);
+    expect(screen.getAllByRole('separator')).toHaveLength(1);
+    expect(screen.getAllByRole('menuitem')).toHaveLength(2);
+  });
+
+  it('keeps rows in source order across groups', async () => {
+    const user = userEvent.setup();
+    render(
+      <Open
+        items={[
+          { id: 'a', label: 'A' },
+          'separator',
+          { label: 'More', items: [{ id: 'b', label: 'B' }] },
+        ]}
+      />,
+    );
+    await open(user);
+    expect(screen.getAllByRole('menuitem').map((el) => el.textContent)).toEqual(['A', 'B']);
+  });
+
+  it('draws the divider with the divider token, not the drawn surface', () => {
+    // The drawing uses surface/sunken. It resolves to the same primitive in
+    // light (gray-light/100) and to a different one in dark; border/subtle is
+    // the token that means divider and stays one in both modes.
+    expect(css).toContain('--ap-color-border-subtle');
+    expect(css).not.toContain('--ap-color-surface-sunken');
+  });
+});

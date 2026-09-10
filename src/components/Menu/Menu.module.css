@@ -145,6 +145,29 @@
   background: var(--ap-color-surface-danger-subtle);
 }
 
+/* --- groups and separators ------------------------------------------------ */
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupLabel {
+  margin: 0;
+  padding: var(--ap-spacing-100) var(--ap-spacing-100) var(--ap-spacing-100) var(--ap-spacing-150);
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+.separator {
+  height: var(--ap-border-width-hairline);
+  margin: var(--ap-spacing-100) var(--ap-spacing-150);
+  background: var(--ap-color-border-subtle);
+}
+
 /**
  * The degraded path. CSS anchor positioning shipped in Chrome 05/2024, Safari
  * 09/2025 and Firefox 10/2025. Below those the popover still opens, still
