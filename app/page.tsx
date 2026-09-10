@@ -26,9 +26,9 @@ export default function Page() {
     >
       <h1>A design system that shows its working</h1>
       <p className="lead">
-        Alpenglow is built for dense, data-heavy interfaces — scheduling grids, patient
-        records, tables that stay legible at 11px. Light and dark, with every contrast
-        ratio measured rather than assumed.
+        Bring structure to light. Alpenglow is built for dense, data-heavy interfaces —
+        scheduling grids, patient records, tables that stay legible at 11px. Light and
+        dark, with every contrast ratio measured rather than assumed.
       </p>
 
       <p>
@@ -68,6 +68,10 @@ export default function Page() {
       <p>
         Every theme token is an alias. There is no hex anywhere in the semantic layer, and
         the type system rejects an alias pointing at a primitive that does not exist.
+      </p>
+      <p>
+        The names those layers take on the landscape — bedrock, outcrop, contours, light —
+        and the rule that splits them are on <a href="/why">Why Alpenglow</a>.
       </p>
 
       <h2>What the tests caught</h2>

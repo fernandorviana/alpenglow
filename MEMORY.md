@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-10**, commit `3dd47f0`.
+Last verified against the tree on **2026-09-10**, commit `f341d19`.
 
 ---
 
@@ -158,11 +158,46 @@ have all been mistaken for errors at least once.
 
 ---
 
+## Vocabulary
+
+The architecture is explained on the site as a landscape under a particular
+light (`/why`). The words are for narrative, diagrams and headings — **never
+for token names, file names, CSS variables or Figma modes**, which keep their
+technical names. The modes are `Light` and `Dark` in code and Figma; "day"
+and "night" in prose.
+
+| Word | Is | In the code | In Figma |
+|---|---|---|---|
+| **Bedrock** | Raw colour. Buried: nothing references it directly. | `primitives.ts` | `Alpenglow Primitives`, hidden from publishing |
+| **Outcrop** | Bedrock that reaches the surface: dimension and type. Used directly. | `scale.ts`, `typography.ts` | `Alpenglow Scale` |
+| **Contours** | Semantic roles. Every one is an alias. | the keys of `theme.ts` and `elevation.ts` | `Alpenglow Theme`; elevation is an effect style |
+| **Light** | Eleonora — the values the contours take under each mode. | the light / dark values of `theme.ts` and `elevation.ts` | the `Light` / `Dark` modes |
+| **Terrain** | Components. | `src/components` | the library |
+| **Paths** | Patterns. None yet; drawn dashed. | — | — |
+| **Crest** | Any product built on the system. The site is the first. | `app/` | — |
+
+The rule behind the file split, and the reason the primitives collection is
+hidden while the scale collection is published:
+
+> **A value needs a contour only if the light changes it.**
+
+Rejected words, so they are not proposed again: *summit* (the brand
+foundation forbids conquest language and then used it), *zenith* (the sun at
+noon — the opposite of twilight), "future themes" as a layer (one theme,
+Eleonora; light and dark are its modes, not themes).
+
+Three lines carry the concept, one home each: **Bring structure to light**
+(tagline, home page lead), **Structure exists beneath the surface. Light
+makes it visible** (opens `/why`), **Clarity, layer by layer** (the diagram's
+caption).
+
+---
+
 ## Verification
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 389 tests across 16 files
+npm test            # 395 tests across 17 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

@@ -9,6 +9,7 @@ const NAV = [
     title: 'Start here',
     items: [
       { href: '/', label: 'Overview' },
+      { href: '/why', label: 'Why Alpenglow' },
       { href: '/accessibility', label: 'Accessibility' },
       { href: '/decisions', label: 'Decisions' },
     ],
