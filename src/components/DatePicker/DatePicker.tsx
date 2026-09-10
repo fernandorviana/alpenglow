@@ -39,7 +39,14 @@ export type DatePickerProps = CalendarProps & {
   disabled?: boolean;
   readOnly?: boolean;
   id?: string;
+  /**
+   * Submitted through a hidden input, as ISO: the date in single mode, the
+   * interval `start/end` in range mode, `''` with no value. Not the field's
+   * display text, which follows the locale's digit order.
+   */
   name?: string;
+  required?: boolean;
+  'aria-describedby'?: string;
   /**
    * Fires when the typed text is not a date, or is a date the calendar would
    * refuse — outside `min`/`max`, or excluded by `isDateUnavailable`.
@@ -55,6 +62,8 @@ export function DatePicker({
   readOnly,
   id,
   name,
+  required: requiredProp,
+  'aria-describedby': describedByProp,
   mode = 'single',
   value,
   onSelect,
@@ -65,11 +74,13 @@ export function DatePicker({
   isDateUnavailable,
   ...calendar
 }: DatePickerProps) {
+  // A surrounding Field supplies the id and the wiring. Explicit props still
+  // win, as they do in Input: the caller is being more specific than the wrapper.
   const field = useField();
   const isInvalid = invalid ?? field?.invalid ?? false;
   const controlId = id ?? field?.controlId;
-  const describedBy = field?.describedBy;
-  const required = field?.required;
+  const describedBy = describedByProp ?? field?.describedBy;
+  const required = requiredProp ?? field?.required;
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -227,9 +238,16 @@ export function DatePicker({
           .join(' ')}
         style={{ anchorName: anchor }}
       >
+        {/* What a native form submits: ISO, never the display text, whose
+            digit order is the locale's and is the ambiguity this component
+            exists to avoid. A range is an ISO 8601 interval. */}
+        <input
+          type="hidden"
+          name={name}
+          value={single ?? (range ? `${range.start}/${range.end}` : '')}
+        />
         <input
           id={controlId}
-          name={name}
           className={control.field}
           value={draft ?? fieldText}
           placeholder={placeholderFor(locale)}

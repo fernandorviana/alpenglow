@@ -238,6 +238,70 @@ describe('DatePicker', () => {
     expect(screen.getByRole('textbox')).toBeRequired();
   });
 
+  it('lets an explicit aria-describedby win over the Field', () => {
+    // As Input does: the caller is being more specific than the wrapper.
+    render(
+      <>
+        <Field label="Appointment" description="From the Field.">
+          <DatePicker label="Appointment" aria-describedby="own" />
+        </Field>
+        <p id="own">From the caller.</p>
+      </>,
+    );
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription('From the caller.');
+  });
+
+  it('lets an explicit required win over the Field', () => {
+    render(
+      <Field label="Appointment" required>
+        <DatePicker label="Appointment" required={false} />
+      </Field>,
+    );
+    expect(screen.getByRole('textbox')).not.toBeRequired();
+  });
+
+  it('takes required as its own prop outside a Field', () => {
+    render(<DatePicker label="Appointment" required />);
+    expect(screen.getByRole('textbox')).toBeRequired();
+  });
+
+  it('submits the ISO date under its name, not the locale display text', () => {
+    // pt-PT displays 26 / 04 / 2023. A native form gets the unambiguous value.
+    const { container } = render(
+      <form>
+        <DatePicker label="Data" name="appointment" locale="pt-PT" value="2023-04-26" />
+      </form>,
+    );
+    const form = container.querySelector('form')!;
+    expect(new FormData(form).get('appointment')).toBe('2023-04-26');
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('name');
+  });
+
+  it('submits a range as an ISO 8601 interval', () => {
+    const { container } = render(
+      <form>
+        <DatePicker
+          label="Stay"
+          mode="range"
+          name="stay"
+          value={{ start: '2023-02-20', end: '2023-03-03' }}
+        />
+      </form>,
+    );
+    expect(new FormData(container.querySelector('form')!).get('stay')).toBe(
+      '2023-02-20/2023-03-03',
+    );
+  });
+
+  it('submits an empty string under its name when there is no value', () => {
+    const { container } = render(
+      <form>
+        <DatePicker label="Appointment" name="appointment" />
+      </form>,
+    );
+    expect(new FormData(container.querySelector('form')!).get('appointment')).toBe('');
+  });
+
   it('does not open when read-only', async () => {
     render(<DatePicker label="Appointment" value="2023-04-26" readOnly />);
     await userEvent.click(screen.getByRole('button', { name: /change date/i }), {
