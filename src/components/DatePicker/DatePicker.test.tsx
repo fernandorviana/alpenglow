@@ -279,6 +279,22 @@ describe('DatePicker', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('cancels a pending start on Escape from the pagination button, then closes on the next', async () => {
+    render(<DatePicker label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    const trigger = await openPanel();
+    const dialog = screen.getByRole('dialog');
+
+    await userEvent.click(within(dialog).getByRole('button', { name: /april 10/i }));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Next month' }));
+
+    await userEvent.keyboard('{Escape}');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
   it('opens on the resolved month again after closing', async () => {
     render(<DatePicker label="Appointment" defaultMonth="2023-04-01" />);
     await openPanel();

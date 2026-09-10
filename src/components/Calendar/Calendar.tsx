@@ -278,17 +278,19 @@ export function Calendar({
     if (targetMonth !== visibleMonth) goToMonth(targetMonth);
   }
 
-  function onKeyDown(event: KeyboardEvent<HTMLTableElement>) {
-    if (event.key === 'Escape' && pending !== null) {
-      // Cancels the half-made range. The dialog's own Escape handler in
-      // DatePicker checks the same state, so the first Escape drops the
-      // pending start and only the second closes the panel.
-      event.stopPropagation();
-      setPending(null);
-      setPreview(null);
-      return;
-    }
+  // On the root, not the table: after a pending start, paging with Next month
+  // leaves focus on that button, outside the grid, and the Escape still has to
+  // cancel the start rather than reach DatePicker's own handler and close the
+  // panel. Stopping propagation is what makes the first Escape cancel and
+  // only the second close.
+  function onRootKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'Escape' || pending === null) return;
+    event.stopPropagation();
+    setPending(null);
+    setPreview(null);
+  }
 
+  function onKeyDown(event: KeyboardEvent<HTMLTableElement>) {
     const keys: Record<string, () => ISODate> = {
       ArrowLeft: () => addDays(tabStop, -1),
       ArrowRight: () => addDays(tabStop, 1),
@@ -440,7 +442,7 @@ export function Calendar({
   };
 
   return (
-    <div className={styles.calendar}>
+    <div className={styles.calendar} onKeyDown={onRootKeyDown}>
       <div className={styles.header}>
         <button
           type="button"

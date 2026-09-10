@@ -764,6 +764,24 @@ describe('Calendar range mode', () => {
     expect(middle.className).not.toContain(styles.rangeMiddle!);
   });
 
+  it('drops the pending start on Escape even when focus is off the grid', async () => {
+    // Paging to the next month is the natural move for a range that crosses
+    // one, and it leaves focus on the pagination button, outside the table.
+    const onSelect = vi.fn();
+    render(
+      <Calendar label="Stay" mode="range" defaultMonth="2023-04-01" onSelect={onSelect} />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Next month' }));
+    expect(screen.getByRole('button', { name: 'Next month' })).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(screen.getByRole('button', { name: /may 3,/i }));
+
+    // Had the start survived, this would be { 2023-04-10, 2023-05-03 }.
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   it('paints the spilled days that fall inside the range', async () => {
     // The whole reason spilled days are inert AND painted. March 2023 opens on
     // a Wednesday, so a Sunday-start grid leads with 26, 27 and 28 February —
