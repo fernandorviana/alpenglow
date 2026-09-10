@@ -45,6 +45,16 @@ export type {
   SortDirection,
 } from './components/Table/index';
 
+export { Menu } from './components/Menu/index';
+export type {
+  MenuProps,
+  MenuTriggerProps,
+  MenuAction,
+  MenuGroup,
+  MenuEntry,
+  MenuItemTone,
+} from './components/Menu/index';
+
 export { primitives, alphaPrimitives } from './tokens/primitives';
 export { theme } from './tokens/theme';
 export { spacing, radius, borderWidth, focusRingOffset } from './tokens/scale';

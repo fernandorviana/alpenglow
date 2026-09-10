@@ -30,6 +30,7 @@ const NAV = [
       { href: '/button', label: 'Button' },
       { href: '/input', label: 'Input' },
       { href: '/choice', label: 'Checkbox, Radio, Switch' },
+      { href: '/menu', label: 'Menu' },
       { href: '/select', label: 'Select and Textarea' },
       { href: '/table', label: 'Table' },
     ],
