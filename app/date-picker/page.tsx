@@ -21,7 +21,11 @@ const CALENDAR_PROPS: PropRow[] = [
   { prop: 'weekStartsOn', type: '0 | 1 | 2 | 3 | 4 | 5 | 6', default: '0' },
   { prop: 'locale', type: 'string', default: "'en-US'" },
   { prop: 'value', type: 'ISODate | DateRange | null', default: '—' },
-  { prop: 'onSelect', type: '(next: ISODate | DateRange | null) => void', default: '—' },
+  {
+    prop: 'onSelect',
+    type: '(next: ISODate | DateRange | null) => void',
+    default: '— (range mode: fires only with a complete range)',
+  },
   { prop: 'min', type: 'ISODate', default: '—' },
   { prop: 'max', type: 'ISODate', default: '—' },
   { prop: 'isDateUnavailable', type: '(date: ISODate) => boolean', default: '—' },
@@ -33,7 +37,13 @@ const DATE_PICKER_PROPS: PropRow[] = [
   { prop: 'disabled', type: 'boolean', default: 'false' },
   { prop: 'readOnly', type: 'boolean', default: 'false' },
   { prop: 'id', type: 'string', default: '— (or the Field it sits in)' },
-  { prop: 'name', type: 'string', default: '—' },
+  { prop: 'required', type: 'boolean', default: '— (or the Field it sits in)' },
+  { prop: 'aria-describedby', type: 'string', default: '— (or the Field it sits in)' },
+  {
+    prop: 'name',
+    type: 'string',
+    default: '— (submits ISO from a hidden input: a date, or start/end for a range)',
+  },
   { prop: 'onParseError', type: '(raw: string) => void', default: '—' },
 ];
 
@@ -48,7 +58,13 @@ function isWeekend(date: ISODate): boolean {
 export default function Page() {
   const [appointment, setAppointment] = useState<ISODate | null>('2023-04-26');
   const [followUp, setFollowUp] = useState<DateRange | null>(null);
+  // Its own state, not `appointment`: shared, a pick here moved the Field
+  // picker's value while its panel was closed.
+  const [consultation, setConsultation] = useState<ISODate | null>('2023-04-26');
   const [clinicDay, setClinicDay] = useState<ISODate | null>(null);
+  const [small, setSmall] = useState<ISODate | null>(null);
+  const [medium, setMedium] = useState<ISODate | null>(null);
+  const [large, setLarge] = useState<ISODate | null>(null);
 
   return (
     <DocPage
@@ -62,6 +78,16 @@ export default function Page() {
           <p>
             dark{' '}
             <Ratio fg={resolve('text/primary', 'dark')} bg={resolve('surface/overlay', 'dark')} />
+          </p>
+
+          <p>weekend label on the panel</p>
+          <p>
+            light{' '}
+            <Ratio fg={resolve('text/tertiary', 'light')} bg={resolve('surface/overlay', 'light')} />
+          </p>
+          <p>
+            dark{' '}
+            <Ratio fg={resolve('text/tertiary', 'dark')} bg={resolve('surface/overlay', 'dark')} />
           </p>
 
           <p>weekday header</p>
@@ -178,7 +204,7 @@ export default function Page() {
     >
       <h1>Date picker</h1>
       <p className="lead">
-        A field that opens a <a href="/dropdown-menu">month grid</a> in a native popover, and
+        A field that opens a month grid in a native popover, and
         the month grid on its own — single dates or a range, by keyboard or by pointer.
       </p>
 
@@ -201,7 +227,7 @@ export default function Page() {
 
       <h2>The band survives a month boundary</h2>
       <p>
-        Days from the adjacent month are drawn, greyed and inert: not a tab stop, not
+        Days from the adjacent month are drawn, greyed with <code>text/inert</code> and inert: not a tab stop, not
         clickable, their number hidden from a screen reader. That is what makes their low
         contrast defensible — a control has to clear WCAG for text, decoration does not. But a
         spilled day still takes the range band when a selection covers it. Unpainted, the band
@@ -241,8 +267,8 @@ export default function Page() {
       <div className="specimen">
         <Calendar
           label="Consultation date"
-          value={appointment}
-          onSelect={(next) => setAppointment(next as ISODate | null)}
+          value={consultation}
+          onSelect={(next) => setConsultation(next as ISODate | null)}
         />
       </div>
 
@@ -256,7 +282,7 @@ export default function Page() {
       </p>
       <div className="specimen">
         <Calendar
-          label="Clinic days, April 2023"
+          label="Clinic days"
           defaultMonth="2023-04-01"
           min="2023-04-03"
           max="2023-04-24"
@@ -274,9 +300,24 @@ export default function Page() {
       </p>
       <div className="specimen">
         <div className="specimenRow">
-          <DatePicker label="Small" size="sm" />
-          <DatePicker label="Medium" size="md" />
-          <DatePicker label="Large" size="lg" />
+          <DatePicker
+            label="Small"
+            size="sm"
+            value={small}
+            onSelect={(next) => setSmall(next as ISODate | null)}
+          />
+          <DatePicker
+            label="Medium"
+            size="md"
+            value={medium}
+            onSelect={(next) => setMedium(next as ISODate | null)}
+          />
+          <DatePicker
+            label="Large"
+            size="lg"
+            value={large}
+            onSelect={(next) => setLarge(next as ISODate | null)}
+          />
         </div>
       </div>
 
@@ -300,10 +341,12 @@ export default function Page() {
       <p>
         jsdom has none of the popover API. <code>src/test/popover.ts</code> — shared with{' '}
         <code>DropdownMenu</code>&rsquo;s suite — stubs <code>showPopover</code>,{' '}
-        <code>hidePopover</code>, the queued <code>toggle</code> event and a{' '}
-        <code>popovertarget</code> click, which is enough for the suite to assert every role, every
-        key and every token the component chooses. Escape, the outside press, focus return and
-        the anchor&rsquo;s flip onto the field belong to the browser, not the stub.
+        <code>hidePopover</code>, the synchronous <code>beforetoggle</code> and queued{' '}
+        <code>toggle</code> events, and a <code>popovertarget</code> click. Escape (including the
+        range layering), the outside press, focus leaving, focus returning to the trigger and the
+        Tab wrap are this component&rsquo;s own handlers, and the suite tests them through that
+        stub. The top layer, the anchor placement, the flip and focus in a real browser are not
+        covered by the suite, and have not yet been checked by hand.
       </p>
 
       <h2>Typing a date</h2>
@@ -321,9 +364,9 @@ export default function Page() {
         through <code>onParseError</code> rather than silently discarded or corrected.
       </p>
       <p>
-        Range mode&rsquo;s field is read-only: <code>-</code> is both this locale&rsquo;s date
-        separator and the range&rsquo;s, so a typed range would be ambiguous exactly where it
-        would otherwise be most useful. The calendar stays the only way to set one.
+        Range mode&rsquo;s field is read-only. ISO input, accepted in every locale, already uses{' '}
+        <code>-</code> inside a date, so one field cannot also use it between two dates. The
+        calendar stays the only way to set one.
       </p>
 
       <h2>Accessibility</h2>
@@ -336,9 +379,11 @@ export default function Page() {
       </p>
       <p>
         The grid is a single tab stop, roving with the arrow keys, Home, End and Page Up/Down
-        (Shift for a year). A day the calendar refuses stays in that sequence with{' '}
-        <code>aria-disabled</code> rather than <code>disabled</code> — reachable, so a screen
-        reader hears why a day is excluded instead of finding a hole in the month.
+        (Shift for a year). A day excluded by <code>isDateUnavailable</code> stays in that
+        sequence with <code>aria-disabled</code> rather than <code>disabled</code> — reachable, so
+        a screen reader hears why a day is excluded instead of finding a hole in the month. Days
+        outside <code>min</code> and <code>max</code> are drawn the same way, but the arrow keys
+        clamp to the bounds, so a move never lands past them.
       </p>
 
       <h2>Calendar props</h2>
@@ -359,6 +404,11 @@ export default function Page() {
         <code>weekStartsOn</code> defaults to Sunday and is never derived from{' '}
         <code>locale</code> — the platform&rsquo;s own locale week data disagrees with pt-PT, so
         deriving it would be silently wrong for most of Europe.
+      </p>
+      <p className="alias">
+        <code>DateRange</code> is <code>{'{ start: ISODate; end: ISODate }'}</code> — <code>end</code>{' '}
+        is never null. In range mode the first click only paints a pending start; <code>onSelect</code>{' '}
+        fires once, with both ends, on the second.
       </p>
 
       <h2>DatePicker props</h2>

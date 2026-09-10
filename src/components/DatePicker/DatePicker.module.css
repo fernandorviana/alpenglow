@@ -14,8 +14,11 @@
  * `src/test/popover.ts`, is shared with `DropdownMenu`, whose tests carry a
  * guard that fails the day jsdom ships the real thing.
  *
- * Esc, the outside press, focus return, the top layer and the flip are
- * checked in a real browser, not in the suite.
+ * Esc (including the range layering), the outside press, focus leaving,
+ * focus returning to the trigger and the Tab wrap are this component's own
+ * handlers, and the suite tests them through that stub. The top layer, the
+ * anchor placement, the flip and focus in a real browser are not covered by
+ * the suite, and have not yet been checked by hand.
  */
 
 .wrapper {
