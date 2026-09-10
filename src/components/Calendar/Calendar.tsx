@@ -11,6 +11,7 @@ import {
   daysInMonth,
   isWithin,
   monthGrid,
+  orderRange,
   parts,
   startOfMonth,
   today,
@@ -154,31 +155,68 @@ export function Calendar({
       }),
     [locale],
   );
+  // Intl.DateTimeFormat#formatRange rather than two formatted dates, so the
+  // year is not repeated when both ends fall in it.
+  const rangeFormat = useMemo(
+    () => dateFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }),
+    [locale],
+  );
 
   const { year: visibleYear, month: visibleMonthNumber } = parts(visibleMonth);
 
   // In single mode `value` is the date; in range mode it is the interval. Both
   // are read through one helper so the cell does not have to know the mode.
   const single = mode === 'single' && typeof value === 'string' ? value : null;
+  const rangeValue =
+    mode === 'range' && value !== null && typeof value === 'object' ? value : null;
+
+  // The first click of a pair. Held here rather than pushed to the caller,
+  // because a half-made range is not a value — it is an interaction in
+  // progress, and a caller storing it would have to model that.
+  const [pending, setPending] = useState<ISODate | null>(null);
+  const [preview, setPreview] = useState<ISODate | null>(null);
+
+  /** The interval to paint: the committed range, or the one being drawn. */
+  const painted = (() => {
+    if (pending) return preview ? orderRange(pending, preview) : { start: pending, end: pending };
+    if (rangeValue?.end) return { start: rangeValue.start, end: rangeValue.end };
+    if (rangeValue) return { start: rangeValue.start, end: rangeValue.start };
+    return null;
+  })();
+
+  function selectRange(date: ISODate) {
+    if (pending === null) {
+      setPending(date);
+      setPreview(null);
+      onSelect?.({ start: date, end: null });
+      return;
+    }
+    const ordered = orderRange(pending, date);
+    setPending(null);
+    setPreview(null);
+    onSelect?.(ordered);
+  }
 
   const unavailable = (date: ISODate) =>
     !isWithin(date, min, max) || (isDateUnavailable?.(date) ?? false);
 
   // The tab stop is derived every render rather than stored and corrected
   // after the fact: `focused` if it is drawn in the visible month, else the
-  // selected value if that is drawn, else today if that is drawn, else the
-  // first of the visible month. The first of the month is NOT clamped to
-  // min/max — unavailable days are still focusable buttons with
+  // selected day if that is drawn — the single value in single mode, or the
+  // committed range's start in range mode — else today if that is drawn,
+  // else the first of the visible month. The first of the month is NOT
+  // clamped to min/max — unavailable days are still focusable buttons with
   // aria-disabled. Deriving it means a controlled `month` that refuses to
   // move, or an initial `focused` outside the drawn month, can never leave
   // the grid with zero tab stops.
   const drawn = (date: ISODate | null): date is ISODate =>
     date !== null && startOfMonth(date) === visibleMonth;
   const [focused, setFocused] = useState<ISODate | null>(null);
+  const selectedDay = mode === 'range' ? (rangeValue?.start ?? null) : single;
   const tabStop = drawn(focused)
     ? focused
-    : drawn(single)
-      ? single
+    : drawn(selectedDay)
+      ? selectedDay
       : drawn(now)
         ? now
         : visibleMonth;
@@ -218,6 +256,16 @@ export function Calendar({
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTableElement>) {
+    if (event.key === 'Escape' && pending !== null) {
+      // Cancels the half-made range. The dialog's own Escape handler in
+      // DatePicker checks the same state, so the first Escape drops the
+      // pending start and only the second closes the panel.
+      event.stopPropagation();
+      setPending(null);
+      setPreview(null);
+      return;
+    }
+
     const keys: Record<string, () => ISODate> = {
       ArrowLeft: () => addDays(tabStop, -1),
       ArrowRight: () => addDays(tabStop, 1),
@@ -240,6 +288,24 @@ export function Calendar({
     moveFocus(move());
   }
 
+  // The band to paint on a given day: none, or the class set for whichever
+  // part of the interval it falls on. Spilled days call this too — that is
+  // the inert-but-painted rule — so it cannot assume it is only ever called
+  // for an in-month cell.
+  function rangeClasses(date: ISODate): string[] {
+    if (!painted) return [];
+    const isStart = date === painted.start;
+    const isEnd = date === painted.end;
+    const inside = compare(date, painted.start) > 0 && compare(date, painted.end) < 0;
+    if (!isStart && !isEnd && !inside) return [];
+    return [
+      styles.inRange!,
+      isStart && styles.rangeStart,
+      isEnd && styles.rangeEnd,
+      inside && styles.rangeMiddle,
+    ].filter(Boolean) as string[];
+  }
+
   // Called directly rather than declared as a component: a function declared
   // in the render body is a new component type on every render, so React
   // would unmount and remount all 42 cells each time. That destroys keyboard
@@ -248,7 +314,9 @@ export function Calendar({
   // splitting it into its own file would separate the cell from the state
   // matrix that decides how it paints.
   function renderDay(cell: CalendarCell) {
-    const classes = [styles.cell, cell.outside && styles.outside].filter(Boolean).join(' ');
+    const classes = [styles.cell, cell.outside && styles.outside, ...rangeClasses(cell.date)]
+      .filter(Boolean)
+      .join(' ');
     const name = cellFormat.format(utcTimestamp(cell.date));
 
     if (cell.outside) {
@@ -265,7 +333,20 @@ export function Calendar({
       );
     }
 
-    const isSelected = single === cell.date;
+    // In range mode, only the committed selection is `aria-selected` and
+    // `.selected` — while a start is pending, that is the pending day alone;
+    // otherwise it is the committed interval. A preview under the pointer or
+    // the keyboard is painted by `rangeClasses` but is not a selection: it is
+    // not yet chosen, and marking it selected would tell a screen reader a
+    // choice was made before the second click confirms one.
+    const isSelected =
+      mode === 'range'
+        ? pending !== null
+          ? cell.date === pending
+          : rangeValue !== null &&
+            compare(cell.date, rangeValue.start) >= 0 &&
+            compare(cell.date, rangeValue.end ?? rangeValue.start) <= 0
+        : single === cell.date;
     const isToday = cell.date === now;
     const isUnavailable = unavailable(cell.date);
 
@@ -274,6 +355,7 @@ export function Calendar({
       isToday && styles.today,
       isSelected && styles.selected,
       isUnavailable && styles.unavailable,
+      ...rangeClasses(cell.date),
     ]
       .filter(Boolean)
       .join(' ');
@@ -292,11 +374,24 @@ export function Calendar({
           aria-disabled={isUnavailable || undefined}
           data-date={cell.date}
           tabIndex={tabStop === cell.date ? 0 : -1}
+          onFocus={() => {
+            // The single source of `focused` and of the keyboard preview: it
+            // covers both a click (which focuses the button before its own
+            // click handler runs) and the roving-tabindex effect restoring
+            // focus after an arrow move, so neither path needs its own copy
+            // of this update.
+            setFocused(cell.date);
+            if (pending !== null) setPreview(cell.date);
+          }}
+          onMouseEnter={() => {
+            if (pending !== null) setPreview(cell.date);
+          }}
           onClick={() => {
             // aria-disabled does not stop a click, which is the point: the day
             // is reachable. Refusing here is what makes it unpickable.
             if (isUnavailable) return;
-            onSelect?.(cell.date);
+            if (mode === 'range') selectRange(cell.date);
+            else onSelect?.(cell.date);
           }}
         >
           <span aria-hidden="true">{parts(cell.date).day}</span>
@@ -384,6 +479,16 @@ export function Calendar({
           ))}
         </tbody>
       </table>
+
+      {/* role="status" is an implicit aria-live="polite". Separate from the
+          month heading so paging and selecting do not overwrite each other. */}
+      <div role="status" className={styles.hidden}>
+        {mode === 'range' && rangeValue?.end
+          ? rangeFormat.formatRange(utcTimestamp(rangeValue.start), utcTimestamp(rangeValue.end))
+          : mode === 'single' && single
+            ? cellFormat.format(utcTimestamp(single))
+            : ''}
+      </div>
     </div>
   );
 }

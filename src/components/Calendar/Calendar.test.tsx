@@ -377,6 +377,7 @@ describe('Calendar single selection', () => {
     for (const [, selector] of painters) {
       expect(selector).toContain(':not(.selected)');
       expect(selector).toContain(':not(.today)');
+      expect(selector).toContain(':not(.inRange)');
     }
   });
 });
@@ -569,6 +570,17 @@ describe('Calendar keyboard', () => {
       vi.useRealTimers();
     }
   });
+
+  it('moves the arrow keys from a clicked day, not the derived tab stop', async () => {
+    // With no controlled value, a click has to set `focused` itself — nothing
+    // else would move the derived tab stop off "first of the month" and onto
+    // the day the pointer just landed on.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    await userEvent.click(screen.getByRole('button', { name: /april 10,/i }));
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: /april 11,/i }));
+  });
 });
 
 describe('Calendar west of UTC', () => {
@@ -665,5 +677,197 @@ describe('Calendar pagination', () => {
     // second element saying the same thing.
     render(<Calendar label="Date" defaultMonth="2023-04-01" />);
     expect(screen.getByRole('heading', { level: 2 })).toHaveAttribute('aria-live', 'polite');
+  });
+});
+
+describe('Calendar range mode', () => {
+  const range = (start: string, end: string | null) => ({ start, end });
+
+  it('marks the ends selected and paints the days between', () => {
+    render(
+      <Calendar
+        label="Stay"
+        mode="range"
+        defaultMonth="2023-04-01"
+        value={range('2023-04-10', '2023-04-14')}
+      />,
+    );
+    const cellFor = (name: RegExp) =>
+      screen.getByRole('button', { name }).closest('td')!;
+
+    expect(cellFor(/april 10/i).className).toContain(styles.rangeStart!);
+    expect(cellFor(/april 14/i).className).toContain(styles.rangeEnd!);
+    expect(cellFor(/april 12/i).className).toContain(styles.rangeMiddle!);
+    expect(cellFor(/april 9/i).className).not.toContain(styles.rangeMiddle!);
+  });
+
+  it('holds the first click open and reports the range on the second', async () => {
+    const onSelect = vi.fn();
+    render(
+      <Calendar label="Stay" mode="range" defaultMonth="2023-04-01" onSelect={onSelect} />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    expect(onSelect).toHaveBeenCalledWith({ start: '2023-04-10', end: null });
+
+    await userEvent.click(screen.getByRole('button', { name: /april 14/i }));
+    expect(onSelect).toHaveBeenLastCalledWith({ start: '2023-04-10', end: '2023-04-14' });
+  });
+
+  it('swaps the ends when the second click precedes the first', async () => {
+    // The user expressed an interval, not an order.
+    const onSelect = vi.fn();
+    render(
+      <Calendar label="Stay" mode="range" defaultMonth="2023-04-01" onSelect={onSelect} />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: /april 14/i }));
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    expect(onSelect).toHaveBeenLastCalledWith({ start: '2023-04-10', end: '2023-04-14' });
+  });
+
+  it('previews the range under the pointer while an end is pending', async () => {
+    render(<Calendar label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    await userEvent.hover(screen.getByRole('button', { name: /april 14/i }));
+
+    const middle = screen.getByRole('button', { name: /april 12/i }).closest('td')!;
+    expect(middle.className).toContain(styles.rangeMiddle!);
+  });
+
+  it('drops the pending start on Escape without closing anything', async () => {
+    render(<Calendar label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    await userEvent.keyboard('{Escape}');
+    await userEvent.hover(screen.getByRole('button', { name: /april 14/i }));
+
+    const middle = screen.getByRole('button', { name: /april 12/i }).closest('td')!;
+    expect(middle.className).not.toContain(styles.rangeMiddle!);
+  });
+
+  it('paints the spilled days that fall inside the range', async () => {
+    // The whole reason spilled days are inert AND painted. March 2023 opens on
+    // a Wednesday, so a Sunday-start grid leads with 26, 27 and 28 February —
+    // and a range that started before February ended has to keep painting
+    // through them. Unpainted, the band would break at exactly the boundary
+    // the range crosses.
+    render(
+      <Calendar
+        label="Stay"
+        mode="range"
+        defaultMonth="2023-03-01"
+        value={range('2023-02-20', '2023-03-03')}
+      />,
+    );
+    const outside = screen
+      .getAllByRole('gridcell')
+      .filter((c) => c.className.includes(styles.outside!));
+
+    const painted = outside.filter((c) => c.className.includes(styles.rangeMiddle!));
+    // 26, 27 and 28 February are inside the range and drawn in this grid.
+    expect(painted).toHaveLength(3);
+  });
+
+  it('leaves a painted spilled day out of the tab order and the selection', () => {
+    // Painted is a visual continuation, not a control and not a state. The
+    // interactive copy of the day lives in the adjacent month.
+    render(
+      <Calendar
+        label="Stay"
+        mode="range"
+        defaultMonth="2023-03-01"
+        value={range('2023-02-20', '2023-03-03')}
+      />,
+    );
+    const painted = screen
+      .getAllByRole('gridcell')
+      .filter(
+        (c) => c.className.includes(styles.outside!) && c.className.includes(styles.rangeMiddle!),
+      );
+    for (const cell of painted) {
+      expect(cell.querySelector('button')).toBeNull();
+      expect(cell).not.toHaveAttribute('aria-selected');
+    }
+  });
+
+  it('announces the range once both ends exist', async () => {
+    // Intl.DateTimeFormat#formatRange rather than two formatted dates, so the
+    // year is not repeated.
+    render(
+      <Calendar
+        label="Stay"
+        mode="range"
+        defaultMonth="2023-04-01"
+        value={range('2023-04-10', '2023-04-14')}
+      />,
+    );
+    const live = screen.getByRole('status');
+    expect(live.textContent).toMatch(/april 10\s*–\s*14, 2023/i);
+  });
+
+  it('paints the band as the keyboard extends it, one key at a time', async () => {
+    // The preview must be driven by focus, not by re-reading the pre-move
+    // state after moveFocus — otherwise it lags a key behind, and PageUp /
+    // PageDown (which return early) would never update it at all.
+    render(<Calendar label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    await userEvent.keyboard('{ArrowRight}{ArrowRight}');
+
+    const end = screen.getByRole('button', { name: /april 12/i }).closest('td')!;
+    const middle = screen.getByRole('button', { name: /april 11/i }).closest('td')!;
+    expect(end.className).toContain(styles.rangeEnd!);
+    expect(middle.className).toContain(styles.rangeMiddle!);
+  });
+
+  it('marks only the committed selection, never the preview, as selected', async () => {
+    render(<Calendar label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    await userEvent.hover(screen.getByRole('button', { name: /april 14/i }));
+
+    const middle = screen.getByRole('button', { name: /april 12/i }).closest('td')!;
+    expect(middle.className).toContain(styles.rangeMiddle!);
+    expect(middle).not.toHaveAttribute('aria-selected');
+
+    const start = screen.getByRole('button', { name: /april 10/i }).closest('td')!;
+    expect(start).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('repaints the focus ring gap with the panel inside the band, and never recolours the ring', () => {
+    // border/focus resolves to the same colour as interactive/accent, so a
+    // ring measured against the panel goes invisible against the band it
+    // sits on here. The fix repaints the offset gap between the ring and the
+    // pill with the panel colour, rather than recolouring the ring itself.
+    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      '',
+    );
+    const rules = [...css.matchAll(/([^{}]*)\{([^}]*)\}/g)];
+
+    const gapFill = rules.filter(
+      ([, selector, body]) =>
+        selector!.includes('.inRange') &&
+        selector!.includes(':focus-visible') &&
+        /box-shadow\s*:/.test(body!) &&
+        /surface-overlay/.test(body!),
+    );
+    expect(gapFill.length).toBeGreaterThan(0);
+
+    const recolouredRing = rules.filter(
+      ([, selector, body]) =>
+        selector!.includes('.inRange') &&
+        (/outline-color\s*:/.test(body!) ||
+          (/outline\s*:/.test(body!) && !/outline\s*:\s*none/.test(body!))),
+    );
+    expect(recolouredRing).toHaveLength(0);
+  });
+
+  it('gives today a dot the band cannot swallow', () => {
+    // .today .dot is accent-on-accent when today falls inside the band, and a
+    // preview day carries no .selected to fall back on — the band needs its
+    // own rule.
+    const css = readFileSync('src/components/Calendar/Calendar.module.css', 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      '',
+    );
+    expect(css).toMatch(/\.inRange\s+\.dot\s*\{[^}]*interactive-on-accent/);
   });
 });

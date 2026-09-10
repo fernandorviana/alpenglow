@@ -92,7 +92,12 @@
 
 .grid {
   width: 100%;
-  border-collapse: collapse;
+  /* Separate, not collapsed: the range band gives .rangeStart/.rangeEnd a
+     border-radius on the <td>, and a collapsed table does not reliably honour
+     radius on cell borders. There are no borders drawn here, so spacing 0
+     changes nothing about the geometry. */
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
 }
 
@@ -172,8 +177,13 @@
    selected day already carry one, and this rule outranks both of theirs, so
    without the guards it would repaint a selected day grey under its on-accent
    label. Guards rather than a lower-specificity rule, the same explicit
-   pattern Button uses for its loading state. */
-.cell:not(.outside):not(.unavailable):not(.today):not(.selected) .pill:hover {
+   pattern Button uses for its loading state.
+
+   :not(.inRange) is the same guard for the same reason: a day inside the
+   range band already has a fill, and a lower-specificity ".inRange .pill:hover
+   { background: none }" would lose to this rule at equal specificity, so the
+   guard has to live here instead. */
+.cell:not(.outside):not(.unavailable):not(.today):not(.selected):not(.inRange) .pill:hover {
   background: var(--ap-color-interactive-neutral-hover);
 }
 
@@ -233,4 +243,70 @@
 .pill:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
   outline-offset: var(--ap-focus-ring-offset);
+}
+
+/* --- the range band ------------------------------------------------------ */
+
+/* The band spans the FULL 40px cell, not the drawn 32px pill. At 32px,
+   consecutive days would sit 8px apart and the interval would read as loose
+   squares rather than a period. The ends are shaped by the cell's own rounded
+   inline ends, not by a 32px pill drawn on top — start, middle and end are one
+   solid accent fill with on-accent labels throughout.
+
+   This is the one purely visual departure from the drawing.
+
+   Measured: the band is interactive/accent, 5.59:1 against the panel in light
+   and 3.12:1 in dark, against the 3:1 of 1.4.11. Its label is
+   interactive/on-accent at 5.59 / 4.50 against 4.5. The contrast question a
+   subtle range fill would raise does not arise. */
+.inRange {
+  background: var(--ap-color-interactive-accent);
+}
+
+.rangeStart {
+  border-start-start-radius: var(--ap-radius-full);
+  border-end-start-radius: var(--ap-radius-full);
+}
+
+.rangeEnd {
+  border-start-end-radius: var(--ap-radius-full);
+  border-end-end-radius: var(--ap-radius-full);
+}
+
+.inRange .pill {
+  color: var(--ap-color-interactive-on-accent);
+  background: none;
+}
+
+/* A single day range — both ends the same date, or a pending start on its own
+   — is a circle, not a bar. */
+.rangeStart.rangeEnd {
+  border-radius: var(--ap-radius-full);
+}
+
+/* The band overrides the spilled grey. This is the inert-but-painted rule:
+   inert is what makes 1.65:1 defensible, painted is what stops the band
+   breaking at exactly the month boundary a range crosses. */
+.outside.inRange .pill {
+  color: var(--ap-color-interactive-on-accent);
+}
+
+/* Today's dot is accent-on-transparent, which disappears on the accent band
+   the same way it disappears on a selected day — and a day previewed inside
+   the band never carries .selected to fall back on, so the band needs its
+   own switch. */
+.inRange .dot {
+  background: var(--ap-color-interactive-on-accent);
+}
+
+/* The ring itself is unchanged: still border/focus, still outside the pill at
+   focusRingOffset. What changes is what it lands on. Off the band the ring's
+   inner neighbour is the panel, which is what its 5.59:1 / 4.72:1 was measured
+   against. Inside the band that neighbour becomes interactive/accent instead —
+   the same colour as border/focus, 1.00:1 — so the fix is to paint the offset
+   gap itself with the panel colour (surface/overlay), restoring the same
+   5.59:1 light / 4.72:1 dark the ring was measured against, rather than
+   recolouring the ring. */
+.inRange .pill:focus-visible {
+  box-shadow: 0 0 0 var(--ap-focus-ring-offset) var(--ap-color-surface-overlay);
 }
