@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
@@ -7,6 +7,7 @@ import {
   addMonths,
   clamp,
   compare,
+  dateFormat,
   daysInMonth,
   isValidISO,
   isWithin,
@@ -16,6 +17,7 @@ import {
   startOfMonth,
   today,
   toISO,
+  utcTimestamp,
   weekday,
 } from './date';
 import { Calendar } from './Calendar';
@@ -158,6 +160,25 @@ describe('date', () => {
       const first = grid.flat().find((cell) => !cell.outside)!;
       expect(first.date).toBe(month);
       expect(weekday(grid[0]![0]!.date)).toBe(0);
+    }
+  });
+
+  it('formats a UTC-midnight date as that date in every timezone', () => {
+    // A formatter on the runtime zone reads UTC midnight as local time, which
+    // west of UTC is the previous afternoon. Node applies a runtime TZ change
+    // to Intl, so this discriminates inside an ordinary run.
+    const original = process.env.TZ;
+    try {
+      for (const zone of ['America/Los_Angeles', 'Pacific/Kiritimati', 'UTC']) {
+        process.env.TZ = zone;
+        const name = dateFormat('en-US', { month: 'long', day: 'numeric' }).format(
+          utcTimestamp('2023-04-01'),
+        );
+        expect(name, zone).toBe('April 1');
+      }
+    } finally {
+      if (original === undefined) delete process.env.TZ;
+      else process.env.TZ = original;
     }
   });
 });
@@ -355,5 +376,41 @@ describe('Calendar single selection', () => {
       expect(selector).toContain(':not(.selected)');
       expect(selector).toContain(':not(.today)');
     }
+  });
+});
+
+describe('Calendar west of UTC', () => {
+  // Every date in the grid is a UTC-midnight timestamp. Formatted on a
+  // negative-offset zone without pinning UTC, the heading and every cell's name
+  // land a day early, and the day a click reports disagrees with the name of
+  // the button clicked.
+  let original: string | undefined;
+  beforeAll(() => {
+    original = process.env.TZ;
+    process.env.TZ = 'America/Los_Angeles';
+  });
+  afterAll(() => {
+    if (original === undefined) delete process.env.TZ;
+    else process.env.TZ = original;
+  });
+
+  it('names the month and the days as the dates they are', () => {
+    render(<Calendar label="Date" defaultMonth="2023-04-01" />);
+    expect(screen.getByRole('grid', { name: /april 2023/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Saturday, April 1, 2023' })).toBeInTheDocument();
+  });
+
+  it('reports the day whose name was clicked', async () => {
+    const onSelect = vi.fn();
+    render(<Calendar label="Date" defaultMonth="2023-04-01" onSelect={onSelect} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Wednesday, April 26, 2023' }));
+    expect(onSelect).toHaveBeenCalledWith('2023-04-26');
+  });
+
+  it('builds every date formatter through dateFormat', () => {
+    // The zone is pinned in one place. A formatter constructed anywhere else
+    // is one that can forget it.
+    const source = readFileSync('src/components/Calendar/Calendar.tsx', 'utf8');
+    expect(source).not.toMatch(/new Intl\.DateTimeFormat/);
   });
 });

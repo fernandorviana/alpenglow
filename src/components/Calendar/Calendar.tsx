@@ -2,12 +2,14 @@
 
 import { useId, useMemo, useState } from 'react';
 import {
+  dateFormat,
   isWithin,
   monthGrid,
   parts,
   startOfMonth,
   today,
   toISO,
+  utcTimestamp,
   type CalendarCell,
   type ISODate,
 } from './date';
@@ -53,8 +55,8 @@ export type CalendarProps = {
 /** The seven column headers, in the order the grid draws them. */
 function useWeekdayNames(locale: string, weekStartsOn: number) {
   return useMemo(() => {
-    const narrow = new Intl.DateTimeFormat(locale, { weekday: 'narrow' });
-    const long = new Intl.DateTimeFormat(locale, { weekday: 'long' });
+    const narrow = dateFormat(locale, { weekday: 'narrow' });
+    const long = dateFormat(locale, { weekday: 'long' });
     // 2023-01-01 was a Sunday, so index 0 of this week is weekday 0.
     return Array.from({ length: 7 }, (_, i) => {
       const day = Date.UTC(2023, 0, 1 + ((weekStartsOn + i) % 7));
@@ -91,16 +93,16 @@ export function Calendar({
   const grid = useMemo(() => monthGrid(visibleMonth, weekStartsOn), [visibleMonth, weekStartsOn]);
 
   const monthFormat = useMemo(
-    () => new Intl.DateTimeFormat(locale, { month: 'long' }),
+    () => dateFormat(locale, { month: 'long' }),
     [locale],
   );
   const headingFormat = useMemo(
-    () => new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }),
+    () => dateFormat(locale, { month: 'long', year: 'numeric' }),
     [locale],
   );
   const cellFormat = useMemo(
     () =>
-      new Intl.DateTimeFormat(locale, {
+      dateFormat(locale, {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -110,10 +112,6 @@ export function Calendar({
   );
 
   const { year: visibleYear, month: visibleMonthNumber } = parts(visibleMonth);
-  const utc = (date: ISODate) => {
-    const { year, month: m, day } = parts(date);
-    return Date.UTC(year, m - 1, day);
-  };
 
   const now = today();
 
@@ -133,7 +131,7 @@ export function Calendar({
   // matrix that decides how it paints.
   function renderDay(cell: CalendarCell) {
     const classes = [styles.cell, cell.outside && styles.outside].filter(Boolean).join(' ');
-    const name = cellFormat.format(utc(cell.date));
+    const name = cellFormat.format(utcTimestamp(cell.date));
 
     if (cell.outside) {
       // Inert: no button, no tab stop, and the number hidden so a screen
@@ -195,7 +193,7 @@ export function Calendar({
           {/* One heading, two weights: the drawing sets the month Medium and
               the year Regular. Split into spans rather than two headings so
               it is still one string to a screen reader. */}
-          <span className={styles.month}>{monthFormat.format(utc(visibleMonth))}</span>{' '}
+          <span className={styles.month}>{monthFormat.format(utcTimestamp(visibleMonth))}</span>{' '}
           <span className={styles.year}>{visibleYear}</span>
         </h2>
       </div>
@@ -203,7 +201,7 @@ export function Calendar({
       <table
         role="grid"
         className={styles.grid}
-        aria-label={`${label}, ${headingFormat.format(utc(visibleMonth))}`}
+        aria-label={`${label}, ${headingFormat.format(utcTimestamp(visibleMonth))}`}
       >
         <thead>
           <tr>

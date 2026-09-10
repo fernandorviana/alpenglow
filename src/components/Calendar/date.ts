@@ -114,6 +114,34 @@ export function today(): ISODate {
   return toISO(now.getFullYear(), now.getMonth() + 1, now.getDate());
 }
 
+/**
+ * The instant an ISO date begins, in UTC, as a number — for handing to a
+ * formatter built by `dateFormat`, and nothing else. It is a number rather than
+ * a Date so that no Date leaves this file.
+ */
+export function utcTimestamp(date: ISODate): number {
+  const { year, month, day } = parts(date);
+  return Date.UTC(year, month - 1, day);
+}
+
+/**
+ * The only place a date formatter is built, and it pins the zone to UTC.
+ *
+ * Every timestamp in the calendar is UTC midnight. A formatter left on the
+ * runtime's zone reads that instant as local time, and anywhere west of UTC
+ * 2023-04-01T00:00Z is the afternoon of 31 March — so the heading, the weekday
+ * headers and every cell's name land a day early. Measured before this
+ * existed: under TZ=America/Los_Angeles, 9 of 36 tests in Calendar.test.tsx
+ * failed; the test that clicked the button named "April 26" got onSelect
+ * called with '2023-04-27' instead of '2023-04-26'.
+ */
+export function dateFormat(
+  locale: string,
+  options: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'UTC' });
+}
+
 /** Two ends in the order the calendar reads them, whichever order they arrived in. */
 export function orderRange(a: ISODate, b: ISODate): { start: ISODate; end: ISODate } {
   return compare(a, b) <= 0 ? { start: a, end: b } : { start: b, end: a };
