@@ -61,9 +61,9 @@ export default function Page() {
 
       <h2>Three layers</h2>
       <p>
-        Primitives hold raw values and no meaning. The theme names roles and is the only
-        layer that changes between light and dark. The scale holds dimension, kept apart
-        so that a mis-set theme can never alter layout — only colour.
+        Primitives hold raw values and no meaning. The theme names roles and, with the
+        shadows, is all that changes between light and dark. The scale holds dimension, kept
+        apart so that a mis-set theme can never alter layout — only colour and shadow.
       </p>
       <p>
         Every theme token is an alias. There is no hex anywhere in the semantic layer, and

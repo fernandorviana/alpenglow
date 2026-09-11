@@ -36,6 +36,7 @@ generated from it.
 | Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, two steps (`md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
+| Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
 
 Generated artefacts, both written by `npm run build:css`:
 
@@ -326,6 +327,18 @@ have all been mistaken for errors at least once.
 - **No publish skips the gates.** `prepublishOnly` runs `check`, `build:lib`
   and `check:package`, so `npm publish` by hand and `npm stage publish` in the
   Release workflow go through the same checks as CI.
+- **Timing comes from the motion tokens; loops keep their own.** A transition
+  or a one-shot animation reads `--ap-motion-duration-*` and
+  `--ap-motion-easing-*`: `travel` when something moves and for whatever
+  changes with it, `fade` otherwise. `src/components/motion.test.ts` fails on a
+  written duration or curve in a component stylesheet or `app/docs.css`, and on
+  a `transform` transition without `travel`. An `infinite` animation is exempt:
+  the Loader's cycle and curves were measured for its arc. Reduced motion stays
+  per component, because what must survive differs.
+- **Every `var(--ap-…)` names a token that exists.** An undeclared custom
+  property fails silently — the property falls back to its initial value — so
+  `src/components/custom-properties.test.ts` checks every stylesheet and page
+  in `src/components` and `app` against `tokens.css`.
 - **Every component stylesheet declares border-box for its own boxes.** Sizes
   here include padding and border, and the package cannot assume the app has a
   reset: in a Vite app without one, a `md` field measured 58px. The docs site's
@@ -357,7 +370,7 @@ and "night" in prose.
 | Word | Is | In the code | In Figma |
 |---|---|---|---|
 | **Bedrock** | Raw colour. Buried: nothing references it directly. | `primitives.ts` | `Alpenglow Primitives`, hidden from publishing |
-| **Outcrop** | Bedrock that reaches the surface: dimension and type. Used directly. | `scale.ts`, `typography.ts` | `Alpenglow Scale` |
+| **Outcrop** | Bedrock that reaches the surface: dimension, type and motion. Used directly. | `scale.ts`, `typography.ts`, `motion.ts` | `Alpenglow Scale`; motion has no Figma counterpart |
 | **Contours** | Semantic roles. Every one is an alias. | the keys of `theme.ts` and `elevation.ts` | `Alpenglow Theme`; elevation is an effect style |
 | **Light** | Eleonora — the values the contours take under each mode. | the light / dark values of `theme.ts` and `elevation.ts` | the `Light` / `Dark` modes |
 | **Terrain** | Components. | `src/components` | the library |
@@ -385,7 +398,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 793 tests across 33 files
+npm test            # 898 tests across 36 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 npm run build:lib       # the package, in dist/

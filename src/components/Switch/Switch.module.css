@@ -34,7 +34,7 @@
   background: var(--ap-color-border-strong);
   cursor: inherit;
 
-  transition: background-color 140ms ease;
+  transition: background-color var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
 .track:checked {
@@ -62,7 +62,7 @@
   height: 16px;
   border-radius: var(--ap-radius-full);
   background: var(--ap-color-surface-raised);
-  transition: transform 140ms ease;
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
 .track:checked::before {

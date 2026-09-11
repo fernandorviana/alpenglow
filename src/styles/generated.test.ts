@@ -4,6 +4,7 @@ import { theme } from '../tokens/theme';
 import { spacing, radius, borderWidth } from '../tokens/scale';
 import { textStyle } from '../tokens/typography';
 import { elevation, shadowCss } from '../tokens/elevation';
+import { motion } from '../tokens/motion';
 import { alphaPrimitives } from '../tokens/primitives';
 import { hexToRgb } from '../tokens/contrast';
 import { block } from '@/test/css';
@@ -39,6 +40,15 @@ describe('tokens.css is in step with the token source', () => {
     }
     for (const [name, px] of Object.entries(borderWidth)) {
       expect(tokensCss, `border-width/${name}`).toContain(`--ap-border-width-${name}: ${px}px;`);
+    }
+  });
+
+  it('declares every motion token with its current value', () => {
+    for (const [name, ms] of Object.entries(motion.duration)) {
+      expect(tokensCss, `motion/duration/${name}`).toContain(`--ap-motion-duration-${name}: ${ms}ms;`);
+    }
+    for (const [name, curve] of Object.entries(motion.easing)) {
+      expect(tokensCss, `motion/easing/${name}`).toContain(`--ap-motion-easing-${name}: ${curve};`);
     }
   });
 

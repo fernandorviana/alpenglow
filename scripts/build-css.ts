@@ -16,6 +16,7 @@ import { theme } from '../src/tokens/theme.js';
 import { spacing, radius, borderWidth, focusRingOffset } from '../src/tokens/scale.js';
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
 import { elevation, shadowCss } from '../src/tokens/elevation.js';
+import { motion } from '../src/tokens/motion.js';
 
 const PREFIX = 'ap';
 
@@ -60,6 +61,14 @@ function typographyBlock(): string {
     lines.push('');
   }
   return lines.join('\n').trimEnd();
+}
+
+function motionBlock(): string {
+  return [
+    ...Object.entries(motion.duration).map(([k, v]) => `  ${cssName(`motion/duration/${k}`)}: ${v}ms;`),
+    '',
+    ...Object.entries(motion.easing).map(([k, v]) => `  ${cssName(`motion/easing/${k}`)}: ${v};`),
+  ].join('\n');
 }
 
 function scaleBlock(): string {
@@ -152,6 +161,14 @@ ${typographyBlock()}
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — motion. How long a change takes does not vary by theme.
+   --------------------------------------------------------------------------- */
+
+:root {
+${motionBlock()}
+}
+
+/* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */
 
@@ -187,5 +204,6 @@ console.log(
     `${Object.keys(theme).length} theme tokens, ` +
     `${Object.keys(elevation).length} elevation steps, ` +
     `${Object.keys(spacing).length + Object.keys(radius).length + Object.keys(borderWidth).length} scale values, ` +
-    `${Object.keys(textStyle).length} text styles`,
+    `${Object.keys(textStyle).length} text styles, ` +
+    `${Object.keys(motion.duration).length + Object.keys(motion.easing).length} motion tokens`,
 );

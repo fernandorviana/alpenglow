@@ -152,7 +152,7 @@
    transition entirely rather than slowing it. The two rules are different on
    purpose — do not "fix" one to match the other. */
 @media (prefers-reduced-motion: no-preference) {
-  .panel { animation: appear 120ms ease-out; }
+  .panel { animation: appear var(--ap-motion-duration-fade) var(--ap-motion-easing-enter); }
 }
 
 @keyframes appear {

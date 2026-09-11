@@ -37,9 +37,9 @@
   appearance: none;
   background: none;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
 
 /* The ring adds geometry rather than recolouring the border: colour is never

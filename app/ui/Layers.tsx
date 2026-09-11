@@ -24,9 +24,11 @@ export const LAYERS = [
   { id: 'crest', name: 'Crest', code: 'app/' },
   { id: 'paths', name: 'Paths', code: 'patterns — none yet' },
   { id: 'terrain', name: 'Terrain', code: 'src/components' },
-  { id: 'contours', name: 'Contours', code: 'theme.ts, elevation.ts' },
-  { id: 'outcrop', name: 'Outcrop', code: 'scale.ts, typography.ts' },
-  { id: 'bedrock', name: 'Bedrock', code: 'primitives.ts' },
+  // Token files by name, without `.ts`: with it, the outcrop's three ran to
+  // x=241 and into the rays, which start at x=200.
+  { id: 'contours', name: 'Contours', code: 'theme, elevation' },
+  { id: 'outcrop', name: 'Outcrop', code: 'scale, typography, motion' },
+  { id: 'bedrock', name: 'Bedrock', code: 'primitives' },
 ] as const;
 
 const TOP = 24;

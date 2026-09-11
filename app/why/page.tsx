@@ -71,8 +71,9 @@ export default function Page() {
 
       <h3>Outcrop</h3>
       <p>
-        Bedrock that reaches the surface: spacing, radius, border width and type, in{' '}
-        <code>scale.ts</code> and <code>typography.ts</code>. A component uses these
+        Bedrock that reaches the surface: spacing, radius, border width, type and motion, in{' '}
+        <code>scale.ts</code>, <code>typography.ts</code> and <code>motion.ts</code>. A
+        component uses these
         directly, without an alias, because 16px is 16px by day and by night.
       </p>
 

@@ -1,7 +1,8 @@
 /**
  * Alpenglow — theme: Eleonora
  *
- * The semantic layer, and the only part of the system that varies by mode.
+ * The semantic layer. With elevation.ts, the only part of the system that
+ * varies by mode.
  * Every entry is an alias to a primitive in BOTH modes — no raw hex lives here.
  * Adding a second brand means adding another file shaped exactly like this one.
  *

@@ -223,7 +223,7 @@ html[data-nav-open] { overflow: hidden; }
 
   appearance: none;
   cursor: pointer;
-  transition: background-color 140ms ease;
+  transition: background-color var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
 .themeToggle:hover { background: var(--toggle-track-hover); }
@@ -241,7 +241,7 @@ html[data-nav-open] { overflow: hidden; }
   border-radius: var(--ap-radius-full);
   background: var(--toggle-knob);
   box-shadow: 0 2px 4px var(--toggle-knob-shadow);
-  transition: transform 140ms ease;
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
 .themeToggleIcon {
@@ -251,7 +251,7 @@ html[data-nav-open] { overflow: hidden; }
   width: 32px;
   height: 32px;
   color: var(--toggle-icon-idle);
-  transition: color 140ms ease;
+  transition: color var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
 /* The drawn accent is #6B52FF, from a brand ramp this system does not have.

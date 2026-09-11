@@ -61,7 +61,7 @@
 
 /* A dialog either is or is not on screen: reduced motion drops the entrance. */
 @media (prefers-reduced-motion: no-preference) {
-  .dialog[open] { animation: appear 120ms ease-out; }
+  .dialog[open] { animation: appear var(--ap-motion-duration-fade) var(--ap-motion-easing-enter); }
 }
 
 @keyframes appear {
@@ -128,7 +128,7 @@ html:has(.dialog:modal) {
   background: var(--ap-color-interactive-neutral);
   color: var(--ap-color-text-secondary);
   cursor: pointer;
-  transition: background-color 120ms ease;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {

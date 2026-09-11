@@ -86,7 +86,7 @@
   background: var(--ap-color-interactive-neutral);
   color: var(--ap-color-interactive-on-neutral);
   cursor: pointer;
-  transition: background-color 120ms ease;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {

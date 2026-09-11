@@ -43,6 +43,7 @@ Three layers, mirrored in Figma as three variable collections.
 | **Theme** | Light / Dark | 54 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
 | **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
+| **Motion** | no | Two durations and two curves. `fade` for a change in place, `travel`, a little longer, for something that moves. |
 
 TypeScript is the source of truth. Both stylesheets are generated from it, and
 the type system prevents a token from aliasing a primitive that does not exist.

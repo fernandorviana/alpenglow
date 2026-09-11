@@ -65,7 +65,9 @@
   background: var(--ap-color-surface-sunken);
   cursor: inherit;
 
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition:
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {

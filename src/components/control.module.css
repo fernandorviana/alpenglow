@@ -37,7 +37,9 @@
   line-height: var(--ap-text-body-md-line-height);
   letter-spacing: var(--ap-text-body-md-tracking);
 
-  transition: border-color 120ms ease, background-color 120ms ease;
+  transition:
+    border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
 
 @media (prefers-reduced-motion: reduce) {
