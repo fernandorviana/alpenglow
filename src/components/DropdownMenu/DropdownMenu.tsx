@@ -8,13 +8,15 @@ import type {
   ReactNode,
   ToggleEvent,
 } from 'react';
+import { useHydrated } from '../useHydrated';
 import styles from './DropdownMenu.module.css';
 import { actionText, isGroup, isSeparator, matchIndex, nextIndex } from './rows';
 import type { DropdownMenuAction, DropdownMenuEntry } from './rows';
 
 export type DropdownMenuTriggerProps = {
   id: string;
-  popoverTarget: string;
+  /** Absent in server HTML and the hydration pass; see `useHydrated`. */
+  popoverTarget?: string;
   'aria-haspopup': 'menu';
   'aria-expanded': boolean;
   onKeyDown: KeyboardEventHandler;
@@ -73,6 +75,7 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
   // and not in a CSS identifier, so the anchor name is sanitised separately.
   const anchor = `--menu-${uid.replace(/[^a-zA-Z0-9]/g, '')}`;
 
+  const hydrated = useHydrated();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const close = () => menuRef.current?.hidePopover();
@@ -152,7 +155,11 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
     <>
       {trigger({
         id: triggerId,
-        popoverTarget: menuId,
+        // Only once hydrated. Before that, a native popovertarget would open
+        // the menu while React is not listening: `open` would stay false, so
+        // aria-expanded would deny a menu on screen, and the first row would
+        // never take focus.
+        popoverTarget: hydrated ? menuId : undefined,
         'aria-haspopup': 'menu',
         'aria-expanded': open,
         onKeyDown: onTriggerKeyDown,

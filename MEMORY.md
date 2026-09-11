@@ -187,9 +187,10 @@ have all been mistaken for errors at least once.
     grid until then. React 19 does not patch a mismatched attribute or text
     node on hydration; it keeps the server's, so nothing the build machine and
     the browser can disagree on may reach the server HTML. The flag is
-    `useHydrated` (`src/components/useHydrated.ts`), shared with DatePicker,
-    whose trigger carries `popovertarget` only once hydrated so a click before
-    hydration cannot open an empty panel. One exception is accepted on
+    `useHydrated` (`src/components/useHydrated.ts`), shared with DatePicker
+    and DropdownMenu, whose triggers carry `popovertarget` only once hydrated,
+    so a click before hydration cannot open a panel or menu behind React's
+    back. One exception is accepted on
     purpose: the date field's separator and digit order come from `Intl` and
     reach the server HTML (the value, the shell and the hint), because numeric
     two-digit date literals are stable across CLDR builds.
@@ -275,7 +276,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 661 tests across 21 files
+npm test            # 662 tests across 21 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

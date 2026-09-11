@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { renderToString } from 'react-dom/server';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
@@ -43,6 +44,15 @@ describe('DropdownMenu', () => {
     const trigger = screen.getByRole('button', { name: 'Actions' });
     await userEvent.click(trigger);
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('leaves the trigger inert in server HTML, so a click before hydration cannot open the menu behind React', () => {
+    // Native popovertarget would open the menu before React listens: `open`
+    // would stay false, so aria-expanded would deny a menu on screen, and the
+    // first row would never take focus. Case-insensitive, because React
+    // serialises the attribute as `popoverTarget`.
+    const html = renderToString(<Actions />);
+    expect(html).not.toMatch(/popovertarget/i);
   });
 
   it('gives each instance its own anchor name', () => {
