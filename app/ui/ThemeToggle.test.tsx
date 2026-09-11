@@ -178,6 +178,24 @@ describe('ThemeToggle', () => {
       expect(document.documentElement).toHaveAttribute('data-theme', 'light');
     });
 
+    it('follows a choice made in another tab', () => {
+      // Storage is where the choice lives, and another tab can write it. This
+      // tab has to hear that, or its switch and its root would disagree the
+      // next time it rendered.
+      const system = stubSystem(false);
+      render(<ThemeToggle />);
+      expect(toggle()).not.toBeChecked();
+
+      localStorage.setItem(KEY, 'dark');
+      act(() => {
+        window.dispatchEvent(new StorageEvent('storage', { key: KEY, newValue: 'dark' }));
+      });
+
+      expect(toggle()).toBeChecked();
+      expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+      expect(system.listening).toBe(0);
+    });
+
     it('leaves the root alone when nothing was chosen', () => {
       // No attribute is what lets the system rules in the stylesheet apply.
       stubSystem(true);

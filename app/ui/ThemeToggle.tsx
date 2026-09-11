@@ -1,9 +1,59 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useSyncExternalStore } from 'react';
 import { Asleep, Sun } from '@carbon/icons-react';
 
 const KEY = 'alpenglow-theme';
+
+type Choice = 'light' | 'dark';
+
+const valid = (value: string | null): Choice | null =>
+  value === 'light' || value === 'dark' ? value : null;
+
+/**
+ * The viewer's choice is not React state. It lives in storage, where the
+ * layout's no-flash script reads it, and on the root, where the stylesheet
+ * does. This component reads it from there on every render rather than copying
+ * it in once on mount, so there is no second copy to fall out of step.
+ *
+ * Storage answers first. The root is the fallback because where storage
+ * refuses the write — blocked site data throws on both calls — the root is the
+ * only place the click was recorded. Anything else storage holds, including
+ * the 'system' the three-button control used to write, means no choice.
+ */
+function readChoice(): Choice | null {
+  try {
+    const stored = valid(localStorage.getItem(KEY));
+    if (stored) return stored;
+  } catch {
+    // Private windows and blocked site data both throw here. Fall through.
+  }
+  return valid(document.documentElement.getAttribute('data-theme'));
+}
+
+/** Writing storage raises `storage` in other tabs only, so this tab says so itself. */
+const choiceListeners = new Set<() => void>();
+
+function onChoice(notify: () => void) {
+  choiceListeners.add(notify);
+  // A choice made in another tab. Without this, the next render here would
+  // read the new value while the root still held the old one.
+  window.addEventListener('storage', notify);
+  return () => {
+    choiceListeners.delete(notify);
+    window.removeEventListener('storage', notify);
+  };
+}
+
+const SYSTEM_DARK = '(prefers-color-scheme: dark)';
+
+function onSystem(notify: () => void) {
+  const media = window.matchMedia(SYSTEM_DARK);
+  media.addEventListener('change', notify);
+  return () => media.removeEventListener('change', notify);
+}
+
+const ignoreSystem = () => () => {};
 
 /**
  * The two-position toggle from the design file, laid out horizontally.
@@ -18,62 +68,48 @@ const KEY = 'alpenglow-theme';
  *
  * Nothing here paints. The knob's position and the accent on its icon are read
  * from `data-theme` in CSS, so they are right on the first frame; this file
- * only writes that attribute and reports the state to a screen reader.
+ * only writes that attribute and reports the state to a screen reader. The
+ * server snapshots say "no choice, light system", because the static HTML
+ * cannot know either; `aria-checked` corrects itself once hydrated, and the
+ * knob, being CSS, was already right.
  *
  * `role="switch"` rather than a two-item radio group: the accessible name is
  * "Dark theme" and the answer is on or off, which is exactly what a switch
  * announces. The icons are decoration on top of that name, not labels.
  */
 export function ThemeToggle() {
-  const [dark, setDark] = useState(false);
-  const [chosen, setChosen] = useState(false);
+  const choice = useSyncExternalStore(onChoice, readChoice, () => null);
 
-  // A layout effect, so whatever it puts back is there before the next paint.
+  // The system keeps speaking only until the viewer does. Swapping the
+  // subscription out on `choice` rather than ignoring the event inside it is
+  // what makes the first click final: the listener is gone by the time the
+  // system next changes.
+  const systemDark = useSyncExternalStore(
+    choice ? ignoreSystem : onSystem,
+    () => window.matchMedia(SYSTEM_DARK).matches,
+    () => false,
+  );
+
+  const dark = choice ? choice === 'dark' : systemDark;
+
+  // A stored choice is normally already on the root — the no-flash script put
+  // it there before the first paint. It is written again because React takes
+  // it away whenever it renders the root on the client rather than hydrating
+  // it — after a hydration mismatch, for one — and the script does not run a
+  // second time. A layout effect, so it is back before the next paint.
   useLayoutEffect(() => {
-    let stored: string | null = null;
-    try {
-      stored = localStorage.getItem(KEY);
-    } catch {
-      // Private windows and blocked site data both throw here. Fall through.
-    }
-
-    // A stored choice is normally already on the root — the layout's no-flash
-    // script put it there before the first paint. It is written again because
-    // React takes it away whenever it renders the root on the client rather
-    // than hydrating it — after a hydration mismatch, for one — and the script
-    // does not run a second time. Anything else, including the 'system' the
-    // three-button control used to write, means the same as nothing at all.
-    const isChosen = stored === 'light' || stored === 'dark';
-    if (isChosen) document.documentElement.setAttribute('data-theme', stored!);
-    setChosen(isChosen);
-    setDark(
-      isChosen
-        ? stored === 'dark'
-        : window.matchMedia('(prefers-color-scheme: dark)').matches,
-    );
-  }, []);
-
-  // The system keeps speaking only until the viewer does. Gating on `chosen`
-  // rather than unsubscribing inside the handler is what makes the first click
-  // final: the listener is gone by the time the system next changes.
-  useEffect(() => {
-    if (chosen) return;
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const follow = (event: MediaQueryListEvent) => setDark(event.matches);
-    media.addEventListener('change', follow);
-    return () => media.removeEventListener('change', follow);
-  }, [chosen]);
+    if (choice) document.documentElement.setAttribute('data-theme', choice);
+  }, [choice]);
 
   function choose() {
-    const next = !dark;
-    setDark(next);
-    setChosen(true);
-    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    const next: Choice = dark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
     try {
-      localStorage.setItem(KEY, next ? 'dark' : 'light');
+      localStorage.setItem(KEY, next);
     } catch {
-      // The preference simply will not persist. The page still works.
+      // The preference simply will not persist. The root still holds it.
     }
+    for (const notify of choiceListeners) notify();
   }
 
   return (

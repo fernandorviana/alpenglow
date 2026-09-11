@@ -54,9 +54,18 @@ export function Nav() {
 
   // Following a link has to close the menu. Leaving it open would bury the page
   // the reader just asked for under the list they used to get there.
-  useEffect(() => {
+  //
+  // It closes during the render that sees the new route, not in an effect after
+  // it: an effect commits the new page under the open menu and then renders
+  // again to close it, which is what the React Compiler's lint rejects.
+  // Deriving `open` from the route the menu was opened on (`openOn ===
+  // pathname`) looks simpler and is wrong — Back to that route opens the menu
+  // again, over the page. `Nav.test.tsx` fails on it.
+  const [route, setRoute] = useState(pathname);
+  if (route !== pathname) {
+    setRoute(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   // On a narrow screen the open menu is fixed over the whole viewport. The
   // stylesheet does the covering; this is everything the stylesheet cannot do.

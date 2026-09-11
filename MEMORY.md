@@ -106,7 +106,12 @@ have all been mistaken for errors at least once.
    right place on the first paint instead of sliding it there once React has
    read `localStorage`, and it is why the component holds no visual state at
    all. `app/ui/ThemeToggle.test.tsx` reads `app/docs.css` and fails if the two
-   halves stop matching declaration for declaration.
+   halves stop matching declaration for declaration. It holds no React state
+   either: `useSyncExternalStore` reads the choice from storage, and from the
+   root where storage refuses the write, so tabs stay in step. The server
+   snapshot says "no choice", so `aria-checked` corrects itself after
+   hydration — invisible, because the knob is CSS. Copying storage into state
+   from an effect on mount is what the Compiler lint rejected.
 
 10. **Dark elevation is modest on purpose.** The dark shadow was never drawn,
     so its values are a decision. Black at 64% over the dark canvas reaches
@@ -224,8 +229,12 @@ have all been mistaken for errors at least once.
     is exported from `Nav.tsx` and `Nav.test.tsx` finds the stylesheet's media
     block by it, so the two cannot drift apart. `inert` is written as an
     attribute, not the property, because jsdom 30 does not reflect the
-    property. Left out on purpose: the theme toggle inside the overlay, a
-    hamburger icon, and an entry animation.
+    property. A route change closes the menu during the render that sees the
+    new `pathname`, not in an effect. Deriving `open` from the route it was
+    opened on (`openOn === pathname`) looks simpler and reopens the overlay
+    when Back returns to that route; a test fails on it. Left out on purpose:
+    the theme toggle inside the overlay, a hamburger icon, and an entry
+    animation.
 
 ---
 
@@ -266,9 +275,11 @@ have all been mistaken for errors at least once.
   a consumer's Server Component page fails to prerender. `directives.test.ts`
   reads what `react.react-server.js` exports and flags any module importing
   something else without the directive.
-- **`src/` passes the React hooks lint, Compiler rules included**
-  (`npm run lint`), because registry code becomes code the consumer's
-  `eslint-config-next` lints. `app/` is not linted: it is not copied anywhere.
+- **`src/` and `app/` pass the React hooks lint, Compiler rules included**
+  (`npm run lint`). `src/` because registry code becomes code the consumer's
+  `eslint-config-next` lints. `app/` because it is a Next app like those
+  consumers: left out while nothing was copied from it, it accumulated two
+  set-state-in-effect errors (`Nav`, `ThemeToggle`) before it was brought in.
 
 ---
 
@@ -310,8 +321,8 @@ caption).
 ## Verification
 
 ```bash
-npm run check       # tsc --noEmit, the hooks lint on src/, then the full suite
-npm test            # 688 tests across 26 files
+npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
+npm test            # 690 tests across 26 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

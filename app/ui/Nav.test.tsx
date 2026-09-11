@@ -152,6 +152,28 @@ describe('Nav', () => {
     expect(document.documentElement).not.toHaveAttribute('data-nav-open');
   });
 
+  it('stays closed when the reader comes back to the page it was opened on', async () => {
+    // Follow a link out of the open menu, then press Back. Deriving `open`
+    // from the page the menu was opened on closes it on the way out and opens
+    // it again on the way back, over the page the reader returned to.
+    const shell = () => (
+      <div>
+        <Nav />
+        <main>page</main>
+      </div>
+    );
+    const { rerender } = renderShell();
+    await userEvent.click(toggle());
+
+    pathname = '/colour';
+    rerender(shell());
+    pathname = '/';
+    rerender(shell());
+
+    expect(nav()).toHaveAttribute('data-open', 'false');
+    expect(document.documentElement).not.toHaveAttribute('data-nav-open');
+  });
+
   it('closes when the viewport widens past the breakpoint', async () => {
     // Wide screens show the sidebar whatever `open` says, so the lock and the
     // inert page would outlive the overlay they were there for. Closing is
