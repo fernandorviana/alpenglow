@@ -504,11 +504,12 @@ What is open, in the order it will probably be taken:
   not built.
 - **A Display P3 pass** would add saturation at the 300–400 stops of the vivid
   families, which sRGB clips; nothing else changes.
-- **The site has not been looked at with the deep tail.** The `dc3aaca`
-  palette was seen in Chrome on /colour and /decisions (dark, no console
-  errors); `1ceacad` was checked only by the suite, the build and the Figma
-  read-back. Open /colour, a component page and the Dialog in both modes
-  before touching the page-level look.
+- **Seen with the deep tail on 2026-09-12**, on the live site in the Browser
+  pane, both modes: /colour (ramps and token tables), /button (all five solid
+  tones, outline and ghost), and the Dialog open over its scrim. No console
+  errors; the computed canvas was `#090B1F` dark and `#F5F7F9` light, the
+  computed `text/primary` `#1E2026`. What was not exercised: hover and pressed
+  states, the DatePicker panel, the Table, and a phone width.
 
 ### 1. Every token has a consumer (done 2026-09-11)
 
