@@ -32,12 +32,6 @@ the type system prevents a token from aliasing a primitive that does not exist.
 The token layer is not tied to a styling choice — that is the point of shipping
 both, and tests assert the two stay in step.
 
-```bash
-npm run dev          # the documentation site
-npm run build:css    # regenerate both stylesheets
-npm run check        # types, then every documented contrast ratio
-```
-
 ## The contrast suite
 
 120 test cases covering what the design actually depends on: text clearing AA on
@@ -51,9 +45,10 @@ divider that resolved to exactly the same colour as the surface beneath it.
 
 ## Icons
 
-The system uses [IBM Carbon icons](https://carbondesignsystem.com/elements/icons/library/)
-— 2,700 of them, Apache 2.0. They are not re-exported from here: a design system
-that bundles an icon library makes everyone carry all of it to use six.
+The set is [IBM Carbon](https://carbondesignsystem.com/elements/icons/library/)
+— around 2,700 icons, Apache 2.0. Carbon is not a dependency: a design system
+that bundles an icon library makes everyone carry all of it to use six, so you
+install it yourself.
 
 ```bash
 npm install @carbon/icons-react
@@ -67,6 +62,14 @@ import { Search } from '@carbon/icons-react';
 
 Sizes are 16, 20, 24 and 32. Components size their own icon slot, so pass the
 size that matches: 16 in a badge, 20 in a field.
+
+Fifteen icons are not Carbon's. They were drawn for this system because Carbon
+does not have them, and they ship with it, exported alongside the components —
+`ChevronSmallDown`, `AiSparkle`, `WaitingRoom` and twelve more.
+
+Eight more exist in Carbon under a different name — `notifications` is
+`Notification`, `list--task` is `TaskComplete` — which is the kind of mismatch
+that costs an afternoon. The full mapping is on the Icons page.
 
 ## Two things that look like mistakes and are not
 
@@ -83,22 +86,13 @@ the palette look incapable of a lighter dark-mode hover.
 
 ```bash
 npm install
-npm run dev      # the documentation site at localhost:3000
-npm run check    # types, then every documented contrast ratio
+npm run dev          # the documentation site at localhost:3000
+npm run build:css    # regenerate both stylesheets
+npm run check        # types, then every documented contrast ratio
 ```
 
 The site is a static export, so it hosts anywhere. Set `DOCS_BASE` if it is
 served from a subpath.
-
-## Icons
-
-The set is [IBM Carbon](https://carbondesignsystem.com/guidelines/icons/library/),
-Apache 2.0. Fifteen icons are not: they were drawn for this system because Carbon
-does not have them, and they ship from `alpenglow/icons`.
-
-Eight more exist in Carbon under a different name — `notifications` is
-`Notification`, `list--task` is `TaskComplete` — which is the kind of mismatch
-that costs an afternoon. The full mapping is on the Icons page.
 
 ## Licence
 

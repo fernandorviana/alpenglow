@@ -70,7 +70,7 @@ export default function Page() {
       </p>
 
       <p>
-        The set is <a href="https://carbondesignsystem.com/guidelines/icons/library/">IBM
+        The set is <a href="https://carbondesignsystem.com/elements/icons/library/">IBM
         Carbon</a>, Apache 2.0, at 16, 20, 24 or 32. Do not draw one that looks close
         enough — Carbon has around 2,700, and a hand-drawn lookalike is a shape nobody can
         find again by name.
