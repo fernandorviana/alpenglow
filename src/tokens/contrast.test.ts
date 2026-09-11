@@ -14,7 +14,10 @@ const SURFACES = [
 ] as const satisfies readonly ThemeTokenName[];
 
 describe('text meets AA on every surface it can appear on', () => {
-  const TEXT = ['text/primary', 'text/secondary', 'text/tertiary', 'text/accent',
+  // Placeholder is in this list, not among the exemptions: it is the same stop
+  // as tertiary. The next stop up, stone/500, is 3.57:1 on white, and a
+  // placeholder is text.
+  const TEXT = ['text/primary', 'text/secondary', 'text/tertiary', 'text/placeholder', 'text/accent',
                 'text/success', 'text/warning', 'text/danger', 'text/info'] as const;
 
   for (const mode of MODES) {
@@ -33,8 +36,7 @@ describe('documented exemptions hold at their recorded values', () => {
   // These are deliberately below AA. Asserting the recorded figure means a
   // future edit that makes them *worse* still fails.
   const EXPECTED: Record<string, Record<Mode, number>> = {
-    'text/placeholder': { light: 3.98, dark: 4.54 },
-    'text/disabled':    { light: 2.77, dark: 3.02 },
+    'text/disabled': { light: 2.39, dark: 2.64 },
   };
 
   for (const [token, byMode] of Object.entries(EXPECTED)) {
@@ -49,8 +51,8 @@ describe('documented exemptions hold at their recorded values', () => {
 
 describe('a disabled menu row is exempt, at the figure it actually shows', () => {
   // The recorded exemption is measured on surface/raised. On surface/overlay
-  // dark is 2.66 rather than 3.02, and that is the surface the DropdownMenu uses.
-  const EXPECTED: Record<Mode, number> = { light: 2.77, dark: 2.66 };
+  // dark is 2.01 rather than 2.64, and that is the surface the DropdownMenu uses.
+  const EXPECTED: Record<Mode, number> = { light: 2.39, dark: 2.01 };
   for (const mode of MODES) {
     it(`text/disabled on surface/overlay — ${mode}`, () => {
       expect(tokenContrast('text/disabled', 'surface/overlay', mode)).toBeCloseTo(EXPECTED[mode], 1);
@@ -115,13 +117,13 @@ describe('every on-* label meets AA on all of its fill states', () => {
     ),
   ].filter((family) => family !== 'disabled');
 
-  /** Pairs that are knowingly below AA, held at the figure they were accepted at. */
-  const EXEMPT: Record<string, { ratio: number; why: string }> = {
-    'interactive/on-success on interactive/success-pressed in light': {
-      ratio: 3.36,
-      why: 'Pressed is feedback after the decision, not information used to make it. The green ramp has no third step that keeps a dark label above 4.5.',
-    },
-  };
+  /**
+   * Pairs that are knowingly below AA, held at the figure they were accepted
+   * at. Empty since the shared-lightness ramps: the success ladder used to
+   * hold one (a dark label on the light pressed green, 3.36:1), and the
+   * mechanism stays so the next exemption is recorded rather than waved.
+   */
+  const EXEMPT: Record<string, { ratio: number; why: string }> = {};
 
   for (const mode of MODES) {
     for (const family of families) {
@@ -343,7 +345,17 @@ describe('every interactive fill is separable from its surface', () => {
 });
 
 describe('the dark elevation ladder is ordered and every step is perceptible', () => {
-  const LADDER = ['surface/sunken', 'surface/base', 'surface/raised', 'surface/overlay'] as const;
+  // Three colour steps. Sunken is not a fourth: the ramp is eleven stops and
+  // ends at 950, so in dark a well shares the canvas and reads as recessed
+  // only inside a raised surface — on the canvas it takes a border. A
+  // twentieth step was measured and refused (see primitives.ts), so this is
+  // asserted as equality rather than left to look like an oversight.
+  const LADDER = ['surface/base', 'surface/raised', 'surface/overlay'] as const;
+
+  it('sunken shares the canvas, and is still recessed inside a card', () => {
+    expect(resolve('surface/sunken', 'dark')).toBe(resolve('surface/base', 'dark'));
+    expect(contrast(resolve('surface/sunken', 'dark'), resolve('surface/raised', 'dark'))).toBeGreaterThanOrEqual(1.09);
+  });
 
   /** Adjacent pairs, so the loop never indexes past the end. */
   const STEPS = LADDER.flatMap((from, i) => {
@@ -417,7 +429,7 @@ describe('the table stays legible in both modes', () => {
   // looser and could never fail first, so it would defend nothing. What is
   // recorded instead is the measured figure, following the exemptions block:
   // an edit that moves the separator in EITHER direction has to be deliberate.
-  const SEPARATOR = { light: 1.16, dark: 1.31 } as const;
+  const SEPARATOR = { light: 1.17, dark: 1.89 } as const;
 
   it.each(['light', 'dark'] as const)('row separators stay at their measured value in %s', (mode) => {
     const ratio = tokenContrast('border/subtle', 'surface/raised', mode);
@@ -461,9 +473,9 @@ describe('the calendar meets the thresholds its drawing did not', () => {
 
   it('keeps a spilled day quieter than an unavailable one, in both modes', () => {
     // Not a WCAG threshold: the spilled days are inert, so 1.4.3 exempts them.
-    // What is asserted is the ordering the primitive inverted in dark, where
-    // gray-light/400 measured 7.90:1 — brighter than the weekday header.
-    // Measured: text/inert 1.65 light / 1.60 dark; text/disabled 2.77 / 2.66.
+    // What is asserted is the ordering the drawn primitive inverted in dark,
+    // where its light grey measured 7.90:1 — brighter than the weekday header.
+    // Measured: text/inert 1.72 light / 1.43 dark; text/disabled 2.39 / 2.01.
     for (const mode of MODES) {
       expect(tokenContrast('text/inert', 'surface/overlay', mode), mode).toBeLessThan(
         tokenContrast('text/disabled', 'surface/overlay', mode),
@@ -493,17 +505,17 @@ describe('the calendar meets the thresholds its drawing did not', () => {
 });
 
 describe('surface/scrim', () => {
-  it('is the drawn wash in light: gray-light/200 at 95%', () => {
-    // The Figma Overlay is gray-light/200 with the layer at 95% — read from
-    // the exported PNG's alpha, 242/255. Not the black wash this token held.
+  it('is the drawn wash in light: the neutral 200 at 95%', () => {
+    // The Figma Overlay is the neutral ramp's 200 with the layer at 95% — read
+    // from the exported PNG's alpha, 242/255. Not the black wash this token held.
     const wash = alphaPrimitives[theme['surface/scrim'].light as keyof typeof alphaPrimitives];
-    expect(wash).toEqual({ hex: primitives['gray-light/200'], alpha: 0.95 });
+    expect(wash).toEqual({ hex: primitives['stone/200'], alpha: 0.95 });
   });
 
   it('keeps a dialog distinguishable from its backdrop in dark', () => {
-    // Dark was never drawn. The literal mirror of the light wash,
-    // gray-dark/600 at 95%, sits at 1.01:1 against surface/overlay — the
-    // dialog would vanish into its own backdrop.
+    // Dark was never drawn. The literal mirror of the light wash, the overlay
+    // colour at 95%, sits within 1.01:1 of surface/overlay — the dialog would
+    // vanish into its own backdrop.
     const scrim = resolve('surface/scrim', 'dark', resolve('surface/base', 'dark'));
     expect(contrast(resolve('surface/overlay', 'dark'), scrim)).toBeGreaterThanOrEqual(1.4);
   });

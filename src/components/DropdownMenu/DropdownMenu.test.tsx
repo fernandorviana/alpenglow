@@ -143,8 +143,8 @@ describe('DropdownMenu rows', () => {
 
   describe('the stylesheet', () => {
     it('gives each tone the fill measured for it, not one shared neutral', () => {
-      // text/accent on the neutral fill is 3.50:1 in dark. On its own subtle
-      // surface it is 5.00:1. See contrast.test.ts.
+      // text/accent on the neutral fill is 4.23:1 in dark. On its own subtle
+      // surface it is 8.39:1. See contrast.test.ts.
       expect(css).toContain('--ap-color-interactive-neutral-hover');
       expect(css).toContain('--ap-color-surface-accent-subtle');
       expect(css).toContain('--ap-color-surface-danger-subtle');
@@ -215,7 +215,7 @@ describe('DropdownMenu groups and separators', () => {
 
   it('draws the divider with the divider token, not the drawn surface', () => {
     // The drawing uses surface/sunken. It resolves to the same primitive in
-    // light (gray-light/100) and to a different one in dark; border/subtle is
+    // light (stone/100) and to a different one in dark; border/subtle is
     // the token that means divider and stays one in both modes.
     expect(css).toContain('--ap-color-border-subtle');
     expect(css).not.toContain('--ap-color-surface-sunken');

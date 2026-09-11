@@ -64,12 +64,12 @@ export default function Page() {
         WCAG 2.1 excludes inactive components.
       </p>
       <p>
-        The box is inset — filled a step darker than the surface it sits on — so its border
-        and its selected dot are measured against that fill, not only against the card
-        behind it. Filling it with the canvas colour instead, which is how it was drawn,
-        drops the border to 2.83:1 and the dot to 2.70:1 in dark: fine in light, invisible
-        in dark, and the hardest kind of regression to catch by eye. One ramp step darker
-        fixes both and is 1.08:1 away in light.
+        The box is inset — filled with <code>surface/sunken</code>, a step below the card in
+        light (1.17:1 away) and the canvas colour in dark, where the ladder ends — so its
+        border and its selected dot are measured against that fill, not only against the
+        card behind it. The border reads 3.04:1 in light and 4.84:1 in dark there, the dot
+        6.86:1 in dark. A fill that only looks right against the card is the hardest kind
+        of regression to catch by eye, which is why the suite measures the box on its own.
       </p>
       <p>
         A checkbox fills when checked; a radio keeps its fill and gains a ring and a dot.

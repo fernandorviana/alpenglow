@@ -70,9 +70,9 @@
 /* A small neutral button, not a bare icon. The drawn fill surface/base is
    byte-identical to interactive/neutral in light and moves the wrong way in
    dark — the same collision as the day hover. The chevron takes
-   interactive/on-neutral, which measures 10.58:1 on the resting fill in both
-   modes and 9.67 / 9.08 on the hover fill. The drawn gray-dark/300 is a
-   primitive with no semantic name. */
+   interactive/on-neutral, which measures 13.21 / 9.86 on the resting fill
+   and 12.12 / 6.95 on the hover fill. The drawn mid-grey is a primitive with
+   no semantic name. */
 .page {
   display: inline-flex;
   align-items: center;

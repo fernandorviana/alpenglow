@@ -98,7 +98,7 @@
 
 /* surface/overlay, NOT the drawn surface/raised. In light both resolve to
    white, so the drawing cannot tell them apart. In dark they diverge on
-   purpose — raised is gray-dark/700, overlay is gray-dark/600 — because
+   purpose — raised is night/900, overlay is night/800 — because
    shadows stop reading as elevation and the overlay carries its own step. A
    panel painted `raised` would sit at the same value as the card it floats
    over.

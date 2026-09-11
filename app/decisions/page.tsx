@@ -8,9 +8,9 @@ export default function Page() {
     <DocPage
       evidence={
         <>
-          <p>brand-2/700</p>
-          <p>{contrast(primitives['brand-2/700'], primitives['brand-2/900']).toFixed(2)} on dark label</p>
-          <p>{contrast(primitives['brand-2/700'], primitives.white).toFixed(2)} on white</p>
+          <p>flare/500</p>
+          <p>{contrast(primitives['flare/500'], primitives['stone/900']).toFixed(2)} on dark label</p>
+          <p>{contrast(primitives['flare/500'], primitives.white).toFixed(2)} on white</p>
           <p>neither clears 4.5</p>
         </>
       }
@@ -35,7 +35,7 @@ export default function Page() {
         In dark the accent fill <em>lightens</em> across hover and pressed, while its label{' '}
         <em>darkens</em> to compensate. This is the trap that makes the palette look
         incapable of a lighter dark-mode hover: hold the label at white and the hover step
-        lands at 4.18:1, under AA, with no lighter purple available that fixes it. The
+        lands at 1.77:1, nowhere near AA, with no lighter violet available that fixes it. The
         label was never the constant.
       </p>
       <div className="specimen">
@@ -47,27 +47,28 @@ export default function Page() {
         </p>
       </div>
 
-      <h2>The tertiary button has no third step</h2>
+      <h2>The highlight button lightens on hover, in both modes</h2>
       <p>
-        <code>interactive/tertiary</code> resolves to brand-2. In light, its pressed state
-        would naturally be <code>brand-2/700</code>, and that value falls into a gap where
-        neither available label passes.
+        <code>interactive/tertiary</code> resolves to flare, the gold the peaks take before
+        they turn pink. Its fill is <code>flare/400</code> with a dark label. The step below
+        it, <code>flare/500</code>, is the stop where no label passes at all.
       </p>
       <div className="rejected">
         <p>
-          <strong>Rejected: brand-2/700 as the light pressed fill.</strong>
+          <strong>Rejected: flare/500 as the hover fill.</strong>
         </p>
         <p className="ratioLine">
-          with brand-2/900 —{' '}
-          <Ratio fg={primitives['brand-2/900']} bg={primitives['brand-2/700']} /> · with white —{' '}
-          <Ratio fg={primitives.white} bg={primitives['brand-2/700']} />
+          with stone/900 —{' '}
+          <Ratio fg={primitives['stone/900']} bg={primitives['flare/500']} /> · with white —{' '}
+          <Ratio fg={primitives.white} bg={primitives['flare/500']} />
         </p>
         <p>
-          Light repeats the hover value for pressed rather than shipping a step that cannot
-          pass. Dark has room and uses brand-2/300. The tone is also withheld from the
-          outline and ghost variants, enforced in the type signature — brand-2 fails as a
-          foreground on light surfaces, so offering it would only produce buttons nobody
-          should use.
+          So the only three-step ladder that passes goes the other way: 400, then 300, then
+          200, the label staying dark throughout. Light and dark share it, because the rule
+          that produced it is the same in both — the accent already lightens in dark for the
+          same reason. The tone is withheld from the outline and ghost variants, enforced in
+          the type signature: the theme has no flare text colour, and nobody has drawn the
+          button that would need one.
         </p>
       </div>
 
@@ -79,20 +80,25 @@ export default function Page() {
         Sitting mid-ramp, it contrasts in both directions.
       </p>
 
-      <h2>The dark ramp holds four elevation levels, not five</h2>
+      <h2>The dark ramp holds three elevation levels, and sunken shares the canvas</h2>
       <p>
-        Sunken, base, raised, overlay — and then it is full. A dropdown opened inside a
-        modal stays on <code>surface/overlay</code> and is separated by a border rather than
-        another fill step. Running out is not a flaw to design around; it is a constraint to
-        state plainly so nobody invents a fifth level that collides with something.
+        Base, raised, overlay — and then it is full. The ramp is eleven stops and ends at
+        950, so in dark <code>surface/sunken</code> is the canvas: a well reads as recessed
+        inside a card, and on the canvas it takes a border. A dropdown opened inside a modal
+        stays on <code>surface/overlay</code> and is separated by a border rather than another
+        fill step. A twentieth step was measured and refused — adjacent steps of the
+        neutral it would have extended were 1.08 to 1.23:1 apart, which is how a system ends
+        up with two text levels nobody can tell apart. Running out is not a flaw to design
+        around; it is a constraint to state plainly so nobody invents a level that collides
+        with something.
       </p>
 
       <h2>The menu takes a border in dark and not in light</h2>
       <p>
         Not an oversight of symmetry. Against the ground it falls on, the shadow reaches 1.19:1
-        in light at 8% opacity and 1.16:1 in dark at 64% — in dark it has stopped carrying
+        in light at 8% opacity and 1.15:1 in dark at 64% — in dark it has stopped carrying
         elevation, whatever it is set to. The border is what separates the menu there, and
-        against the canvas it is 1.77:1 in dark against 1.31:1 in light: stronger where it has
+        against the canvas it is 3.15:1 in dark against 1.60:1 in light: stronger where it has
         to be. In light the shadow already does the work, and drawing the edge twice would
         look like a mistake, because it would be one.
       </p>
@@ -102,14 +108,8 @@ export default function Page() {
         The drawing gives every row the same hover fill. Two measurements broke that. The drawn
         fill is <code>surface/base</code>, which in dark is <em>darker</em> than the menu — the
         row under the pointer would open a hole rather than light up. And the accent row&rsquo;s
-        label on a shared neutral fill is 3.50:1 in dark, below AA. On its own subtle surface it
-        is 5.00:1.
-      </p>
-      <p>
-        The accent fill in dark is 1.06:1 against the menu, which reads as invisible and is not.
-        It is a hue change, and its ΔE76 is 65.86. The WCAG ratio is a luminance measure; here
-        it misses the difference entirely. Both numbers belong on the page, because only one of
-        them describes what a reader sees.
+        label on a shared neutral fill is 4.23:1 in dark, below AA. On its own subtle surface it
+        is 8.39:1.
       </p>
 
       <h2>The menu takes the top layer, and the suite cannot see it</h2>

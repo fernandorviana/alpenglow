@@ -9,7 +9,6 @@ import { Input } from '@/components/Input/index';
 import { Select } from '@/components/Select/index';
 import { Table } from '@/components/Table/index';
 import { composite, contrast, hexToRgb, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
-import { primitives } from '@/tokens/primitives';
 import type { Mode } from '@/tokens/theme';
 
 type PropRow = { prop: string; type: string; default: string };
@@ -37,10 +36,10 @@ const f = (n: number) => n.toFixed(2);
 const separation = (mode: Mode) =>
   contrast(resolve('surface/overlay', mode), resolve('surface/scrim', mode, resolve('surface/base', mode)));
 
-/** The rejected dark scrim: the light wash mirrored onto gray-dark/600 at 95%. */
+/** The rejected dark scrim: the light wash mirrored onto the overlay colour at 95%. */
 const mirrored = contrast(
   resolve('surface/overlay', 'dark'),
-  rgbToHex(composite(hexToRgb(primitives['gray-dark/600']), hexToRgb(resolve('surface/base', 'dark')), 0.95)),
+  rgbToHex(composite(hexToRgb(resolve('surface/overlay', 'dark')), hexToRgb(resolve('surface/base', 'dark')), 0.95)),
 );
 
 function SizeDemo({ size, width }: { size: DialogSize; width: string }) {
@@ -228,9 +227,9 @@ export default function Page() {
       <h2>Decisions</h2>
       <p>
         <strong>The backdrop is the drawn wash.</strong> The drawing&apos;s overlay is{' '}
-        <code>gray-light/200</code> at 95%: the page behind all but disappears. The dialog is
+        <code>stone/200</code> at 95%: the page behind all but disappears. The dialog is
         separated from it by its shadow — on colour alone the two are {f(separation('light'))}:1. Dark
-        was never drawn. Mirroring the wash onto <code>gray-dark/600</code> measures {f(mirrored)}:1,
+        was never drawn. Mirroring the wash onto the overlay colour measures {f(mirrored)}:1,
         and the dialog would vanish, so dark uses the system&apos;s darkest ink at the same 95%:{' '}
         {f(separation('dark'))}:1, with a hairline border on the dialog.
       </p>

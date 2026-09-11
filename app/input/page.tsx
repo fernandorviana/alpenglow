@@ -43,7 +43,7 @@ export default function Page() {
           <strong>The resting state has a known gap, kept for now.</strong>
         </p>
         <p>
-          With no border, the field&rsquo;s boundary is carried entirely by its fill — 1.06:1
+          With no border, the field&rsquo;s boundary is carried entirely by its fill — 1.07:1
           against a card, and against the app canvas, which is the same colour, no boundary
           at all. WCAG 1.4.11 asks for 3:1 where a border is what identifies a control. This
           matches the drawn component and is on the list to tune.

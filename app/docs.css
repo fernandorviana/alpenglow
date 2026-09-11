@@ -206,7 +206,7 @@ html[data-nav-open] { overflow: hidden; }
   --toggle-knob: var(--ap-color-surface-raised);
   --toggle-knob-edge: var(--ap-color-border-default);
   --toggle-knob-shadow: var(--ap-alpha-black-08);
-  --toggle-icon-idle: var(--ap-gray-dark-050);
+  --toggle-icon-idle: var(--ap-stone-600);
 
   position: relative;
   display: inline-flex;
@@ -256,7 +256,7 @@ html[data-nav-open] { overflow: hidden; }
 
 /* The drawn accent is #6B52FF, from a brand ramp this system does not have.
    `text/accent` is the substitute, and it is themed rather than constant:
-   brand-1/500 on the white knob in light, brand-1/300 on the dark one. */
+   twilight/600 on the white knob in light, twilight/300 on the dark one. */
 .themeToggleSun { color: var(--ap-color-text-accent); }
 
 /* Dark is written twice — once for viewers whose system asks for it and who
@@ -270,7 +270,7 @@ html[data-nav-open] { overflow: hidden; }
     --toggle-track: var(--ap-color-surface-raised);
     --toggle-track-hover: var(--ap-color-interactive-neutral);
     --toggle-knob: var(--ap-color-surface-base);
-    --toggle-knob-edge: var(--ap-gray-dark-600);
+    --toggle-knob-edge: var(--ap-night-700);
     --toggle-knob-shadow: var(--ap-alpha-black-16);
     --toggle-icon-idle: var(--ap-color-text-placeholder);
   }
@@ -283,7 +283,7 @@ html[data-nav-open] { overflow: hidden; }
   --toggle-track: var(--ap-color-surface-raised);
   --toggle-track-hover: var(--ap-color-interactive-neutral);
   --toggle-knob: var(--ap-color-surface-base);
-  --toggle-knob-edge: var(--ap-gray-dark-600);
+  --toggle-knob-edge: var(--ap-night-700);
   --toggle-knob-shadow: var(--ap-alpha-black-16);
   --toggle-icon-idle: var(--ap-color-text-placeholder);
 }
@@ -419,7 +419,7 @@ html[data-nav-open] { overflow: hidden; }
   color: var(--ap-color-text-tertiary);
 }
 
-/* Token names are identifiers — breaking `gray-light/050` across two lines
+/* Token names are identifiers — breaking `stone/050` across two lines
    makes them unreadable and uncopyable. */
 .tokens .alias,
 .tokens .tokenName {

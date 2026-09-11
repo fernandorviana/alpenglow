@@ -32,7 +32,7 @@ generated from it.
 
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
-| Primitives | `src/tokens/primitives.ts` | no | 81 opaque colours + 16 alpha (12 on the ramps, 3 inks — two for shadows, one for the dark scrim — and the light scrim's mist). Never referenced directly. |
+| Primitives | `src/tokens/primitives.ts` | no | 111 opaque colours (white + ten families of eleven stops, 050–950, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs`) + 16 alpha (12 on the black/white ramps, 3 inks — two for shadows, one for the dark scrim — and the light scrim's mist). Never referenced directly. |
 | Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, two steps (`md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
@@ -64,16 +64,30 @@ have all been mistaken for errors at least once.
    A white label there fails AA at the hover step.
 
 3. **`tertiary` is solid-only because it has to be; `success` because it was
-   never drawn.** Both are enforced by the type union. `brand-2/500` is 1.45:1
-   on white and the theme has no tertiary text colour, so
-   `variant="outline" tone="tertiary"` does not compile. `success` was once
+   never drawn.** Both are enforced by the type union. The tertiary fill is
+   `flare/400`, 2.53:1 on white, and the theme has no tertiary text colour
+   (`flare/700` would clear 7.84:1, but the button that needs it has not been
+   drawn), so `variant="outline" tone="tertiary"` does not compile. The
+   tertiary ladder *lightens* on hover and pressed in both modes — 400, 300,
+   200 with a dark label — because `flare/500` carries no label at all
+   (3.74:1 dark, 3.80:1 white). `success` was once
    excluded for the same reason, but field validation added `text/success`
    and `border/success`, which clear 4.5:1 and 3:1 on the canvas: an outline
    success is possible, and stays out until someone draws it (decided
    2026-09-11). The Button page renders both ratios live.
 
-4. **The dark elevation ramp holds four levels, not five.** When you run out,
-   separate with a border rather than inventing a step.
+4. **The dark elevation ramp holds three colour levels, and `sunken` shares
+   the canvas.** The ramp is eleven stops and ends at 950, so in dark
+   `surface/sunken` resolves to `surface/base` — a well reads as recessed
+   inside a card (1.22:1) and on the canvas it takes a border. A twentieth
+   step was measured and refused on 2026-09-11: adjacent steps of the old
+   twenty-step neutral were 1.08–1.23:1 apart and gave the theme two text
+   levels 1.22:1 from each other. When you run out, separate with a border
+   rather than inventing a step. `contrast.test.ts` asserts the equality so it
+   is not mistaken for an oversight. The dark ladder is `night`; a product
+   that wants a neutral dark aliases the same stops of `stone`, and one pair
+   moves — `border/strong` on `stone/800` is 2.97:1, so that ladder takes
+   `stone/400` there. Never mix the two families in one ladder.
 
 5. **A loading button is `disabled` but must not look disabled.** Every
    paint-bearing disabled rule in `Button.module.css` carries `:not(.loading)`.
@@ -120,15 +134,15 @@ have all been mistaken for errors at least once.
 
 10. **Dark elevation is modest on purpose.** The dark shadow was never drawn,
     so its values are a decision. Black at 64% over the dark canvas reaches
-    1.16:1 against it; black at 8% over white reaches 1.19:1. An 8% shadow in
+    1.15:1 against it; black at 8% over white reaches 1.19:1. An 8% shadow in
     light does more than a 64% one in dark, so dark does not chase a shadow
     that cannot work — it stops at `alpha/black-32` and `-48`.
 
 11. **The DropdownMenu has a border in dark and none in light.** Invariant 4
     applied, not an accident of asymmetry: in dark the shadow stops separating, and
-    `border/default` is 1.77:1 against the canvas there against 1.31:1 in
+    `border/default` is 3.15:1 against the canvas there against 1.60:1 in
     light. Each menu tone also hovers to its own subtle fill rather than one
-    shared neutral — `text/accent` on the neutral fill is 3.50:1 in dark.
+    shared neutral — `text/accent` on the neutral fill is 4.23:1 in dark.
     Both are asserted in `DropdownMenu.test.tsx` and `contrast.test.ts`.
 
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
@@ -154,9 +168,9 @@ have all been mistaken for errors at least once.
 13. **The calendar's spilled days are inert but still painted.** The days from
     the adjacent months are rendered, greyed, not focusable and not clickable,
     and their numbers are `aria-hidden`. They take `text/inert`, which measures
-    1.65:1 in light and 1.60:1 in dark against the panel. That is what makes
+    1.72:1 in light and 1.43:1 in dark against the panel. That is what makes
     those figures defensible — decoration is exempt, an interactive control is
-    not. The token is not the drawn primitive `gray-light/400` on purpose: a
+    not. The token is not the drawn light-grey primitive on purpose: a
     primitive does not switch with the theme, and on the dark panel it measured
     7.90:1, brighter than an unavailable day. `contrast.test.ts` asserts
     `text/inert` stays below `text/disabled` in both modes. But a
@@ -455,7 +469,7 @@ dispatched `cancel`. The Figma file's `color/surface/scrim` variable still
 holds the old black wash; updating it writes to Fernando's file, so it waits
 for his word.
 
-The README's counts — 54 semantic tokens, 81 + 16 primitives, 122 contrast
+The README's counts — 54 semantic tokens, 111 + 16 primitives, 123 contrast
 cases — were checked against the tree on 2026-09-11. They are stated as cases,
 the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
@@ -561,7 +575,7 @@ the dialog role does not allow.
 These two are deliberately parked and depend on each other.
 
 **The input's resting-state boundary.** The field has no border at rest; its
-fill is 1.06:1 against a card and identical to the canvas. The decision was
+fill is 1.07:1 against a card and identical to the canvas. The decision was
 to leave it and revisit.
 
 **Four state colours are one step off the Figma file** — the error and success

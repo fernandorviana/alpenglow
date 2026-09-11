@@ -185,7 +185,7 @@ export default function Page() {
         <li>
           The hover fill follows the row&rsquo;s tone instead of being <code>surface/base</code>{' '}
           for every row. <code>surface/base</code> is <em>darker</em> than the menu in dark, and
-          the accent label on a shared neutral fill is 3.50:1 there, below AA.
+          the accent label on a shared neutral fill is 4.23:1 there, below AA.
         </li>
         <li>
           The danger row&rsquo;s hover border is dropped. It would reflow the row by 1px and be the

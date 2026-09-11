@@ -96,9 +96,9 @@ export default function Page() {
         </p>
         <p>
           Outline and ghost paint the tone as text, and outline as a border too. Tertiary
-          cannot be painted that way: brand-2/500 is 1.45:1 on white, and the theme has no
-          tertiary text colour — <code>text/tertiary</code> is a level of the text
-          hierarchy, not this tone. So{' '}
+          cannot be painted that way: its fill, flare/400, is 2.53:1 on white, and the theme
+          has no tertiary text colour — <code>text/tertiary</code> is a level of the text
+          hierarchy, not this tone, and flare/700 has not been drawn as one. So{' '}
           <code>variant=&quot;outline&quot; tone=&quot;tertiary&quot;</code> does not compile
           rather than producing a button nobody should ship.
         </p>

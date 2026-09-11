@@ -1056,14 +1056,14 @@ describe('Calendar stylesheet source', () => {
   });
 
   it('carries no colour literal and references no primitive', () => {
-    // The spilled days were the one exception, on gray-light/400, until it
-    // measured 7.90:1 on the dark panel. They take text/inert now, which
+    // The spilled days were the one exception, on the drawn light grey, until
+    // it measured 7.90:1 on the dark panel. They take text/inert now, which
     // switches with the theme. Any primitive here is drift.
     const literals = css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
     expect(literals).toEqual([]);
     // rgb()/rgba()/hsl()/hsla() are colour literals by another name.
     expect(css).not.toMatch(/\b(?:rgb|rgba|hsl|hsla)\(/);
-    const primitives = css.match(/--ap-(gray|brand|red|green|yellow|blue|alpha|white|black)-[\w-]+/g) ?? [];
+    const primitives = css.match(/--ap-(glow|twilight|flare|glacier|stone|night|mist|ember|moss|amber|alpha|white|black)-[\w-]+/g) ?? [];
     expect(primitives).toEqual([]);
   });
 });
