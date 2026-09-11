@@ -200,10 +200,10 @@ have all been mistaken for errors at least once.
     extracts the digits, runs `applyMask` from `mask.ts`, and puts the caret
     back by digit count. Handling `keydown` looks like a simplification and
     breaks paste, autofill, IME and Android, whose keyboards report
-    `Unidentified`. Two more rules only look inconsistent: an insertion is
+    `Unidentified`. Three more rules only look inconsistent: an insertion is
     checked and rejected whole while a deletion is never refused (checking
-    deletions "for consistency" traps Backspace), and a Backspace that only
-    removed a separator removes the digit beside it instead, and a separator
+    deletions "for consistency" traps Backspace); a Backspace that only
+    removed a separator removes the digit beside it instead; and a separator
     inserted after a lone day or month digit completes that part (`1/` becomes
     `01/`).
 

@@ -379,9 +379,9 @@ export default function Page() {
       <h2>Typing a date</h2>
       <p>
         The field is one masked input. Type digits only: the separator appears as each part is
-        complete, a first digit that cannot start its part gains a leading zero (a month of{' '}
-        <code>4</code> becomes <code>04</code>), so does a single digit you type a separator after
-        (<code>1/</code> becomes <code>01/</code>), and a digit that would make a part impossible (a
+        complete. A first digit that cannot start its part gains a leading zero (a month of{' '}
+        <code>4</code> becomes <code>04</code>), and so does a single digit followed by a separator
+        (<code>1/</code> becomes <code>01/</code>). A digit that would make a part impossible (a
         month of <code>13</code>) is not taken. Pasting, autofill and deleting in the middle all go
         through the same rebuild from the digits, and a deletion is never refused. ISO (
         <code>2023-04-26</code>) is read when it arrives whole — pasted or autofilled — in any
