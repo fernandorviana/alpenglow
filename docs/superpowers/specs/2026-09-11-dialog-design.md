@@ -224,3 +224,22 @@ and dark.
   Vocabulary or Conventions entry for `DialogSize`; the invariant that a
   click on the backdrop does not close, with the reason; the verification test
   count.
+
+## Addendum — found while planning, 2026-09-11
+
+- **`initialFocus`, not `autoFocus`.** React 19's client renderer does not
+  write the `autofocus` attribute — it calls `focus()` at mount, while the
+  dialog is still closed — and only `renderToString` writes it, so
+  `showModal()` would find an `autoFocus` field on a server-rendered page and
+  not on a client-rendered one. `DialogProps` gains
+  `initialFocus?: RefObject<HTMLElement | null>`, focused after `showModal()`.
+  §1's *initial focus* and §4's `autoFocus` test read accordingly.
+- **A close the platform forces calls `onClose`.** Chrome's close watcher
+  fires a cancelable `cancel` only after user activation; a second Esc without
+  it closes with no `cancel`. The `close` event calls `onClose` whenever `open`
+  is still true. The caller can refuse one Esc, not two.
+- **The header buttons are `interactive/neutral`, not `surface/base`.** The
+  same primitive in light; in dark `surface/base` is a step below the overlay,
+  `interactive/neutral` a step above, as the Calendar's month buttons have it.
+- **Header and footer are `<div>`s.** Outside sectioning content, `<header>`
+  and `<footer>` are the page's banner and contentinfo landmarks.

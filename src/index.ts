@@ -72,3 +72,6 @@ export type { CalendarProps, CalendarMode, DateRange, ISODate } from './componen
 
 export { DatePicker } from './components/DatePicker/index';
 export type { DatePickerProps, DatePickerInvalidReason } from './components/DatePicker/index';
+
+export { Dialog } from './components/Dialog/index';
+export type { DialogProps, DialogSize } from './components/Dialog/index';
