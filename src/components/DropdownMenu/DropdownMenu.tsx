@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import type {
   CSSProperties,
   KeyboardEvent as ReactKeyboardEvent,
@@ -77,8 +77,12 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
 
   const hydrated = useHydrated();
   const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const close = () => menuRef.current?.hidePopover();
+  // The menu element is state, not a ref. Its handlers are handed to `trigger()`
+  // during render, and a handler closing over a ref reads to the React Compiler
+  // as a ref read during render: it skips the component, and the hooks lint of
+  // any project this is copied into fails on it.
+  const [menu, setMenu] = useState<HTMLDivElement | null>(null);
+  const close = () => menu?.hidePopover();
 
   /**
    * Navigation reads the live DOM rather than mirroring the row list in state.
@@ -87,7 +91,6 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
    * parallel array that can fall out of step with it.
    */
   const focusables = (): HTMLElement[] => {
-    const menu = menuRef.current;
     if (!menu) return [];
     return [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')];
   };
@@ -97,7 +100,7 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
     if (index < 0 || rows.length === 0) {
       // Every row disabled: park focus on the surface so the popover is not a
       // focus black hole.
-      menuRef.current?.focus();
+      menu?.focus();
       return;
     }
     rows[index]?.focus();
@@ -106,7 +109,7 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
   const onTriggerKeyDown = (event: ReactKeyboardEvent) => {
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     event.preventDefault();
-    menuRef.current?.showPopover();
+    menu?.showPopover();
     focusAt(event.key === 'ArrowDown' ? 0 : focusables().length - 1);
   };
 
@@ -167,7 +170,7 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
       })}
 
       <div
-        ref={menuRef}
+        ref={setMenu}
         id={menuId}
         popover="auto"
         role="menu"
@@ -183,7 +186,7 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
           // menu opened by a click has to land on its first row. The toggle
           // event is queued and arrives after onTriggerKeyDown has placed
           // focus — ArrowUp's last row must not be overwritten.
-          if (isOpen && !menuRef.current?.contains(document.activeElement)) focusAt(0);
+          if (isOpen && !menu?.contains(document.activeElement)) focusAt(0);
         }}
       >
         {items.map((entry, i) => {

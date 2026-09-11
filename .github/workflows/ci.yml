@@ -18,7 +18,7 @@ jobs:
 
       - run: npm ci
 
-      # Types first, then the contrast suite. Deployment is Vercel's job; this
+      # Types, the hooks lint, then the suite. Deployment is Vercel's job; this
       # is the gate that stops a token change shipping without its numbers
       # being recomputed, and catches a generated stylesheet left stale.
       - run: npm run check

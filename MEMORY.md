@@ -261,6 +261,14 @@ have all been mistaken for errors at least once.
   share `choice.module.css` as Input, Textarea and Select share
   `control.module.css`, and neither needs a module of its own. A test that
   reads a stylesheet uses `readCss` and `block` from `src/test/css.ts`.
+- **A module that needs React's client build opens with `'use client'`.** The
+  docs pages are all client components, so the site cannot show a missing one;
+  a consumer's Server Component page fails to prerender. `directives.test.ts`
+  reads what `react.react-server.js` exports and flags any module importing
+  something else without the directive.
+- **`src/` passes the React hooks lint, Compiler rules included**
+  (`npm run lint`), because registry code becomes code the consumer's
+  `eslint-config-next` lints. `app/` is not linted: it is not copied anywhere.
 
 ---
 
@@ -302,13 +310,13 @@ caption).
 ## Verification
 
 ```bash
-npm run check       # tsc --noEmit, then the full suite
-npm test            # 687 tests across 25 files
+npm run check       # tsc --noEmit, the hooks lint on src/, then the full suite
+npm test            # 688 tests across 26 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
 
-CI (`.github/workflows/ci.yml`) runs typecheck + tests, regenerates the
+CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
@@ -392,13 +400,29 @@ Two parts do **not** wait, because they get more expensive later:
   only the docs site imports them. The Vercel build needs them, and gets them
   only because it installs dev dependencies — which stops being true if
   `NODE_ENV=production` or `NPM_CONFIG_PRODUCTION` is ever set on the project.
-- **The CSS delivery model, now.** How does a consumer receive `tokens.css`,
-  and do the CSS Module class names survive a library build? This is
-  architecture, not packaging: if the answer forces a change in how components
-  are styled, it is much cheaper to learn at twelve components than at
-  twenty-five. Settle it with a *throwaway* build — generate once, install the
-  tarball into a scratch Vite app, check light and dark, delete it. Nothing to
-  maintain afterwards.
+- **The CSS delivery model — settled by a throwaway spike, 2026-09-11.** Three
+  models were installed into a Next 16 + shadcn + Tailwind v4 app and checked
+  in the browser in light and dark. The direction chosen: **a shadcn registry
+  first** (`npx shadcn add @alpenglow/date-picker`, served from the docs site),
+  **an npm package later**, compiled with Vite (`preserveModules` keeps
+  `'use client'`) and one `styles.css` the consumer imports. What the spike
+  measured, so it is not re-run:
+  - The registry works with `src/` copied unchanged, when each file's `target`
+    mirrors `src/components/` so relative imports still resolve. Items depend
+    on each other through the `@alpenglow` namespace, and the `css` field adds
+    the tokens `@import` to the consumer's `globals.css`.
+  - Shipping source with `import './styles/tokens.css'` inside the barrel
+    loses the tokens silently under `sideEffects: ["*.css"]`: the bundler skips
+    the barrel. Tokens must be an import the consumer writes.
+  - next-themes with `attribute={['class', 'data-theme']}` drives shadcn's
+    `.dark` and this system's `data-theme` from one switch.
+  - Unlayered CSS Modules beat Tailwind's `@layer utilities`, so a consumer's
+    `className="rounded-none"` does nothing. `@layer components` fixes that,
+    but then any unlayered consumer rule — a reset, or this site's own
+    `.prose h2` — beats the components instead. **Undecided.**
+  - The Checkbox had no `'use client'` and broke every Server Component page
+    that rendered it, and two components failed the React Compiler's hooks
+    lint. Both fixed; see Conventions.
 
 The rest — `exports`, `files`, `sideEffects`, version, the build config,
 `npm pack` — waits until the component set stops moving.

@@ -154,10 +154,7 @@ export function Calendar({
     : (internalMonth ?? (now ? startOfMonth(now) : null));
 
   const weekdays = useWeekdayNames(locale, weekStartsOn);
-  const grid = useMemo(
-    () => (visibleMonth === null ? null : monthGrid(visibleMonth, weekStartsOn)),
-    [visibleMonth, weekStartsOn],
-  );
+  const grid = visibleMonth === null ? null : monthGrid(visibleMonth, weekStartsOn);
 
   const monthFormat = useMemo(
     () => dateFormat(locale, { month: 'long' }),
