@@ -1,7 +1,9 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import styles from './Badge.module.css';
+import type { TintTone } from '../vocabulary';
 
-export type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
+export const badgeTones = ['neutral', 'accent', 'success', 'warning', 'danger', 'info'] as const satisfies readonly TintTone[];
+export type BadgeTone = (typeof badgeTones)[number];
 export type BadgeSize = 'sm' | 'md';
 
 export type BadgeProps = {

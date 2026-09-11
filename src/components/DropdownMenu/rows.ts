@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
+import type { TintTone } from '../vocabulary';
 
-export type DropdownMenuItemTone = 'default' | 'accent' | 'danger';
+/** A neutral row is the row's own style; accent and danger rows each hover to their own subtle surface. */
+export const menuItemTones = ['neutral', 'accent', 'danger'] as const satisfies readonly TintTone[];
+export type DropdownMenuItemTone = (typeof menuItemTones)[number];
 
 export type DropdownMenuAction = {
   /** Stable identity. React key, and the typeahead fallback. */

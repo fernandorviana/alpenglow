@@ -1,8 +1,15 @@
 import type { HTMLAttributes } from 'react';
 import styles from './Loader.module.css';
+import type { TintTone } from '../vocabulary';
 
 export type LoaderSize = 'sm' | 'md' | 'lg';
-export type LoaderTone = 'accent' | 'neutral' | 'success' | 'danger' | 'onFill';
+export const loaderTones = ['accent', 'neutral', 'success', 'danger'] as const satisfies readonly TintTone[];
+
+/**
+ * One of `loaderTones`, or `currentColor`: no tone of its own, the colour of
+ * the text around it. A spinner on a filled button takes the button's label.
+ */
+export type LoaderTone = (typeof loaderTones)[number] | 'currentColor';
 
 export type LoaderProps = {
   size?: LoaderSize;

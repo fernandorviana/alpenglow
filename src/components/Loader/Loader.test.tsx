@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { block, readCss } from '@/test/css';
 import { Loader } from './Loader';
+import styles from './Loader.module.css';
 
 describe('Loader', () => {
   it('announces what is being waited for when given a label', () => {
@@ -31,6 +32,17 @@ describe('Loader', () => {
    * jsdom runs no animations and matches no media query, so nothing else fails
    * if the rule is deleted or "simplified" to `animation: none`.
    */
+  it('takes the colour of the text around it with tone="currentColor"', () => {
+    // A spinner on a filled button has no tone of its own: it is the label's
+    // colour, whichever fill the button has. The rule is read from the
+    // stylesheet, because in tests the module map answers for any class name.
+    const { container } = render(<Loader tone="currentColor" />);
+    expect(container.firstElementChild).toHaveClass(styles.currentColor!);
+    expect(readCss('src/components/Loader/Loader.module.css')).toMatch(
+      /\n\.currentColor\s*\{\s*color:\s*currentColor;\s*\}/,
+    );
+  });
+
   describe('under reduced motion', () => {
     const css = readCss('src/components/Loader/Loader.module.css');
     const reducedArc = () => block(block(css, '@media (prefers-reduced-motion: reduce)'), '.arc');

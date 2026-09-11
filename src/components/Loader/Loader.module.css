@@ -118,4 +118,4 @@
 /* On a filled button the loader has to take the label's colour, not the
    system's. Both ring and track are already `currentColor`, so this only has to
    stop the tone rules from setting one. */
-.onFill { color: currentColor; }
+.currentColor { color: currentColor; }

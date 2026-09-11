@@ -321,17 +321,22 @@ Append to `src/components/Loader/Loader.test.tsx`, inside `describe('Loader', �
 ```ts
   it('takes the colour of the text around it with tone="currentColor"', () => {
     // A spinner on a filled button has no tone of its own: it is the label's
-    // colour, whichever fill the button has.
+    // colour, whichever fill the button has. The rule is read from the
+    // stylesheet, because in tests the module map answers for any class name.
     const { container } = render(<Loader tone="currentColor" />);
-    expect(styles.currentColor).toBeDefined();
     expect(container.firstElementChild).toHaveClass(styles.currentColor!);
+    expect(readCss('src/components/Loader/Loader.module.css')).toMatch(
+      /\n\.currentColor\s*\{\s*color:\s*currentColor;\s*\}/,
+    );
   });
 ```
 
 - [ ] **Step 2: Run them to see them fail**
 
 Run: `npx vitest run src/components/vocabulary.test.ts src/components/Loader/Loader.test.tsx`
-Expected: FAIL — `vocabulary.test.ts` fails while collecting (`Cannot read properties of undefined (reading 'map')`: `buttonFillTones` is not exported yet), and the Loader case fails on `expected undefined to be defined`.
+Expected: FAIL — `vocabulary.test.ts` fails while collecting (`Cannot read properties of undefined (reading 'map')`: `buttonFillTones` is not exported yet), and the Loader case fails because `Loader.module.css` has no `.currentColor` rule.
+
+(Found during execution: Vitest's CSS-module stub returns a hashed name for any key — `styles.doesNotExist` is `_doesNotExist_<hash>` — so a class assertion alone passes before the rename. Only the stylesheet read can fail.)
 
 - [ ] **Step 3: Add the vocabulary and the ceilings**
 
@@ -500,8 +505,8 @@ Remove `'tertiary'` again.
 
 - [ ] **Step 9: Confirm the old names are gone**
 
-Run: `grep -rnE "onFill|'default'" src app`
-Expected: no output.
+Run: `grep -rnE "['\"]onFill['\"]|\.onFill\b|tone: ?['\"]default['\"]" src app`
+Expected: no output. (A bare `onFill` also matches `buttonFillTones`, and a bare `'default'` matches the docs prop tables' column key.)
 
 - [ ] **Step 10: Run the checks**
 

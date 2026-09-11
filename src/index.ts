@@ -2,7 +2,7 @@ import './styles/tokens.css';
 
 export { Button } from './components/Button/index';
 export type { ButtonProps } from './components/Button/index';
-export type { ControlSize } from './components/vocabulary';
+export type { ControlSize, Tone } from './components/vocabulary';
 
 export * from './icons/index';
 
