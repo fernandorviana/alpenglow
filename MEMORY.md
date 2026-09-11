@@ -491,9 +491,14 @@ What is open, in the order it will probably be taken:
   body text reads as ink (`stone/900` `#1E2026`, 16.28:1), so
   `text/secondary` in Light moved from `stone/700` to `stone/800`
   (`#32353C`, 12.28:1). It sits 1.33:1 from primary now, against 2.01
-  before — close to the 1.22 the old neutral was refused for, and worth a
-  look on a dense table before it is called settled. Figma was re-pointed
-  the same day.
+  before — close to the 1.22 the old neutral was refused for. Looked at on
+  the live /table in light the same day: the header still separates from
+  the cells, but by size, case and tracking, not colour; the e-mails under
+  the names are tertiary and still read as a third level (2.28:1 from
+  secondary). Where the change will show is a form label or metadata beside
+  body copy with no typographic difference — not yet looked at. There is no
+  stop between 800 and 700, so the alternative is back to `stone/700`.
+  Fernando has not called it either way. Figma was re-pointed the same day.
 - **The live site applies the colours badly** (Fernando, right after the
   merge, before any page had been redesigned for the palette). This is the
   page-level look — the brand gradient exists nowhere on the site, glow has no
