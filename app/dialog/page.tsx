@@ -259,6 +259,21 @@ export default function Page() {
         Chrome closes a dialog on a second Esc without other interaction, and <code>onClose</code>{' '}
         reports that close too, so the caller&apos;s state never says open while the dialog is shut.
       </p>
+      <p>
+        When the back button disappears — the first step of a flow has none — focus would fall to the
+        page behind the dialog. It moves to the close button instead.
+      </p>
+      <p>
+        Checked by hand in Chrome on 11 September 2026, light and dark: the dialog is modal and in the
+        top layer; Tab cycles inside it; the page does not scroll behind it; the close button closes
+        it and focus returns to the button that opened it; a click on the backdrop leaves it open; the
+        backdrop is the mist in light and the ink in dark, with the border in dark;{' '}
+        <code>initialFocus</code> lands on the first field; after Back, focus is on the close button;
+        and at 375px wide the dialog fits the screen. Esc was not checked: the automated browser used
+        does not turn a synthetic Escape into a close request, not even for a plain{' '}
+        <code>&lt;dialog&gt;</code>, so that check waits for a keyboard. Safari and Firefox have not
+        been checked.
+      </p>
 
       <h2>Props</h2>
       <div className="specimen">

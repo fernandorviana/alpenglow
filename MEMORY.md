@@ -32,9 +32,9 @@ generated from it.
 
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
-| Primitives | `src/tokens/primitives.ts` | no | 81 opaque colours + 14 alpha (12 on the ramps, 2 shadow inks). Never referenced directly. |
+| Primitives | `src/tokens/primitives.ts` | no | 81 opaque colours + 16 alpha (12 on the ramps, 3 inks — two for shadows, one for the dark scrim — and the light scrim's mist). Never referenced directly. |
 | Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
-| Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, one step (`md`). Geometry is shared; only the ink changes. |
+| Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, two steps (`md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 
 Generated artefacts, both written by `npm run build:css`:
@@ -242,6 +242,19 @@ have all been mistaken for errors at least once.
     when Back returns to that route; a test fails on it. Left out on purpose:
     the theme toggle inside the overlay, a hamburger icon, and an entry
     animation.
+20. **A click on the Dialog's backdrop does not close it, and Esc does not
+    close it by itself.** Esc arrives as `cancel`, which is prevented and
+    handed to `onClose`; the caller sets `open`. A stray click beside a form
+    must not discard it, so there is no light dismiss — the platform default
+    for `showModal()`. The `close` event also calls `onClose`, but only while
+    `open` is still true: Chrome closes on a second Esc without user
+    activation and fires no `cancel`. Focus goes to `initialFocus`, never an
+    `autoFocus` child: React's client renderer does not write the attribute
+    `showModal()` reads. When the back button disappears under focus — the
+    first step of a flow has none — focus moves to the close button, because
+    the platform would drop it to the body behind the modal (found in Chrome).
+    `src/test/dialog.ts` stubs `showModal` and `close` for jsdom and fails its
+    own test the day jsdom ships them.
 
 ---
 
@@ -297,7 +310,8 @@ have all been mistaken for errors at least once.
   (`sm | md | lg`, 32/40/48px) belongs to Button, Input, Select and
   DatePicker; `vocabulary.test.ts` fails when `Button.module.css` and
   `control.module.css` stop agreeing. `LoaderSize`, `BadgeSize` and
-  `AvatarSize` measure other things and keep their own names. Checkbox, Radio,
+  `AvatarSize` measure other things and keep their own names, as does
+  `DialogSize` (`xs | sm | md | lg`, 320/480/640/960px wide). Checkbox, Radio,
   Switch and Textarea are one size on purpose: a field's size changes its box,
   never its text, and the checkbox aligns to the first line of text.
 - **A component's tones are a list inside a ceiling the tokens set.** `Tone`
@@ -371,7 +385,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 769 tests across 32 files
+npm test            # 793 tests across 33 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 npm run build:lib       # the package, in dist/
@@ -407,20 +421,27 @@ Ordered by what it costs the project *as a portfolio piece*, which is not the
 same as what it would cost a library with adopters. Reviewers arrive through the
 documentation site, so an absent component costs more than an absent package.
 
-### 1. One token still promises a component that does not exist
+### 1. Every token has a consumer (done 2026-09-11)
 
-`surface/scrim` (modal backdrop) has no consumer, because there is no dialog.
-The two listed beside it before have consumers now: `surface/sunken` is the
-read-only field, the checkbox and radio box, the neutral badge and the avatar
-overflow count, and `surface/inverse` is the avatar fill. Their `use` notes in
-`theme.ts` still name progress tracks and tooltips, which do not exist either.
-`surface/overlay` has two consumers — DropdownMenu and the DatePicker panel.
-Table is the consumer of `surface/raised` (table body) and of
-`interactive/selected` (row), which is why `surface/sunken` no longer claims
-table headers: the header band is `surface/base`, and the reason is recorded on
-the token itself.
+`surface/scrim` was the last token promising a component that did not exist;
+the Dialog consumes it, retuned to the drawn wash (`alpha/mist-95` light,
+`alpha/ink-95` dark — the spec is
+`docs/superpowers/specs/2026-09-11-dialog-design.md`). The `use` notes on
+`surface/sunken` and `surface/inverse`, which named progress tracks and
+tooltips, now name what paints them. `surface/overlay` has three consumers —
+DropdownMenu, the DatePicker panel and the Dialog. Table is the consumer of
+`surface/raised` (table body) and of `interactive/selected` (row), which is why
+`surface/sunken` no longer claims table headers: the header band is
+`surface/base`, and the reason is recorded on the token itself.
 
-The README's counts — 54 semantic tokens, 81 + 14 primitives, 120 contrast
+Still to do by hand: press Esc on an open Dialog. The automated browser used
+for the check does not turn a synthetic Escape into a close request, not even
+for a plain `<dialog>`, so that behaviour is covered only by the test's
+dispatched `cancel`. The Figma file's `color/surface/scrim` variable still
+holds the old black wash; updating it writes to Fernando's file, so it waits
+for his word.
+
+The README's counts — 54 semantic tokens, 81 + 16 primitives, 122 contrast
 cases — were checked against the tree on 2026-09-11. They are stated as cases,
 the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
