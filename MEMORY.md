@@ -469,10 +469,18 @@ through the MCP: the ten families created in `Alpenglow Primitives`, all 54
 modes, the 80 old primitives deleted. The file key stays out of the
 repository; Fernando pastes the URL when a session needs it.
 
+`1ceacad`, later the same day, deepened the tail: 700–950 at L .43 / .33 /
+.245 / .16 in every family, the dark canvas `#090B1F`. Fernando approved it
+for a dark theme that reads as night, in preference to switching the ladder
+to `stone`. Every dark pair gained; the one cost is the 950→900 step at
+1.19:1; a deeper tail was measured and refused (invariant 4). The 40 moved
+primitives and the three shadow inks were written to the Figma file and read
+back. Light mode moved with it — `text/primary` is `stone/900` `#1E2026`.
+
 What is open, in the order it will probably be taken:
 
-- **Fernando is testing the bedrock in Figma and expects the semantic layer
-  to change.** `src/tokens/theme.ts` stays the source: change the alias, run
+- **Fernando is testing the bedrock in Figma, with the deep tail, and expects
+  the semantic layer to change.** `src/tokens/theme.ts` stays the source: change the alias, run
   `npm run check` (the contrast suite says which pairs fall and by how much),
   regenerate the JSON, and the plugin script in `apply-variables.md` re-points
   the Figma aliases by name. The ratios quoted in prose on the docs pages and
@@ -496,6 +504,11 @@ What is open, in the order it will probably be taken:
   not built.
 - **A Display P3 pass** would add saturation at the 300–400 stops of the vivid
   families, which sRGB clips; nothing else changes.
+- **The site has not been looked at with the deep tail.** The `dc3aaca`
+  palette was seen in Chrome on /colour and /decisions (dark, no console
+  errors); `1ceacad` was checked only by the suite, the build and the Figma
+  read-back. Open /colour, a component page and the Dialog in both modes
+  before touching the page-level look.
 
 ### 1. Every token has a consumer (done 2026-09-11)
 
