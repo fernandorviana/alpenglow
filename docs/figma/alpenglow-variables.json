@@ -826,7 +826,7 @@
           "name": "color/text/secondary",
           "type": "COLOR",
           "alias": {
-            "Light": "stone/700",
+            "Light": "stone/800",
             "Dark": "stone/300"
           },
           "scopes": [

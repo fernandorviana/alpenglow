@@ -61,12 +61,17 @@ export const theme = {
   'surface/info-subtle':    { light: 'glacier/050', dark: 'glacier/900', use: 'Info badge' },
 
   // ---- text ------------------------------------------------------------
-  // Light reads stone 900 / 700 / 600; dark reads stone 050 / 300 / 400.
+  // Light reads stone 900 / 800 / 600; dark reads stone 050 / 300 / 400.
+  // Secondary was stone/700 until the deep tail made the primary read as
+  // ink; Fernando moved it up one stop on 2026-09-12 so labels sit closer
+  // to body copy — 12.28:1 on white, and 1.33:1 from primary, which is the
+  // separation to watch: the old neutral's indistinguishable levels were
+  // 1.22:1 apart.
   // Tertiary is the tight one: 4.58:1 on sunken in light, 5.18:1 on the
   // overlay in dark. Placeholder is the same stop as tertiary — the next one
   // up, stone/500, is 3.57:1 on white, and a placeholder is text.
   'text/primary':     { light: 'stone/900', dark: 'stone/050', use: 'Headings and body' },
-  'text/secondary':   { light: 'stone/700', dark: 'stone/300', use: 'Labels, metadata' },
+  'text/secondary':   { light: 'stone/800', dark: 'stone/300', use: 'Labels, metadata' },
   'text/tertiary':    { light: 'stone/600', dark: 'stone/400', use: 'Helper text, timestamps' },
   'text/placeholder': { light: 'stone/600', dark: 'stone/400', use: 'Input placeholders' },
   'text/disabled':    { light: 'stone/400', dark: 'stone/600', use: 'Disabled text (WCAG-exempt)' },

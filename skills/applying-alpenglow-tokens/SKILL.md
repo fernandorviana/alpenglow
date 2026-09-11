@@ -212,7 +212,7 @@ Ratios against `surface/raised` in each mode. Every status token also clears AA 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
 | `color/text/primary` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Headings and body | 16.3 / 15.2 |
-| `color/text/secondary` | `#4C5057` stone/700 | `#C1C6CC` stone/300 | Labels, metadata | 8.1 / 9.5 |
+| `color/text/secondary` | `#32353C` stone/800 | `#C1C6CC` stone/300 | Labels, metadata — 1.33:1 from primary in Light, by Fernando's choice | 12.3 / 9.5 |
 | `color/text/tertiary` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Helper text, timestamps | 5.4 / 6.8 |
 | `color/text/placeholder` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Input placeholders | 5.4 / 6.8 |
 | `color/text/disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled text (WCAG-exempt) | 2.4 / 3.0 |
