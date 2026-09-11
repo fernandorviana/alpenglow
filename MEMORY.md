@@ -419,7 +419,10 @@ Two parts do **not** wait, because they get more expensive later:
   - Unlayered CSS Modules beat Tailwind's `@layer utilities`, so a consumer's
     `className="rounded-none"` does nothing. `@layer components` fixes that,
     but then any unlayered consumer rule — a reset, or this site's own
-    `.prose h2` — beats the components instead. **Undecided.**
+    `.prose h2` — beats the components instead. **Decided: the source stays
+    unlayered.** Fernando's ruling: a Tailwind distribution must not bend the
+    base code. A Tailwind user overrides with `rounded-none!`; if the registry
+    ever needs layers, its build step adds them to the copies, never to `src/`.
   - The Checkbox had no `'use client'` and broke every Server Component page
     that rendered it, and two components failed the React Compiler's hooks
     lint. Both fixed; see Conventions.
