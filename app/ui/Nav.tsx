@@ -47,6 +47,7 @@ const NAV = [
       { href: '/input', label: 'Input and Textarea' },
       { href: '/choice', label: 'Checkbox, Radio, Switch' },
       { href: '/date-picker', label: 'Date picker' },
+      { href: '/dialog', label: 'Dialog' },
       { href: '/dropdown-menu', label: 'Dropdown menu' },
       { href: '/select', label: 'Select' },
       { href: '/table', label: 'Table' },
