@@ -3,6 +3,7 @@
 import { forwardRef, useState } from 'react';
 import type { ChangeEvent, ReactNode, SelectHTMLAttributes } from 'react';
 import { useField } from '../Field/FieldContext';
+import type { ControlSize } from '../vocabulary';
 import control from '../control.module.css';
 import styles from './Select.module.css';
 
@@ -18,11 +19,8 @@ function Chevron() {
   );
 }
 
-export type SelectSize = 'sm' | 'md' | 'lg';
-
 export type SelectProps = {
-  /** Shares Button's height scale: 32, 40, 48. */
-  size?: SelectSize;
+  size?: ControlSize;
   invalid?: boolean;
   /** Text shown while nothing is chosen. Renders a disabled empty option. */
   placeholder?: string;

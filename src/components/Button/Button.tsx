@@ -1,12 +1,11 @@
 import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Loader } from '../Loader/Loader';
+import type { ControlSize } from '../vocabulary';
 import styles from './Button.module.css';
 
-export type ButtonSize = 'sm' | 'md' | 'lg';
-
 type BaseProps = {
-  size?: ButtonSize;
+  size?: ControlSize;
   /** Renders a spinner, hides the label without changing the button's width, and blocks activation. */
   loading?: boolean;
   iconStart?: ReactNode;

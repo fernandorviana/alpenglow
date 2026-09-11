@@ -13,6 +13,7 @@ import { Calendar, type CalendarProps, type DateRange } from '../Calendar';
 import { dateFormat, utcTimestamp } from '../Calendar/date';
 import { useField } from '../Field/FieldContext';
 import { useHydrated } from '../useHydrated';
+import type { ControlSize } from '../vocabulary';
 import control from '../control.module.css';
 import {
   applyMask,
@@ -49,9 +50,6 @@ function CalendarIcon() {
   );
 }
 
-/** Shares Button's height scale: 32, 40, 48. */
-export type DatePickerSize = 'sm' | 'md' | 'lg';
-
 /**
  * What the browser says when a form is submitted over an invalid draft. Short
  * and generic: the caller's own message, with the field's name and its bounds
@@ -66,7 +64,7 @@ const VALIDITY_MESSAGE: Record<DatePickerInvalidReason, string> = {
 };
 
 export type DatePickerProps = CalendarProps & {
-  size?: DatePickerSize;
+  size?: ControlSize;
   invalid?: boolean;
   disabled?: boolean;
   readOnly?: boolean;

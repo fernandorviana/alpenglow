@@ -1,7 +1,8 @@
 import './styles/tokens.css';
 
 export { Button } from './components/Button/index';
-export type { ButtonProps, ButtonSize } from './components/Button/index';
+export type { ButtonProps } from './components/Button/index';
+export type { ControlSize } from './components/vocabulary';
 
 export * from './icons/index';
 
@@ -18,13 +19,13 @@ export { Field } from './components/Field/index';
 export type { FieldProps } from './components/Field/index';
 
 export { Input } from './components/Input/index';
-export type { InputProps, InputSize } from './components/Input/index';
+export type { InputProps } from './components/Input/index';
 
 export { Textarea } from './components/Textarea/index';
 export type { TextareaProps } from './components/Textarea/index';
 
 export { Select } from './components/Select/index';
-export type { SelectProps, SelectSize } from './components/Select/index';
+export type { SelectProps } from './components/Select/index';
 
 export { Checkbox } from './components/Checkbox/index';
 export type { CheckboxProps } from './components/Checkbox/index';
@@ -67,4 +68,4 @@ export { Calendar } from './components/Calendar/index';
 export type { CalendarProps, CalendarMode, DateRange, ISODate } from './components/Calendar/index';
 
 export { DatePicker } from './components/DatePicker/index';
-export type { DatePickerProps, DatePickerSize, DatePickerInvalidReason } from './components/DatePicker/index';
+export type { DatePickerProps, DatePickerInvalidReason } from './components/DatePicker/index';

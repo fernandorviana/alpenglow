@@ -3,14 +3,12 @@
 import { forwardRef } from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import { useField } from '../Field/FieldContext';
+import type { ControlSize } from '../vocabulary';
 import styles from '../control.module.css';
-
-/** Shares Button's height scale: 32, 40, 48. */
-export type InputSize = 'sm' | 'md' | 'lg';
 
 export type InputProps = {
   /** Renamed from the HTML `size` attribute, which sets a character count. */
-  size?: InputSize;
+  size?: ControlSize;
   /** Marks the field as failing validation. Sets `aria-invalid` for you. */
   invalid?: boolean;
   iconStart?: ReactNode;
