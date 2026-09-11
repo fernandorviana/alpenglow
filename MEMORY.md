@@ -331,7 +331,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 712 tests across 28 files
+npm test            # 713 tests across 28 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
