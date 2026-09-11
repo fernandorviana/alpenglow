@@ -419,12 +419,18 @@ html[data-nav-open] { overflow: hidden; }
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
 }
 
-.ratio {
+/* `.ratio` is the component's: a value and its grade, one reading that never
+   breaks. `.ratioLine` is a sentence of those readings. It shares the type and
+   not the `nowrap` — under `.ratio` a sentence runs on in one line, and on a
+   375px phone it made the home page 527px wide and Decisions 588px. */
+.ratio,
+.ratioLine {
   font-family: var(--ap-font-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--ap-text-caption-md-size);
-  white-space: nowrap;
 }
+
+.ratio { white-space: nowrap; }
 
 .grade {
   margin-left: var(--ap-spacing-075);

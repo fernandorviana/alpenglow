@@ -39,7 +39,7 @@ export default function Page() {
         label was never the constant.
       </p>
       <div className="specimen">
-        <p className="ratio" style={{ margin: 0 }}>
+        <p className="ratioLine" style={{ margin: 0 }}>
           on-accent over accent, hover, pressed — dark:{' '}
           <Ratio fg={resolve('interactive/on-accent', 'dark')} bg={resolve('interactive/accent', 'dark')} />{' '}
           <Ratio fg={resolve('interactive/on-accent', 'dark')} bg={resolve('interactive/accent-hover', 'dark')} />{' '}
@@ -57,7 +57,7 @@ export default function Page() {
         <p>
           <strong>Rejected: brand-2/700 as the light pressed fill.</strong>
         </p>
-        <p className="ratio">
+        <p className="ratioLine">
           with brand-2/900 —{' '}
           <Ratio fg={primitives['brand-2/900']} bg={primitives['brand-2/700']} /> · with white —{' '}
           <Ratio fg={primitives.white} bg={primitives['brand-2/700']} />

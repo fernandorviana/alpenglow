@@ -270,6 +270,12 @@ have all been mistaken for errors at least once.
   share `choice.module.css` as Input, Textarea and Select share
   `control.module.css`, and neither needs a module of its own. A test that
   reads a stylesheet uses `readCss` and `block` from `src/test/css.ts`.
+- **`.ratio` is one reading, `.ratioLine` is a sentence of them.** `.ratio`
+  does not wrap, so "11.26 AAA" never splits. Put on a paragraph of readings
+  for its monospace, it made the home page 527px and Decisions 588px wide on a
+  375px phone. `app/ui/Ratio.test.tsx` renders every docs page in jsdom and
+  fails on a `.ratio` inside a `.ratio`; the `@ui` alias is in
+  `vitest.config.ts` for that reason.
 - **A module that needs React's client build opens with `'use client'`.** The
   docs pages are all client components, so the site cannot show a missing one;
   a consumer's Server Component page fails to prerender. `directives.test.ts`
@@ -322,7 +328,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 690 tests across 26 files
+npm test            # 710 tests across 27 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

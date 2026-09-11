@@ -50,7 +50,7 @@ export default function Page() {
         <p style={{ margin: 0 }}>
           The appointment was moved to Thursday at 14:30.
         </p>
-        <p className="ratio" style={{ marginTop: 12 }}>
+        <p className="ratioLine" style={{ marginTop: 12 }}>
           text/primary on surface/raised —{' '}
           <Ratio fg={resolve('text/primary', 'light')} bg={resolve('surface/raised', 'light')} />{' '}
           light,{' '}
