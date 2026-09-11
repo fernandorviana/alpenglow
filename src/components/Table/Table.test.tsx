@@ -323,12 +323,15 @@ describe('Table selection', () => {
     expect(screen.getByRole('checkbox', { name: 'Select row 2' })).toBeInTheDocument();
   });
 
+  it('asks for each row id once per render', () => {
+    const getRowId = vi.fn((row: (typeof selectable.rows)[number]) => row.id);
+    render(<Table {...selectable} getRowId={getRowId} />);
+    expect(getRowId).toHaveBeenCalledTimes(selectable.rows.length);
+  });
+
   it('reports the header checkbox as mixed on a partial selection', () => {
     render(<Table {...selectable} selected={new Set(['a'])} />);
-    expect(screen.getByRole('checkbox', { name: /select all/i })).toHaveAttribute(
-      'aria-checked',
-      'mixed',
-    );
+    expect(screen.getByRole('checkbox', { name: /select all/i })).toBePartiallyChecked();
   });
 
   it('adds a row to the selection when its checkbox is activated', async () => {

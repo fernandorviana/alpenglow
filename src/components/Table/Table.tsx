@@ -247,7 +247,7 @@ export function Table<Row>({
             </tr>
           ) : (
             rows.map((row, index) => {
-              const id = getRowId(row);
+              const id = ids[index]!;
               const isSelected = selectedIds.has(id);
 
               return (

@@ -11,6 +11,7 @@
 
 import { writeFileSync } from 'node:fs';
 import { primitives, alphaPrimitives } from '../src/tokens/primitives.js';
+import { hexToRgb } from '../src/tokens/contrast.js';
 import { theme } from '../src/tokens/theme.js';
 import { spacing, radius, borderWidth, focusRingOffset } from '../src/tokens/scale.js';
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
@@ -23,9 +24,7 @@ const cssName = (name: string) => `--${PREFIX}-${name.replace(/\//g, '-')}`;
 function primitiveBlock(): string {
   const lines = Object.entries(primitives).map(([k, v]) => `  ${cssName(k)}: ${v};`);
   const alpha = Object.entries(alphaPrimitives).map(([k, { hex, alpha }]) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+    const { r, g, b } = hexToRgb(hex);
     return `  ${cssName(k)}: rgb(${r} ${g} ${b} / ${alpha});`;
   });
   return [...lines, '', ...alpha].join('\n');
@@ -85,6 +84,11 @@ const css = `/**
  * so an explicit light choice still wins. The attribute selector handles an
  * explicit dark choice. Without both, a toggle cannot override the system
  * preference in both directions.
+ *
+ * color-scheme follows the same rule. \`light dark\` on :root lets the browser
+ * paint its own parts — scrollbars, the native <select> picker, autofill — to
+ * match the OS, which is right only while nobody has chosen. An explicit
+ * choice narrows it, so those parts follow the page rather than the OS.
  */
 
 /* ---------------------------------------------------------------------------
@@ -116,8 +120,16 @@ ${elevationBlock('dark', '    ')}
   }
 }
 
+/* Light, chosen explicitly. Only color-scheme needs saying: the values are
+   already the :root defaults above. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 /* Dark, chosen explicitly. */
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
 ${themeBlock('dark')}
 
 ${elevationBlock('dark')}

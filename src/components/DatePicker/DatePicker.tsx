@@ -27,6 +27,7 @@ import {
   readValue,
   replaceWholeIso,
   typedSeparators,
+  RANGE_SEPARATOR,
   type DatePickerInvalidReason,
 } from './mask';
 import styles from './DatePicker.module.css';
@@ -50,6 +51,19 @@ function CalendarIcon() {
 
 /** Shares Button's height scale: 32, 40, 48. */
 export type DatePickerSize = 'sm' | 'md' | 'lg';
+
+/**
+ * What the browser says when a form is submitted over an invalid draft. Short
+ * and generic: the caller's own message, with the field's name and its bounds
+ * in it, is the one on screen — this is the native gate behind it.
+ */
+const VALIDITY_MESSAGE: Record<DatePickerInvalidReason, string> = {
+  incomplete: 'Enter a complete date',
+  'not-a-date': 'Enter a date that exists',
+  'before-min': 'Enter a later date',
+  'after-max': 'Enter an earlier date',
+  unavailable: 'Enter an available date',
+};
 
 export type DatePickerProps = CalendarProps & {
   size?: DatePickerSize;
@@ -131,7 +145,7 @@ export function DatePicker({
   const spokenText = single
     ? formatter.format(utcTimestamp(single))
     : range
-      ? `${formatter.format(utcTimestamp(range.start))} – ${formatter.format(utcTimestamp(range.end))}`
+      ? `${formatter.format(utcTimestamp(range.start))}${RANGE_SEPARATOR}${formatter.format(utcTimestamp(range.end))}`
       : '';
 
   // What a native form submits: ISO, never the display text, whose digit
@@ -172,6 +186,15 @@ export function DatePicker({
   // the text's length. Not drawn mid-composition, when the text is the IME's.
   const remainder =
     editable && !composing && !overflowing ? placeholder.slice(text.length) : '';
+
+  // The value stays as it was while the text is wrong — but a plain <form>
+  // must not post that value under a field showing a date the user cannot
+  // see. Native validity is the gate a form reads before it submits, so the
+  // draft's reason is written there too, and cleared with it. A form with
+  // `novalidate` has opted out of that gate and has `onInvalid` instead.
+  useEffect(() => {
+    inputRef.current?.setCustomValidity(invalidReason ? VALIDITY_MESSAGE[invalidReason] : '');
+  }, [invalidReason]);
 
   // A value that changes from outside — a calendar pick, or the parent —
   // replaces whatever was mid-typed. Adjusted during render, React's

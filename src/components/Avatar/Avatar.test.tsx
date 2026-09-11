@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { Avatar, AvatarGroup, initials } from './Avatar';
 import { Loader } from '../Loader/Loader';
@@ -11,6 +11,13 @@ describe('initials', () => {
 
   it('handles a single name', () => {
     expect(initials('Leonor')).toBe('L');
+  });
+
+  it('takes a whole first character, not half of a surrogate pair', () => {
+    // A name can start with a character outside the Basic Multilingual Plane:
+    // an emoji, or a CJK Extension B ideograph. One UTF-16 unit of it is not a letter.
+    expect(initials('\u{1D504}nna Smith')).toBe('\u{1D504}S');
+    expect(initials('\u{1F600} Face')).toBe('\u{1F600}F');
   });
 
   it('survives extra whitespace and an empty name', () => {
@@ -29,6 +36,16 @@ describe('Avatar', () => {
     // The initials are decoration — two letters are not a name to a screen
     // reader — so the full name is present for one to read.
     render(<Avatar name="Leonor Viana" />);
+    expect(screen.getByText('LV')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByText('Leonor Viana')).toBeInTheDocument();
+  });
+
+  it('falls back to initials when the image fails to load', () => {
+    // An expired signed URL or a deleted upload must not leave the browser's
+    // broken-image glyph in the circle.
+    render(<Avatar name="Leonor Viana" src="/gone.jpg" />);
+    fireEvent.error(screen.getByRole('img', { name: 'Leonor Viana' }));
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.getByText('LV')).toHaveAttribute('aria-hidden', 'true');
     expect(screen.getByText('Leonor Viana')).toBeInTheDocument();
   });

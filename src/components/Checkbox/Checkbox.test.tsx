@@ -40,9 +40,24 @@ describe('Checkbox', () => {
       expect(screen.getByRole('checkbox')).toHaveProperty('indeterminate', true);
     });
 
-    it('reports itself as mixed rather than checked', () => {
+    it('reports itself as mixed through the property alone, with no aria-checked to override it', () => {
+      // HTML-AAM maps the indeterminate property to mixed. A literal
+      // aria-checked="mixed" would outrank the native state, and go on saying
+      // mixed after a click has made the box checked.
       render(<Checkbox indeterminate>All services</Checkbox>);
-      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'mixed');
+      const box = screen.getByRole('checkbox');
+      expect(box).toBePartiallyChecked();
+      expect(box).not.toHaveAttribute('aria-checked');
+    });
+
+    it('stays mixed after a click while the prop still says so', async () => {
+      // The browser clears the property on activation. The prop is the
+      // caller's statement of the state, so the box must not drift from it
+      // when the caller does not re-render.
+      render(<Checkbox indeterminate>All services</Checkbox>);
+      const box = screen.getByRole('checkbox');
+      await userEvent.click(box);
+      expect(box).toHaveProperty('indeterminate', true);
     });
 
     it('clears the property when it stops being mixed', () => {

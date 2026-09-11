@@ -228,6 +228,14 @@ describe('DatePicker', () => {
     expect(screen.getByRole('button', { name: 'Elsewhere' })).toHaveFocus();
   });
 
+  it('joins the spoken range with the mask\u2019s separator rather than a literal of its own', () => {
+    // Two definitions of one separator drift: the field text and the trigger's
+    // name would then disagree about the same range.
+    const code = source().replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+    expect(code).toContain('RANGE_SEPARATOR');
+    expect(code).not.toContain('\u2013');
+  });
+
   it('reaches for neither Date nor a raw Intl formatter', () => {
     const code = source();
     expect(code).not.toContain('new Intl.DateTimeFormat');
@@ -761,6 +769,29 @@ describe('DatePicker typing', () => {
     expect(onSelect).not.toHaveBeenCalled();
     expect(input).toHaveValue('02/31/2025');
     expect(input).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('refuses native form submission while the field holds an invalid date', async () => {
+    // The value stays as it was while the text is wrong — but a plain <form>
+    // must not post that value under a field showing a date the user cannot
+    // see. Native validity is what a form reads before it submits.
+    const { container } = render(
+      <form>
+        <Typed name="appointment" initial="2023-04-26" />
+      </form>,
+    );
+    const form = container.querySelector('form')!;
+    const input = screen.getByRole('textbox');
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '02312025');
+    expect(input).toBeInvalid();
+    expect(form.checkValidity()).toBe(false);
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '04262023');
+    expect(input).toBeValid();
+    expect(form.checkValidity()).toBe(true);
   });
 
   it('reports min, max and an unavailable day, in that order of priority', async () => {

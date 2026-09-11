@@ -269,6 +269,15 @@ describe('Calendar structure', () => {
     expect(heading).toHaveTextContent('April 2023');
   });
 
+  it('renders the month heading at the level the caller asks for', () => {
+    // Inside the DatePicker's dialog an h2 is right. Dropped into page content
+    // under a section's own h2, the month would become a sibling of that
+    // section in the outline, so the level is the caller's to set.
+    render(<Calendar label="Date" defaultMonth="2023-04-01" headingLevel={3} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('April 2023');
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+  });
+
   it('follows the locale for month and weekday names', () => {
     render(<Calendar label="Data" defaultMonth="2023-04-01" locale="pt-PT" />);
     expect(screen.getByRole('grid', { name: /abril de 2023/i })).toBeInTheDocument();

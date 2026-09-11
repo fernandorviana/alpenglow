@@ -47,6 +47,12 @@ export type CalendarProps = {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /** Drives month and weekday names and every cell's accessible name. */
   locale?: string;
+  /**
+   * The month heading's level. 2 by default, which is right inside the
+   * DatePicker's dialog; a Calendar dropped into page content sets it to sit
+   * under the section it belongs to rather than beside it in the outline.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   /** `ISODate` in single mode, `DateRange` in range mode. */
   value?: ISODate | DateRange | null;
   onSelect?: (next: ISODate | DateRange | null) => void;
@@ -106,6 +112,7 @@ export function Calendar({
   onMonthChange,
   weekStartsOn = 0,
   locale = 'en-US',
+  headingLevel = 2,
   value,
   onSelect,
   min,
@@ -449,6 +456,8 @@ export function Calendar({
   const [selectionChanged, setSelectionChanged] = useState(false);
   if (!selectionChanged && selectionKey !== mountedSelection) setSelectionChanged(true);
 
+  const Heading = `h${headingLevel}` as const;
+
   return (
     <div className={styles.calendar} onKeyDown={onRootKeyDown}>
       <div className={styles.header}>
@@ -462,7 +471,7 @@ export function Calendar({
           <Chevron direction="previous" />
         </button>
 
-        <h2 className={styles.heading} aria-live="polite">
+        <Heading className={styles.heading} aria-live="polite">
           {/* One heading, two weights: the drawing sets the month Medium and
               the year Regular. Split into spans rather than two headings so
               it is still one string to a screen reader. Empty until a month
@@ -473,7 +482,7 @@ export function Calendar({
               <span className={styles.year}>{visibleYear}</span>
             </>
           )}
-        </h2>
+        </Heading>
 
         <button
           type="button"

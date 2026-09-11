@@ -9,6 +9,11 @@
  * so an explicit light choice still wins. The attribute selector handles an
  * explicit dark choice. Without both, a toggle cannot override the system
  * preference in both directions.
+ *
+ * color-scheme follows the same rule. `light dark` on :root lets the browser
+ * paint its own parts — scrollbars, the native <select> picker, autofill — to
+ * match the OS, which is right only while nobody has chosen. An explicit
+ * choice narrows it, so those parts follow the page rather than the OS.
  */
 
 /* ---------------------------------------------------------------------------
@@ -241,8 +246,16 @@
   }
 }
 
+/* Light, chosen explicitly. Only color-scheme needs saying: the values are
+   already the :root defaults above. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 /* Dark, chosen explicitly. */
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   --ap-color-surface-base: var(--ap-gray-dark-800);
   --ap-color-surface-raised: var(--ap-gray-dark-700);
   --ap-color-surface-overlay: var(--ap-gray-dark-600);

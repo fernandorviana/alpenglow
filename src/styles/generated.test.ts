@@ -4,6 +4,8 @@ import { theme } from '../tokens/theme';
 import { spacing, radius, borderWidth } from '../tokens/scale';
 import { textStyle } from '../tokens/typography';
 import { elevation, shadowCss } from '../tokens/elevation';
+import { alphaPrimitives } from '../tokens/primitives';
+import { hexToRgb } from '../tokens/contrast';
 
 /**
  * The generated stylesheets are build artefacts, and build artefacts drift the
@@ -44,6 +46,21 @@ describe('tokens.css is in step with the token source', () => {
     expect(tokensCss).toContain('@media (prefers-color-scheme: dark)');
     expect(tokensCss).toContain(':root:not([data-theme="light"])');
     expect(tokensCss).toContain(':root[data-theme="dark"]');
+  });
+
+  it('narrows color-scheme to the theme the viewer chose', () => {
+    // `light dark` on :root lets the UA follow the OS, which is right only
+    // while nobody has chosen. Once data-theme is set, scrollbars, the native
+    // <select> picker and autofill must follow the choice, not the OS.
+    expect(tokensCss).toMatch(/:root\[data-theme="light"\]\s*\{[^}]*color-scheme: light;/);
+    expect(tokensCss).toMatch(/:root\[data-theme="dark"\]\s*\{[^}]*color-scheme: dark;/);
+  });
+
+  it('flattens every alpha primitive to the same channels the contrast maths reads', () => {
+    for (const [name, { hex, alpha }] of Object.entries(alphaPrimitives)) {
+      const { r, g, b } = hexToRgb(hex);
+      expect(tokensCss, name).toContain(`--ap-${flat(name)}: rgb(${r} ${g} ${b} / ${alpha});`);
+    }
   });
 
   it('declares every elevation step in both modes', () => {

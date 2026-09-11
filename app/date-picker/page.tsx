@@ -264,6 +264,7 @@ export default function Page() {
         <div className="specimenRow">
           <Calendar
             label="Booked stay"
+            headingLevel={3}
             mode="range"
             defaultMonth="2023-03-01"
             value={{ start: '2023-02-20', end: '2023-03-03' }}
@@ -294,6 +295,7 @@ export default function Page() {
       <div className="specimen">
         <Calendar
           label="Consultation date"
+          headingLevel={3}
           value={consultation}
           onSelect={(next) => setConsultation(next as ISODate | null)}
         />
@@ -310,6 +312,7 @@ export default function Page() {
       <div className="specimen">
         <Calendar
           label="Clinic days"
+          headingLevel={3}
           defaultMonth="2023-04-01"
           min="2023-04-03"
           max="2023-04-24"
