@@ -389,57 +389,66 @@ divergence is right — a warning button is usually a design error — but there
 no exported `Tone` type naming the vocabulary that each component subsets.
 `DropdownMenuItemTone` makes it four, with 3 members (`default`, `accent`, `danger`).
 
-### 4. Packaging — deliberately deferred
+### 4. Packaging — npm first, once sizes and tone settle
 
-`src/index.ts` is already a complete public entry point. What is missing is the
-manifest and build around it: `exports`, `main`, `module`, `types`, `files`,
-`sideEffects`, a library build, and a real version. That work is scheduled for
-after the component set settles, not overlooked.
+The order, decided 2026-09-11 after two throwaway spikes: **sizes and tone**
+first, because they break the API and should do it before anything is
+published; then **an npm package, `0.x`**; then **a shadcn registry, only if
+someone asks for one**.
 
-**This was ranked first and then moved down, on purpose.** The reasoning, so it
-does not get re-litigated: packaging is mostly mechanical and does not get more
-expensive as components are added — but *maintaining* it does, since every new
-component touches the exports map. A first published version covering half the
-intended system also creates compatibility expectations too early. Reviewers of
-a portfolio piece arrive through the docs site, not through npm.
+This reverses two earlier rulings, and the reasons are what changed:
 
-Two parts do **not** wait, because they get more expensive later:
+- Packaging was deferred because every new component would touch the exports
+  map. It will not: the package exports one JavaScript entry plus
+  `./styles.css` and `./tailwind-theme.css`, whatever the component count. Early compatibility
+  expectations are what `0.x` is for.
+- The registry was chosen first, then demoted once the source was ruled
+  unlayered (Fernando: a Tailwind distribution must not bend the base code). A
+  registry copies CSS Modules that the consumer's JavaScript imports, and a
+  consumer cannot put those into a cascade layer, so every Tailwind override
+  needs `!`. A single stylesheet can be layered by whoever imports it.
 
-- **Dependency hygiene — done 2026-09-11.** The library has no runtime
-  dependencies. `react` and `react-dom` are peers (`^19.0.0`); `next`,
-  `@vercel/analytics` and `@carbon/icons-react` are dev dependencies, because
-  only the docs site imports them. The Vercel build needs them, and gets them
-  only because it installs dev dependencies — which stops being true if
-  `NODE_ENV=production` or `NPM_CONFIG_PRODUCTION` is ever set on the project.
-- **The CSS delivery model — settled by a throwaway spike, 2026-09-11.** Three
-  models were installed into a Next 16 + shadcn + Tailwind v4 app and checked
-  in the browser in light and dark. The direction chosen: **a shadcn registry
-  first** (`npx shadcn add @alpenglow/date-picker`, served from the docs site),
-  **an npm package later**, compiled with Vite (`preserveModules` keeps
-  `'use client'`) and one `styles.css` the consumer imports. What the spike
-  measured, so it is not re-run:
-  - The registry works with `src/` copied unchanged, when each file's `target`
-    mirrors `src/components/` so relative imports still resolve. Items depend
-    on each other through the `@alpenglow` namespace, and the `css` field adds
-    the tokens `@import` to the consumer's `globals.css`.
-  - Shipping source with `import './styles/tokens.css'` inside the barrel
-    loses the tokens silently under `sideEffects: ["*.css"]`: the bundler skips
-    the barrel. Tokens must be an import the consumer writes.
-  - next-themes with `attribute={['class', 'data-theme']}` drives shadcn's
-    `.dark` and this system's `data-theme` from one switch.
-  - Unlayered CSS Modules beat Tailwind's `@layer utilities`, so a consumer's
-    `className="rounded-none"` does nothing. `@layer components` fixes that,
-    but then any unlayered consumer rule — a reset, or this site's own
-    `.prose h2` — beats the components instead. **Decided: the source stays
-    unlayered.** Fernando's ruling: a Tailwind distribution must not bend the
-    base code. A Tailwind user overrides with `rounded-none!`; if the registry
-    ever needs layers, its build step adds them to the copies, never to `src/`.
-  - The Checkbox had no `'use client'` and broke every Server Component page
-    that rendered it, and two components failed the React Compiler's hooks
-    lint. Both fixed; see Conventions.
+The package's shape, as measured in Vite (`@tailwindcss/vite`) and Next
+(`@tailwindcss/postcss`), Tailwind 4.3.3, production builds, in Chrome:
 
-The rest — `exports`, `files`, `sideEffects`, version, the build config,
-`npm pack` — waits until the component set stops moving.
+- **Build:** Vite library mode with `preserveModules`, which keeps each
+  module's `'use client'`, and every CSS Module compiled into one `styles.css`
+  (about 46KB unminified, sent whole). Types still to generate.
+- **Tokens are an import the consumer writes.** Shipping
+  `import './styles/tokens.css'` inside the barrel loses them silently under
+  `sideEffects: ["*.css"]`: the bundler skips the barrel.
+- **The source stays unlayered, and the consumer chooses the layer.** After
+  `@import "tailwindcss";`, `@import "alpenglow/styles.css" layer(components);`
+  resolves from `node_modules` in both setups and lands between `base` and
+  `utilities`: components survive preflight, `className="rounded-none"` wins,
+  token utilities such as `bg-surface-sunken` resolve. The price is the
+  consumer's to take: their own unlayered `button { background: none }` then
+  beats the button. Imported without `layer()`, everything behaves as today,
+  and `rounded-none!` written in source still wins.
+- **Do not ship a prewrapped `styles.layer.css` for JavaScript imports.**
+  Imported before Tailwind's CSS, its `components` layer is declared first and
+  preflight strips the button and the checkbox. Imported after, it works — but
+  a Vite build merged two pages' CSS into one chunk and kept the first page's
+  order, so the result depends on the bundler.
+- **`tailwind-theme.css` needs a `@custom-variant dark`**, so Tailwind's `dark:`
+  follows the tokens' rule: `[data-theme='dark']`, or the system preference
+  under `:root:not([data-theme='light'])`. Verified in all four combinations of
+  attribute and system; `scripts/build-tailwind.ts` does not emit it yet.
+
+Kept from the first spike, for if the registry is ever built: `src/` copies
+unchanged when each file's `target` mirrors `src/components/`, items depend on
+each other through an `@alpenglow` namespace, and the item's `css` field adds
+the tokens `@import` to the consumer's `globals.css`. next-themes with
+`attribute={['class', 'data-theme']}` drives shadcn's `.dark` and this system's
+`data-theme` from one switch.
+
+Done on the way: **dependency hygiene** — no runtime dependencies; `react` and
+`react-dom` are `^19.0.0` peers; `next`, `@vercel/analytics` and
+`@carbon/icons-react` are dev dependencies because only the site imports them.
+The Vercel build gets them only because it installs dev dependencies, which
+stops being true if `NODE_ENV=production` or `NPM_CONFIG_PRODUCTION` is ever
+set on the project. And the Checkbox's missing `'use client'` and the two hooks
+lint failures the first spike found; see Conventions.
 
 ### 5. No structural accessibility assertions
 
