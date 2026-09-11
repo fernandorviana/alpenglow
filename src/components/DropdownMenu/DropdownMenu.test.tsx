@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { renderToString } from 'react-dom/server';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { DropdownMenu } from './DropdownMenu';
 import type { DropdownMenuEntry } from './rows';
 import { NATIVE_POPOVER, installPopoverStub } from '../../test/popover';
+import { axeViolations } from '../../test/axe';
 
 const css = readFileSync('src/components/DropdownMenu/DropdownMenu.module.css', 'utf8');
 
@@ -396,5 +397,34 @@ describe('DropdownMenu disabled rows', () => {
     it('marks the row unavailable to the pointer', () => {
       expect(css).toMatch(/\[aria-disabled='true'\][^{]*\{[^}]*cursor:\s*not-allowed/);
     });
+  });
+});
+
+describe('DropdownMenu, open, to axe', () => {
+  it('has no WCAG A or AA violation with every kind of row showing', async () => {
+    // A docs page renders the menu closed, where its rows are hidden and axe
+    // skips them. Open, the rows are what a screen reader walks.
+    const { container } = render(
+      <Actions
+        items={[
+          { id: 'edit', label: 'Edit', icon: <svg aria-hidden="true" /> },
+          {
+            label: 'Share',
+            items: [
+              { id: 'copy', label: 'Copy link' },
+              { id: 'invite', label: 'Invite', disabled: true },
+            ],
+          },
+          'separator',
+          { id: 'delete', label: 'Delete', tone: 'danger' },
+        ]}
+      />,
+    );
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    await userEvent.click(trigger);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+    expect(screen.getByRole('menuitem', { name: 'Copy link' })).toBeVisible();
+    expect(await axeViolations(container)).toEqual([]);
   });
 });

@@ -318,6 +318,17 @@ have all been mistaken for errors at least once.
   global `*, *::before, *::after` rule hides the omission, so
   `src/components/box-sizing.test.ts` fails when a rule sizes, pads or borders
   a box its stylesheet has not listed in its `box-sizing: border-box` rule.
+- **axe checks structure, on every page and in every state a page cannot
+  show.** `app/pages.test.tsx` runs `src/test/axe.ts` — WCAG A and AA,
+  `color-contrast` off because jsdom has no layout — over each docs page and
+  the site navigation, so a new component is covered once it has a page.
+  States a page renders closed are checked beside their component: the open
+  menu, the open date picker in single and mid-range, and every text control
+  in a `Field` with an error. A closed popover's rows are hidden, and axe
+  skips them. `src/test/axe.test.tsx` fails if the helper stops reporting
+  known violations, because every other axe assertion expects an empty list.
+  Not covered: focus order, what a screen reader announces, anything that
+  needs layout, and an idref to a missing id, which axe calls "needs review".
 
 ---
 
@@ -360,7 +371,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 740 tests across 30 files
+npm test            # 769 tests across 32 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 npm run build:lib       # the package, in dist/
@@ -492,11 +503,14 @@ stops being true if `NODE_ENV=production` or `NPM_CONFIG_PRODUCTION` is ever
 set on the project. And the Checkbox's missing `'use client'` and the two hooks
 lint failures the first spike found; see Conventions.
 
-### 3. No structural accessibility assertions
+### 3. Structural accessibility — axe in the suite (done 2026-09-11)
 
-The contrast suite covers colour, which is the hard part. There is no `axe`
-pass, so role, accessible-name and state regressions are caught only by the
-hand-written tests.
+The contrast suite covers colour; `axe-core` now covers structure. What it
+runs and what it cannot see is in Conventions. Its first run over every page
+and the open states found no violation, so no component changed; the
+mutations that proved it can fail were a label with no `htmlFor`, a calendar
+button with no name, the menu's `role="menu"` removed, and an ARIA attribute
+the dialog role does not allow.
 
 ---
 

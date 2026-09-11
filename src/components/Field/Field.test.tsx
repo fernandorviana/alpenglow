@@ -4,6 +4,9 @@ import { describe, it, expect } from 'vitest';
 import { Field } from './Field';
 import { Input } from '../Input/Input';
 import { Textarea } from '../Textarea/Textarea';
+import { Select } from '../Select/Select';
+import { DatePicker } from '../DatePicker/DatePicker';
+import { axeViolations } from '../../test/axe';
 
 describe('Field', () => {
   it('connects the label to the control without an id from the caller', async () => {
@@ -122,5 +125,31 @@ describe('controls without a Field', () => {
     await userEvent.type(control, 'Leonor');
     expect(control).toHaveValue('Leonor');
     expect(control).not.toHaveAttribute('aria-describedby');
+  });
+});
+
+describe('Field, to axe', () => {
+  it('has no WCAG A or AA violation around each control, required and in error', async () => {
+    // The docs pages show one error at a time; this puts every text control
+    // in the same state at once.
+    const { container } = render(
+      <form>
+        <Field label="Email" description="For reminders." error="Enter an address that includes an @." required>
+          <Input type="email" />
+        </Field>
+        <Field label="Notes" error="Keep it under 500 characters.">
+          <Textarea />
+        </Field>
+        <Field label="Clinic" error="Choose a clinic.">
+          <Select placeholder="Choose one">
+            <option value="north">North</option>
+          </Select>
+        </Field>
+        <Field label="Date" error="Choose a weekday.">
+          <DatePicker label="Date" />
+        </Field>
+      </form>,
+    );
+    expect(await axeViolations(container)).toEqual([]);
   });
 });

@@ -10,6 +10,7 @@ import { Field } from '../Field';
 import calendarStyles from '../Calendar/Calendar.module.css';
 import styles from './DatePicker.module.css';
 import { installPopoverStub } from '../../test/popover';
+import { axeViolations } from '../../test/axe';
 
 installPopoverStub();
 
@@ -1098,5 +1099,26 @@ describe('DatePicker mask shell and hint', () => {
     expect(css).toMatch(/\.shell\s*\{[^}]*pointer-events:\s*none/);
     expect(css).toMatch(/\.shell\s*\{[^}]*white-space:\s*pre/);
     expect(css).toMatch(/\.typed\s*\{[^}]*visibility:\s*hidden/);
+  });
+});
+
+describe('DatePicker, open, to axe', () => {
+  // The docs page renders every picker closed; the panel's dialog, grid and
+  // month buttons are only in the tree while it is open.
+  it('has no WCAG A or AA violation with a single date chosen', async () => {
+    const { container } = render(
+      <DatePicker label="Appointment" defaultMonth="2023-04-01" value="2023-04-12" min="2023-04-03" />,
+    );
+    await openPanel(/change date/i);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('has no WCAG A or AA violation halfway through a range', async () => {
+    const { container } = render(<DatePicker label="Stay" mode="range" defaultMonth="2023-04-01" />);
+    await openPanel();
+    await userEvent.click(screen.getByRole('button', { name: /april 10/i }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(await axeViolations(container)).toEqual([]);
   });
 });
