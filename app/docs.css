@@ -565,3 +565,26 @@ html[data-nav-open] { overflow: hidden; }
   .page { padding: var(--ap-spacing-400) var(--ap-spacing-250) var(--ap-spacing-600); }
   .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
 }
+
+/* The narrowest phones: specimens run edge to edge. The widest thing one holds
+   is the Calendar, 280px of drawn geometry, and a bordered specimen leaves
+   less than that below 280 + 2 × (20 page + 24 specimen + 1 hairline) = 370px.
+   Measured on the Date picker page without this rule: at 360, the common
+   Android width, a Calendar runs into the specimen's right padding and the
+   one in a flex row is squeezed to 270; at 340 it crosses the border; below
+   325 it pushes the page sideways. Out by the page's padding and in by the
+   same amount, the content lines up with the text and holds 280 at 320.
+
+   Not a scroll inside the specimen: it would hide part of an interactive grid
+   at the size where it is hardest to use. Not a smaller Calendar: its 40px
+   cell is what the focus ring was measured in. Thinner padding alone cannot
+   get there — the page's 20px leaves no specimen padding to take away.
+   `DocPage.test.tsx` checks the breakpoint against these numbers. */
+@media (width < 370px) {
+  .prose > .specimen {
+    margin-inline: calc(-1 * var(--ap-spacing-250));
+    padding-inline: var(--ap-spacing-250);
+    border-inline: none;
+    border-radius: 0;
+  }
+}
