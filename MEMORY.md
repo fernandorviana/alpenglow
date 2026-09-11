@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-11**, commit `b9dfb35`.
+Last verified against the tree on **2026-09-11**, commit `294fd77`.
 
 ---
 
@@ -79,6 +79,9 @@ have all been mistaken for errors at least once.
 
 6. **Reduced motion slows the spinner, it does not freeze it.** A frozen
    spinner reads as a hung page. What it drops is the length change.
+   `Loader.test.tsx` reads the stylesheet; deleting the media query, setting
+   `animation: none`, and keeping the length change at full speed were each
+   tried against it and each fails.
 
 7. **The Table's `compact` density is not in the drawing.** Figma draws one
    size, a 72px row, which is comfortable rather than dense. `comfortable` is
@@ -235,8 +238,9 @@ have all been mistaken for errors at least once.
   that were rejected, with the measurement that rejected them.
 - **Focus adds geometry, never recolours a border**, so colour is never the
   only channel carrying a state.
-- **Icons are IBM Carbon** (Apache 2.0), a peer install rather than a bundled
-  dependency. Fifteen icons were drawn for this system because Carbon has no
+- **Icons are IBM Carbon** (Apache 2.0), installed by the consumer. No
+  component imports Carbon — only the docs site does — so it is a dev
+  dependency, not a peer. Fifteen icons were drawn for this system because Carbon has no
   equivalent; eight more exist in Carbon under a different name, and that
   mapping is on the Icons page.
 - **Prefer the native element.** `Select` wraps `<select>` rather than building
@@ -250,6 +254,13 @@ have all been mistaken for errors at least once.
   lives with Input (same stylesheet, same Field); Select and DropdownMenu keep
   separate pages because one holds a value and the other runs a command — the
   Select page carries the test for telling them apart.
+- **Tests do not group; they live beside their component.** Loader's tests
+  once sat in `Avatar.test.tsx`, Radio's in `Checkbox.test.tsx` and Textarea's
+  in `Input.test.tsx`, following the docs pages — and all three were recorded
+  here as untested. Stylesheets are the other way round: Checkbox and Radio
+  share `choice.module.css` as Input, Textarea and Select share
+  `control.module.css`, and neither needs a module of its own. A test that
+  reads a stylesheet uses `readCss` and `block` from `src/test/css.ts`.
 
 ---
 
@@ -292,7 +303,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 684 tests across 22 files
+npm test            # 687 tests across 25 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
@@ -326,51 +337,32 @@ Ordered by what it costs the project *as a portfolio piece*, which is not the
 same as what it would cost a library with adopters. Reviewers arrive through the
 documentation site, so an absent component costs more than an absent package.
 
-### 1. The tokens still promise components that do not exist
+### 1. One token still promises a component that does not exist
 
-Three tokens still name components that do not exist: `surface/sunken`
-(wells, progress tracks), `surface/scrim` (modal backdrop), `surface/inverse`
-(tooltips, inverted banners). `surface/overlay` now has two consumers —
-DropdownMenu and the DatePicker panel. Table claimed two more off this list — it is the consumer of
-`surface/raised` (table body) and of `interactive/selected` (row), which is
-why `surface/sunken` no longer claims table headers: the header band is
-`surface/base`, and the reason is recorded on the token itself.
+`surface/scrim` (modal backdrop) has no consumer, because there is no dialog.
+The two listed beside it before have consumers now: `surface/sunken` is the
+read-only field, the checkbox and radio box, the neutral badge and the avatar
+overflow count, and `surface/inverse` is the avatar fill. Their `use` notes in
+`theme.ts` still name progress tracks and tooltips, which do not exist either.
+`surface/overlay` has two consumers — DropdownMenu and the DatePicker panel.
+Table is the consumer of `surface/raised` (table body) and of
+`interactive/selected` (row), which is why `surface/sunken` no longer claims
+table headers: the header band is `surface/base`, and the reason is recorded on
+the token itself.
 
-### 2. README drift
-
-- Two different `## Icons` sections that contradict each other and the code:
-  one says icons are not re-exported, the other says they ship from
-  `alpenglow/icons`, and `src/index.ts` does `export * from './icons/index'`.
-- Two near-duplicate "Running it" blocks, with different Carbon URLs.
-
-The counts were last corrected with the date picker's fix pass: 54 semantic
-tokens, 81 + 14 primitives, and 120 contrast cases — stated as cases, the number
-the suite reports, rather than as assertions, which nothing counts.
-
+The README's counts — 54 semantic tokens, 81 + 14 primitives, 120 contrast
+cases — were checked against the tree on 2026-09-11. They are stated as cases,
+the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
-the README is the most expensive kind of typo. Cheap to fix, and it is the
-credibility of the central argument.
+the README is the most expensive kind of typo.
 
-Fix `dist-docs/` in the same pass — three files, 292K, Vite-hashed, left over
-from the docs setup that preceded Next.js. Not in `.gitignore`; the current
-build writes to `out/`.
-
-### 3. Cover Loader, Radio and Textarea with tests
-
-These three are the untested ones, and the risk is specific rather than
-general. The Loader's reduced-motion contract — keep turning, drop the length
-change — exists today only as a comment in `Loader.module.css`; nothing fails
-if someone removes the media query. `Button.test.tsx` shows the pattern to
-copy: read the stylesheet, assert the selector invariant. `Radio` also needs a
-CSS module of its own rather than borrowing one.
-
-### 4. Sizing does not compose
+### 2. Sizing does not compose
 
 `Button`, `Input`, `Select` and `Loader` take `sm | md | lg`. `Checkbox`,
 `Radio`, `Switch`, `Textarea` and `Field` take no size at all, so a large input
 cannot line up with its checkbox.
 
-### 5. No shared tone vocabulary
+### 3. No shared tone vocabulary
 
 `BadgeTone` has 6 members, `ButtonTone` 5, `LoaderTone` 4 plus `onFill`, with
 `warning`, `info` and `tertiary` appearing in some and not others. Some
@@ -378,7 +370,7 @@ divergence is right — a warning button is usually a design error — but there
 no exported `Tone` type naming the vocabulary that each component subsets.
 `DropdownMenuItemTone` makes it four, with 3 members (`default`, `accent`, `danger`).
 
-### 6. Packaging — deliberately deferred
+### 4. Packaging — deliberately deferred
 
 `src/index.ts` is already a complete public entry point. What is missing is the
 manifest and build around it: `exports`, `main`, `module`, `types`, `files`,
@@ -394,9 +386,12 @@ a portfolio piece arrive through the docs site, not through npm.
 
 Two parts do **not** wait, because they get more expensive later:
 
-- **Dependency hygiene, now.** `next` and `@vercel/analytics` belong to the
-  docs site, not the library, and `react`/`react-dom` should be
-  `peerDependencies`. Ten minutes, unrelated to publishing.
+- **Dependency hygiene — done 2026-09-11.** The library has no runtime
+  dependencies. `react` and `react-dom` are peers (`^19.0.0`); `next`,
+  `@vercel/analytics` and `@carbon/icons-react` are dev dependencies, because
+  only the docs site imports them. The Vercel build needs them, and gets them
+  only because it installs dev dependencies — which stops being true if
+  `NODE_ENV=production` or `NPM_CONFIG_PRODUCTION` is ever set on the project.
 - **The CSS delivery model, now.** How does a consumer receive `tokens.css`,
   and do the CSS Module class names survive a library build? This is
   architecture, not packaging: if the answer forces a change in how components
@@ -408,17 +403,11 @@ Two parts do **not** wait, because they get more expensive later:
 The rest — `exports`, `files`, `sideEffects`, version, the build config,
 `npm pack` — waits until the component set stops moving.
 
-### 7. No structural accessibility assertions
+### 5. No structural accessibility assertions
 
 The contrast suite covers colour, which is the hard part. There is no `axe`
 pass, so role, accessible-name and state regressions are caught only by the
-hand-written tests — and three components have none.
-
-### 8. `text/inert` has no Figma variable yet
-
-The token exists in `theme.ts` and the generated stylesheets, and the Calendar
-uses it for the spilled days. The matching variable in the `Theme` collection
-(`gray-light/400` light, `gray-dark/300` dark) is still to be created.
+hand-written tests.
 
 ---
 

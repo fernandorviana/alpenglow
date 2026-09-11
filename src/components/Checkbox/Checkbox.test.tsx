@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { Checkbox } from './Checkbox';
-import { Radio } from '../Radio/Radio';
 
 describe('Checkbox', () => {
   it('is labelled by its own text, with no id needed', () => {
@@ -113,53 +112,5 @@ describe('Checkbox', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(onSubmit).toHaveBeenCalledOnce();
-  });
-});
-
-describe('Radio', () => {
-  it('is labelled by its own text', () => {
-    render(<Radio name="mode">In person</Radio>);
-    expect(screen.getByRole('radio', { name: 'In person' })).toBeInTheDocument();
-  });
-
-  it('lets only one option in a group be selected', async () => {
-    render(
-      <fieldset>
-        <legend>Appointment type</legend>
-        <Radio name="mode" value="person">In person</Radio>
-        <Radio name="mode" value="video">Video call</Radio>
-      </fieldset>,
-    );
-    await userEvent.click(screen.getByRole('radio', { name: 'In person' }));
-    expect(screen.getByRole('radio', { name: 'In person' })).toBeChecked();
-
-    await userEvent.click(screen.getByRole('radio', { name: 'Video call' }));
-    expect(screen.getByRole('radio', { name: 'Video call' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'In person' })).not.toBeChecked();
-  });
-
-  it('moves selection with the arrow keys, as a radio group should', async () => {
-    render(
-      <fieldset>
-        <legend>Appointment type</legend>
-        <Radio name="mode" value="person">In person</Radio>
-        <Radio name="mode" value="video">Video call</Radio>
-      </fieldset>,
-    );
-    await userEvent.click(screen.getByRole('radio', { name: 'In person' }));
-    await userEvent.keyboard('{ArrowDown}');
-    expect(screen.getByRole('radio', { name: 'Video call' })).toBeChecked();
-  });
-
-  it('does not select when disabled', async () => {
-    render(<Radio name="mode" disabled>In person</Radio>);
-    await userEvent.click(screen.getByText('In person'));
-    expect(screen.getByRole('radio')).not.toBeChecked();
-  });
-
-  it('forwards a ref to the input', () => {
-    const ref = createRef<HTMLInputElement>();
-    render(<Radio name="mode" ref={ref}>In person</Radio>);
-    expect(ref.current).toBeInstanceOf(HTMLInputElement);
   });
 });

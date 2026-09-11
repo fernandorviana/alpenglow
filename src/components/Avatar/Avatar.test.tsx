@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { Avatar, AvatarGroup, initials } from './Avatar';
-import { Loader } from '../Loader/Loader';
 
 describe('initials', () => {
   it('takes the first and last words, never a middle one', () => {
@@ -99,28 +98,5 @@ describe('AvatarGroup', () => {
       </AvatarGroup>,
     );
     expect(screen.queryByText(/more/)).not.toBeInTheDocument();
-  });
-});
-
-describe('Loader', () => {
-  it('announces what is being waited for when given a label', () => {
-    render(<Loader label="Loading appointments" />);
-    const status = screen.getByRole('status');
-    expect(status).toHaveTextContent('Loading appointments');
-    expect(status).toHaveAttribute('aria-live', 'polite');
-  });
-
-  it('is decoration without a label', () => {
-    // Inside a button that already carries aria-busy, a second announcement
-    // repeats what the button said.
-    const { container } = render(<Loader />);
-    const root = container.firstElementChild!;
-    expect(root).toHaveAttribute('aria-hidden', 'true');
-    expect(root).not.toHaveAttribute('role');
-  });
-
-  it('draws both arcs', () => {
-    const { container } = render(<Loader />);
-    expect(container.querySelectorAll('circle')).toHaveLength(2);
   });
 });

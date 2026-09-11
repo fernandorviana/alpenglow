@@ -1,7 +1,7 @@
-import { readFileSync } from 'node:fs';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { block, readCss } from '@/test/css';
 import { spacing } from '@/tokens/scale';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -211,24 +211,10 @@ describe('ThemeToggle', () => {
 
 /**
  * The docs chrome is plain global CSS rather than a module, so these read the
- * stylesheet the way `Button.test.tsx` does. `import.meta.url` is not a file
- * URL under jsdom, so the path is resolved from the repository root.
+ * stylesheet the way `Button.test.tsx` does.
  */
 describe('the toggle stylesheet', () => {
-  const css = readFileSync('app/docs.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
-
-  /** The contents of a block, found by matching braces rather than counting. */
-  function block(header: string) {
-    const start = css.indexOf(header);
-    expect(start, header).toBeGreaterThan(-1);
-    const open = css.indexOf('{', start);
-    let depth = 0;
-    for (let i = open; i < css.length; i++) {
-      if (css[i] === '{') depth++;
-      else if (css[i] === '}' && --depth === 0) return css.slice(open + 1, i);
-    }
-    throw new Error(`unterminated block: ${header}`);
-  }
+  const css = readCss('app/docs.css');
 
   const rules = (text: string) =>
     [...text.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selector, body]) => ({
@@ -240,7 +226,7 @@ describe('the toggle stylesheet', () => {
         .sort(),
     }));
 
-  const systemDark = block('@media (prefers-color-scheme: dark)');
+  const systemDark = block(css, '@media (prefers-color-scheme: dark)');
   const chosen = rules(css.replace(systemDark, ''));
 
   it('says everything about dark twice, once for the system and once for the choice', () => {
@@ -269,7 +255,7 @@ describe('the toggle stylesheet', () => {
     // Position is the state signal that survives when colour does not, so
     // reduced motion drops the transition and nothing else. A `transform` in
     // here would park the knob on the left in dark.
-    expect(block('@media (prefers-reduced-motion: reduce)')).not.toMatch(/transform/);
+    expect(block(css, '@media (prefers-reduced-motion: reduce)')).not.toMatch(/transform/);
   });
 
   it('keeps the drawn geometry adding up', () => {

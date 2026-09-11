@@ -1,7 +1,7 @@
-import { readFileSync } from 'node:fs';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { block, readCss } from '@/test/css';
 import { Nav, NARROW } from './Nav';
 
 /**
@@ -185,19 +185,7 @@ describe('Nav', () => {
  * These read it the way `ThemeToggle.test.tsx` does.
  */
 describe('the nav stylesheet', () => {
-  const css = readFileSync('app/docs.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
-
-  function block(header: string) {
-    const start = css.indexOf(header);
-    expect(start, header).toBeGreaterThan(-1);
-    const open = css.indexOf('{', start);
-    let depth = 0;
-    for (let i = open; i < css.length; i++) {
-      if (css[i] === '{') depth++;
-      else if (css[i] === '}' && --depth === 0) return css.slice(open + 1, i);
-    }
-    throw new Error(`unterminated block: ${header}`);
-  }
+  const css = readCss('app/docs.css');
 
   const declarations = (text: string, selector: string) => {
     const match = text.match(new RegExp(`${selector.replace(/[.[\]()*+?]/g, '\\$&')}\\s*\\{([^}]*)\\}`));
@@ -206,7 +194,7 @@ describe('the nav stylesheet', () => {
   };
 
   // The component and the stylesheet must agree on where narrow begins.
-  const narrow = block(`@media ${NARROW}`);
+  const narrow = block(css, `@media ${NARROW}`);
 
   it('fixes the open menu over the whole viewport', () => {
     const open = declarations(narrow, ".sidebar[data-open='true']");
