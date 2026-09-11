@@ -71,6 +71,13 @@ describe('DropdownMenu', () => {
   });
 
   describe('the stylesheet', () => {
+    it('keeps a group label flush where a page styles every paragraph', () => {
+      // A docs page's `.prose p` (a class and an element) outranks a lone
+      // `.groupLabel` class, and gave the label a 16px bottom margin inside
+      // the menu. Two classes win on specificity alone.
+      expect(css).toMatch(/\.menu\s+\.groupLabel\s*\{[^}]*margin:\s*0;/);
+    });
+
     it('paints the overlay surface, not the raised one', () => {
       // In light both are white, so the drawing could not tell them apart. In
       // dark, raised would put the menu on the same step as the card beneath.

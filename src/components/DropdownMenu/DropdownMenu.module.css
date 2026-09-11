@@ -172,7 +172,9 @@
   flex-direction: column;
 }
 
-.groupLabel {
+/* Two classes, for the same reason as the calendar's heading: `.prose p`
+   outranks a lone class and would give the label a paragraph margin. */
+.menu .groupLabel {
   margin: 0;
   padding: var(--ap-spacing-100) var(--ap-spacing-100) var(--ap-spacing-100) var(--ap-spacing-150);
   color: var(--ap-color-text-tertiary);

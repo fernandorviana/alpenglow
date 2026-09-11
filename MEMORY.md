@@ -276,7 +276,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 671 tests across 21 files
+npm test            # 673 tests across 21 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```

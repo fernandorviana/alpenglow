@@ -33,7 +33,10 @@
   height: 40px;
 }
 
-.heading {
+/* Two classes, not one: a page that styles every h2 through a class and an
+   element (the docs' `.prose h2`) would otherwise outrank this and set the
+   month in its own heading size and margins. */
+.header .heading {
   flex: 1;
   display: flex;
   align-items: center;
