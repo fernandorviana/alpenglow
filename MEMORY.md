@@ -486,7 +486,11 @@ What is open, in the order it will probably be taken:
   the Figma aliases by name. The ratios quoted in prose on the docs pages and
   in `skills/applying-alpenglow-tokens/SKILL.md` are text, not computation —
   they have to be re-read after every theme change. The skill's tables were
-  generated from the tokens and should be regenerated the same way.
+  generated from the tokens and should be regenerated the same way. One
+  candidate already on the table, from the look at the site: the deep tail
+  made light-mode body text read as ink (`stone/900` `#1E2026`, 16.28:1); if
+  Fernando wants it lighter, `stone/800` (`#32353C`) for secondary with 900
+  kept for headings is the measured option. A theme call, not a bedrock one.
 - **The live site applies the colours badly** (Fernando, right after the
   merge, before any page had been redesigned for the palette). This is the
   page-level look — the brand gradient exists nowhere on the site, glow has no
