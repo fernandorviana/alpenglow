@@ -33,6 +33,9 @@ body {
 
 /* --- shell ---------------------------------------------------------------- */
 
+/* Set by the nav while its narrow-screen overlay is open. */
+html[data-nav-open] { overflow: hidden; }
+
 .shell {
   display: grid;
   grid-template-columns: 232px minmax(0, 1fr);
@@ -539,7 +542,20 @@ body {
   /* Collapsed by default. The sections stay in the document so the toggle can
      point at them with aria-controls. */
   .navSections { margin-top: var(--ap-spacing-200); }
-  .navSections[data-open='false'] { display: none; }
+  .sidebar[data-open='false'] .navSections { display: none; }
+
+  /* Open, the bar becomes the whole viewport: the head stays where it was, so
+     the Close button is where the Menu button was, and the sections take the
+     rest with a scroll of their own. `dvh` so the browser's own bars, coming
+     and going, do not leave the bottom links under them. The component locks
+     the document and makes the page inert for as long as this applies. */
+  .sidebar[data-open='true'] {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    overflow-y: auto;
+    border-bottom: none;
+  }
   .page { padding: var(--ap-spacing-400) var(--ap-spacing-250) var(--ap-spacing-600); }
   .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
 }
