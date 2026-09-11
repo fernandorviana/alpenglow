@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-11**, commit `294fd77`.
+Last verified against the tree on **2026-09-11**, commit `dc3aaca` (the new bedrock).
 
 ---
 
@@ -449,6 +449,47 @@ Ordered by what it costs the project *as a portfolio piece*, which is not the
 same as what it would cost a library with adopters. Reviewers arrive through the
 documentation site, so an absent component costs more than an absent package.
 
+### 0. The bedrock landed; the theme is expected to move (2026-09-11)
+
+`dc3aaca` replaced the twenty-step neutral and the two brand ramps with ten
+OKLCH families of eleven stops (invariant 4, primitives.ts). The theme kept
+its 54 keys and was re-aliased by role; every ratio in the docs, this file and
+the token skill was re-measured; `docs/figma/alpenglow-variables.json` and
+`docs/figma/apply-variables.md` are generated from the tokens by
+`scripts/export-figma.ts`. The same day the Figma file was brought in step
+through the MCP: the ten families created in `Alpenglow Primitives`, all 54
+`Alpenglow Theme` aliases re-pointed and verified by resolved hex in both
+modes, the 80 old primitives deleted. The file key stays out of the
+repository; Fernando pastes the URL when a session needs it.
+
+What is open, in the order it will probably be taken:
+
+- **Fernando is testing the bedrock in Figma and expects the semantic layer
+  to change.** `src/tokens/theme.ts` stays the source: change the alias, run
+  `npm run check` (the contrast suite says which pairs fall and by how much),
+  regenerate the JSON, and the plugin script in `apply-variables.md` re-points
+  the Figma aliases by name. The ratios quoted in prose on the docs pages and
+  in `skills/applying-alpenglow-tokens/SKILL.md` are text, not computation —
+  they have to be re-read after every theme change. The skill's tables were
+  generated from the tokens and should be regenerated the same way.
+- **The live site applies the colours badly** (Fernando, right after the
+  merge, before any page had been redesigned for the palette). This is the
+  page-level look — the brand gradient exists nowhere on the site, glow has no
+  consumer at all, and the pages were composed for the old violet — not the
+  tokens. Nothing was changed yet; it waits for the Figma test.
+- **Figma nodes were not rebound and paint styles were not touched.** Anything
+  that was bound directly to an old primitive is detached now; components
+  bound to Theme variables followed the aliases. A rebinding pass is a
+  separate, deliberate job. `black` is the one primitive left visible to
+  publishing; it predates this work and was left as found.
+- **`tertiary` could gain an outline variant** (`flare/700` is 7.84:1 on
+  white) once someone draws it — see invariant 3.
+- **A product that wants neutral dark surfaces aliases `stone` instead of
+  `night`**, and `border/strong` then moves to `stone/400` in dark. Measured,
+  not built.
+- **A Display P3 pass** would add saturation at the 300–400 stops of the vivid
+  families, which sRGB clips; nothing else changes.
+
 ### 1. Every token has a consumer (done 2026-09-11)
 
 `surface/scrim` was the last token promising a component that did not exist;
@@ -465,9 +506,9 @@ DropdownMenu, the DatePicker panel and the Dialog. Table is the consumer of
 Still to do by hand: press Esc on an open Dialog. The automated browser used
 for the check does not turn a synthetic Escape into a close request, not even
 for a plain `<dialog>`, so that behaviour is covered only by the test's
-dispatched `cancel`. The Figma file's `color/surface/scrim` variable still
-holds the old black wash; updating it writes to Fernando's file, so it waits
-for his word.
+dispatched `cancel`. The Figma file's `color/surface/scrim` variable was
+brought to the drawn wash with the bedrock on 2026-09-11 (`alpha/mist-95` /
+`alpha/ink-95`).
 
 The README's counts — 54 semantic tokens, 111 + 16 primitives, 123 contrast
 cases — were checked against the tree on 2026-09-11. They are stated as cases,
@@ -578,12 +619,13 @@ These two are deliberately parked and depend on each other.
 fill is 1.07:1 against a card and identical to the canvas. The decision was
 to leave it and revisit.
 
-**Four state colours are one step off the Figma file** — the error and success
-border and fill. The Figma values were requested, but measurement puts
-`red/400` at 2.75 (border) / 2.58 (fill) and `green/500` at 1.67 / 1.57, all
-below the 3:1 that WCAG 1.4.11 requires *when the border is the field's only
-boundary*. If the resting border decision changes, so does whether these values
-are usable.
+**The state colours were one step off the Figma file** — the error and
+success border and fill were drawn lighter than measurement allowed, below
+the 3:1 that WCAG 1.4.11 requires *when the border is the field's only
+boundary*. The bedrock closed that half: `border/danger` is `ember/600`
+(5.93:1 on white) and `border/success` is `moss/600` (5.09:1), and the Figma
+theme now aliases the same primitives. What remains blocked is the resting
+border itself — if it returns, these are the values it takes, and they pass.
 
 ---
 
