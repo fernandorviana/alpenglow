@@ -9,6 +9,30 @@ usually attributed.
 
 **Theme:** Eleonora.
 
+## Install
+
+```bash
+npm install alpenglow
+```
+
+```tsx
+import 'alpenglow/styles.css';
+import { Button } from 'alpenglow';
+```
+
+With Tailwind v4, import the stylesheet into a layer so utilities can override
+components:
+
+```css
+@import "tailwindcss";
+@import "alpenglow/styles.css" layer(components);
+@import "alpenglow/tailwind-theme.css";
+```
+
+More on the site: [Install](https://alpenglow-rose.vercel.app/install) ·
+[Tailwind](https://alpenglow-rose.vercel.app/tailwind) ·
+[Dark mode](https://alpenglow-rose.vercel.app/dark-mode).
+
 ## Structure
 
 Three layers, mirrored in Figma as three variable collections.

@@ -22,6 +22,14 @@ const NAV = [
     ],
   },
   {
+    title: 'Developers',
+    items: [
+      { href: '/install', label: 'Install' },
+      { href: '/tailwind', label: 'Tailwind' },
+      { href: '/dark-mode', label: 'Dark mode' },
+    ],
+  },
+  {
     title: 'Foundations',
     items: [
       { href: '/colour', label: 'Colour' },

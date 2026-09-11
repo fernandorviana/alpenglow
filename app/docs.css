@@ -349,6 +349,26 @@ html[data-nav-open] { overflow: hidden; }
   background: var(--ap-color-surface-sunken);
 }
 
+/* A long line scrolls inside its block; the page body never scrolls sideways
+   on a phone. */
+.prose pre {
+  margin: 0 0 var(--ap-spacing-200);
+  padding: var(--ap-spacing-200);
+  overflow-x: auto;
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-sunken);
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+.prose pre code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font-size: inherit;
+}
+
 /* --- specimens ------------------------------------------------------------ */
 
 .specimen {
