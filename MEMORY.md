@@ -388,7 +388,8 @@ noon — the opposite of twilight), "future themes" as a layer (one theme,
 Eleonora; light and dark are its modes, not themes).
 
 Three lines carry the concept, one home each: **Bring structure to light**
-(tagline, home page lead), **Structure exists beneath the surface. Light
+(tagline, the home page's H1 — swapped with *A design system that shows its
+working* on 2026-09-11, which now opens the lead), **Structure exists beneath the surface. Light
 makes it visible** (opens `/why`), **Clarity, layer by layer** (the diagram's
 caption).
 

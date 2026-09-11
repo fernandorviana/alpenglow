@@ -24,11 +24,11 @@ export default function Page() {
         </>
       }
     >
-      <h1>A design system that shows its working</h1>
+      <h1>Bring structure to light</h1>
       <p className="lead">
-        Bring structure to light. Alpenglow is built for dense, data-heavy interfaces —
-        scheduling grids, patient records, tables that stay legible at 11px. Light and
-        dark, with every contrast ratio measured rather than assumed.
+        A design system that shows its working. Alpenglow is built for dense, data-heavy
+        interfaces — scheduling grids, patient records, tables that stay legible at 11px.
+        Light and dark, with every contrast ratio measured rather than assumed.
       </p>
 
       <p>
