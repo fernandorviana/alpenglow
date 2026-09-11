@@ -62,10 +62,14 @@ have all been mistaken for errors at least once.
    *lightens* across hover and pressed while its label *darkens* to compensate.
    A white label there fails AA at the hover step.
 
-3. **`tertiary` and `success` are solid-only, enforced by the type union.**
-   `brand-2/500` is 1.45:1 on white and `green/500` is 1.67:1 — there is no
-   compliant text or border colour for either, so
-   `variant="outline" tone="tertiary"` does not compile.
+3. **`tertiary` is solid-only because it has to be; `success` because it was
+   never drawn.** Both are enforced by the type union. `brand-2/500` is 1.45:1
+   on white and the theme has no tertiary text colour, so
+   `variant="outline" tone="tertiary"` does not compile. `success` was once
+   excluded for the same reason, but field validation added `text/success`
+   and `border/success`, which clear 4.5:1 and 3:1 on the canvas: an outline
+   success is possible, and stays out until someone draws it (decided
+   2026-09-11). The Button page renders both ratios live.
 
 4. **The dark elevation ramp holds four levels, not five.** When you run out,
    separate with a border rather than inventing a step.
@@ -289,6 +293,22 @@ have all been mistaken for errors at least once.
   `eslint-config-next` lints. `app/` because it is a Next app like those
   consumers: left out while nothing was copied from it, it accumulated two
   set-state-in-effect errors (`Nav`, `ThemeToggle`) before it was brought in.
+- **Control heights share one type and are held to it.** `ControlSize`
+  (`sm | md | lg`, 32/40/48px) belongs to Button, Input, Select and
+  DatePicker; `vocabulary.test.ts` fails when `Button.module.css` and
+  `control.module.css` stop agreeing. `LoaderSize`, `BadgeSize` and
+  `AvatarSize` measure other things and keep their own names. Checkbox, Radio,
+  Switch and Textarea are one size on purpose: a field's size changes its box,
+  never its text, and the checkbox aligns to the first line of text.
+- **A component's tones are a list inside a ceiling the tokens set.** `Tone`
+  names seven. `FillTone` and `TintTone` in `src/components/vocabulary.ts` are
+  computed from `theme.ts`; each component's array `satisfies` its ceiling, and
+  `vocabulary.test.ts` fails when a listed tone has no rule. The lists are not
+  derived — derived, the Loader would gain `warning` the day the token existed.
+  The tint ceiling reads the `surface/<t>-subtle` + `text/<t>` pair because
+  `text/tertiary` is a hierarchy level, not the tertiary tone. A class assertion
+  cannot prove a tone is painted: in tests the CSS-module map returns a name for
+  any key, so the rule is read from the stylesheet.
 
 ---
 
@@ -331,7 +351,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 713 tests across 28 files
+npm test            # 722 tests across 29 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
@@ -384,26 +404,13 @@ the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
 the README is the most expensive kind of typo.
 
-### 2. Sizing does not compose
-
-`Button`, `Input`, `Select` and `Loader` take `sm | md | lg`. `Checkbox`,
-`Radio`, `Switch`, `Textarea` and `Field` take no size at all, so a large input
-cannot line up with its checkbox.
-
-### 3. No shared tone vocabulary
-
-`BadgeTone` has 6 members, `ButtonTone` 5, `LoaderTone` 4 plus `onFill`, with
-`warning`, `info` and `tertiary` appearing in some and not others. Some
-divergence is right — a warning button is usually a design error — but there is
-no exported `Tone` type naming the vocabulary that each component subsets.
-`DropdownMenuItemTone` makes it four, with 3 members (`default`, `accent`, `danger`).
-
-### 4. Packaging — npm first, once sizes and tone settle
+### 2. Packaging — npm next
 
 The order, decided 2026-09-11 after two throwaway spikes: **sizes and tone**
 first, because they break the API and should do it before anything is
-published; then **an npm package, `0.x`**; then **a shadcn registry, only if
-someone asks for one**.
+published — done the same day, see
+`docs/superpowers/specs/2026-09-11-sizes-and-tone-design.md`; then **an npm
+package, `0.x`**; then **a shadcn registry, only if someone asks for one**.
 
 This reverses two earlier rulings, and the reasons are what changed:
 
@@ -459,7 +466,7 @@ stops being true if `NODE_ENV=production` or `NPM_CONFIG_PRODUCTION` is ever
 set on the project. And the Checkbox's missing `'use client'` and the two hooks
 lint failures the first spike found; see Conventions.
 
-### 5. No structural accessibility assertions
+### 3. No structural accessibility assertions
 
 The contrast suite covers colour, which is the hard part. There is no `axe`
 pass, so role, accessible-name and state regressions are caught only by the

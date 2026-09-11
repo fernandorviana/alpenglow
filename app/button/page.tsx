@@ -95,11 +95,24 @@ export default function Page() {
           <strong>Tertiary and success are solid-only, and the type signature enforces it.</strong>
         </p>
         <p>
-          Both resolve to bright, saturated hues that fail as a foreground on light surfaces
-          — brand-2/500 is 1.45:1 on white and green/500 is 1.67:1. There is no compliant
-          text or border colour for either, so{' '}
+          Outline and ghost paint the tone as text, and outline as a border too. Tertiary
+          cannot be painted that way: brand-2/500 is 1.45:1 on white, and the theme has no
+          tertiary text colour — <code>text/tertiary</code> is a level of the text
+          hierarchy, not this tone. So{' '}
           <code>variant=&quot;outline&quot; tone=&quot;tertiary&quot;</code> does not compile
           rather than producing a button nobody should ship.
+        </p>
+        <p>
+          Success was left out for the same reason, until field validation added{' '}
+          <code>text/success</code>, at{' '}
+          <Ratio fg={resolve('text/success', 'light')} bg={resolve('surface/base', 'light')} />{' '}
+          on the canvas, and <code>border/success</code>, at{' '}
+          <Ratio
+            fg={resolve('border/success', 'light')}
+            bg={resolve('surface/base', 'light')}
+            threshold={3}
+          />
+          . An outline success button could pass now. It stays out because it was never drawn.
         </p>
       </div>
 
