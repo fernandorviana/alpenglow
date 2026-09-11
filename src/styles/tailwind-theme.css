@@ -2,10 +2,10 @@
  * Alpenglow for Tailwind v4 — GENERATED FILE, DO NOT EDIT.
  * Source: src/tokens/*.ts · Regenerate with `npm run build:tailwind`
  *
- * Usage:
+ * Usage, after `npm install alpenglow`:
  *   @import "tailwindcss";
- *   @import "alpenglow/styles/tokens.css";
- *   @import "alpenglow/styles/tailwind-theme.css";
+ *   @import "alpenglow/styles.css" layer(components);
+ *   @import "alpenglow/tailwind-theme.css";
  */
 
 @theme {
@@ -152,4 +152,15 @@
   --text-caption-caps: 10px;
   --text-caption-caps--line-height: 12px;
   --text-caption-caps--letter-spacing: 0.8px;
+}
+
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
 }

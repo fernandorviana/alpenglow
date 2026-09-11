@@ -6,6 +6,7 @@ import { textStyle } from '../tokens/typography';
 import { elevation, shadowCss } from '../tokens/elevation';
 import { alphaPrimitives } from '../tokens/primitives';
 import { hexToRgb } from '../tokens/contrast';
+import { block } from '@/test/css';
 
 /**
  * The generated stylesheets are build artefacts, and build artefacts drift the
@@ -135,5 +136,20 @@ describe('the Tailwind theme is in step with the token source', () => {
       expect(tailwindCss, name).toContain(`${key}--line-height: ${style.lineHeight}px;`);
       expect(tailwindCss, name).toContain(`${key}--letter-spacing: ${style.tracking}px;`);
     }
+  });
+});
+
+describe('tailwind-theme.css follows the tokens into dark', () => {
+  it("gives Tailwind's dark: the rule the components follow", () => {
+    // An explicit data-theme wins, otherwise the system preference. If the
+    // variant and tokens.css disagree, a page shows `dark:` utilities in one
+    // theme and the components in the other.
+    const variant = block(tailwindCss, '@custom-variant dark');
+    const system = block(variant, '@media (prefers-color-scheme: dark)');
+
+    expect(tokensCss).toContain(':root[data-theme="dark"]');
+    expect(variant).toContain('[data-theme="dark"]');
+    expect(tokensCss).toContain(':root:not([data-theme="light"])');
+    expect(system).toContain(':root:not([data-theme="light"])');
   });
 });

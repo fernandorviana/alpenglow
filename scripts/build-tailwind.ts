@@ -26,10 +26,10 @@ lines.push('/**');
 lines.push(' * Alpenglow for Tailwind v4 — GENERATED FILE, DO NOT EDIT.');
 lines.push(' * Source: src/tokens/*.ts · Regenerate with `npm run build:tailwind`');
 lines.push(' *');
-lines.push(' * Usage:');
+lines.push(' * Usage, after `npm install alpenglow`:');
 lines.push(' *   @import "tailwindcss";');
-lines.push(' *   @import "alpenglow/styles/tokens.css";');
-lines.push(' *   @import "alpenglow/styles/tailwind-theme.css";');
+lines.push(' *   @import "alpenglow/styles.css" layer(components);');
+lines.push(' *   @import "alpenglow/tailwind-theme.css";');
 lines.push(' */');
 lines.push('');
 lines.push('@theme {');
@@ -71,6 +71,22 @@ for (const [name, style] of Object.entries(textStyle)) {
   lines.push(`  --text-${flat(name)}--letter-spacing: ${style.tracking}px;`);
 }
 
+lines.push('}');
+lines.push('');
+
+// The tokens' own rule, in the same selectors tokens.css writes: an explicit
+// data-theme wins, otherwise the system preference. Tailwind's default `dark:`
+// reads only the media query, so a viewer who chose light on a dark system
+// would get dark utilities over light components.
+lines.push('@custom-variant dark {');
+lines.push('  &:where([data-theme="dark"], [data-theme="dark"] *) {');
+lines.push('    @slot;');
+lines.push('  }');
+lines.push('  @media (prefers-color-scheme: dark) {');
+lines.push('    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {');
+lines.push('      @slot;');
+lines.push('    }');
+lines.push('  }');
 lines.push('}');
 lines.push('');
 
