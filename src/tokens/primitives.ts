@@ -125,7 +125,7 @@ export const alphaPrimitives = {
   /**
    * Shadow ink. Deliberately off the doubling ramp above, and deliberately not
    * called `black`: this is `gray-dark/900`, the system's own darkest ink, at
-   * the two opacities the elevation layer uses.
+   * the two opacities the elevation layer uses, and at 95% for the dark scrim.
    *
    * The drawn shadow is #18274B at 10% and 12% — a navy that exists nowhere
    * else in the palette. Rounding to the ramp was tried first and measured:
@@ -138,6 +138,19 @@ export const alphaPrimitives = {
    */
   'alpha/ink-10': { hex: '#10111A', alpha: 0.1 },
   'alpha/ink-12': { hex: '#10111A', alpha: 0.12 },
+  /**
+   * The dark scrim. Dark was never drawn: the literal mirror of the light
+   * wash, gray-dark/600 at 95%, measures 1.01:1 against surface/overlay, so
+   * the backdrop takes the system's darkest ink instead — 1.43:1, with the
+   * dialog's dark-mode border doing the rest.
+   */
+  'alpha/ink-95': { hex: '#10111A', alpha: 0.95 },
+  /**
+   * The light scrim, as drawn: the Figma Overlay is gray-light/200 at 95%. A
+   * wash more than a shade — the page behind all but disappears, and the
+   * dialog is separated from it by its shadow (1.24:1 on colour alone).
+   */
+  'alpha/mist-95': { hex: '#E1E6EB', alpha: 0.95 },
 } as const;
 
 export type PrimitiveName = keyof typeof primitives;

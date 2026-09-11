@@ -33,9 +33,9 @@ export const theme = {
   // Not table headers, despite what this said for a long time: in light this
   // resolves to the same hex as border/subtle, so a header band painted with
   // it swallows the row separator. Table uses surface/base.
-  'surface/sunken':         { light: 'gray-light/100', dark: 'gray-dark/900', use: 'Wells, progress tracks' },
-  'surface/scrim':          { light: 'alpha/black-48', dark: 'alpha/black-64', use: 'Modal backdrop' },
-  'surface/inverse':        { light: 'gray-dark/900',  dark: 'gray-light/050', use: 'Tooltips, inverted banners' },
+  'surface/sunken':         { light: 'gray-light/100', dark: 'gray-dark/900', use: 'Read-only fields, checkbox and radio box, neutral badge, avatar overflow' },
+  'surface/scrim':          { light: 'alpha/mist-95',  dark: 'alpha/ink-95',  use: 'Modal backdrop' },
+  'surface/inverse':        { light: 'gray-dark/900',  dark: 'gray-light/050', use: 'Avatar fill' },
   'surface/accent-subtle':  { light: 'brand-1/050',    dark: 'brand-1/800',   use: 'Selected nav, highlighted row' },
   'surface/success-subtle': { light: 'green/200',      dark: 'green/900',     use: 'Success badge' },
   'surface/warning-subtle': { light: 'yellow/100',     dark: 'yellow/900',    use: 'Warning badge' },

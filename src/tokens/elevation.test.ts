@@ -30,11 +30,21 @@ describe('elevation', () => {
     );
   });
 
+  it('renders lg as drawn: two layers of the shadow ink at 12%', () => {
+    // The drawing's Drop Shadow/lg is #18274B at 12% on both layers; ink-12
+    // is the system's rendering of that navy, measured for md.
+    expect(shadowCss(elevation.lg.light)).toBe(
+      '0 14px 64px -4px var(--ap-alpha-ink-12), 0 8px 22px -6px var(--ap-alpha-ink-12)',
+    );
+  });
+
   it('does not use the tinted ink in dark', () => {
     // The tint exists to match a measured drawing that only exists in light.
     // Over a near-black ground it is below threshold, so dark uses the ramp.
-    for (const layer of elevation.md.dark) {
-      expect(layer.colour).toMatch(/^alpha\/black-/);
+    for (const [name, byMode] of Object.entries(elevation)) {
+      for (const layer of byMode.dark) {
+        expect(layer.colour, name).toMatch(/^alpha\/black-/);
+      }
     }
   });
 });

@@ -9,8 +9,8 @@
  * It is NOT a fourth Figma collection. Effects are styles there, not
  * variables, so the three-collection architecture is unchanged.
  *
- * One step, `md`. The drawing has `sm` and `lg` in Light Mode; they land when
- * a component asks for them.
+ * Two steps. `md` for panels anchored to a control, `lg` for the Dialog. The
+ * drawing also has `sm` in Light Mode; it lands when a component asks for it.
  *
  * Dark was never drawn. The source library has Drop Shadow sm/md/lg for
  * Light Mode and only sm for Dark Mode, so the dark values here are a decision
@@ -41,6 +41,18 @@ export const elevation = {
     dark: [
       { y: 10, blur: 32, spread: -4, colour: 'alpha/black-32' },
       { y: 6, blur: 14, spread: -6, colour: 'alpha/black-48' },
+    ],
+  },
+  lg: {
+    light: [
+      { y: 14, blur: 64, spread: -4, colour: 'alpha/ink-12' },
+      { y: 8, blur: 22, spread: -6, colour: 'alpha/ink-12' },
+    ],
+    // Not drawn. The md decision at the lg geometry: a modest contact in dark,
+    // and the surface takes a border (Dialog.module.css).
+    dark: [
+      { y: 14, blur: 64, spread: -4, colour: 'alpha/black-32' },
+      { y: 8, blur: 22, spread: -6, colour: 'alpha/black-48' },
     ],
   },
 } as const satisfies Record<string, Record<Mode, readonly ShadowLayer[]>>;

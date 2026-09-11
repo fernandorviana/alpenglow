@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { theme, type ThemeTokenName, type Mode } from './theme';
 import { resolve, contrast, tokenContrast, AA_NORMAL, NON_TEXT } from './contrast';
+import { alphaPrimitives, primitives } from './primitives';
 
 const MODES: Mode[] = ['light', 'dark'];
 
@@ -488,5 +489,22 @@ describe('the calendar meets the thresholds its drawing did not', () => {
       .toBeCloseTo(1, 2);
     expect(contrast(resolve('surface/overlay', 'dark'), resolve('surface/raised', 'dark')))
       .toBeGreaterThan(1.1);
+  });
+});
+
+describe('surface/scrim', () => {
+  it('is the drawn wash in light: gray-light/200 at 95%', () => {
+    // The Figma Overlay is gray-light/200 with the layer at 95% — read from
+    // the exported PNG's alpha, 242/255. Not the black wash this token held.
+    const wash = alphaPrimitives[theme['surface/scrim'].light as keyof typeof alphaPrimitives];
+    expect(wash).toEqual({ hex: primitives['gray-light/200'], alpha: 0.95 });
+  });
+
+  it('keeps a dialog distinguishable from its backdrop in dark', () => {
+    // Dark was never drawn. The literal mirror of the light wash,
+    // gray-dark/600 at 95%, sits at 1.01:1 against surface/overlay — the
+    // dialog would vanish into its own backdrop.
+    const scrim = resolve('surface/scrim', 'dark', resolve('surface/base', 'dark'));
+    expect(contrast(resolve('surface/overlay', 'dark'), scrim)).toBeGreaterThanOrEqual(1.4);
   });
 });

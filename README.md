@@ -39,7 +39,7 @@ Three layers, mirrored in Figma as three variable collections.
 
 | Layer | Varies by mode | What it holds |
 |---|---|---|
-| **Primitives** | no | The raw ramp. 81 opaque colours plus 14 alpha values — twelve on the black and white ramps, two shadow inks. Nothing references these directly. |
+| **Primitives** | no | The raw ramp. 81 opaque colours plus 16 alpha values — twelve on the black and white ramps, three inks (two for shadows, one for the dark scrim) and the light scrim's mist. Nothing references these directly. |
 | **Theme** | Light / Dark | 54 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
 | **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
@@ -58,11 +58,12 @@ both, and tests assert the two stay in step.
 
 ## The contrast suite
 
-120 test cases covering what the design actually depends on: text clearing AA on
+122 test cases covering what the design actually depends on: text clearing AA on
 every surface it can appear on, status text clearing AA on its own subtle
 background, every button label clearing AA on all of its fill states, control
 borders clearing WCAG 1.4.11, the dark elevation ladder staying ordered and
-separable, and no token collapsing into the surface behind it.
+separable, no token collapsing into the surface behind it, and a dialog staying
+distinguishable from its backdrop.
 
 It is not decoration. It caught five real defects on its first run, including a
 divider that resolved to exactly the same colour as the surface beneath it.

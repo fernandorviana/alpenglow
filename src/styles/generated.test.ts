@@ -73,12 +73,14 @@ describe('tokens.css is in step with the token source', () => {
     }
   });
 
-  it('declares elevation in all three theme blocks, not just :root', () => {
+  it('declares every elevation step in all three theme blocks, not just :root', () => {
     // Dark is written twice — once for the system preference, once for an
     // explicit choice. A shadow declared in only one of them is wrong for half
     // the readers, and renders fine.
-    const occurrences = tokensCss.split('--ap-elevation-md:').length - 1;
-    expect(occurrences).toBe(3);
+    for (const name of Object.keys(elevation)) {
+      const occurrences = tokensCss.split(`--ap-elevation-${name}:`).length - 1;
+      expect(occurrences, name).toBe(3);
+    }
   });
 });
 
