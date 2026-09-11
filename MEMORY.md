@@ -309,6 +309,15 @@ have all been mistaken for errors at least once.
   `text/tertiary` is a hierarchy level, not the tertiary tone. A class assertion
   cannot prove a tone is painted: in tests the CSS-module map returns a name for
   any key, so the rule is read from the stylesheet.
+- **No publish skips the gates.** `prepublishOnly` runs `check`, `build:lib`
+  and `check:package`, so `npm publish` by hand and `npm stage publish` in the
+  Release workflow go through the same checks as CI.
+- **Every component stylesheet declares border-box for its own boxes.** Sizes
+  here include padding and border, and the package cannot assume the app has a
+  reset: in a Vite app without one, a `md` field measured 58px. The docs site's
+  global `*, *::before, *::after` rule hides the omission, so
+  `src/components/box-sizing.test.ts` fails when a rule sizes, pads or borders
+  a box its stylesheet has not listed in its `box-sizing: border-box` rule.
 
 ---
 
@@ -351,9 +360,11 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 722 tests across 29 files
+npm test            # 740 tests across 30 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
+npm run build:lib       # the package, in dist/
+npm run check:package   # publint, attw, and what the build must never lose
 ```
 
 CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
@@ -404,7 +415,17 @@ the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
 the README is the most expensive kind of typo.
 
-### 2. Packaging — npm next
+### 2. Packaging — built, not yet published
+
+`alpenglow@0.1.0` is built and checked (2026-09-11): `npm run build:lib`
+emits `dist/`, `npm run check:package` runs `publint --strict`, `attw
+--profile esm-only` and `scripts/verify-package.ts`, CI runs both, and
+`prepublishOnly` runs every gate before any publish. The tarball was installed
+into a Next 16 + Tailwind app (Server Component page, `layer(components)`
+override winning) and a Vite app with no CSS reset; that second app found the
+box-model dependency recorded in Conventions. What is left needs Fernando —
+see Needs the account owner. The spec is
+`docs/superpowers/specs/2026-09-11-npm-package-design.md`.
 
 The order, decided 2026-09-11 after two throwaway spikes: **sizes and tone**
 first, because they break the API and should do it before anything is
@@ -429,7 +450,11 @@ The package's shape, as measured in Vite (`@tailwindcss/vite`) and Next
 
 - **Build:** Vite library mode with `preserveModules`, which keeps each
   module's `'use client'`, and every CSS Module compiled into one `styles.css`
-  (about 46KB unminified, sent whole). Types still to generate.
+  (about 46KB unminified, sent whole). Declarations come from
+  `tsc -p tsconfig.lib.json`, finished by `scripts/finish-lib.ts`: tsc keeps
+  the CSS import in `index.d.ts` and writes extensionless relative imports, and
+  `attw` failed on both under `node16` and `bundler` until that script removed
+  one and added `.js` to the other.
 - **Tokens are an import the consumer writes.** Shipping
   `import './styles/tokens.css'` inside the barrel loses them silently under
   `sideEffects: ["*.css"]`: the bundler skips the barrel.
@@ -449,7 +474,8 @@ The package's shape, as measured in Vite (`@tailwindcss/vite`) and Next
 - **`tailwind-theme.css` needs a `@custom-variant dark`**, so Tailwind's `dark:`
   follows the tokens' rule: `[data-theme='dark']`, or the system preference
   under `:root:not([data-theme='light'])`. Verified in all four combinations of
-  attribute and system; `scripts/build-tailwind.ts` does not emit it yet.
+  attribute and system; `scripts/build-tailwind.ts` emits it, and
+  `generated.test.ts` holds it to `tokens.css`.
 
 Kept from the first spike, for if the registry is ever built: `src/` copies
 unchanged when each file's `target` mirrors `src/components/`, items depend on
@@ -493,5 +519,18 @@ are usable.
 
 ## Needs the account owner
 
-`npm login` — the placeholder reservations for the `alpenglow` and `eleonora`
-package names have not been made, and only the account owner can do it.
+**Publishing `alpenglow`.** Only Fernando can, and in this order:
+
+1. `npm login`, then `npm publish` from the repository root. `prepublishOnly`
+   runs the gates first. This creates the package, which npm requires before
+   a trusted publisher can be configured. The name was still free on
+   2026-09-11; `npm publish --dry-run` shows the 93 files without publishing.
+2. On npmjs.com, the package's settings → Trusted publisher → GitHub Actions:
+   repository `fernandorviana/alpenglow`, workflow `release.yml`. Leave it
+   stage-only (the default for configurations created after 2026-09-03).
+3. From then on: bump `version`, commit, push a matching `v*` tag. The Release
+   workflow stages it; approve it with 2FA on npmjs.com to make it public. A
+   tag for a version npm already has, such as `v0.1.0`, is skipped.
+
+`eleonora` is not reserved: npm's policy discourages packages published only
+to hold a name.
