@@ -83,6 +83,16 @@ describe('Dialog', () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps focus inside when the back button it was on goes away', () => {
+    // The first step of a flow has no back button, so pressing Back removes
+    // the button under focus. Found in Chrome: the platform drops focus to the
+    // body, outside the modal, with nowhere for a keyboard user to go on from.
+    const { rerender } = setup({ onBack: () => {} });
+    screen.getByRole('button', { name: 'Back' }).focus();
+    rerender({ onBack: undefined });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }));
+  });
+
   it('does not close on a click on the backdrop', async () => {
     // A click on the ::backdrop targets the dialog element itself. A stray
     // click beside a form must not throw away what was typed.

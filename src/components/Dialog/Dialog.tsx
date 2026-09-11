@@ -51,6 +51,7 @@ export function Dialog({
   className,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
   useEffect(() => {
@@ -63,6 +64,17 @@ export function Dialog({
       dialog.close();
     }
   }, [open, initialFocus]);
+
+  // The first step of a flow has no back button, so pressing Back removes the
+  // button under focus, and the platform drops focus to the body — outside the
+  // modal. The close button is the nearest control that stays.
+  const hasBack = onBack !== undefined;
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!hasBack && dialog?.open && !dialog.contains(document.activeElement)) {
+      closeRef.current?.focus();
+    }
+  }, [hasBack]);
 
   return (
     <dialog
@@ -104,6 +116,7 @@ export function Dialog({
           {title}
         </h2>
         <button
+          ref={closeRef}
           type="button"
           className={`${styles.iconButton} ${styles.close}`}
           aria-label="Close"

@@ -243,3 +243,8 @@ and dark.
   `interactive/neutral` a step above, as the Calendar's month buttons have it.
 - **Header and footer are `<div>`s.** Outside sectioning content, `<header>`
   and `<footer>` are the page's banner and contentinfo landmarks.
+- **Found in Chrome, during the by-hand check: Back removed the button under
+  focus.** The first step of a flow has no back button, so pressing it
+  unmounts the focused element, and the platform drops focus to the body,
+  outside the modal. When the back button goes and focus is no longer inside,
+  the dialog moves it to the close button. A test holds it.
