@@ -34,3 +34,10 @@ jobs:
           }
 
       - run: npm run build:docs
+
+      # The package as a consumer receives it: the manifest, the types, and
+      # what the library build must never lose. `prepublishOnly` runs the same.
+      - name: Package
+        run: |
+          npm run build:lib
+          npm run check:package

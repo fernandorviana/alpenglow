@@ -1,3 +1,6 @@
+// Puts the tokens at the top of the package's styles.css. The built JavaScript
+// does not keep this import — the consumer's own `import 'alpenglow/styles.css'`
+// loads the CSS — and scripts/verify-package.ts fails if the tokens go missing.
 import './styles/tokens.css';
 
 export { Button } from './components/Button/index';

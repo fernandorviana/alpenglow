@@ -112,6 +112,12 @@ has said MIT without one.
    beside the `.js` it describes.
 4. Copies `src/styles/tokens.css` and `src/styles/tailwind-theme.css` into
    `dist/`.
+5. `tsx scripts/finish-lib.ts` — found during planning: `tsc` keeps
+   `import './styles/tokens.css'` in `index.d.ts`, where it resolves to no
+   types, and writes extensionless relative imports, which fail under
+   `moduleResolution: node16`. The script removes CSS imports from the
+   declarations and adds `.js` or `/index.js` to relative specifiers, and
+   performs the copies of item 4. `attw` fails if either rewrite is lost.
 
 `src/index.ts` keeps `import './styles/tokens.css'`. In the library build that
 import is what puts the tokens at the top of `styles.css`; the emitted
@@ -163,8 +169,10 @@ components disagree about which theme is on.
 
 - **`publint`** — manifest errors: an export pointing at a missing file, a
   wrong `types` condition order.
-- **`attw --pack . --profile esm-only`** (`@arethetypeswrong/cli`) — whether
-  TypeScript resolves the types a consumer would get.
+- **`attw --pack . --profile esm-only --exclude-entrypoints ./styles.css
+  ./tokens.css ./tailwind-theme.css`** (`@arethetypeswrong/cli`) — whether
+  TypeScript resolves the types a consumer would get. CSS subpaths are
+  excluded: they are not JavaScript, and attw reports them as unresolvable.
 - **`scripts/verify-package.ts`**, which reads `dist/` and the output of
   `npm pack --dry-run --json`, and fails when:
   1. a module whose source opens with `'use client'` has lost it in `dist/`;
@@ -173,7 +181,14 @@ components disagree about which theme is on.
   3. `dist/styles.css` contains `@layer` — the source is unlayered by ruling;
   4. `dist/tailwind-theme.css` has no `@custom-variant dark`;
   5. the tarball holds anything but `dist/**`, `package.json`, `README.md` and
-     `LICENSE`.
+     `LICENSE`;
+  6. `dist/styles.css` lacks the tokens — the `src/index.ts` import that puts
+     them there looks removable.
+
+  Found during implementation: a CSS-module map also hands out `@keyframes`
+  names, so check 2 accepts a name defined as a class or as keyframes; and
+  check 4 matches `@custom-variant dark {`, because a bare substring passed
+  `@custom-variant darkish` when that mutation was tried.
 
 Each check is proven by breaking the thing it guards once, during
 implementation.
