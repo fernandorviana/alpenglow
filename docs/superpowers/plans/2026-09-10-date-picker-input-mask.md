@@ -26,7 +26,7 @@
 - Tests: Vitest 5, jsdom, @testing-library/react, @testing-library/user-event 14.6.7.
 - Docs page: Next.js 16 App Router.
 
-**Spec:** `docs/superpowers/specs/2026-09-10-date-picker-input-mask-design.md` (commit `637e6c1`). It amends `docs/superpowers/specs/2026-09-10-date-picker-design.md`.
+**Spec:** `docs/superpowers/specs/2026-09-10-date-picker-input-mask-design.md` (commit `70d7212`). It amends `docs/superpowers/specs/2026-09-10-date-picker-design.md`.
 
 **Verified before writing:**
 - `mask.ts` below was run against the real `date.ts` for every case the spec lists.

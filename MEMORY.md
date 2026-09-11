@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-10**, commit `df1891c`.
+Last verified against the tree on **2026-09-11**, commit `98e1aae`.
 
 ---
 
@@ -275,7 +275,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 620 tests across 19 files
+npm test            # 661 tests across 21 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
