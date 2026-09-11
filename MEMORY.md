@@ -168,7 +168,10 @@ have all been mistaken for errors at least once.
     rounded inline ends, not by a pill drawn on top — start, middle and end are
     one solid accent fill with on-accent labels throughout.
     `Calendar.test.tsx` reads the stylesheet and fails if the band moves back
-    onto the pill.
+    onto the pill. The 280px width is a floor (`flex-shrink: 0`): squeezed into
+    a 200px flex row, the cells measured 28.6px around 32px day buttons. In a
+    container too narrow for it the Calendar overflows. Fernando's ruling:
+    wider is acceptable, narrower is not. Do not make it fluid below 280.
 
 15. **The DatePicker panel is `popover="manual"`, not `auto` like the
     DropdownMenu, on purpose.** In range mode the first Esc must only cancel a

@@ -1006,6 +1006,16 @@ describe('Calendar stylesheet source', () => {
     return match![1]!;
   };
 
+  it('never renders narrower than the drawn 280px', () => {
+    // A flex row shrinks its children by default, and nothing else in any
+    // layout shrinks a fixed width. Squeezed into a 200px row, the cells
+    // measured 28.6px around 32px day buttons: every day overlapped the next.
+    // Wider is acceptable; narrower is not.
+    const calendar = block('.calendar');
+    expect(calendar).toMatch(/(?:^|;)\s*width:\s*280px/);
+    expect(calendar).toMatch(/flex-shrink:\s*0/);
+  });
+
   it('paints the range band on the cell and not on the pill', () => {
     // The band spans the full 40px cell. Moving it to .pill would restore the
     // drawing's 32px squares with 8px of panel between them, and nothing else

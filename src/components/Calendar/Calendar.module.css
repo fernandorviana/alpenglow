@@ -17,9 +17,17 @@
  * Not worth a token in a layer that exists to be small.
  */
 
+/* 280px is a floor, not only a size. A flex row shrinks its children by
+   default: squeezed into a 200px row, the cells measured 28.6px around 32px
+   day buttons, and every day overlapped the next. In a container too narrow
+   for it the calendar overflows, where the problem can be seen, rather than
+   degrading the one surface a finger has to hit. The narrowest phone viewport
+   is 320px, so 280 fits wherever the page leaves it 20px a side. Wider is
+   acceptable; narrower is not. */
 .calendar {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   gap: var(--ap-spacing-050);
   width: 280px;
   font-family: var(--ap-font-sans);
