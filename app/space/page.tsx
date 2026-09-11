@@ -80,24 +80,24 @@ export default function Page() {
       <p>
         The geometry is shared by both modes and only the ink changes: the same light, a
         different room. In light the ink is <code>stone/950</code> at 10% and 12%, which
-        lands ΔE76 1.69 and 2.04 from the drawn navy. Pure black at the nearest steps of the
+        lands ΔE76 1.88 and 2.27 from the drawn navy. Pure black at the nearest steps of the
         alpha ramp was tried first and measured at 2.20 and 5.70 — the second is well past the
         ~2.3 just noticeable difference, so the shadow needed its own ink. <code>night/950</code>{' '}
-        lands closer still, 0.95 and 1.14, and was rejected: the ink is shared by both surface
+        lands closer, 1.32 and 1.59, and was rejected: the ink is shared by both surface
         ladders, so it stays neutral rather than following one of them.
       </p>
       <p>
         Dark was never drawn: the source library has this shadow in three sizes for light and
         one for dark, and not this one. So the dark values are a decision, and the decision is
         to keep them modest. Against the ground it falls on, black at 8% in light reaches
-        1.19:1; black at 64% in dark reaches 1.15:1. An 8% shadow in light does more than a 64%
+        1.19:1; black at 64% in dark reaches 1.05:1. An 8% shadow in light does more than a 64%
         shadow in dark. Pushing dark harder buys 0.07 of ratio and costs a smear.
       </p>
       <p>
         Which is why, in dark, the <a href="/dropdown-menu">dropdown menu</a> also takes a 1px
         border. That is the rule for running
         out of elevation, applied: separate with a border rather than inventing a step.
-        Against the canvas <code>border/default</code> is 3.15:1 in dark and 1.60:1 in light —
+        Against the canvas <code>border/default</code> is 3.55:1 in dark and 1.60:1 in light —
         stronger exactly where it is needed. Light does not get one; there the shadow already
         separates, and a border would draw the edge twice.
       </p>

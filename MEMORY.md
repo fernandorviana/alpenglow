@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-11**, commit `dc3aaca` (the new bedrock).
+Last verified against the tree on **2026-09-11**, at the deep-tail commit that follows `dc3aaca` (the new bedrock).
 
 ---
 
@@ -70,7 +70,7 @@ have all been mistaken for errors at least once.
    drawn), so `variant="outline" tone="tertiary"` does not compile. The
    tertiary ladder *lightens* on hover and pressed in both modes — 400, 300,
    200 with a dark label — because `flare/500` carries no label at all
-   (3.74:1 dark, 3.80:1 white). `success` was once
+   (4.29:1 dark, 3.80:1 white). `success` was once
    excluded for the same reason, but field validation added `text/success`
    and `border/success`, which clear 4.5:1 and 3:1 on the canvas: an outline
    success is possible, and stays out until someone draws it (decided
@@ -85,9 +85,14 @@ have all been mistaken for errors at least once.
    levels 1.22:1 from each other. When you run out, separate with a border
    rather than inventing a step. `contrast.test.ts` asserts the equality so it
    is not mistaken for an oversight. The dark ladder is `night`; a product
-   that wants a neutral dark aliases the same stops of `stone`, and one pair
-   moves — `border/strong` on `stone/800` is 2.97:1, so that ladder takes
-   `stone/400` there. Never mix the two families in one ladder.
+   that wants a neutral dark aliases the same stops of `stone`, and every
+   pair holds (the tightest, `border/strong` on `stone/800`, is 3.44:1).
+   Never mix the two families in one ladder. The tail is deep on purpose —
+   700–950 at L .43 / .33 / .245 / .16, canvas `#090B1F` — decided
+   2026-09-11 so the dark theme reads as night; every dark pair gained by
+   it and the 950→900 step went from 1.22 to 1.19:1, still above the 1.09
+   the suite requires. A deeper tail (950 at L .13) was measured and
+   refused because that step fell to 1.11.
 
 5. **A loading button is `disabled` but must not look disabled.** Every
    paint-bearing disabled rule in `Button.module.css` carries `:not(.loading)`.
@@ -134,15 +139,17 @@ have all been mistaken for errors at least once.
 
 10. **Dark elevation is modest on purpose.** The dark shadow was never drawn,
     so its values are a decision. Black at 64% over the dark canvas reaches
-    1.15:1 against it; black at 8% over white reaches 1.19:1. An 8% shadow in
+    1.05:1 against it; black at 8% over white reaches 1.19:1. An 8% shadow in
     light does more than a 64% one in dark, so dark does not chase a shadow
     that cannot work — it stops at `alpha/black-32` and `-48`.
 
 11. **The DropdownMenu has a border in dark and none in light.** Invariant 4
     applied, not an accident of asymmetry: in dark the shadow stops separating, and
-    `border/default` is 3.15:1 against the canvas there against 1.60:1 in
+    `border/default` is 3.55:1 against the canvas there against 1.60:1 in
     light. Each menu tone also hovers to its own subtle fill rather than one
-    shared neutral — `text/accent` on the neutral fill is 4.23:1 in dark.
+    shared neutral — `text/accent` on the neutral fill was 3.50:1 in dark
+    when the rule was made and is 4.59:1 since the deeper tail; the rule is
+    the design, not the margin, and the suite records the figure.
     Both are asserted in `DropdownMenu.test.tsx` and `contrast.test.ts`.
 
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
@@ -168,7 +175,7 @@ have all been mistaken for errors at least once.
 13. **The calendar's spilled days are inert but still painted.** The days from
     the adjacent months are rendered, greyed, not focusable and not clickable,
     and their numbers are `aria-hidden`. They take `text/inert`, which measures
-    1.72:1 in light and 1.43:1 in dark against the panel. That is what makes
+    1.72:1 in light and 1.50:1 in dark against the panel. That is what makes
     those figures defensible — decoration is exempt, an interactive control is
     not. The token is not the drawn light-grey primitive on purpose: a
     primitive does not switch with the theme, and on the dark panel it measured
@@ -485,7 +492,7 @@ What is open, in the order it will probably be taken:
 - **`tertiary` could gain an outline variant** (`flare/700` is 7.84:1 on
   white) once someone draws it — see invariant 3.
 - **A product that wants neutral dark surfaces aliases `stone` instead of
-  `night`**, and `border/strong` then moves to `stone/400` in dark. Measured,
+  `night`**; since the deep tail every pair holds without a move. Measured,
   not built.
 - **A Display P3 pass** would add saturation at the 300–400 stops of the vivid
   families, which sRGB clips; nothing else changes.

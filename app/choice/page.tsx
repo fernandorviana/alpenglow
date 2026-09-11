@@ -67,8 +67,8 @@ export default function Page() {
         The box is inset — filled with <code>surface/sunken</code>, a step below the card in
         light (1.17:1 away) and the canvas colour in dark, where the ladder ends — so its
         border and its selected dot are measured against that fill, not only against the
-        card behind it. The border reads 3.04:1 in light and 4.84:1 in dark there, the dot
-        6.86:1 in dark. A fill that only looks right against the card is the hardest kind
+        card behind it. The border reads 3.04:1 in light and 5.45:1 in dark there, the dot
+        7.73:1 in dark. A fill that only looks right against the card is the hardest kind
         of regression to catch by eye, which is why the suite measures the box on its own.
       </p>
       <p>

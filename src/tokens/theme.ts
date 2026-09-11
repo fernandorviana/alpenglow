@@ -16,7 +16,7 @@
  *    LIGHTENS across hover and pressed while its label DARKENS to compensate.
  *    Keeping a white label there would fail AA at the hover step. The two
  *    highlight fills (tertiary, on flare) lighten in BOTH modes, because their
- *    500 carries no label at all — 3.74:1 with a dark one, 3.80:1 with white.
+ *    500 carries no label at all — 4.29:1 with a dark one, 3.80:1 with white.
  *
  * 3. In Dark, `surface/sunken` is the canvas. The ladder is eleven stops and
  *    ends at 950; a well reads as recessed only inside a raised surface, and
@@ -25,8 +25,13 @@
  *
  * The dark ladder is `night`. A product that wants a neutral dark can alias
  * the same stops of `stone` instead — every text and border pair below was
- * measured against both, and one moves: `border/strong` on `stone/800` is
- * 2.97:1, so a stone ladder takes `stone/400` there.
+ * measured against both and holds; the tightest, `border/strong` on
+ * `stone/800`, is 3.44:1.
+ *
+ * The tail is deep on purpose: 700–950 sit at L .43 / .33 / .245 / .16, so
+ * the dark canvas is #090B1F rather than a slate. Decided 2026-09-11 for a
+ * dark theme that reads as night; every dark pair gained by it, and the one
+ * cost is the 950→900 step, 1.19:1 against 1.22 before.
  */
 
 import type { PrimitiveName, AlphaPrimitiveName } from './primitives';
@@ -57,7 +62,7 @@ export const theme = {
 
   // ---- text ------------------------------------------------------------
   // Light reads stone 900 / 700 / 600; dark reads stone 050 / 300 / 400.
-  // Tertiary is the tight one: 4.58:1 on sunken in light, 4.51:1 on the
+  // Tertiary is the tight one: 4.58:1 on sunken in light, 5.18:1 on the
   // overlay in dark. Placeholder is the same stop as tertiary — the next one
   // up, stone/500, is 3.57:1 on white, and a placeholder is text.
   'text/primary':     { light: 'stone/900', dark: 'stone/050', use: 'Headings and body' },
@@ -93,7 +98,7 @@ export const theme = {
   'interactive/on-neutral':      { light: 'stone/900', dark: 'stone/050', use: 'Label on neutral' },
 
   // The highlight fill: flare/400 with a dark label in both modes. flare/500
-  // carries no label (3.74:1 dark, 3.80:1 white), so the only three-step
+  // carries no label (4.29:1 dark, 3.80:1 white), so the only three-step
   // ladder that passes goes lighter — 400 → 300 → 200 — in both modes.
   'interactive/tertiary':         { light: 'flare/400', dark: 'flare/400', use: 'Highlight fill' },
   'interactive/tertiary-hover':   { light: 'flare/300', dark: 'flare/300', use: 'Highlight hover' },
@@ -101,7 +106,7 @@ export const theme = {
   'interactive/on-tertiary':      { light: 'stone/900', dark: 'night/950', use: 'Label on highlight' },
 
   // Success no longer crosses over: moss/600 carries white at 5.09:1 in light
-  // and moss/400 carries night/950 at 7.61:1 in dark, so the green follows
+  // and moss/400 carries night/950 at 8.57:1 in dark, so the green follows
   // the same shape as the accent — darker in light, lighter in dark, label
   // themed to match.
   'interactive/success':         { light: 'moss/600', dark: 'moss/400', use: 'Confirming button fill' },

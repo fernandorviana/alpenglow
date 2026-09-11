@@ -9,7 +9,7 @@
  * estimated. The lightness of a stop is the same in every family:
  *
  *   050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625
- *   600 .525 · 700 .45  · 800 .365 · 900 .29  · 950 .225
+ *   600 .525 · 700 .43  · 800 .33  · 900 .245 · 950 .16
  *
  * That is the rule that makes the families interchangeable by role: any 600
  * carries a white label at 4.5:1 or better, any 400 carries a night/950
@@ -50,10 +50,10 @@ export const primitives = {
   'glow/400': '#FF738F',
   'glow/500': '#EB3B55',
   'glow/600': '#C21640',
-  'glow/700': '#A00333',
-  'glow/800': '#780026',
-  'glow/900': '#57001A',
-  'glow/950': '#3B0010',
+  'glow/700': '#97002F',
+  'glow/800': '#680020',
+  'glow/900': '#430012',
+  'glow/950': '#220006',
 
   'twilight/050': '#F8F5FF',
   'twilight/100': '#F0E8FF',
@@ -62,10 +62,10 @@ export const primitives = {
   'twilight/400': '#B091FF',
   'twilight/500': '#8F62FF',
   'twilight/600': '#6F43DC',
-  'twilight/700': '#5733B8',
-  'twilight/800': '#3E228F',
-  'twilight/900': '#2A1669',
-  'twilight/950': '#1A0D49',
+  'twilight/700': '#532CB1',
+  'twilight/800': '#361583',
+  'twilight/900': '#20055B',
+  'twilight/950': '#0D0033',
 
   'flare/050': '#FFF5EC',
   'flare/100': '#FFE8D6',
@@ -74,10 +74,10 @@ export const primitives = {
   'flare/400': '#FF7F05',
   'flare/500': '#D66000',
   'flare/600': '#AC4700',
-  'flare/700': '#8D3700',
-  'flare/800': '#6B2500',
-  'flare/900': '#4E1700',
-  'flare/950': '#350C00',
+  'flare/700': '#843300',
+  'flare/800': '#5C1F00',
+  'flare/900': '#3C1000',
+  'flare/950': '#1E0400',
 
   'glacier/050': '#E1FDFF',
   'glacier/100': '#C3F8FC',
@@ -86,10 +86,10 @@ export const primitives = {
   'glacier/400': '#00BDD3',
   'glacier/500': '#0098B0',
   'glacier/600': '#00778C',
-  'glacier/700': '#006072',
-  'glacier/800': '#004655',
-  'glacier/900': '#00313D',
-  'glacier/950': '#002029',
+  'glacier/700': '#005A6B',
+  'glacier/800': '#003C49',
+  'glacier/900': '#00252F',
+  'glacier/950': '#001016',
 
   'stone/050': '#F5F7F9',
   'stone/100': '#EAEDF1',
@@ -98,10 +98,10 @@ export const primitives = {
   'stone/400': '#A3A8AF',
   'stone/500': '#83888F',
   'stone/600': '#666B71',
-  'stone/700': '#52555C',
-  'stone/800': '#3B3F45',
-  'stone/900': '#282B31',
-  'stone/950': '#191C21',
+  'stone/700': '#4C5057',
+  'stone/800': '#32353C',
+  'stone/900': '#1E2026',
+  'stone/950': '#0B0D12',
 
   'night/050': '#F3F7FF',
   'night/100': '#E7EDFB',
@@ -110,10 +110,10 @@ export const primitives = {
   'night/400': '#98A6D1',
   'night/500': '#7885B6',
   'night/600': '#5C6796',
-  'night/700': '#4A527C',
-  'night/800': '#363B5E',
-  'night/900': '#252944',
-  'night/950': '#17192F',
+  'night/700': '#444C76',
+  'night/800': '#2D3254',
+  'night/900': '#1B1E38',
+  'night/950': '#090B1F',
 
   'mist/050': '#F0F9F9',
   'mist/100': '#E1F0F1',
@@ -122,10 +122,10 @@ export const primitives = {
   'mist/400': '#8DB0B0',
   'mist/500': '#6A908F',
   'mist/600': '#4F7272',
-  'mist/700': '#3D5C5C',
-  'mist/800': '#2A4444',
-  'mist/900': '#1B2F30',
-  'mist/950': '#0F1F1F',
+  'mist/700': '#385656',
+  'mist/800': '#213A3B',
+  'mist/900': '#102425',
+  'mist/950': '#031010',
 
   'ember/050': '#FFF4F3',
   'ember/100': '#FFE6E5',
@@ -134,10 +134,10 @@ export const primitives = {
   'ember/400': '#FF7873',
   'ember/500': '#E44B46',
   'ember/600': '#BC2C2F',
-  'ember/700': '#9B1C24',
-  'ember/800': '#760D18',
-  'ember/900': '#56050F',
-  'ember/950': '#3B0208',
+  'ember/700': '#94131E',
+  'ember/800': '#6A000F',
+  'ember/900': '#440007',
+  'ember/950': '#220002',
 
   'moss/050': '#EEFBF0',
   'moss/100': '#DDF4E0',
@@ -146,10 +146,10 @@ export const primitives = {
   'moss/400': '#67BE80',
   'moss/500': '#3E9E5F',
   'moss/600': '#1D7E46',
-  'moss/700': '#0B6636',
-  'moss/800': '#004C27',
-  'moss/900': '#00351A',
-  'moss/950': '#002310',
+  'moss/700': '#006031',
+  'moss/800': '#004120',
+  'moss/900': '#002912',
+  'moss/950': '#001206',
 
   'amber/050': '#FDF7E1',
   'amber/100': '#F8EDC5',
@@ -158,10 +158,10 @@ export const primitives = {
   'amber/400': '#CCA21D',
   'amber/500': '#AA8100',
   'amber/600': '#886400',
-  'amber/700': '#6F4F00',
-  'amber/800': '#533900',
-  'amber/900': '#3C2700',
-  'amber/950': '#281800',
+  'amber/700': '#684A00',
+  'amber/800': '#483100',
+  'amber/900': '#2E1D00',
+  'amber/950': '#150B00',
 } as const satisfies Record<string, `#${string}`>;
 
 /**
@@ -190,20 +190,20 @@ export const alphaPrimitives = {
    * the two opacities the elevation layer uses, and at 95% for the dark scrim.
    *
    * The drawn shadow is #18274B at 10% and 12% — a navy that exists nowhere
-   * else in the palette. Over white, stone/950 lands ΔE76 1.69 and 2.04 from
+   * else in the palette. Over white, stone/950 lands ΔE76 1.88 and 2.27 from
    * it, under the ~2.3 just noticeable difference. night/950 lands closer,
-   * 0.95 and 1.14, and was rejected: the ink is shared by both surface
+   * 1.32 and 1.59, and was rejected: the ink is shared by both surface
    * ladders, so it stays neutral rather than following one of them.
    */
-  'alpha/ink-10': { hex: '#191C21', alpha: 0.1 },
-  'alpha/ink-12': { hex: '#191C21', alpha: 0.12 },
+  'alpha/ink-10': { hex: '#0B0D12', alpha: 0.1 },
+  'alpha/ink-12': { hex: '#0B0D12', alpha: 0.12 },
   /**
    * The dark scrim. Dark was never drawn: the literal mirror of the light
    * wash, the overlay colour at 95%, sits within 1.01:1 of the dialog, so the
    * backdrop takes the system's darkest ink instead, with the dialog's
    * dark-mode border doing the rest.
    */
-  'alpha/ink-95': { hex: '#191C21', alpha: 0.95 },
+  'alpha/ink-95': { hex: '#0B0D12', alpha: 0.95 },
   /**
    * The light scrim: the drawn Overlay is the neutral 200 at 95% — read from
    * the exported PNG's alpha, 242/255. A wash more than a shade: the page

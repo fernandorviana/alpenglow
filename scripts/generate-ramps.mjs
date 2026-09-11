@@ -51,7 +51,7 @@ export function contrast(a, b) {
 export const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 export const LIGHTNESS = {
   50: 0.975, 100: 0.945, 200: 0.895, 300: 0.825, 400: 0.73, 500: 0.625,
-  600: 0.525, 700: 0.45, 800: 0.365, 900: 0.29, 950: 0.225,
+  600: 0.525, 700: 0.43, 800: 0.33, 900: 0.245, 950: 0.16,
 };
 
 // chroma: bell that peaks at 400–500 and thins at both ends; hue: gentle drift.

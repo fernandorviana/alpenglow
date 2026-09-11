@@ -45,8 +45,8 @@ export default function Page() {
         </p>
         <p>
           White initials on a mid-grey circle measure 3.98:1, and initials are text. It uses{' '}
-          <code>surface/inverse</code> with <code>text/inverse</code> instead — 17.1:1 in light,
-          15.9:1 in dark — which
+          <code>surface/inverse</code> with <code>text/inverse</code> instead — 19.4:1 in light,
+          18.1:1 in dark — which
           also flips by theme, so the avatar reads on a dark card as well as a light one.
         </p>
       </div>

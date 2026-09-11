@@ -15,7 +15,7 @@
  * already has the convention: ground not yet surveyed is drawn dashed.
  *
  * `border/default` never appears here: measured against the card this sits
- * on (`surface/raised`), it is 1.72:1 in Light and 2.59:1 in Dark. The
+ * on (`surface/raised`), it is 1.72:1 in Light and 2.97:1 in Dark. The
  * strokes are what make the picture, so they carry `border/strong` or a
  * text token instead — see `Layers.test.tsx`'s contrast guard.
  */

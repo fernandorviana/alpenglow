@@ -96,9 +96,9 @@ export default function Page() {
       <h2>The menu takes a border in dark and not in light</h2>
       <p>
         Not an oversight of symmetry. Against the ground it falls on, the shadow reaches 1.19:1
-        in light at 8% opacity and 1.15:1 in dark at 64% — in dark it has stopped carrying
+        in light at 8% opacity and 1.05:1 in dark at 64% — in dark it has stopped carrying
         elevation, whatever it is set to. The border is what separates the menu there, and
-        against the canvas it is 3.15:1 in dark against 1.60:1 in light: stronger where it has
+        against the canvas it is 3.55:1 in dark against 1.60:1 in light: stronger where it has
         to be. In light the shadow already does the work, and drawing the edge twice would
         look like a mistake, because it would be one.
       </p>
@@ -108,8 +108,10 @@ export default function Page() {
         The drawing gives every row the same hover fill. Two measurements broke that. The drawn
         fill is <code>surface/base</code>, which in dark is <em>darker</em> than the menu — the
         row under the pointer would open a hole rather than light up. And the accent row&rsquo;s
-        label on a shared neutral fill is 4.23:1 in dark, below AA. On its own subtle surface it
-        is 8.39:1.
+        label on a shared neutral fill was 3.50:1 in dark when the rule was made. The deeper
+        dark tail brought it to 4.59:1, which passes, and the rule stays: a tone hovers to its
+        own subtle surface because that is the design, not because of 0.09 of headroom. On its
+        own surface the label is 9.64:1.
       </p>
 
       <h2>The menu takes the top layer, and the suite cannot see it</h2>

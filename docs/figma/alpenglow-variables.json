@@ -50,22 +50,22 @@
         {
           "name": "glow/700",
           "type": "COLOR",
-          "hex": "#A00333"
+          "hex": "#97002F"
         },
         {
           "name": "glow/800",
           "type": "COLOR",
-          "hex": "#780026"
+          "hex": "#680020"
         },
         {
           "name": "glow/900",
           "type": "COLOR",
-          "hex": "#57001A"
+          "hex": "#430012"
         },
         {
           "name": "glow/950",
           "type": "COLOR",
-          "hex": "#3B0010"
+          "hex": "#220006"
         },
         {
           "name": "twilight/050",
@@ -105,22 +105,22 @@
         {
           "name": "twilight/700",
           "type": "COLOR",
-          "hex": "#5733B8"
+          "hex": "#532CB1"
         },
         {
           "name": "twilight/800",
           "type": "COLOR",
-          "hex": "#3E228F"
+          "hex": "#361583"
         },
         {
           "name": "twilight/900",
           "type": "COLOR",
-          "hex": "#2A1669"
+          "hex": "#20055B"
         },
         {
           "name": "twilight/950",
           "type": "COLOR",
-          "hex": "#1A0D49"
+          "hex": "#0D0033"
         },
         {
           "name": "flare/050",
@@ -160,22 +160,22 @@
         {
           "name": "flare/700",
           "type": "COLOR",
-          "hex": "#8D3700"
+          "hex": "#843300"
         },
         {
           "name": "flare/800",
           "type": "COLOR",
-          "hex": "#6B2500"
+          "hex": "#5C1F00"
         },
         {
           "name": "flare/900",
           "type": "COLOR",
-          "hex": "#4E1700"
+          "hex": "#3C1000"
         },
         {
           "name": "flare/950",
           "type": "COLOR",
-          "hex": "#350C00"
+          "hex": "#1E0400"
         },
         {
           "name": "glacier/050",
@@ -215,22 +215,22 @@
         {
           "name": "glacier/700",
           "type": "COLOR",
-          "hex": "#006072"
+          "hex": "#005A6B"
         },
         {
           "name": "glacier/800",
           "type": "COLOR",
-          "hex": "#004655"
+          "hex": "#003C49"
         },
         {
           "name": "glacier/900",
           "type": "COLOR",
-          "hex": "#00313D"
+          "hex": "#00252F"
         },
         {
           "name": "glacier/950",
           "type": "COLOR",
-          "hex": "#002029"
+          "hex": "#001016"
         },
         {
           "name": "stone/050",
@@ -270,22 +270,22 @@
         {
           "name": "stone/700",
           "type": "COLOR",
-          "hex": "#52555C"
+          "hex": "#4C5057"
         },
         {
           "name": "stone/800",
           "type": "COLOR",
-          "hex": "#3B3F45"
+          "hex": "#32353C"
         },
         {
           "name": "stone/900",
           "type": "COLOR",
-          "hex": "#282B31"
+          "hex": "#1E2026"
         },
         {
           "name": "stone/950",
           "type": "COLOR",
-          "hex": "#191C21"
+          "hex": "#0B0D12"
         },
         {
           "name": "night/050",
@@ -325,22 +325,22 @@
         {
           "name": "night/700",
           "type": "COLOR",
-          "hex": "#4A527C"
+          "hex": "#444C76"
         },
         {
           "name": "night/800",
           "type": "COLOR",
-          "hex": "#363B5E"
+          "hex": "#2D3254"
         },
         {
           "name": "night/900",
           "type": "COLOR",
-          "hex": "#252944"
+          "hex": "#1B1E38"
         },
         {
           "name": "night/950",
           "type": "COLOR",
-          "hex": "#17192F"
+          "hex": "#090B1F"
         },
         {
           "name": "mist/050",
@@ -380,22 +380,22 @@
         {
           "name": "mist/700",
           "type": "COLOR",
-          "hex": "#3D5C5C"
+          "hex": "#385656"
         },
         {
           "name": "mist/800",
           "type": "COLOR",
-          "hex": "#2A4444"
+          "hex": "#213A3B"
         },
         {
           "name": "mist/900",
           "type": "COLOR",
-          "hex": "#1B2F30"
+          "hex": "#102425"
         },
         {
           "name": "mist/950",
           "type": "COLOR",
-          "hex": "#0F1F1F"
+          "hex": "#031010"
         },
         {
           "name": "ember/050",
@@ -435,22 +435,22 @@
         {
           "name": "ember/700",
           "type": "COLOR",
-          "hex": "#9B1C24"
+          "hex": "#94131E"
         },
         {
           "name": "ember/800",
           "type": "COLOR",
-          "hex": "#760D18"
+          "hex": "#6A000F"
         },
         {
           "name": "ember/900",
           "type": "COLOR",
-          "hex": "#56050F"
+          "hex": "#440007"
         },
         {
           "name": "ember/950",
           "type": "COLOR",
-          "hex": "#3B0208"
+          "hex": "#220002"
         },
         {
           "name": "moss/050",
@@ -490,22 +490,22 @@
         {
           "name": "moss/700",
           "type": "COLOR",
-          "hex": "#0B6636"
+          "hex": "#006031"
         },
         {
           "name": "moss/800",
           "type": "COLOR",
-          "hex": "#004C27"
+          "hex": "#004120"
         },
         {
           "name": "moss/900",
           "type": "COLOR",
-          "hex": "#00351A"
+          "hex": "#002912"
         },
         {
           "name": "moss/950",
           "type": "COLOR",
-          "hex": "#002310"
+          "hex": "#001206"
         },
         {
           "name": "amber/050",
@@ -545,22 +545,22 @@
         {
           "name": "amber/700",
           "type": "COLOR",
-          "hex": "#6F4F00"
+          "hex": "#684A00"
         },
         {
           "name": "amber/800",
           "type": "COLOR",
-          "hex": "#533900"
+          "hex": "#483100"
         },
         {
           "name": "amber/900",
           "type": "COLOR",
-          "hex": "#3C2700"
+          "hex": "#2E1D00"
         },
         {
           "name": "amber/950",
           "type": "COLOR",
-          "hex": "#281800"
+          "hex": "#150B00"
         },
         {
           "name": "alpha/black-04",
@@ -637,19 +637,19 @@
         {
           "name": "alpha/ink-10",
           "type": "COLOR",
-          "hex": "#191C21",
+          "hex": "#0B0D12",
           "alpha": 0.1
         },
         {
           "name": "alpha/ink-12",
           "type": "COLOR",
-          "hex": "#191C21",
+          "hex": "#0B0D12",
           "alpha": 0.12
         },
         {
           "name": "alpha/ink-95",
           "type": "COLOR",
-          "hex": "#191C21",
+          "hex": "#0B0D12",
           "alpha": 0.95
         },
         {

@@ -81,7 +81,7 @@ A further eight exist in Carbon under a different name: `notifications` is `Noti
 
 ### The text-input border is deliberately non-compliant
 
-`color/border/default` (`#C1C6CC` stone/300 Light, `#5C6796` night/600 Dark) is used on text inputs, textarea, select, combobox and date picker. Against a card it measures **1.72:1 / 2.59:1**, below the 3:1 that WCAG 1.4.11 requires for non-text contrast. In the React library the field currently draws no border at all at rest — the boundary is its fill, 1.07:1 against a card — which is the parked decision recorded in `MEMORY.md`.
+`color/border/default` (`#C1C6CC` stone/300 Light, `#5C6796` night/600 Dark) is used on text inputs, textarea, select, combobox and date picker. Against a card it measures **1.72:1 / 2.97:1**, below the 3:1 that WCAG 1.4.11 requires for non-text contrast. In the React library the field currently draws no border at all at rest — the boundary is its fill, 1.07:1 against a card — which is the parked decision recorded in `MEMORY.md`.
 
 **This is a known, deliberate exception**, decided on 2026-09-07 by the design system owner with the measured ratios in front of them, to preserve the established appearance of the forms this system was derived from.
 
@@ -95,14 +95,14 @@ In Light, `raised` and `overlay` are both white and the shadow separates them. I
 
 ### One lightness per stop, in every family
 
-Ten families of eleven stops (`050`–`950`), generated in OKLCH. The lightness of a stop is the same in every family — 050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625 · 600 .525 · 700 .45 · 800 .365 · 900 .29 · 950 .225 — so a number means the same amount of light everywhere:
+Ten families of eleven stops (`050`–`950`), generated in OKLCH. The lightness of a stop is the same in every family — 050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625 · 600 .525 · 700 .43 · 800 .33 · 900 .245 · 950 .16 — so a number means the same amount of light everywhere:
 
 - any **600** carries a white label at ≥ 4.5:1 (5.1 to 6.0 across the families);
-- any **400** carries a `night/950` label at ≥ 4.5:1 (6.3 to 7.6);
+- any **400** carries a `night/950` label at ≥ 4.5:1 (7.6 or better);
 - any **500** is the 3:1 stop for icons, borders and large text — and carries **no** label, white or dark;
 - any **700** is text on its own 050; any **300** is text on its own 900.
 
-Chroma and hue are each family's own. The sRGB gamut clips the vivid families at 300–400; a Display P3 pass would add saturation there without touching any ratio.
+The tail is deep on purpose — the dark canvas is `#090B1F`, decided 2026-09-11 so the dark theme reads as night; a deeper one (950 at L .13) was measured and refused because the 950→900 step fell to 1.11:1. Chroma and hue are each family's own. The sRGB gamut clips the vivid families at 300–400; a Display P3 pass would add saturation there without touching any ratio.
 
 | Family | Role |
 |---|---|
@@ -123,24 +123,24 @@ There are no half steps. The twenty-step neutral this replaced had adjacent step
 
 ### The dark ramp holds 3 colour levels, and `sunken` is the canvas
 
-`base → raised → overlay` is `night` 950 / 900 / 800, and the ramp ends at 950. `surface/sunken` therefore resolves to `surface/base` in Dark: a well reads as recessed inside a card (1.22:1) and on the canvas it takes `border/default`. `contrast.test.ts` asserts the equality so it is not mistaken for an oversight.
+`base → raised → overlay` is `night` 950 / 900 / 800 (`#090B1F` → `#1B1E38` → `#2D3254`, steps of 1.19 and 1.32), and the ramp ends at 950. `surface/sunken` therefore resolves to `surface/base` in Dark: a well reads as recessed inside a card (1.19:1) and on the canvas it takes `border/default`. `contrast.test.ts` asserts the equality so it is not mistaken for an oversight.
 
 **When you run out of elevation, separate with a border, not another step.** A popover opened inside a modal stays on `surface/overlay` and is outlined with `border/default`. Do not invent `overlay-raised`, and do not invent a `975`.
 
-**The ladder can be `stone` instead of `night`**, per product, by aliasing the same stops. Every text and border pair was measured against both, and one moves: `border/strong` on `stone/800` is 2.97:1, so a stone ladder takes `stone/400` there. Never mix the two families in one ladder — the chroma difference reads as two materials, not as elevation.
+**The ladder can be `stone` instead of `night`**, per product, by aliasing the same stops. Every text and border pair was measured against both and holds — the tightest, `border/strong` on `stone/800`, is 3.44:1. Never mix the two families in one ladder — the chroma difference reads as two materials, not as elevation.
 
 ### Two tokens collide if you pick the obvious values
 
 | Trap | What happens | Correct value |
 |---|---|---|
-| `border/subtle` in Dark as `night/800` | Identical to `surface/overlay` — **1.00:1, invisible** | `night/700` `#4A527C` — 1.45 on the overlay, 1.89 on a card |
-| `border/strong` as `stone/400` (Light) or `stone/600` (Dark) | 2.39 on white; **2.01 on the dark overlay** | `stone/500` `#83888F` in **both** modes — 3.04 on light sunken, 3.03 on the dark overlay, the two tight ones |
+| `border/subtle` in Dark as `night/800` | Identical to `surface/overlay` — **1.00:1, invisible** | `night/700` `#444C76` — 1.50 on the overlay, 1.97 on a card |
+| `border/strong` as `stone/400` (Light) or `stone/600` (Dark) | 2.39 on white; **2.30 on the dark overlay** | `stone/500` `#83888F` in **both** modes — 3.04 on light sunken is the tight one; 3.47 on the dark overlay |
 | `text/placeholder` as `stone/500` | 3.57:1 on white, and a placeholder is text | `stone/600`, the same stop as tertiary — 5.38 / 4.58 on sunken |
 | `interactive/selected` as `mist/200` | `text/accent` on it is **4.42:1**, and the calendar paints today's label that way | `twilight/050` / `twilight/900` — 5.55 / 8.39 |
-| `interactive/neutral` in Dark as `night/800` | Identical to `surface/overlay` | `stone/800` — the same lightness in the neutral family. The fill is still 1.00:1 on a modal **by design**: the secondary button is an outline button, and `border/default` (1.97 on the overlay) carries its shape, exactly as in Light where the fill is the canvas |
-| A `flare` or `glacier` 500 as a fill | No label passes — 3.74 with `stone/900`, 3.80 with white | 400 with a dark label; hover 300, pressed 200 |
+| `interactive/neutral` in Dark as `night/800` | Identical to `surface/overlay` | `stone/800` — the same lightness in the neutral family. The fill is still 1.00:1 on a modal **by design**: the secondary button is an outline button, and `border/default` (2.26 on the overlay) carries its shape, exactly as in Light where the fill is the canvas |
+| A `flare` or `glacier` 500 as a fill | No label passes — 4.29 with `stone/900`, 3.80 with white | 400 with a dark label; hover 300, pressed 200 |
 
-**`border/subtle` on `surface/sunken` is invisible in both modes** (identical in Light, 1.22 in Dark where sunken is the canvas). Step up to `border/default` there.
+**`border/subtle` on `surface/sunken` is invisible in Light** — the two are the same primitive. Step up to `border/default` there. In Dark, where sunken is the canvas, `night/700` is 2.35:1 against it and reads.
 
 ### Shadows in Dark reinforce, they do not carry
 
@@ -156,17 +156,17 @@ Inside an overlay, a table keeps `surface/overlay` for the body, separates rows 
 
 ### The highlight fill lightens on hover, in both modes
 
-`interactive/tertiary` is `flare/400` with a dark label (`stone/900` in Light 5.60:1, `night/950` in Dark 6.81:1). The next stop down, `flare/500`, carries no label — 3.74:1 dark, 3.80:1 white — so the only three-step ladder that passes goes **up**: 400 → 300 → 200, the label staying dark. Light and Dark share it. Do not "fix" it by darkening hover, and do not add a tertiary text token to make an outline variant: nobody has drawn that button.
+`interactive/tertiary` is `flare/400` with a dark label (`stone/900` in Light 6.43:1, `night/950` in Dark 7.68:1). The next stop down, `flare/500`, carries no label — 4.29:1 dark, 3.80:1 white — so the only three-step ladder that passes goes **up**: 400 → 300 → 200, the label staying dark. Light and Dark share it. Do not "fix" it by darkening hover, and do not add a tertiary text token to make an outline variant: nobody has drawn that button.
 
 ### The `on-*` foreground is a themed token, not a constant
 
 This is the single most valuable rule here. Baseline testing showed a careful agent compute the ratios correctly, conclude that a lighter dark-mode hover drops a white label below AA, and therefore decide **the palette cannot support a lighter dark-mode hover** — because it never considered changing the label.
 
-Resolution: in Dark, the accent fill **lightens** (`twilight` 400 → 300 → 200) *and* the label darkens to `night/950`. That yields 6.86 / 9.78 / 12.41 — all passing. A white label on the dark hover would be 1.77:1.
+Resolution: in Dark, the accent fill **lightens** (`twilight` 400 → 300 → 200) *and* the label darkens to `night/950`. That yields 7.73 / 11.02 / 13.99 — all passing. A white label on the dark hover would be 1.77:1.
 
 **Always pair a fill with its matching `on-*` token. Never assume white.** Success and danger follow the same shape: white on the 600 in Light, `night/950` on the 400 in Dark.
 
-The tight pairs are elsewhere, and all in `stone`: `text/tertiary` on the dark overlay is **4.51:1**, on light sunken **4.58:1**; `border/strong` on the dark overlay is **3.03:1**. Do not nudge `stone/400`, `stone/500`, `stone/600` or `night/800`.
+The tight pairs are in Light, and both in `stone`: `text/tertiary` on sunken is **4.58:1** and `border/strong` on sunken is **3.04:1**. Dark gained headroom from the deep tail (the same pairs are 5.18 and 3.47 on the overlay). Do not nudge `stone/100`, `stone/500` or `stone/600`.
 
 ### Focus and error
 
@@ -174,7 +174,7 @@ The tight pairs are elsewhere, and all in `stone`: `text/tertiary` on the dark o
 - **The field's own border never changes width.** It stays `border-width/hairline` in every state; only its colour changes, and the ring is added outside it. A 1px → 1.5px step would shift the control's outer box and reflow the form on focus.
 - **Error plus focus:** the border stays `border/danger`, and the focus ring is drawn in addition. Focus never replaces the error signal.
 - **A focused field's border does not recolour.** It stays `border/default` (or `border/danger` if in error); the ring alone carries focus.
-- **The focus ring cannot sit on the accent fill.** `border/focus` is `twilight/500` in Light and `twilight/300` in Dark; against the accent fill that is 1.51 and 1.43. The offset puts the ring on the surface, where it is 3.34 to 9.78.
+- **The focus ring cannot sit on the accent fill.** `border/focus` is `twilight/500` in Light and `twilight/300` in Dark; against the accent fill that is 1.51 and 1.43. The offset puts the ring on the surface, where it is 3.34 to 11.02.
 - **The secondary button always carries a `border/default` outline**, in both modes. Its fill is 1.07:1 against a white card in Light and 1.00:1 against a modal in Dark — the fill alone does not describe the button's shape. The outline does.
 - **Disabled drops that outline to `border/subtle`** and removes hover. In Dark `interactive/disabled` resolves to the same value as `interactive/neutral`, so without this the disabled and enabled states would be identical — and colour would be the only channel, which is exactly what the focus rule forbids.
 - **Checked checkbox/radio** use `border/accent` at `border-width/control`, matching the unchecked geometry so the box does not resize between states.
@@ -193,17 +193,17 @@ Ratios are not shown: surfaces are grounds, and the ladder is asserted in `contr
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `color/surface/base` | `#F5F7F9` stone/050 | `#17192F` night/950 | App canvas |
-| `color/surface/raised` | `#FFFFFF` white | `#252944` night/900 | Cards, panels, table body |
-| `color/surface/overlay` | `#FFFFFF` white | `#363B5E` night/800 | Modals, popovers, dropdowns |
-| `color/surface/sunken` | `#EAEDF1` stone/100 | `#17192F` night/950 | Read-only fields, checkbox and radio box, neutral badge, avatar overflow |
+| `color/surface/base` | `#F5F7F9` stone/050 | `#090B1F` night/950 | App canvas |
+| `color/surface/raised` | `#FFFFFF` white | `#1B1E38` night/900 | Cards, panels, table body |
+| `color/surface/overlay` | `#FFFFFF` white | `#2D3254` night/800 | Modals, popovers, dropdowns |
+| `color/surface/sunken` | `#EAEDF1` stone/100 | `#090B1F` night/950 | Read-only fields, checkbox and radio box, neutral badge, avatar overflow |
 | `color/surface/scrim` | `alpha/mist-95` | `alpha/ink-95` | Modal backdrop |
-| `color/surface/inverse` | `#191C21` stone/950 | `#F5F7F9` stone/050 | Avatar fill |
-| `color/surface/accent-subtle` | `#F8F5FF` twilight/050 | `#2A1669` twilight/900 | Selected nav, highlighted row |
-| `color/surface/success-subtle` | `#EEFBF0` moss/050 | `#00351A` moss/900 | Success badge |
-| `color/surface/warning-subtle` | `#FDF7E1` amber/050 | `#3C2700` amber/900 | Warning badge |
-| `color/surface/danger-subtle` | `#FFF4F3` ember/050 | `#56050F` ember/900 | Error badge |
-| `color/surface/info-subtle` | `#E1FDFF` glacier/050 | `#00313D` glacier/900 | Info badge |
+| `color/surface/inverse` | `#0B0D12` stone/950 | `#F5F7F9` stone/050 | Avatar fill |
+| `color/surface/accent-subtle` | `#F8F5FF` twilight/050 | `#20055B` twilight/900 | Selected nav, highlighted row |
+| `color/surface/success-subtle` | `#EEFBF0` moss/050 | `#002912` moss/900 | Success badge |
+| `color/surface/warning-subtle` | `#FDF7E1` amber/050 | `#2E1D00` amber/900 | Warning badge |
+| `color/surface/danger-subtle` | `#FFF4F3` ember/050 | `#440007` ember/900 | Error badge |
+| `color/surface/info-subtle` | `#E1FDFF` glacier/050 | `#00252F` glacier/900 | Info badge |
 
 ### color/text
 
@@ -211,18 +211,18 @@ Ratios against `surface/raised` in each mode. Every status token also clears AA 
 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
-| `color/text/primary` | `#282B31` stone/900 | `#F5F7F9` stone/050 | Headings and body | 14.2 / 13.2 |
-| `color/text/secondary` | `#52555C` stone/700 | `#C1C6CC` stone/300 | Labels, metadata | 7.5 / 8.3 |
-| `color/text/tertiary` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Helper text, timestamps | 5.4 / 5.9 |
-| `color/text/placeholder` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Input placeholders | 5.4 / 5.9 |
-| `color/text/disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled text (WCAG-exempt) | 2.4 / 2.6 |
-| `color/text/inert` | `#C1C6CC` stone/300 | `#4A527C` night/700 | Inert text beside interactive content (WCAG-exempt); always below disabled | 1.7 / 1.9 |
-| `color/text/inverse` | `#FFFFFF` white | `#191C21` stone/950 | Text on `surface/inverse` — 17.1 / 15.9 there | — |
-| `color/text/accent` | `#6F43DC` twilight/600 | `#CDB8FF` twilight/300 | Links | 6.0 / 8.0 |
-| `color/text/success` | `#0B6636` moss/700 | `#93D9A3` moss/300 | Success messages | 7.1 / 8.6 |
-| `color/text/warning` | `#533900` amber/800 | `#E3C364` amber/300 | Warning messages — two stops below the other statuses, yellow loses luminance slowly | 10.8 / 8.3 |
-| `color/text/danger` | `#9B1C24` ember/700 | `#FFADA9` ember/300 | Validation errors | 8.1 / 8.0 |
-| `color/text/info` | `#006072` glacier/700 | `#5DDAE9` glacier/300 | Info messages | 7.2 / 8.6 |
+| `color/text/primary` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Headings and body | 16.3 / 15.2 |
+| `color/text/secondary` | `#4C5057` stone/700 | `#C1C6CC` stone/300 | Labels, metadata | 8.1 / 9.5 |
+| `color/text/tertiary` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Helper text, timestamps | 5.4 / 6.8 |
+| `color/text/placeholder` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Input placeholders | 5.4 / 6.8 |
+| `color/text/disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled text (WCAG-exempt) | 2.4 / 3.0 |
+| `color/text/inert` | `#C1C6CC` stone/300 | `#444C76` night/700 | Inert text beside interactive content (WCAG-exempt); always below disabled | 1.7 / 2.0 |
+| `color/text/inverse` | `#FFFFFF` white | `#0B0D12` stone/950 | Text on `surface/inverse` — 19.4 / 18.1 there | — |
+| `color/text/accent` | `#6F43DC` twilight/600 | `#CDB8FF` twilight/300 | Links | 6.0 / 9.2 |
+| `color/text/success` | `#006031` moss/700 | `#93D9A3` moss/300 | Success messages | 7.7 / 9.8 |
+| `color/text/warning` | `#483100` amber/800 | `#E3C364` amber/300 | Warning messages | 12.2 / 9.5 |
+| `color/text/danger` | `#94131E` ember/700 | `#FFADA9` ember/300 | Validation errors | 8.9 / 9.2 |
+| `color/text/info` | `#005A6B` glacier/700 | `#5DDAE9` glacier/300 | Info messages | 7.9 / 9.8 |
 
 ### color/interactive
 
@@ -230,29 +230,29 @@ Ratios for `on-*` tokens are against their resting fill; for fills, against `sur
 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
-| `color/interactive/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Primary button fill | 6.0 / 5.6 |
-| `color/interactive/accent-hover` | `#5733B8` twilight/700 | `#CDB8FF` twilight/300 | Primary hover | 8.2 / 8.0 |
-| `color/interactive/accent-pressed` | `#3E228F` twilight/800 | `#E2D4FF` twilight/200 | Primary pressed | 11.5 / 10.2 |
-| `color/interactive/on-accent` | `#FFFFFF` white | `#17192F` night/950 | Label on accent | 6.0 / 6.9 |
-| `color/interactive/neutral` | `#F5F7F9` stone/050 | `#3B3F45` stone/800 | Secondary button fill | 1.1 / 1.3 |
-| `color/interactive/neutral-hover` | `#E1F0F1` mist/100 | `#52555C` stone/700 | Secondary hover, row hover | 1.2 / 1.9 |
-| `color/interactive/neutral-pressed` | `#CBE2E2` mist/200 | `#666B71` stone/600 | Secondary pressed | 1.4 / 2.6 |
-| `color/interactive/on-neutral` | `#282B31` stone/900 | `#F5F7F9` stone/050 | Label on neutral | 13.2 / 9.9 |
-| `color/interactive/tertiary` | `#FF7F05` flare/400 | `#FF7F05` flare/400 | Highlight fill | 2.5 / 5.6 |
-| `color/interactive/tertiary-hover` | `#FFB27B` flare/300 | `#FFB27B` flare/300 | Highlight hover — lighter, see decisions | 1.8 / 8.0 |
-| `color/interactive/tertiary-pressed` | `#FFD2B1` flare/200 | `#FFD2B1` flare/200 | Highlight pressed | 1.4 / 10.2 |
-| `color/interactive/on-tertiary` | `#282B31` stone/900 | `#17192F` night/950 | Label on highlight | 5.6 / 6.8 |
-| `color/interactive/success` | `#1D7E46` moss/600 | `#67BE80` moss/400 | Confirming button fill | 5.1 / 6.3 |
-| `color/interactive/success-hover` | `#0B6636` moss/700 | `#93D9A3` moss/300 | Confirming hover | 7.1 / 8.6 |
-| `color/interactive/success-pressed` | `#004C27` moss/800 | `#BBEAC4` moss/200 | Confirming pressed | 10.2 / 10.6 |
-| `color/interactive/on-success` | `#FFFFFF` white | `#17192F` night/950 | Label on success | 5.1 / 7.6 |
-| `color/interactive/danger` | `#BC2C2F` ember/600 | `#FF7873` ember/400 | Destructive button fill | 5.9 / 5.5 |
-| `color/interactive/danger-hover` | `#9B1C24` ember/700 | `#FFADA9` ember/300 | Destructive hover | 8.1 / 8.0 |
-| `color/interactive/danger-pressed` | `#760D18` ember/800 | `#FFCFCD` ember/200 | Destructive pressed | 11.4 / 10.2 |
-| `color/interactive/on-danger` | `#FFFFFF` white | `#17192F` night/950 | Label on danger | 5.9 / 6.7 |
-| `color/interactive/selected` | `#F8F5FF` twilight/050 | `#2A1669` twilight/900 | Selected row, tab, nav | 1.1 / 1.0 |
-| `color/interactive/disabled` | `#D9DDE2` stone/200 | `#3B3F45` stone/800 | Disabled fill — in Dark equals `neutral`; the label carries the state | 1.4 / 1.3 |
-| `color/interactive/on-disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled label | 1.8 / 2.0 |
+| `color/interactive/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Primary button fill | 6.0 / 6.5 |
+| `color/interactive/accent-hover` | `#532CB1` twilight/700 | `#CDB8FF` twilight/300 | Primary hover | 8.9 / 9.2 |
+| `color/interactive/accent-pressed` | `#361583` twilight/800 | `#E2D4FF` twilight/200 | Primary pressed | 13.2 / 11.7 |
+| `color/interactive/on-accent` | `#FFFFFF` white | `#090B1F` night/950 | Label on accent | 6.0 / 7.7 |
+| `color/interactive/neutral` | `#F5F7F9` stone/050 | `#32353C` stone/800 | Secondary button fill | 1.1 / 1.3 |
+| `color/interactive/neutral-hover` | `#E1F0F1` mist/100 | `#4C5057` stone/700 | Secondary hover, row hover | 1.2 / 2.0 |
+| `color/interactive/neutral-pressed` | `#CBE2E2` mist/200 | `#666B71` stone/600 | Secondary pressed | 1.4 / 3.0 |
+| `color/interactive/on-neutral` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Label on neutral | 15.2 / 11.4 |
+| `color/interactive/tertiary` | `#FF7F05` flare/400 | `#FF7F05` flare/400 | Highlight fill | 2.5 / 6.4 |
+| `color/interactive/tertiary-hover` | `#FFB27B` flare/300 | `#FFB27B` flare/300 | Highlight hover — lighter, see decisions | 1.8 / 9.2 |
+| `color/interactive/tertiary-pressed` | `#FFD2B1` flare/200 | `#FFD2B1` flare/200 | Highlight pressed | 1.4 / 11.7 |
+| `color/interactive/on-tertiary` | `#1E2026` stone/900 | `#090B1F` night/950 | Label on highlight | 6.4 / 7.7 |
+| `color/interactive/success` | `#1D7E46` moss/600 | `#67BE80` moss/400 | Confirming button fill | 5.1 / 7.2 |
+| `color/interactive/success-hover` | `#006031` moss/700 | `#93D9A3` moss/300 | Confirming hover | 7.7 / 9.8 |
+| `color/interactive/success-pressed` | `#004120` moss/800 | `#BBEAC4` moss/200 | Confirming pressed | 11.8 / 12.2 |
+| `color/interactive/on-success` | `#FFFFFF` white | `#090B1F` night/950 | Label on success | 5.1 / 8.6 |
+| `color/interactive/danger` | `#BC2C2F` ember/600 | `#FF7873` ember/400 | Destructive button fill | 5.9 / 6.3 |
+| `color/interactive/danger-hover` | `#94131E` ember/700 | `#FFADA9` ember/300 | Destructive hover | 8.9 / 9.2 |
+| `color/interactive/danger-pressed` | `#6A000F` ember/800 | `#FFCFCD` ember/200 | Destructive pressed | 13.0 / 11.7 |
+| `color/interactive/on-danger` | `#FFFFFF` white | `#090B1F` night/950 | Label on danger | 5.9 / 7.6 |
+| `color/interactive/selected` | `#F8F5FF` twilight/050 | `#20055B` twilight/900 | Selected row, tab, nav | 1.1 / 1.0 |
+| `color/interactive/disabled` | `#D9DDE2` stone/200 | `#32353C` stone/800 | Disabled fill — in Dark equals `neutral`; the label carries the state | 1.4 / 1.3 |
+| `color/interactive/on-disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled label | 1.8 / 2.3 |
 
 ### color/border
 
@@ -260,14 +260,14 @@ Ratios against `surface/raised`.
 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
-| `color/border/subtle` | `#EAEDF1` stone/100 | `#4A527C` night/700 | Dividers, row separators | 1.2 / 1.9 |
-| `color/border/default` | `#C1C6CC` stone/300 | `#5C6796` night/600 | Cards, containers, text inputs — see decisions | 1.7 / 2.6 |
-| `color/border/strong` | `#83888F` stone/500 | `#83888F` stone/500 | All form control boundaries — 3:1 on every surface | 3.6 / 4.0 |
-| `color/border/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Active, selected | 6.0 / 5.6 |
-| `color/border/focus` | `#8F62FF` twilight/500 | `#CDB8FF` twilight/300 | Focus ring — the **only** focus token | 3.9 / 8.0 |
-| `color/border/danger` | `#BC2C2F` ember/600 | `#FF7873` ember/400 | Error | 5.9 / 5.5 |
-| `color/border/success` | `#1D7E46` moss/600 | `#67BE80` moss/400 | Validated | 5.1 / 6.3 |
-| `color/border/inverse` | `#52555C` stone/700 | `#D9DDE2` stone/200 | On `surface/inverse` | 7.5 / 10.4 |
+| `color/border/subtle` | `#EAEDF1` stone/100 | `#444C76` night/700 | Dividers, row separators | 1.2 / 2.0 |
+| `color/border/default` | `#C1C6CC` stone/300 | `#5C6796` night/600 | Cards, containers, text inputs — see decisions | 1.7 / 3.0 |
+| `color/border/strong` | `#83888F` stone/500 | `#83888F` stone/500 | All form control boundaries — 3:1 on every surface | 3.6 / 4.6 |
+| `color/border/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Active, selected | 6.0 / 6.5 |
+| `color/border/focus` | `#8F62FF` twilight/500 | `#CDB8FF` twilight/300 | Focus ring — the **only** focus token | 3.9 / 9.2 |
+| `color/border/danger` | `#BC2C2F` ember/600 | `#FF7873` ember/400 | Error | 5.9 / 6.3 |
+| `color/border/success` | `#1D7E46` moss/600 | `#67BE80` moss/400 | Validated | 5.1 / 7.2 |
+| `color/border/inverse` | `#4C5057` stone/700 | `#D9DDE2` stone/200 | On `surface/inverse` | 8.1 / 11.9 |
 
 ### spacing, radius, border-width
 
@@ -303,23 +303,23 @@ Most used in production: gap 16 / 8 / 12 / 4 · padding 8 / 12 / 16 / 20.
 
 You cannot set opacity on an alias — it resolves to the primitive's own alpha. Scrims, hover washes and focus halos therefore need dedicated alpha primitives, or raw values will leak into the semantic layer:
 
-`alpha/black-04 08 16 32 48 64` and `alpha/white-04 08 16 32 48 64`, plus four off the doubling ramp: `alpha/ink-10` and `alpha/ink-12` (stone/950, the shadow ink — ΔE76 1.69 and 2.04 from the drawn navy over white), `alpha/ink-95` (the dark scrim) and `alpha/mist-95` (stone/200 at 95%, the drawn light scrim).
+`alpha/black-04 08 16 32 48 64` and `alpha/white-04 08 16 32 48 64`, plus four off the doubling ramp: `alpha/ink-10` and `alpha/ink-12` (stone/950, the shadow ink — ΔE76 1.88 and 2.27 from the drawn navy over white), `alpha/ink-95` (the dark scrim) and `alpha/mist-95` (stone/200 at 95%, the drawn light scrim).
 
 ### Primitives
 
 | Family | 050 → 950 |
 |---|---|
 | `white` | `#FFFFFF` (single) |
-| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `A00333` `780026` `57001A` `3B0010` |
-| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `5733B8` `3E228F` `2A1669` `1A0D49` |
-| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `8D3700` `6B2500` `4E1700` `350C00` |
-| `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `006072` `004655` `00313D` `002029` |
-| `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `52555C` `3B3F45` `282B31` `191C21` |
-| `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `4A527C` `363B5E` `252944` `17192F` |
-| `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `3D5C5C` `2A4444` `1B2F30` `0F1F1F` |
-| `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `9B1C24` `760D18` `56050F` `3B0208` |
-| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `0B6636` `004C27` `00351A` `002310` |
-| `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `6F4F00` `533900` `3C2700` `281800` |
+| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `97002F` `680020` `430012` `220006` |
+| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `532CB1` `361583` `20055B` `0D0033` |
+| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `843300` `5C1F00` `3C1000` `1E0400` |
+| `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `005A6B` `003C49` `00252F` `001016` |
+| `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `4C5057` `32353C` `1E2026` `0B0D12` |
+| `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `444C76` `2D3254` `1B1E38` `090B1F` |
+| `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `385656` `213A3B` `102425` `031010` |
+| `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `94131E` `6A000F` `440007` `220002` |
+| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `006031` `004120` `002912` `001206` |
+| `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `684A00` `483100` `2E1D00` `150B00` |
 
 The brand gradient — `flare/300 → glow/300 → glow/500 → twilight/400 → night/600` in Light, one stop more saturated in Dark (`400 → 400 → 500 → 500 → 500`) — is a gradient asset, not a variable. It never carries text.
 
@@ -362,7 +362,7 @@ function prime(name, h, a) {
   ids[name] = v.id;
 }
 prime('stone/050', 'F5F7F9');
-prime('alpha/ink-95', '191C21', 0.95);
+prime('alpha/ink-95', '0B0D12', 0.95);
 // ...remaining primitives, from the JSON
 
 return { collectionId: prim.id, createdVariableIds: Object.values(ids) };

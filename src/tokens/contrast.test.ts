@@ -36,7 +36,7 @@ describe('documented exemptions hold at their recorded values', () => {
   // These are deliberately below AA. Asserting the recorded figure means a
   // future edit that makes them *worse* still fails.
   const EXPECTED: Record<string, Record<Mode, number>> = {
-    'text/disabled': { light: 2.39, dark: 2.64 },
+    'text/disabled': { light: 2.39, dark: 3.03 },
   };
 
   for (const [token, byMode] of Object.entries(EXPECTED)) {
@@ -51,8 +51,8 @@ describe('documented exemptions hold at their recorded values', () => {
 
 describe('a disabled menu row is exempt, at the figure it actually shows', () => {
   // The recorded exemption is measured on surface/raised. On surface/overlay
-  // dark is 2.01 rather than 2.64, and that is the surface the DropdownMenu uses.
-  const EXPECTED: Record<Mode, number> = { light: 2.39, dark: 2.01 };
+  // dark is 2.30 rather than 3.03, and that is the surface the DropdownMenu uses.
+  const EXPECTED: Record<Mode, number> = { light: 2.39, dark: 2.30 };
   for (const mode of MODES) {
     it(`text/disabled on surface/overlay — ${mode}`, () => {
       expect(tokenContrast('text/disabled', 'surface/overlay', mode)).toBeCloseTo(EXPECTED[mode], 1);
@@ -98,10 +98,14 @@ describe('a menu row label meets AA on the fill its tone hovers to', () => {
     }
   }
 
-  it('records why the accent row does not take the neutral fill', () => {
-    // Kept as an assertion so that a future edit which makes this pairing
-    // usable is noticed rather than assumed.
-    expect(tokenContrast('text/accent', 'interactive/neutral-hover', 'dark')).toBeLessThan(AA_NORMAL);
+  it('records the accent row on the neutral fill, which now passes by 0.09', () => {
+    // This pairing was 3.50:1 when the per-tone hover rule was made, and it
+    // was asserted below AA so that an edit making it usable would be
+    // noticed. The deeper dark tail (2026-09-11) made it usable: 4.59:1. The
+    // rule stays — a tone's row hovers to its own subtle surface because that
+    // is the design, and 0.09 of headroom is not a margin to build on — so
+    // the figure is recorded rather than the threshold.
+    expect(tokenContrast('text/accent', 'interactive/neutral-hover', 'dark')).toBeCloseTo(4.59, 1);
   });
 });
 
@@ -429,7 +433,7 @@ describe('the table stays legible in both modes', () => {
   // looser and could never fail first, so it would defend nothing. What is
   // recorded instead is the measured figure, following the exemptions block:
   // an edit that moves the separator in EITHER direction has to be deliberate.
-  const SEPARATOR = { light: 1.17, dark: 1.89 } as const;
+  const SEPARATOR = { light: 1.17, dark: 1.97 } as const;
 
   it.each(['light', 'dark'] as const)('row separators stay at their measured value in %s', (mode) => {
     const ratio = tokenContrast('border/subtle', 'surface/raised', mode);
@@ -475,7 +479,7 @@ describe('the calendar meets the thresholds its drawing did not', () => {
     // Not a WCAG threshold: the spilled days are inert, so 1.4.3 exempts them.
     // What is asserted is the ordering the drawn primitive inverted in dark,
     // where its light grey measured 7.90:1 — brighter than the weekday header.
-    // Measured: text/inert 1.72 light / 1.43 dark; text/disabled 2.39 / 2.01.
+    // Measured: text/inert 1.72 light / 1.50 dark; text/disabled 2.39 / 2.30.
     for (const mode of MODES) {
       expect(tokenContrast('text/inert', 'surface/overlay', mode), mode).toBeLessThan(
         tokenContrast('text/disabled', 'surface/overlay', mode),

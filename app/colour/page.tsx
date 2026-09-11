@@ -141,8 +141,9 @@ export default function Page() {
         because shadow no longer reads as height, and sunken shares the canvas because the
         ramp ends at 950 — a well on the canvas takes a border. The dark ladder is{' '}
         <code>night</code>; a product that wants a neutral dark aliases the same stops of{' '}
-        <code>stone</code>, and one pair moves: <code>border/strong</code> on{' '}
-        <code>stone/800</code> is 2.97:1, so a stone ladder takes <code>stone/400</code> there.
+        <code>stone</code>, and every pair holds — the tightest, <code>border/strong</code> on{' '}
+        <code>stone/800</code>, is 3.44:1. The tail is deep on purpose: 700 to 950 sit at L
+        .43, .33, .245 and .16, so the dark canvas reads as night rather than slate.
       </p>
       <TokenTable tokens={group('surface/')} threshold={3} />
 
