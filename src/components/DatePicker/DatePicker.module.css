@@ -21,6 +21,12 @@
  * the suite, and have not yet been checked by hand.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.wrapper, .trigger, .trigger svg, .entry, .panel {
+  box-sizing: border-box;
+}
+
 .wrapper {
   display: inline-flex;
   flex-direction: column;

@@ -5,6 +5,12 @@
  * the token scale (control heights) and the spinner's own dimensions.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.button, .sm, .md, .lg, .fullWidth, .icon, .icon svg {
+  box-sizing: border-box;
+}
+
 .button {
   /* layout */
   display: inline-flex;

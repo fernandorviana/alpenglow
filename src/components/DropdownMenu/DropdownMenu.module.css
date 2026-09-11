@@ -11,6 +11,12 @@
  * behaviour, lose some control over the rendering.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.menu, .item, .label, .icon, .icon svg, .groupLabel, .separator {
+  box-sizing: border-box;
+}
+
 .menu {
   /* The UA sheet gives [popover] `inset: 0; margin: auto`, which centres it.
      Anchor positioning needs both cleared. The @supports branch at the bottom

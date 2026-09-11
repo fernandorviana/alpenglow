@@ -11,6 +11,12 @@
  * no component consuming them.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.badge, .sm, .md, .icon, .icon svg, .dot {
+  box-sizing: border-box;
+}
+
 .badge {
   display: inline-flex;
   border: var(--ap-border-width-hairline) solid transparent;

@@ -8,6 +8,12 @@
  * the avatar reads on a dark card as well as a light one.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.image, .xxs, .xs, .sm, .md, .lg, .xl, .status {
+  box-sizing: border-box;
+}
+
 .avatar {
   position: relative;
   display: inline-flex;

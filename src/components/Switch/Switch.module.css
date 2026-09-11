@@ -13,6 +13,12 @@
  * literally what it is: a raised surface sitting on the track.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.track, .track::before {
+  box-sizing: border-box;
+}
+
 .track {
   appearance: none;
   position: relative;

@@ -9,6 +9,12 @@
  * has to work in a clinic on whatever device is to hand.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.select, .chevron, .chevron svg {
+  box-sizing: border-box;
+}
+
 .select {
   appearance: none;
   cursor: pointer;

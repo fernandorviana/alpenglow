@@ -6,6 +6,12 @@
  * a block of text wants the same margin on both sides.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.textarea {
+  box-sizing: border-box;
+}
+
 .textarea {
   min-height: 144px;
   padding: var(--ap-spacing-150) var(--ap-spacing-200);

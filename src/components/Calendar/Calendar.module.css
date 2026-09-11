@@ -17,6 +17,13 @@
  * Not worth a token in a layer that exists to be small.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.calendar, .header, .page, .page svg, .grid, .weekday, .cell, .pill, .hidden,
+.dot {
+  box-sizing: border-box;
+}
+
 /* 280px is a floor, not only a size. A flex row shrinks its children by
    default: squeezed into a 200px row, the cells measured 28.6px around 32px
    day buttons, and every day overlapped the next. In a container too narrow

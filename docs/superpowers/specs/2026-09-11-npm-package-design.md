@@ -313,3 +313,13 @@ to the three pages. The rest of the README stays.
 - The three docs pages checked in a browser, light and dark, and at 375px for
   the code blocks.
 - `npm publish --dry-run` shows the expected file list and `0.1.0`.
+
+**Found by the Vite consumer, 2026-09-11.** With no CSS reset on the page, a
+`md` field measured 58px instead of 40px and a badge 8px taller: every
+component stylesheet relied on the docs site's global
+`*, *::before, *::after { box-sizing: border-box }`, which Tailwind's preflight
+also supplies and a plain app may not. Decided with Fernando: each stylesheet
+declares border-box for its own boxes, rather than the package documenting a
+reset requirement. `src/components/box-sizing.test.ts` fails when a rule sizes,
+pads or borders a box its stylesheet has not declared. On the docs site,
+removing the global reset now changes no component's size, popovers included.

@@ -15,6 +15,12 @@
  * because it can hold icons, and the textarea itself for Textarea.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.control, .sm, .md, .lg, .field, .icon, .icon svg, .fullWidth {
+  box-sizing: border-box;
+}
+
 .control {
   display: flex;
   align-items: center;

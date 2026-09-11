@@ -20,6 +20,12 @@
  * above it. Porting a Figma radius by name lands one step out.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.wrap, .table, .caption, .th, .td, .sortButton, .sortMark, .selectCell {
+  box-sizing: border-box;
+}
+
 .wrap {
   /* The region is focusable so a keyboard can scroll it; its role and label
      are set in the component. */

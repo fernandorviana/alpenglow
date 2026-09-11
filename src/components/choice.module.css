@@ -11,6 +11,12 @@
  * WCAG 2.1 excludes inactive components.
  */
 
+/* Every size here includes padding and border. Declared, not left to the
+   app's CSS reset, which a consumer of the package may not have. */
+.control, .checkbox::before, .radio::before, .label {
+  box-sizing: border-box;
+}
+
 /* The description sits OUTSIDE the label and is wired with aria-describedby.
    Inside it, a screen reader reads it as part of the control's name — so
    "Send a reminder" becomes "Send a reminder They will get an email the day
