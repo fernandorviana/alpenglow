@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-11**, commit `98e1aae`.
+Last verified against the tree on **2026-09-11**, commit `b9dfb35`.
 
 ---
 
@@ -208,6 +208,22 @@ have all been mistaken for errors at least once.
     inserted after a lone day or month digit completes that part (`1/` becomes
     `01/`).
 
+19. **The site's narrow-screen menu is a fixed overlay, and the component
+    owns what the stylesheet cannot.** Below 760px the sidebar is a sticky bar
+    with a toggle; open, `.sidebar[data-open='true']` fixes it over the whole
+    viewport (`100dvh`, a scroll of its own) rather than growing the bar and
+    pushing the page down. `app/ui/Nav.tsx` then sets `data-nav-open` on
+    `html` to lock document scroll, puts `inert` on every sibling of the nav —
+    siblings, not a named element, so the overlay covers whatever the shell
+    holds — closes on Esc, and closes when the viewport widens past the
+    breakpoint, because on a wide screen the sidebar shows whatever `open`
+    says and the lock and the inert page would outlive the overlay. `NARROW`
+    is exported from `Nav.tsx` and `Nav.test.tsx` finds the stylesheet's media
+    block by it, so the two cannot drift apart. `inert` is written as an
+    attribute, not the property, because jsdom 30 does not reflect the
+    property. Left out on purpose: the theme toggle inside the overlay, a
+    hamburger icon, and an entry animation.
+
 ---
 
 ## Conventions
@@ -276,7 +292,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, then the full suite
-npm test            # 673 tests across 21 files
+npm test            # 684 tests across 22 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 ```
