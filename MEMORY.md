@@ -447,16 +447,23 @@ the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
 the README is the most expensive kind of typo.
 
-### 2. Packaging — built, not yet published
+### 2. Packaging — published (`0.1.0`, 2026-09-11)
 
-`alpenglow@0.1.0` is built and checked (2026-09-11): `npm run build:lib`
-emits `dist/`, `npm run check:package` runs `publint --strict`, `attw
---profile esm-only` and `scripts/verify-package.ts`, CI runs both, and
-`prepublishOnly` runs every gate before any publish. The tarball was installed
-into a Next 16 + Tailwind app (Server Component page, `layer(components)`
-override winning) and a Vite app with no CSS reset; that second app found the
-box-model dependency recorded in Conventions. What is left needs Fernando —
-see Needs the account owner. The spec is
+`alpenglow@0.1.0` is on npm, published by hand from `b69bfcd`: 97 files,
+70.4 kB packed. Its shasum, `c033a274`, is the one `npm publish --dry-run`
+printed minutes before, so the tarball on the registry is the one the gates
+checked. Installed from the registry into an empty app, it resolves the
+JavaScript entry (48 exports, the Dialog among them) and all three stylesheet
+entries.
+
+`npm run build:lib` emits `dist/`, `npm run check:package` runs `publint
+--strict`, `attw --profile esm-only` and `scripts/verify-package.ts`, CI runs
+both, and `prepublishOnly` runs every gate before any publish. Before
+publishing, the tarball was installed into a Next 16 + Tailwind app (Server
+Component page, `layer(components)` override winning) and a Vite app with no
+CSS reset; that second app found the box-model dependency recorded in
+Conventions. Later versions go through the Release workflow — see Needs the
+account owner. The spec is
 `docs/superpowers/specs/2026-09-11-npm-package-design.md`.
 
 The order, decided 2026-09-11 after two throwaway spikes: **sizes and tone**
@@ -554,18 +561,21 @@ are usable.
 
 ## Needs the account owner
 
-**Publishing `alpenglow`.** Only Fernando can, and in this order:
+**Releasing `alpenglow`.** `0.1.0` was published by hand on 2026-09-11, and
+the same day npm was told to trust `release.yml` in
+`fernandorviana/alpenglow` with stage permission only (`npm trust github
+alpenglow --file release.yml --repository fernandorviana/alpenglow
+--allow-stage-publish`; `npm trust list alpenglow` shows it). A new version:
 
-1. `npm login`, then `npm publish` from the repository root. `prepublishOnly`
-   runs the gates first. This creates the package, which npm requires before
-   a trusted publisher can be configured. The name was still free on
-   2026-09-11; `npm publish --dry-run` shows the 93 files without publishing.
-2. On npmjs.com, the package's settings → Trusted publisher → GitHub Actions:
-   repository `fernandorviana/alpenglow`, workflow `release.yml`. Leave it
-   stage-only (the default for configurations created after 2026-09-03).
-3. From then on: bump `version`, commit, push a matching `v*` tag. The Release
-   workflow stages it; approve it with 2FA on npmjs.com to make it public. A
-   tag for a version npm already has, such as `v0.1.0`, is skipped.
+1. Bump `version`, commit, push a matching `v*` tag. The Release workflow
+   runs the gates and stages it. A tag for a version npm already has, such as
+   `v0.1.0`, is skipped.
+2. Fernando approves the staged version on npmjs.com, with 2FA, to make it
+   public. Nothing in CI can make it public alone.
+
+Every npm write from the owner's account — login, a manual publish, `npm
+trust` — asks for 2FA in the browser. npm stopped accepting authenticator apps
+for new 2FA setups in 2025; the account uses a passkey.
 
 `eleonora` is not reserved: npm's policy discourages packages published only
 to hold a name.
