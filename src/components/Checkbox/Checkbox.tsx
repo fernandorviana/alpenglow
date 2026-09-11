@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, useEffect, useId, useRef } from 'react';
 import type { ChangeEvent, InputHTMLAttributes, ReactNode } from 'react';
 import styles from '../choice.module.css';
