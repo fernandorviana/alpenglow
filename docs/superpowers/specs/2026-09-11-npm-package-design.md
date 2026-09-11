@@ -173,6 +173,9 @@ components disagree about which theme is on.
   ./tokens.css ./tailwind-theme.css`** (`@arethetypeswrong/cli`) — whether
   TypeScript resolves the types a consumer would get. CSS subpaths are
   excluded: they are not JavaScript, and attw reports them as unresolvable.
+  It runs with `npm_config_dry_run=false`: under `npm publish --dry-run`, the
+  `npm pack` attw runs inherits the dry run, writes no tarball, and attw fails
+  on the missing file — found by the dry run in §8.
 - **`scripts/verify-package.ts`**, which reads `dist/` and the output of
   `npm pack --dry-run --json`, and fails when:
   1. a module whose source opens with `'use client'` has lost it in `dist/`;

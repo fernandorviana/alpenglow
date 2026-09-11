@@ -27,7 +27,7 @@
   "scripts": {
     "build:css": "tsx scripts/build-css.ts && tsx scripts/build-tailwind.ts",
     "build:lib": "npm run build:css && vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json && tsx scripts/finish-lib.ts",
-    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./tokens.css ./tailwind-theme.css && tsx scripts/verify-package.ts",
+    "check:package": "publint --strict && npm_config_dry_run=false attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./tokens.css ./tailwind-theme.css && tsx scripts/verify-package.ts",
     "prepublishOnly": "npm run check && npm run build:lib && npm run check:package",
     "test": "vitest run",
     "test:watch": "vitest",
