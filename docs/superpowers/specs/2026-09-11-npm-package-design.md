@@ -217,8 +217,11 @@ direct `npm publish` stays off.
 - on `push` of tags matching `v*`;
 - `permissions: { id-token: write, contents: read }`, no npm token in secrets;
 - Node 24 (bundled npm ≥ 11.5.1, the trusted-publishing floor);
+- npm pinned to 11.19.0, the version `npm stage` was checked against;
 - `npm ci`;
 - a step that fails unless the tag equals `v` + `package.json`'s `version`;
+- a step that ends the job quietly when npm already has that version — the
+  first one is published by hand, so its tag has nothing to stage;
 - `npm stage publish .` — `prepublishOnly` runs the gates; provenance is
   attached automatically.
 

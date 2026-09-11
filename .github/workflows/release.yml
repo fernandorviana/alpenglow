@@ -1,0 +1,60 @@
+name: Release
+
+# A version tag stages that version on npm. It goes public only when a
+# maintainer approves it with 2FA on npmjs.com. No npm token lives in this
+# repository: npm trusts this workflow through OIDC, configured in the
+# package's settings as a trusted publisher.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or later; `npm stage` is newer
+      # still. Pinned to the version it was checked against, rather than
+      # whatever Node 24 happens to bundle.
+      - run: npm install --global npm@11.19.0
+
+      - run: npm ci
+
+      - name: The tag names the version in package.json
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json ($version)."
+            exit 1
+          fi
+
+      # The first version is published by hand, so its tag has nothing to do.
+      - name: Skip a version npm already has
+        id: published
+        run: |
+          if npm view "alpenglow@$(node -p "require('./package.json').version")" version >/dev/null 2>&1; then
+            echo "::notice::This version is already on npm; nothing to stage."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.published.outputs.skip != 'true'
+        run: npm run check
+
+      - if: steps.published.outputs.skip != 'true'
+        run: |
+          npm run build:lib
+          npm run check:package
+
+      - if: steps.published.outputs.skip != 'true'
+        run: npm stage publish .
