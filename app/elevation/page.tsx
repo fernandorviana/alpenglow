@@ -2,7 +2,10 @@ import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
 import { theme, type ThemeTokenName, type Mode } from '@/tokens/theme';
-import { resolve, contrast, lightness, tokenContrast } from '@/tokens/contrast';
+import { composite, contrast, hexToRgb, lightness, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
+import { elevation, type ElevationName } from '@/tokens/elevation';
+import { alphaPrimitives } from '@/tokens/primitives';
+import { radius, spacing } from '@/tokens/scale';
 
 /**
  * Every number on this page is computed from the tokens at render time, with
@@ -143,6 +146,51 @@ function BorderTable() {
   );
 }
 
+/** A shadow's darkest layer flattened over the ground it falls on, as a ratio against that ground. */
+function shadowOn(name: ElevationName, mode: Mode) {
+  const ground = resolve(mode === 'light' ? 'surface/raised' : 'surface/base', mode);
+  const darkest = [...elevation[name][mode]].sort(
+    (a, b) => alphaPrimitives[b.colour].alpha - alphaPrimitives[a.colour].alpha,
+  )[0]!;
+  const { hex, alpha } = alphaPrimitives[darkest.colour];
+  return contrast(rgbToHex(composite(hexToRgb(hex), hexToRgb(ground), alpha)), ground);
+}
+
+function ShadowTable() {
+  return (
+    <div className="tableScroll">
+      <table className="tokens">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Layers</th>
+            <th>Light ink</th>
+            <th>Dark ink</th>
+            <th>Darkest point, light · dark</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(Object.keys(elevation) as ElevationName[]).map((name) => (
+            <tr key={name}>
+              <td><div className="tokenName">{name}</div></td>
+              <td>
+                <div className="alias">
+                  {elevation[name].light.map((l) => `${l.y} / ${l.blur} / ${l.spread}`).join(' · ')}
+                </div>
+              </td>
+              <td><div className="alias">{elevation[name].light.map((l) => l.colour.split('/')[1]).join(', ')}</div></td>
+              <td><div className="alias">{elevation[name].dark.map((l) => l.colour.split('/')[1]).join(', ')}</div></td>
+              <td className="ratioLine">
+                {f2(shadowOn(name, 'light'))}:1 · {f2(shadowOn(name, 'dark'))}:1
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 /**
  * What the reference systems do, read from the package each one publishes on
  * 2026-09-12: Primer's dark theme CSS, the Atlassian tokens artefact, Radix
@@ -199,6 +247,76 @@ export default function Page() {
         publish, and they agree on a pattern the values below follow.
       </p>
 
+      <h2>See it</h2>
+      <p>
+        The ladder in the theme you are reading in: the canvas, a card on it, a well inside
+        the card, and a panel above them all. Flip the theme with the toggle in the sidebar and
+        watch what does the separating — the shadow in light, the colour step in dark.
+      </p>
+      <div
+        style={{
+          padding: spacing[400],
+          borderRadius: radius.xl,
+          background: 'var(--ap-color-surface-base)',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: spacing[400],
+          alignItems: 'flex-start',
+        }}
+      >
+        <div
+          style={{
+            flex: '1 1 240px',
+            padding: spacing[300],
+            borderRadius: radius.lg,
+            background: 'var(--ap-color-surface-raised)',
+            border: 'var(--ap-border-width-hairline) solid var(--ap-color-border-subtle)',
+          }}
+        >
+          <p style={{ margin: `0 0 ${spacing[150]}px` }}>surface/raised — a card</p>
+          <div
+            style={{
+              padding: spacing[150],
+              borderRadius: radius.md,
+              background: 'var(--ap-color-surface-sunken)',
+              color: 'var(--ap-color-text-secondary)',
+            }}
+          >
+            surface/sunken — a well
+          </div>
+        </div>
+        <div
+          style={{
+            flex: '1 1 200px',
+            padding: spacing[300],
+            borderRadius: radius.lg,
+            background: 'var(--ap-color-surface-overlay)',
+            boxShadow: 'var(--ap-elevation-md)',
+            border: 'var(--ap-border-width-hairline) solid var(--ap-color-border-subtle)',
+          }}
+        >
+          surface/overlay — a menu, a dialog, with elevation/md
+        </div>
+      </div>
+
+      <h2>Choosing a level</h2>
+      <p>
+        <code>base</code> is the canvas. <code>raised</code> is anything that sits on it and
+        stays — a card, the sidebar, a table&rsquo;s rows. <code>overlay</code> is anything
+        that comes and goes above the page — a menu, a popover, a dialog — and it is the last
+        step: a popover inside a dialog stays on <code>overlay</code> and takes a border, rather
+        than inventing a level. <code>sunken</code> is a well inside a card — a read-only field,
+        the fill of a checkbox — and on the canvas it takes a border, because in dark the two
+        are the same colour.
+      </p>
+      <p>
+        A shadow means elevation and a border means structure. In light, raised and overlay
+        are both white and the shadow is the whole difference; in dark the shadow reaches 1.05:1
+        against the canvas and the colour step does the work, with a hairline where a surface
+        has run out of steps. Hover and pressed are never a level: they are the wash, laid over
+        whatever is beneath, so a hovered row does not rise.
+      </p>
+
       <h2>The ladder</h2>
       <p>
         Three levels in each mode. In light the shadow separates raised from overlay; in dark
@@ -228,6 +346,18 @@ export default function Page() {
         asks of them; surface against surface — a ladder step, a well in a card, a wash — is
         measured in OKLCH lightness, with a floor of .035.
       </p>
+
+      <h2>Shadows</h2>
+      <p>
+        Two steps, <code>md</code> for anchored panels and <code>lg</code> for the Dialog, and
+        each is two layers: a long soft one and a short contact one, at the drawn offsets.
+        The geometry is shared between modes; only the ink changes. Light takes the ink alphas
+        of the drawing. Dark was never drawn, and it is modest on purpose: black at 64% over
+        the dark canvas would reach 1.05:1 against it while black at 8% over white reaches
+        1.19, so dark does not chase a shadow that cannot work and stops at 32 and 48%. The
+        last column is the darkest layer flattened over the ground it falls on.
+      </p>
+      <ShadowTable />
 
       <h2>The wash</h2>
       <p>
@@ -273,8 +403,8 @@ export default function Page() {
 
       <h2>What the references do</h2>
       <p>
-        Read from each system&rsquo;s published package or stylesheet, not from its
-        documentation prose. Layers are opaque in every one; transient states are alphas of a
+        Ten of the eleven, read from each system&rsquo;s published package or stylesheet, not
+        from its documentation prose. Layers are opaque in every one; transient states are alphas of a
         mid grey or a tinted near-white in most; borders are moving to alpha. Material 3
         dropped Material 2&rsquo;s white overlay per elevation for opaque tonal roles.
       </p>
@@ -314,6 +444,20 @@ export default function Page() {
         Two token names left the theme, <code>interactive/neutral-hover</code> and{' '}
         <code>neutral-pressed</code>, and every dark surface value changed; the package went
         to <code>0.2.0</code>.
+      </p>
+
+      <h2>Accessibility</h2>
+      <p>
+        A surface step is a step for the eye, not a contrast requirement: no text is ever set
+        in one surface against another, which is why the ladder is measured in lightness and
+        text stays on the ratio. What the wash changes is the ground under text, so every
+        text token is re-measured over both washes on every surface, and the tables above are
+        those readings. Hover is never the only cue for anything: a row under the wash is the
+        same row, and what it does is said by its content, not by its lift. The focus ring is
+        drawn on every level and clears 3:1 on the highest,{' '}
+        <Ratio fg={resolve('border/focus', 'light')} bg={resolve('surface/overlay', 'light')} threshold={3} /> in
+        light and{' '}
+        <Ratio fg={resolve('border/focus', 'dark')} bg={resolve('surface/overlay', 'dark')} threshold={3} /> in dark.
       </p>
     </DocPage>
   );
