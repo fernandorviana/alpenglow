@@ -76,12 +76,14 @@ html:has(.dialog:modal) {
 
 /* --- header --------------------------------------------------------------- */
 
-/* Three columns, so the title stays centred with or without a back button. */
+/* Three columns, so the title stays centred with or without a back button.
+   The gap is the header's own padding: at 40 the xs title had 112px, and
+   "appointment?" alone is 115. */
 .header {
   position: relative;
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr) 40px;
-  column-gap: var(--ap-spacing-500);
+  column-gap: var(--ap-spacing-300);
   align-items: center;
   flex-shrink: 0;
   padding: var(--ap-spacing-300);
@@ -98,11 +100,15 @@ html:has(.dialog:modal) {
 .back { grid-column: 1; }
 .close { grid-column: 3; }
 
+/* The title wraps. It used to truncate with an ellipsis, and at xs the grid
+   left it 112px: "Reschedule appointment", this system's own example, read
+   "Reschedule appoint…", and the question a confirmation asks was cut at
+   "Cancel th…". A title the reader cannot read is a dialog they cannot
+   answer. Balanced, so two lines break evenly. */
 .dialog .title {
   grid-column: 2;
   min-width: 0;
   margin: 0;
-  overflow: hidden;
   color: var(--ap-color-text-primary);
   font-family: var(--ap-font-sans);
   font-size: var(--ap-text-subheading-lg-size);
@@ -110,8 +116,8 @@ html:has(.dialog:modal) {
   letter-spacing: var(--ap-text-subheading-lg-tracking);
   font-weight: var(--ap-font-weight-semibold);
   text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 /* interactive/neutral, not the drawn surface/base: the same primitive in

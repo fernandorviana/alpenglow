@@ -166,6 +166,16 @@ describe('Dialog', () => {
       expect(block(css, '\n.dialog::backdrop {')).toMatch(/var\(--ap-color-surface-scrim\)/);
     });
 
+    it('lets the title wrap rather than truncate', () => {
+      // At xs the header leaves the title about 144px. Truncated, the
+      // question a confirmation asks was cut at "Cancel th…", and there is
+      // no way to reach the rest of a dialog's title.
+      const title = css.match(/\n\.dialog \.title\s*\{([^}]*)\}/)![1]!;
+      expect(title).not.toMatch(/white-space:\s*nowrap/);
+      expect(title).not.toMatch(/text-overflow/);
+      expect(title).toMatch(/text-wrap:\s*balance/);
+    });
+
     it('gives the title two classes, so a page prose h2 rule cannot restyle it', () => {
       expect(css).toMatch(/\n\.dialog \.title\s*\{/);
     });
