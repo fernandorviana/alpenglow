@@ -31,6 +31,32 @@ body {
   border-radius: var(--ap-radius-xs);
 }
 
+/* --- skip link ------------------------------------------------------------ */
+
+/* Off screen, not hidden: `display: none` would take it out of the tab
+   order it exists for. Focused, it sits over the sidebar's head on a raised
+   card, in the position the brand holds, so the eye finds it where the eye
+   already was. `main` takes `tabindex="-1"` so the jump moves focus as well
+   as the scroll, and the ring is left off it: the target is the page, not a
+   control. */
+.skipLink {
+  position: absolute;
+  top: var(--ap-spacing-200);
+  inset-inline-start: var(--ap-spacing-200);
+  z-index: 3;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+  font-weight: var(--ap-font-weight-medium);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--ap-spacing-400)));
+}
+
+.skipLink:focus-visible { transform: none; }
+
+.main:focus { outline: none; }
+
 /* --- shell ---------------------------------------------------------------- */
 
 /* Set by the nav while its narrow-screen overlay is open. */
@@ -46,10 +72,35 @@ html[data-nav-open] { overflow: hidden; }
   position: sticky;
   top: 0;
   align-self: start;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow-y: auto;
   padding: var(--ap-spacing-300) var(--ap-spacing-200);
-  border-right: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-inline-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-raised);
+}
+
+/* The sections take the height; the theme toggle sits at the foot, below
+   them, where the M3 site keeps its own. There is no bar across the top of
+   the page: the prose starts where the viewport does. */
+.navSections { flex: 1; }
+
+/* Written before the sections in the markup, so the narrow bar can put it in
+   its head; `order` moves it last here and the auto margin takes it to the
+   foot. Sticky there, because the sections alone are taller than a 900px
+   laptop window — the sidebar scrolls, and a toggle that scrolled with it
+   would be under the fold on the most common screen there is. The sidebar's
+   own padding is taken back at the bottom so the sections pass under the
+   foot rather than showing through a strip below it. */
+.sidebarTheme {
+  order: 1;
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  margin-bottom: calc(-1 * var(--ap-spacing-300));
+  padding-block: var(--ap-spacing-200) var(--ap-spacing-300);
+  border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   background: var(--ap-color-surface-raised);
 }
 
@@ -93,6 +144,11 @@ html[data-nav-open] { overflow: hidden; }
   border-radius: var(--ap-radius-sm);
   color: var(--ap-color-text-secondary);
   text-decoration: none;
+  /* The same fade as a ghost button and the section list, so the site's
+     links answer a hover with one motion rather than two. */
+  transition:
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
 
 .navLink:hover { background: var(--ap-color-interactive-wash-hover); color: var(--ap-color-text-primary); }
@@ -107,30 +163,39 @@ html[data-nav-open] { overflow: hidden; }
 
 .main { min-width: 0; }
 
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--ap-spacing-100);
-  /* The toggle is 48px tall and carries 8px of padding of its own, so the bar
-     adds only enough to keep it off the rule beneath it. At the old 12 the bar
-     grew by a fifth on every page; at 4 it is the 57px it always was. */
-  padding: var(--ap-spacing-050) var(--ap-spacing-400);
-  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
-  background: var(--ap-color-surface-base);
-}
-
+/* Three columns on a wide screen — the page's sections, the prose, the
+   evidence — and two below it, with the sections at the head of the evidence
+   column. The prose keeps one measure throughout: 832px
+   is what the 1120px page left it, and it is the column a Table specimen
+   needs (see below). On a wide screen the evidence is pushed to the right
+   edge by an empty track that takes whatever is left, so the numbers sit in
+   the margin rather than against the text. */
 .page {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 168px;
+  /* The prose spans both rows. Without the `1fr`, its height would be
+     shared out to both and the measurements would start half way down
+     the page instead of just under the list. */
+  grid-template-rows: max-content 1fr;
   gap: var(--ap-spacing-400);
   align-items: start;
   padding: var(--ap-spacing-500) var(--ap-spacing-400) var(--ap-spacing-1100);
   max-width: 1120px;
 }
+
+/* Below 1440 there is no room for a column of its own beside the prose —
+   see the wide block — so the list sits at the head of the evidence column,
+   above the measurements, and only from 1440 does it cross to the left. On
+   the narrowest tier the evidence column is gone and the list with it. */
+.onThisPage {
+  grid-column: 2;
+  grid-row: 1;
+  margin-bottom: var(--ap-spacing-400);
+}
+
+.prose { grid-row: 1 / 3; }
+
+.gutter { grid-column: 2; grid-row: 2; }
 
 /* The measure belongs to the text, not to what the text is about. It sits on
    the children rather than on `.prose` so a specimen can be as wide as the
@@ -152,7 +217,8 @@ html[data-nav-open] { overflow: hidden; }
 
 .prose > .specimen,
 .prose > .specimenRow,
-.prose > .tableScroll {
+.prose > .tableScroll,
+.prose > .pager {
   max-width: none;
 }
 
@@ -160,7 +226,7 @@ html[data-nav-open] { overflow: hidden; }
    compared down the page rather than hunted for in prose. */
 .gutter {
   position: sticky;
-  top: calc(var(--ap-spacing-500) + var(--ap-spacing-300));
+  top: var(--ap-spacing-500);
   font-family: var(--ap-font-mono);
   font-size: var(--ap-text-caption-md-size);
   line-height: var(--ap-text-caption-md-line-height);
@@ -169,6 +235,111 @@ html[data-nav-open] { overflow: hidden; }
 }
 
 .gutter p { margin: 0 0 var(--ap-spacing-100); }
+
+/* --- on this page ------------------------------------------------------ */
+
+/* The page's sections, listed beside the prose on a wide screen. A rail runs
+   down the left of the list; the current section's segment of it takes the
+   accent, so the mark is position as well as colour and survives a squint.
+   Sticky at the page's top padding, so it stays level with the prose. */
+.onThisPage {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+.onThisPageTitle {
+  margin: 0 0 var(--ap-spacing-100);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+}
+
+.onThisPageList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-inline-start: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.onThisPageLink {
+  position: relative;
+  display: block;
+  padding: var(--ap-spacing-075) var(--ap-spacing-150);
+  color: var(--ap-color-text-secondary);
+  text-decoration: none;
+  text-wrap: pretty;
+  transition: color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+/* The segment of the rail this link owns: drawn over the hairline, a step
+   wider, so the current one reads as the rail thickening rather than as a
+   bar beside it. */
+.onThisPageLink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: calc(-1 * var(--ap-border-width-hairline));
+  width: var(--ap-border-width-ring);
+  background: transparent;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.onThisPageLink:hover { color: var(--ap-color-text-primary); }
+
+/* Colour and the rail, not weight: the current item changes as the reader
+   scrolls, and a label that wraps re-flows when its weight does, so the
+   sticky list would change height under the eye. The sidebar's current page
+   does take weight — that changes on a click, not a scroll. */
+.onThisPageLink[aria-current='location'] { color: var(--ap-color-text-primary); }
+
+.onThisPageLink[aria-current='location']::before { background: var(--ap-color-interactive-accent); }
+
+/* --- pager ---------------------------------------------------------------- */
+
+/* The page before and the page after, closing the prose under a rule. Each
+   is one block: the direction in the caption, the page's name in the body
+   weight, and a chevron on the outer side pointing the way. */
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ap-spacing-200);
+  margin-top: var(--ap-spacing-800);
+  padding-top: var(--ap-spacing-300);
+  border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+/* `.prose a` paints links in the accent; the pager's name is chrome, not a
+   link in a sentence, so the selector carries `.prose` to outrank it. */
+.prose .pagerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  /* In by the text's own padding, so the name lines up with the prose at rest
+     and the wash, when it comes, reaches past it on both sides. */
+  margin-inline: calc(-1 * var(--ap-spacing-150));
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border-radius: var(--ap-radius-lg);
+  color: var(--ap-color-text-primary);
+  text-decoration: none;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.pagerLink:hover { background: var(--ap-color-interactive-wash-hover); }
+
+.pagerLink svg { flex: none; color: var(--ap-color-text-tertiary); }
+
+/* The next link keeps to the right when there is no previous one. */
+.pagerNext { margin-inline-start: auto; text-align: end; }
+
+.pagerText { display: flex; flex-direction: column; }
+
+.pagerDirection {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
+.pagerLabel { font-weight: var(--ap-font-weight-medium); }
 
 /* --- theme toggle --------------------------------------------------------- */
 
@@ -188,14 +359,17 @@ html[data-nav-open] { overflow: hidden; }
 
    Light does move, by one step of the neutral ramp, and this is the part worth
    reading. The drawn light variant assumes a white card: its #F6F8FA track is
-   1.06:1 against that card, which is barely a step but is a step. The topbar
-   is `surface/base`, which is #F6F8FA itself — the same colour — so the drawn
-   track vanished into it and the control read as two loose icons rather than
-   one pill. Every light value therefore shifts one step down the same ramp,
-   which keeps the drawing's relationships and its appearance: track 1.09:1
-   against the bar, knob 1.16:1 against the track, edge a step below that. The
-   resting icon does not shift — #687185 is 4.20:1 on the new track — because
-   the drawing already put it far clear of the surface.
+   1.06:1 against that card, which is barely a step but is a step. The control
+   first sat in a bar across the top of the page, on `surface/base`, which was
+   #F6F8FA itself — the same colour — so the drawn track vanished into it and
+   the control read as two loose icons rather than one pill. Every light value
+   therefore shifted one step down the same ramp, which keeps the drawing's
+   relationships and its appearance: knob 1.16:1 against the track, edge a
+   step below that. The bar is gone and the control sits at the foot of the
+   sidebar now, on `surface/raised`, the white card the drawing assumed; the
+   shift stays, because a track one step down reads as a track and the drawn
+   one only barely did. The resting icon does not shift — #687185 is 4.20:1
+   on the track — because the drawing already put it far clear of the surface.
 
    The two values with no semantic name at all point at the primitive rather
    than borrow a token whose meaning is wrong: the knob's edge in dark, and the
@@ -293,6 +467,17 @@ html[data-nav-open] { overflow: hidden; }
 :root[data-theme='dark'] .themeToggleSun { color: var(--toggle-icon-idle); }
 :root[data-theme='dark'] .themeToggleMoon { color: var(--ap-color-text-accent); }
 
+/* While the toggle writes a new theme, nothing else on the page transitions:
+   the colours snap together instead of every button fading on its own
+   schedule. The toggle keeps its transitions — the knob's slide is the
+   control answering the click. `ThemeToggle.tsx` sets the attribute, forces
+   a reflow and removes it on the next frame. */
+html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon),
+html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::before,
+html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::after {
+  transition: none !important;
+}
+
 /* Position is the state signal that survives when colour does not, so it is
    the half that must never be animated away. The slide is decoration; the knob
    still arrives in the right place. */
@@ -306,6 +491,13 @@ html[data-nav-open] { overflow: hidden; }
 
 /* --- prose ---------------------------------------------------------------- */
 
+/* Balanced, so a heading that wraps does not leave one word on its own
+   line — "…and the suite cannot see / it" did, on Decisions. */
+.prose h1,
+.prose h2 {
+  text-wrap: balance;
+}
+
 .prose h1 {
   margin: 0 0 var(--ap-spacing-150);
   font-size: var(--ap-text-heading-h1-size);
@@ -316,6 +508,7 @@ html[data-nav-open] { overflow: hidden; }
 
 .prose h2 {
   margin: var(--ap-spacing-600) 0 var(--ap-spacing-150);
+  scroll-margin-top: var(--ap-spacing-500);
   font-size: var(--ap-text-heading-h4-size);
   line-height: var(--ap-text-heading-h4-line-height);
   letter-spacing: var(--ap-text-heading-h4-tracking);
@@ -453,7 +646,7 @@ html[data-nav-open] { overflow: hidden; }
 .ratio { white-space: nowrap; }
 
 .grade {
-  margin-left: var(--ap-spacing-075);
+  margin-inline-start: var(--ap-spacing-075);
   padding: 1px var(--ap-spacing-075);
   border-radius: var(--ap-radius-full);
   font-size: var(--ap-text-caption-caps-size);
@@ -493,9 +686,10 @@ html[data-nav-open] { overflow: hidden; }
 .rejected {
   margin: var(--ap-spacing-250) 0;
   padding: var(--ap-spacing-200) var(--ap-spacing-250);
-  border-left: 3px solid var(--ap-color-border-strong);
+  border-inline-start: 3px solid var(--ap-color-border-strong);
   background: var(--ap-color-surface-sunken);
-  border-radius: 0 var(--ap-radius-lg) var(--ap-radius-lg) 0;
+  border-start-end-radius: var(--ap-radius-lg);
+  border-end-end-radius: var(--ap-radius-lg);
 }
 
 .rejected p { margin: 0; }
@@ -520,9 +714,32 @@ html[data-nav-open] { overflow: hidden; }
 
 /* --- responsive ----------------------------------------------------------- */
 
+/* Wide: the sections join on the left. The breakpoint is where the prose
+   still has its measure with the list beside it: 1440 less the 232px sidebar
+   and 80px of page padding is 1128; less the list, the evidence, three gaps
+   and the spacer's minimum, 712 — over the 704 a Table specimen needs. */
+@media (min-width: 1440px) {
+  .page {
+    grid-template-columns: 152px minmax(0, 832px) minmax(var(--ap-spacing-300), 1fr) 168px;
+    column-gap: var(--ap-spacing-300);
+    max-width: none;
+  }
+  .onThisPage {
+    position: sticky;
+    top: var(--ap-spacing-500);
+    grid-column: 1;
+    grid-row: 1 / 3;
+    margin-bottom: 0;
+  }
+  .prose { grid-column: 2; }
+  .gutter { grid-column: 4; grid-row: 1 / 3; }
+}
+
 @media (max-width: 1080px) {
-  .page { grid-template-columns: minmax(0, 1fr); }
-  .gutter { position: static; display: none; }
+  .page { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .prose { grid-row: auto; }
+  .onThisPage,
+  .gutter { display: none; }
 }
 
 @media (max-width: 760px) {
@@ -534,18 +751,39 @@ html[data-nav-open] { overflow: hidden; }
     position: sticky;
     top: 0;
     z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'brand toggle'
+      'sections sections'
+      'theme theme';
+    align-items: center;
+    column-gap: var(--ap-spacing-150);
     height: auto;
     padding: var(--ap-spacing-150) var(--ap-spacing-250);
-    border-right: none;
+    border-inline-end: none;
     border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   }
 
-  .sidebarHead {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--ap-spacing-200);
+  .sidebarBrand { grid-area: brand; min-width: 0; }
+
+  /* Inside the open menu, under the sections, and not in the bar: at 320px
+     the bar holds the brand and the page's name with 2px to spare, and the
+     84px toggle does not fit beside them — measured with it there, the brand
+     clipped to "Alpen" and "Theme: Eleonora" wrapped at 375. One tap away is
+     where the M3 site keeps its own on a phone. */
+  .sidebarTheme {
+    grid-area: theme;
+    position: static;
+    margin: 0;
+    padding: var(--ap-spacing-200) 0 var(--ap-spacing-100);
+    background: none;
   }
+  .sidebar[data-open='false'] .sidebarTheme { display: none; }
+
+  .navToggle { grid-area: toggle; }
+
+  .navSections { grid-area: sections; }
 
   .brandNote { margin-bottom: 0; }
 

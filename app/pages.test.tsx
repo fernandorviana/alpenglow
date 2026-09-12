@@ -5,7 +5,6 @@ import { render } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { axeViolations } from '@/test/axe';
 import { Nav } from '@ui/Nav';
-import { ThemeToggle } from '@ui/ThemeToggle';
 
 /**
  * Every docs page, run through axe. The pages draw each component in its
@@ -32,13 +31,8 @@ const pages = readdirSync('app', { recursive: true, encoding: 'utf8' })
   .sort();
 
 describe('axe finds no WCAG A or AA violation', () => {
-  it('in the site navigation and theme toggle', async () => {
-    const { container } = render(
-      <>
-        <Nav />
-        <ThemeToggle />
-      </>,
-    );
+  it('in the site navigation, theme toggle included', async () => {
+    const { container } = render(<Nav />);
     expect(await axeViolations(container)).toEqual([]);
   });
 

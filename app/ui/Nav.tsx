@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { NAV, PAGES, route } from './sitemap';
+import { ThemeToggle } from './ThemeToggle';
 
 /**
  * Where the sidebar becomes a bar with a toggle. The stylesheet's narrow
@@ -11,54 +13,10 @@ import { usePathname } from 'next/navigation';
  */
 export const NARROW = '(max-width: 760px)';
 
-const NAV = [
-  {
-    title: 'Start here',
-    items: [
-      { href: '/', label: 'Overview' },
-      { href: '/why', label: 'Why Alpenglow' },
-      { href: '/accessibility', label: 'Accessibility' },
-      { href: '/decisions', label: 'Decisions' },
-    ],
-  },
-  {
-    title: 'Developers',
-    items: [
-      { href: '/install', label: 'Install' },
-      { href: '/tailwind', label: 'Tailwind' },
-      { href: '/dark-mode', label: 'Dark mode' },
-    ],
-  },
-  {
-    title: 'Foundations',
-    items: [
-      { href: '/colour', label: 'Colour' },
-      { href: '/elevation', label: 'Elevation and states' },
-      { href: '/typography', label: 'Typography' },
-      { href: '/space', label: 'Space and shape' },
-      { href: '/icons', label: 'Icons' },
-    ],
-  },
-  {
-    title: 'Components',
-    items: [
-      { href: '/avatar', label: 'Avatar and Loader' },
-      { href: '/badge', label: 'Badge' },
-      { href: '/button', label: 'Button' },
-      { href: '/input', label: 'Input and Textarea' },
-      { href: '/choice', label: 'Checkbox, Radio, Switch' },
-      { href: '/date-picker', label: 'Date picker' },
-      { href: '/dialog', label: 'Dialog' },
-      { href: '/dropdown-menu', label: 'Dropdown menu' },
-      { href: '/select', label: 'Select' },
-      { href: '/table', label: 'Table' },
-    ],
-  },
-];
 
 export function Nav() {
   const pathname = usePathname();
-  const here = pathname.replace(/\/+$/, '') || '/';
+  const here = route(pathname);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLElement>(null);
 
@@ -71,9 +29,9 @@ export function Nav() {
   // Deriving `open` from the route the menu was opened on (`openOn ===
   // pathname`) looks simpler and is wrong — Back to that route opens the menu
   // again, over the page. `Nav.test.tsx` fails on it.
-  const [route, setRoute] = useState(pathname);
-  if (route !== pathname) {
-    setRoute(pathname);
+  const [seen, setSeen] = useState(pathname);
+  if (seen !== pathname) {
+    setSeen(pathname);
     setOpen(false);
   }
 
@@ -114,29 +72,34 @@ export function Nav() {
     };
   }, [open]);
 
-  const current = NAV.flatMap((g) => g.items).find((i) => i.href === here);
+  const current = PAGES.find((i) => i.href === here);
 
   return (
     <nav className="sidebar" aria-label="Documentation" data-open={open} ref={ref}>
-      <div className="sidebarHead">
-        <div>
-          <Link href="/" className="brand">
-            Alpenglow
-          </Link>
-          <p className="brandNote">Theme: Eleonora</p>
-        </div>
-
-        {/* Shown only on narrow screens; the sidebar is always open on wider ones. */}
-        <button
-          type="button"
-          className="navToggle"
-          aria-expanded={open}
-          aria-controls="nav-sections"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? 'Close' : (current?.label ?? 'Menu')}
-        </button>
+      <div className="sidebarBrand">
+        <Link href="/" className="brand">
+          Alpenglow
+        </Link>
+        <p className="brandNote">Theme: Eleonora</p>
       </div>
+
+      {/* The site has no bar across the top. The toggle lives here: at the
+          foot of the sidebar on a wide screen, and at the foot of the open
+          menu on a narrow one, where the stylesheet places it by grid area. */}
+      <div className="sidebarTheme">
+        <ThemeToggle />
+      </div>
+
+      {/* Shown only on narrow screens; the sidebar is always open on wider ones. */}
+      <button
+        type="button"
+        className="navToggle"
+        aria-expanded={open}
+        aria-controls="nav-sections"
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? 'Close' : (current?.label ?? 'Menu')}
+      </button>
 
       <div className="navSections" id="nav-sections">
         {NAV.map((group) => (

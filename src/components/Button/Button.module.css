@@ -39,7 +39,16 @@
   transition:
     background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
     border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
-    color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+    color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+/* The press. A button gives way under the pointer by 4% — 0.96, the value the
+   hand reads as a press; below 0.95 it reads as a flinch — on top of the
+   pressed colour each tone already has, so colour is never the only channel.
+   Not while disabled or loading: neither is a button that can be pressed. */
+.button:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 /* The ring adds geometry rather than recolouring the border: colour is never
@@ -59,9 +68,14 @@
   cursor: progress;
 }
 
+/* Reduced motion keeps the pressed colour and drops the scale: a snap to 0.96
+   with no transition is a jump, not a press. */
 @media (prefers-reduced-motion: reduce) {
   .button {
     transition: none;
+  }
+  .button:active:not(:disabled) {
+    transform: none;
   }
 }
 

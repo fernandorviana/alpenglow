@@ -22,7 +22,9 @@ type Listener = (event: MediaQueryListEvent) => void;
 
 /**
  * jsdom has no `matchMedia`. The component asks whether the viewport is
- * narrow, and has to hear when it stops being so.
+ * narrow, and has to hear when it stops being so. Only the narrow query's
+ * listeners are counted: the theme toggle inside the nav asks about the
+ * colour scheme through the same function, and its listener is its own.
  */
 function stubViewport(narrow: boolean) {
   const listeners = new Set<Listener>();
@@ -31,10 +33,12 @@ function stubViewport(narrow: boolean) {
   window.matchMedia = ((query: string) => ({
     media: query,
     get matches() {
-      return matches;
+      return query === NARROW && matches;
     },
     onchange: null,
-    addEventListener: (_type: 'change', listener: Listener) => void listeners.add(listener),
+    addEventListener: (_type: 'change', listener: Listener) => {
+      if (query === NARROW) listeners.add(listener);
+    },
     removeEventListener: (_type: 'change', listener: Listener) => void listeners.delete(listener),
     addListener: () => {},
     removeListener: () => {},
@@ -227,6 +231,12 @@ describe('the nav stylesheet', () => {
 
   it('hides the sections only while closed', () => {
     expect(declarations(narrow, ".sidebar[data-open='false'] .navSections")).toMatch(/display: none/);
+  });
+
+  it('keeps the theme toggle inside the open menu, not in the bar', () => {
+    // At 320px the bar holds the brand and the page's name and nothing else;
+    // the toggle is one tap away, under the sections.
+    expect(declarations(narrow, ".sidebar[data-open='false'] .sidebarTheme")).toMatch(/display: none/);
   });
 
   it('stops the document scrolling under the open menu', () => {

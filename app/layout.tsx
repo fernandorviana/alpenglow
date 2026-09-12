@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { Nav } from '@ui/Nav';
+import { SkipLink } from '@ui/SkipLink';
 import { InlineScript } from '@ui/InlineScript';
-import { ThemeToggle } from '@ui/ThemeToggle';
 import '@/styles/tokens.css';
 import './docs.css';
 
@@ -40,14 +40,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <InlineScript html={NO_FLASH} />
       </head>
       <body>
+        <SkipLink />
         <div className="shell">
           <Nav />
-          <div className="main">
-            <header className="topbar">
-              <ThemeToggle />
-            </header>
+          <main className="main" id="content" tabIndex={-1}>
             {children}
-          </div>
+          </main>
         </div>
         <Analytics />
       </body>

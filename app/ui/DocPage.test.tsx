@@ -1,6 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { block, readCss } from '@/test/css';
 import { borderWidth, spacing } from '@/tokens/scale';
+import { DocPage } from './DocPage';
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
 
 /**
  * The page and its specimens are plain global CSS, so these read the
@@ -65,5 +69,71 @@ describe('the specimen on the narrowest screens', () => {
     expect(token(rule.match(/padding-inline: (var\([^)]+\))/)?.[1] ?? '')).toBe(pagePadding);
 
     expect(320 - 2 * pagePadding).toBeGreaterThanOrEqual(calendar);
+  });
+});
+
+/**
+ * Anchors. Every page's sections are its `h2`s, written as plain children of
+ * `DocPage`; the page gives each an id from its text, so the static HTML
+ * carries the anchor and a link into a section works before React has run,
+ * and lists them beside the prose.
+ */
+describe('the page anchors', () => {
+  it('gives every section heading an id from its text', () => {
+    render(
+      <DocPage>
+        <h1>Button</h1>
+        <h2>Try it</h2>
+        <h2>Variants and tones</h2>
+        <h2>
+          The <code>on-*</code> labels
+        </h2>
+      </DocPage>,
+    );
+    expect(screen.getByRole('heading', { name: 'Try it' })).toHaveAttribute('id', 'try-it');
+    expect(screen.getByRole('heading', { name: 'Variants and tones' })).toHaveAttribute('id', 'variants-and-tones');
+    expect(screen.getByRole('heading', { name: 'The on-* labels' })).toHaveAttribute('id', 'the-on-labels');
+    // The title is the page's own anchor; it gets nothing.
+    expect(screen.getByRole('heading', { name: 'Button' })).not.toHaveAttribute('id');
+  });
+
+  it('lists the sections beside the prose, in order', () => {
+    render(
+      <DocPage>
+        <h2>Try it</h2>
+        <h2>Sizes</h2>
+      </DocPage>,
+    );
+    const list = within(screen.getByRole('navigation', { name: 'On this page' }));
+    expect(list.getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['#try-it', '#sizes']);
+  });
+
+  it('keeps two sections with one name apart', () => {
+    render(
+      <DocPage>
+        <h2>Sizes</h2>
+        <h2>Sizes</h2>
+      </DocPage>,
+    );
+    const ids = screen.getAllByRole('heading').map((h) => h.id);
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it('keeps an id a page wrote itself', () => {
+    render(
+      <DocPage>
+        <h2 id="kept">Something</h2>
+      </DocPage>,
+    );
+    expect(screen.getByRole('heading')).toHaveAttribute('id', 'kept');
+  });
+
+  it('lists nothing for a page with no sections', () => {
+    render(
+      <DocPage>
+        <h1>Only a title</h1>
+      </DocPage>,
+    );
+    expect(screen.queryByRole('navigation', { name: 'On this page' })).toBeNull();
   });
 });

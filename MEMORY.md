@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-12**, at the elevation-and-states commit (the surface step, the wash, the lightness instrument).
+Last verified against the tree on **2026-09-12**, at the site-layout commit (no bar across the top, the section list, the pager, the skip link).
 
 ---
 
@@ -146,7 +146,11 @@ have all been mistaken for errors at least once.
    root where storage refuses the write, so tabs stay in step. The server
    snapshot says "no choice", so `aria-checked` corrects itself after
    hydration — invisible, because the knob is CSS. Copying storage into state
-   from an effect on mount is what the Compiler lint rejected.
+   from an effect on mount is what the Compiler lint rejected. A click also
+   puts `data-theme-swap` on the root for the frame the theme is written in,
+   and `docs.css` turns every transition but the toggle's own off under it:
+   measured on /button before that, a flip started 99 colour transitions at
+   once and the buttons faded while the page snapped. The knob still slides.
 
 10. **Dark elevation is modest on purpose.** The dark shadow was never drawn,
     so its values are a decision. Black at 64% over the dark canvas reaches
@@ -298,9 +302,13 @@ have all been mistaken for errors at least once.
     property. A route change closes the menu during the render that sees the
     new `pathname`, not in an effect. Deriving `open` from the route it was
     opened on (`openOn === pathname`) looks simpler and reopens the overlay
-    when Back returns to that route; a test fails on it. Left out on purpose:
-    the theme toggle inside the overlay, a hamburger icon, and an entry
-    animation.
+    when Back returns to that route; a test fails on it. The theme toggle is
+    inside the nav (2026-09-12, when the bar across the top of the page was
+    removed): a sticky foot of the sidebar on a wide screen, and the foot of
+    the open overlay on a narrow one — at 320px the bar holds the brand and
+    the page's name with nothing to spare, and the 84px toggle beside them
+    clipped the brand to "Alpen". Left out on purpose: a hamburger icon and
+    an entry animation.
 20. **A click on the Dialog's backdrop does not close it, and Esc does not
     close it by itself.** Esc arrives as `cancel`, which is prevented and
     handed to `onClose`; the caller sets `open`. A stray click beside a form
@@ -457,7 +465,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 909 tests across 36 files
+npm test            # 940 tests across 39 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 npm run build:lib       # the package, in dist/

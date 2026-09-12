@@ -103,7 +103,21 @@ export function ThemeToggle() {
 
   function choose() {
     const next: Choice = dark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
+    const root = document.documentElement;
+
+    // A theme flip changes the colour of nearly everything at once, and every
+    // colour transition on the page fires together: measured on /button, 92
+    // button transitions and the section list's 7, so the buttons faded for
+    // 120ms while the page around them snapped. The stylesheet turns
+    // transitions off while this attribute is on the root — the toggle's own
+    // excepted, because the knob's slide is the drawn motion — the reflow
+    // commits the new colours with no transition to start, and the next frame
+    // takes the attribute away again.
+    root.setAttribute('data-theme-swap', '');
+    root.setAttribute('data-theme', next);
+    void root.offsetHeight;
+    requestAnimationFrame(() => root.removeAttribute('data-theme-swap'));
+
     try {
       localStorage.setItem(KEY, next);
     } catch {

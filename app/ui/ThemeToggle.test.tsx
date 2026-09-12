@@ -127,6 +127,25 @@ describe('ThemeToggle', () => {
       expect(localStorage.getItem(KEY)).toBe('dark');
     });
 
+    it('holds the page’s transitions off for the frame the theme changes in', async () => {
+      // Every colour transition on the page would otherwise fire together on
+      // the flip. The attribute is on the root while the new theme is
+      // written and gone by the next frame; the stylesheet does the rest.
+      stubSystem(false);
+      render(<ThemeToggle />);
+      const seen: string[] = [];
+      const observer = new MutationObserver(() => {
+        seen.push(document.documentElement.hasAttribute('data-theme-swap') ? 'on' : 'off');
+      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+      await userEvent.click(toggle());
+      expect(seen).toEqual(['on']);
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+      expect(document.documentElement).not.toHaveAttribute('data-theme-swap');
+      observer.disconnect();
+    });
+
     it('goes back to light, which is a choice of its own', async () => {
       stubSystem(true);
       render(<ThemeToggle />);
@@ -266,6 +285,16 @@ describe('the toggle stylesheet', () => {
       const twin = chosen.find((candidate) => candidate.selector === selector);
       expect(twin, `${selector} is missing`).toBeTruthy();
       expect(twin!.declarations, selector).toEqual(rule.declarations);
+    }
+  });
+
+  it('stops every transition but the toggle’s own while the theme swaps', () => {
+    const rule = css.match(/html\[data-theme-swap\][^{]*\{([^}]*)\}/);
+    expect(rule, 'the swap rule exists').toBeTruthy();
+    expect(rule![1]).toMatch(/transition: none !important/);
+    const selector = css.slice(0, css.indexOf(rule![0]) + rule![0].length).match(/html\[data-theme-swap\][^{]*/)![0];
+    for (const own of ['.themeToggle', '.themeToggleKnob', '.themeToggleIcon']) {
+      expect(selector, `${own} keeps its transition`).toContain(own);
     }
   });
 

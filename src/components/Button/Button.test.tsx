@@ -98,6 +98,26 @@ describe('Button', () => {
     });
   });
 
+  describe('the press', () => {
+    const css = readFileSync('src/components/Button/Button.module.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selector, body]) => ({
+      selector: selector!.trim(),
+      body: body!.replace(/\s+/g, ' ').trim(),
+    }));
+
+    it('gives way by 0.96, and never further', () => {
+      // 0.96 is what the hand reads as a press; below 0.95 it reads as a
+      // flinch. The rule is scoped away from disabled, which covers loading.
+      const press = rules.find((r) => r.selector === '.button:active:not(:disabled)');
+      expect(press?.body).toMatch(/transform: scale\(0\.96\)/);
+    });
+
+    it('is a colour change alone under reduced motion', () => {
+      const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
+      expect(reduced).toMatch(/\.button:active:not\(:disabled\)\s*\{\s*transform: none;/);
+    });
+  });
+
   it('does not fire onClick when disabled', async () => {
     const onClick = vi.fn();
     render(<Button disabled onClick={onClick}>Delete</Button>);
