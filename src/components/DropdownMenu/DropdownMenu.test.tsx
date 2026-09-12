@@ -143,10 +143,11 @@ describe('DropdownMenu rows', () => {
 
   describe('the stylesheet', () => {
     it('gives each tone the fill measured for it, not one shared neutral', () => {
-      // text/accent on the neutral fill was 3.50:1 in dark when this rule was
-      // made and is 4.59:1 now; on its own subtle surface it is 9.64:1. The
-      // rule is the design, not the margin. See contrast.test.ts.
-      expect(css).toContain('--ap-color-interactive-neutral-hover');
+      // text/accent on the opaque neutral fill was 3.50:1 in dark when this
+      // rule was made and is 7.86:1 on the wash now; on its own subtle
+      // surface it is 9.64:1. The rule is the design, not the margin. See
+      // contrast.test.ts.
+      expect(css).toContain('--ap-color-interactive-wash-hover');
       expect(css).toContain('--ap-color-surface-accent-subtle');
       expect(css).toContain('--ap-color-surface-danger-subtle');
     });

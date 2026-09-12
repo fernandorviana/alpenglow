@@ -46,21 +46,32 @@ export function contrast(a, b) {
 }
 
 // ---- Scale logic ---------------------------------------------------------------
-// 11 stops. Lightness is shared by every family so a step means the same
+// 12 stops. Lightness is shared by every family so a step means the same
 // amount of light everywhere; chroma and hue are the family's own.
-export const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+//
+// 925 is the surface step, added 2026-09-12: the only stop that exists for
+// surfaces rather than for text or fills. 950 → 925 → 900 is the dark
+// elevation ladder, ΔL .043 per step in OKLCH, where the reference systems
+// measured (Radix, Atlassian, Spectrum, Geist) sit at .025–.045. Without it
+// the ladder had to jump a whole stop, ΔL .085, twice what any of them ship.
+// It is generated in every family so a number keeps meaning the same amount
+// of light everywhere; only night and stone are ever aliased at it.
+export const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 925, 950];
 export const LIGHTNESS = {
   50: 0.975, 100: 0.945, 200: 0.895, 300: 0.825, 400: 0.73, 500: 0.625,
-  600: 0.525, 700: 0.43, 800: 0.33, 900: 0.245, 950: 0.16,
+  600: 0.525, 700: 0.43, 800: 0.33, 900: 0.245, 925: 0.205, 950: 0.16,
 };
+/** Where 925 sits between 900 and 950, by lightness — used to interpolate chroma. */
+const T925 = (LIGHTNESS[900] - LIGHTNESS[925]) / (LIGHTNESS[900] - LIGHTNESS[950]);
+const with925 = (chroma) => ({ ...chroma, 925: chroma[900] + (chroma[950] - chroma[900]) * T925 });
 
 // chroma: bell that peaks at 400–500 and thins at both ends; hue: gentle drift.
 function bell(peak, ends, floorDark) {
-  return {
+  return with925({
     50: ends, 100: ends * 1.8, 200: peak * 0.55, 300: peak * 0.8, 400: peak * 0.95,
     500: peak, 600: peak * 0.95, 700: peak * 0.85, 800: peak * 0.72, 900: peak * 0.58,
     950: floorDark ?? peak * 0.45,
-  };
+  });
 }
 const lerpHue = (a, b, t) => { let d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
 function drift(h50, h500, h950) {
@@ -79,15 +90,15 @@ export const FAMILIES = {
   // lilac → violet → indigo
   twilight: { chroma: bell(0.23, 0.025), hue: drift(302, 292, 284) },
   // cool mineral grey; barely tinted, tint constant so the ramp reads as one stone
-  stone:    { chroma: { 50: 0.004, 100: 0.006, 200: 0.008, 300: 0.010, 400: 0.011, 500: 0.012, 600: 0.012, 700: 0.012, 800: 0.012, 900: 0.011, 950: 0.010 }, hue: drift(250, 258, 265) },
+  stone:    { chroma: with925({ 50: 0.004, 100: 0.006, 200: 0.008, 300: 0.010, 400: 0.011, 500: 0.012, 600: 0.012, 700: 0.012, 800: 0.012, 900: 0.011, 950: 0.010 }), hue: drift(250, 258, 265) },
   // periwinkle → blue-violet night; darks keep chroma so the canvas is night, not grey
-  night:    { chroma: { 50: 0.012, 100: 0.02, 200: 0.035, 300: 0.05, 400: 0.065, 500: 0.075, 600: 0.075, 700: 0.07, 800: 0.06, 900: 0.05, 950: 0.042 }, hue: drift(268, 272, 278) },
+  night:    { chroma: with925({ 50: 0.012, 100: 0.02, 200: 0.035, 300: 0.05, 400: 0.065, 500: 0.075, 600: 0.075, 700: 0.07, 800: 0.06, 900: 0.05, 950: 0.042 }), hue: drift(268, 272, 278) },
   // fire on the mountain: the gold-orange the peaks take before they turn pink. Brand only, never status.
   flare:    { chroma: bell(0.21, 0.03), hue: drift(62, 48, 40) },
   // the cyan-teal of the twilight sky over the peaks (reference #069CB4 h214, #85C2C8 h204). Vivid where mist is a wash. Also the info status.
   glacier:  { chroma: bell(0.14, 0.03), hue: drift(200, 214, 220) },
   // cold pre-dawn light: a near-neutral with a cyan cast. Between stone (0.004–0.012) and night (0.012–0.075) in chroma.
-  mist:     { chroma: { 50: 0.010, 100: 0.016, 200: 0.024, 300: 0.032, 400: 0.038, 500: 0.042, 600: 0.040, 700: 0.036, 800: 0.031, 900: 0.026, 950: 0.021 }, hue: drift(200, 195, 198) },
+  mist:     { chroma: with925({ 50: 0.010, 100: 0.016, 200: 0.024, 300: 0.032, 400: 0.038, 500: 0.042, 600: 0.040, 700: 0.036, 800: 0.031, 900: 0.026, 950: 0.021 }), hue: drift(200, 195, 198) },
   // status
   ember:    { chroma: bell(0.19, 0.025), hue: drift(20, 26, 22) },
   moss:     { chroma: bell(0.13, 0.02), hue: drift(150, 152, 155) },

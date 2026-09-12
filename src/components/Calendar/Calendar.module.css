@@ -71,8 +71,8 @@
    byte-identical to interactive/neutral in light and moves the wrong way in
    dark — the same collision as the day hover. The chevron takes
    interactive/on-neutral, which measures 15.16 / 11.43 on the resting fill
-   and 13.91 / 7.54 on the hover fill. The drawn mid-grey is a primitive with
-   no semantic name. */
+   and 14.05 / 9.80 under the hover wash. The drawn mid-grey is a primitive
+   with no semantic name. Hover is the wash over the fill, as on Button. */
 .page {
   display: inline-flex;
   align-items: center;
@@ -93,7 +93,9 @@
   .page { transition: none; }
 }
 
-.page:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
+.page:hover:not(:disabled) {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+}
 
 .page:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
@@ -195,10 +197,11 @@
 
 /* --- day states ---------------------------------------------------------- */
 
-/* interactive/neutral-hover, NOT the drawn surface/sunken. In light the two
-   are byte-identical (#EBEEF1). In dark they move opposite ways against the
-   #2F303D panel: sunken resolves to #10111A, darker, and reads as a hole in
-   the surface rather than a highlight.
+/* The wash, NOT the drawn surface/sunken. In light the drawn value was
+   byte-identical to the hover of the time (#EBEEF1). In dark the two move
+   opposite ways against the panel: sunken is the canvas, darker, and reads as
+   a hole in the surface rather than a highlight. The wash composites over the
+   panel, so the pill lifts by the same amount in both modes.
 
    The pointer paints only a pill with no fill of its own. Today and a
    selected day already carry one, and this rule outranks both of theirs, so
@@ -211,7 +214,7 @@
    { background: none }" would lose to this rule at equal specificity, so the
    guard has to live here instead. */
 .cell:not(.outside):not(.unavailable):not(.today):not(.selected):not(.inRange) .pill:hover {
-  background: var(--ap-color-interactive-neutral-hover);
+  background: var(--ap-color-interactive-wash-hover);
 }
 
 /* Weekend days, as drawn: text/tertiary, 5.74 in light and 5.69 in dark. Before

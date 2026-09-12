@@ -38,10 +38,10 @@ export default function Page() {
             {f(tokenContrast('text/accent', 'surface/accent-subtle', 'light'))}:1 light ·{' '}
             {f(tokenContrast('text/accent', 'surface/accent-subtle', 'dark'))}:1 dark
           </p>
-          <p>on the neutral fill</p>
+          <p>on the neutral wash</p>
           <p>
-            {f(tokenContrast('text/accent', 'interactive/neutral-hover', 'light'))}:1 light ·{' '}
-            {f(tokenContrast('text/accent', 'interactive/neutral-hover', 'dark'))}:1 dark — rejected
+            {f(tokenContrast('text/accent', 'interactive/wash-hover', 'light', 'surface/overlay'))}:1 light ·{' '}
+            {f(tokenContrast('text/accent', 'interactive/wash-hover', 'dark', 'surface/overlay'))}:1 dark — passes, rule kept
           </p>
           <p>shadow against its ground</p>
           <p>
@@ -185,9 +185,9 @@ export default function Page() {
         <li>
           The hover fill follows the row&rsquo;s tone instead of being <code>surface/base</code>{' '}
           for every row. <code>surface/base</code> is <em>darker</em> than the menu in dark, and
-          the accent label on a shared neutral fill was 3.50:1 there when the rule was
-          made. It is 4.59:1 now, and the rule stays: each tone hovers to its own surface
-          because that is the design, not because of 0.09 of headroom.
+          the accent label on a shared opaque neutral fill was 3.50:1 there when the rule was
+          made. The neutral row takes the wash now, on which the accent label would be 7.86:1,
+          and the rule stays: each tone hovers to its own surface because that is the design.
         </li>
         <li>
           The danger row&rsquo;s hover border is dropped. It would reflow the row by 1px and be the

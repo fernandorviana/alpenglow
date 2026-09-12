@@ -216,14 +216,14 @@ export default function Page() {
             light{' '}
             <Ratio
               fg={resolve('interactive/on-neutral', 'light')}
-              bg={resolve('interactive/neutral-hover', 'light')}
+              bg={resolve('interactive/wash-hover', 'light', resolve('interactive/neutral', 'light'))}
             />
           </p>
           <p>
             dark{' '}
             <Ratio
               fg={resolve('interactive/on-neutral', 'dark')}
-              bg={resolve('interactive/neutral-hover', 'dark')}
+              bg={resolve('interactive/wash-hover', 'dark', resolve('interactive/neutral', 'dark'))}
             />
           </p>
         </>

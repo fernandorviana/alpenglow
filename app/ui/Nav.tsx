@@ -33,6 +33,7 @@ const NAV = [
     title: 'Foundations',
     items: [
       { href: '/colour', label: 'Colour' },
+      { href: '/elevation', label: 'Elevation and states' },
       { href: '/typography', label: 'Typography' },
       { href: '/space', label: 'Space and shape' },
       { href: '/icons', label: 'Icons' },

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { theme, type ThemeTokenName, type Mode } from './theme';
-import { resolve, contrast, tokenContrast, AA_NORMAL, NON_TEXT } from './contrast';
+import { resolve, contrast, lightness, tokenContrast, AA_NORMAL, NON_TEXT, SURFACE_STEP } from './contrast';
 import { alphaPrimitives, primitives } from './primitives';
 
 const MODES: Mode[] = ['light', 'dark'];
@@ -36,7 +36,7 @@ describe('documented exemptions hold at their recorded values', () => {
   // These are deliberately below AA. Asserting the recorded figure means a
   // future edit that makes them *worse* still fails.
   const EXPECTED: Record<string, Record<Mode, number>> = {
-    'text/disabled': { light: 2.39, dark: 3.03 },
+    'text/disabled': { light: 2.39, dark: 3.36 },
   };
 
   for (const [token, byMode] of Object.entries(EXPECTED)) {
@@ -51,8 +51,9 @@ describe('documented exemptions hold at their recorded values', () => {
 
 describe('a disabled menu row is exempt, at the figure it actually shows', () => {
   // The recorded exemption is measured on surface/raised. On surface/overlay
-  // dark is 2.30 rather than 3.03, and that is the surface the DropdownMenu uses.
-  const EXPECTED: Record<Mode, number> = { light: 2.39, dark: 2.30 };
+  // dark is 3.03 rather than 3.36, and that is the surface the DropdownMenu
+  // uses. It was 2.30 while the overlay was night/800.
+  const EXPECTED: Record<Mode, number> = { light: 2.39, dark: 3.03 };
   for (const mode of MODES) {
     it(`text/disabled on surface/overlay — ${mode}`, () => {
       expect(tokenContrast('text/disabled', 'surface/overlay', mode)).toBeCloseTo(EXPECTED[mode], 1);
@@ -83,9 +84,9 @@ describe('a menu row label meets AA on the fill its tone hovers to', () => {
   // neutral fill. That started as a rule for the danger row only; it became
   // uniform when text/accent was measured on the neutral fill and came back at
   // 3.50:1 in dark. Pairs are listed rather than derived because the pairing
-  // is the design decision, not a property of the token names.
+  // is the design decision, not a property of the token names. The neutral
+  // row takes the wash, measured over the menu's own surface.
   const PAIRS = [
-    ['text/primary', 'interactive/neutral-hover'],
     ['text/accent',  'surface/accent-subtle'],
     ['text/danger',  'surface/danger-subtle'],
   ] as const;
@@ -96,16 +97,95 @@ describe('a menu row label meets AA on the fill its tone hovers to', () => {
         expect(tokenContrast(fg, bg, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
       });
     }
+    it(`text/primary on the washed neutral row — ${mode}`, () => {
+      expect(tokenContrast('text/primary', 'interactive/wash-hover', mode, 'surface/overlay')).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
   }
 
-  it('records the accent row on the neutral fill, which now passes by 0.09', () => {
-    // This pairing was 3.50:1 when the per-tone hover rule was made, and it
-    // was asserted below AA so that an edit making it usable would be
-    // noticed. The deeper dark tail (2026-09-11) made it usable: 4.59:1. The
-    // rule stays — a tone's row hovers to its own subtle surface because that
-    // is the design, and 0.09 of headroom is not a margin to build on — so
-    // the figure is recorded rather than the threshold.
-    expect(tokenContrast('text/accent', 'interactive/neutral-hover', 'dark')).toBeCloseTo(4.59, 1);
+  it('records the accent row on the neutral wash, which passes with a margin now', () => {
+    // This pairing was 3.50:1 on the opaque neutral fill when the per-tone
+    // hover rule was made, 4.59 after the deeper dark tail, and 7.86 on the
+    // wash over the overlay. The rule stays — a tone's row hovers to its own
+    // subtle surface because that is the design — and the figure is recorded
+    // so a change to the wash shows up here rather than in a screenshot.
+    expect(tokenContrast('text/accent', 'interactive/wash-hover', 'dark', 'surface/overlay')).toBeCloseTo(7.86, 1);
+    expect(tokenContrast('text/accent', 'interactive/wash-hover', 'light', 'surface/overlay')).toBeCloseTo(5.5, 1);
+  });
+});
+
+describe('the wash', () => {
+  // A state layer, not a fill. It composites over whatever is beneath, so it
+  // is measured over every surface it can land on, and the text beneath it
+  // keeps its own token and is measured there too.
+  const WASH = ['interactive/wash-hover', 'interactive/wash-pressed'] as const;
+
+  for (const mode of MODES) {
+    it(`is visible over every surface, and pressed goes further than hover — ${mode}`, () => {
+      for (const surface of SURFACES) {
+        const ground = resolve(surface, mode);
+        const hover = lightness(resolve('interactive/wash-hover', mode, ground)) - lightness(ground);
+        const pressed = lightness(resolve('interactive/wash-pressed', mode, ground)) - lightness(ground);
+        // Light darkens, dark lightens: the sign is the mode's.
+        const sign = mode === 'light' ? -1 : 1;
+        expect(sign * hover, `hover over ${surface} (${mode})`).toBeGreaterThanOrEqual(0.02);
+        expect(sign * pressed, `pressed over ${surface} (${mode})`).toBeGreaterThan(sign * hover);
+      }
+    });
+
+    it(`every text token but tertiary clears AA under both washes on base, raised and overlay — ${mode}`, () => {
+      const TEXT = ['text/primary', 'text/secondary', 'text/accent', 'text/success', 'text/warning', 'text/danger', 'text/info'] as const;
+      for (const wash of WASH) {
+        for (const surface of ['surface/base', 'surface/raised', 'surface/overlay'] as const) {
+          for (const text of TEXT) {
+            expect(tokenContrast(text, wash, mode, surface), `${text} under ${wash} over ${surface} (${mode})`).toBeGreaterThanOrEqual(AA_NORMAL);
+          }
+        }
+      }
+    });
+
+    it(`and under the hover wash on a well — ${mode}`, () => {
+      // Pressed over sunken is the one cell where a status colour dips:
+      // text/accent is 4.38 there in light, recorded below. No control that
+      // can be pressed sits on a well today.
+      const TEXT = ['text/primary', 'text/secondary', 'text/accent', 'text/success', 'text/warning', 'text/danger', 'text/info'] as const;
+      for (const text of TEXT) {
+        expect(tokenContrast(text, 'interactive/wash-hover', mode, 'surface/sunken'), `${text} (${mode})`).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+
+    it(`tertiary text clears AA under both washes where rows and menu items live — ${mode}`, () => {
+      for (const wash of WASH) {
+        for (const surface of ['surface/raised', 'surface/overlay'] as const) {
+          expect(tokenContrast('text/tertiary', wash, mode, surface), `under ${wash} over ${surface}`).toBeGreaterThanOrEqual(AA_NORMAL);
+        }
+      }
+    });
+
+    it(`the neutral button's label clears AA under both washes — ${mode}`, () => {
+      for (const wash of WASH) {
+        expect(tokenContrast('interactive/on-neutral', wash, mode, 'interactive/neutral'), wash).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+  }
+
+  it('records tertiary text under the light washes on the canvas and on a well', () => {
+    // Where the guarantee stops. Nothing today puts helper text on a washed
+    // control over base or sunken; if something does, these are its figures,
+    // and an edit to the wash that moves them has to be deliberate.
+    expect(tokenContrast('text/tertiary', 'interactive/wash-hover', 'light', 'surface/base')).toBeCloseTo(4.64, 1);
+    expect(tokenContrast('text/tertiary', 'interactive/wash-pressed', 'light', 'surface/base')).toBeCloseTo(4.28, 1);
+    expect(tokenContrast('text/tertiary', 'interactive/wash-hover', 'light', 'surface/sunken')).toBeCloseTo(4.27, 1);
+    expect(tokenContrast('text/tertiary', 'interactive/wash-pressed', 'light', 'surface/sunken')).toBeCloseTo(3.94, 1);
+    expect(tokenContrast('text/accent', 'interactive/wash-pressed', 'light', 'surface/sunken')).toBeCloseTo(4.38, 1);
+  });
+
+  it('is gentler than the opaque hover it replaced, in the place that was worst', () => {
+    // A row on a dark card hovered to stone/700: ΔL +.184 against the
+    // references' +.05 to +.09. Now +.057. Recorded so the wash cannot
+    // drift back up.
+    const card = resolve('surface/raised', 'dark');
+    const hovered = resolve('interactive/wash-hover', 'dark', card);
+    expect(lightness(hovered) - lightness(card)).toBeCloseTo(0.057, 2);
   });
 });
 
@@ -276,7 +356,9 @@ describe('a checkbox or radio stays legible against its own fill', () => {
     });
 
     it(`the box is separable from the surface it sits on — ${mode}`, () => {
-      expect(tokenContrast(BOX_FILL, 'surface/raised', mode)).toBeGreaterThanOrEqual(1.1);
+      // Surface against surface: measured in lightness, like the ladder.
+      const step = Math.abs(lightness(resolve(BOX_FILL, mode)) - lightness(resolve('surface/raised', mode)));
+      expect(step).toBeGreaterThanOrEqual(SURFACE_STEP);
     });
   }
 });
@@ -295,14 +377,14 @@ describe('nothing collides with the surface it sits on', () => {
   // Two real defects were found this way: border/subtle matching surface/overlay,
   // and interactive/neutral matching it too. Both were 1.00:1 — invisible.
   //
-  // Each token is checked only against the surfaces it is actually used on.
-  // border/subtle is knowingly too faint on base and sunken, which is why the
-  // system says to step up to border/default there — asserting it everywhere
-  // would be testing a rule the design does not make.
+  // border/subtle used to be checked on raised and overlay only: as stone/100
+  // it was the same primitive as the light sunken surface, and in dark it had
+  // to pick a stop above the overlay. As an alpha it reads on every surface,
+  // so it is checked on every surface.
   const MIN_VISIBLE = 1.1;
 
   const SCOPED: ReadonlyArray<readonly [ThemeTokenName, readonly ThemeTokenName[]]> = [
-    ['border/subtle',  ['surface/raised', 'surface/overlay']],
+    ['border/subtle',  SURFACES],
     ['border/default', SURFACES],
     ['border/strong',  SURFACES],
   ];
@@ -325,8 +407,6 @@ describe('every interactive fill is separable from its surface', () => {
   // differ" but "the control must be findable", by fill OR by its outline.
   const FILLS = [
     'interactive/neutral',
-    'interactive/neutral-hover',
-    'interactive/neutral-pressed',
     'interactive/disabled',
   ] as const satisfies readonly ThemeTokenName[];
 
@@ -349,16 +429,22 @@ describe('every interactive fill is separable from its surface', () => {
 });
 
 describe('the dark elevation ladder is ordered and every step is perceptible', () => {
-  // Three colour steps. Sunken is not a fourth: the ramp is eleven stops and
+  // Three colour steps, 950 → 925 → 900. Sunken is not a fourth: the ramp
   // ends at 950, so in dark a well shares the canvas and reads as recessed
   // only inside a raised surface — on the canvas it takes a border. A
   // twentieth step was measured and refused (see primitives.ts), so this is
   // asserted as equality rather than left to look like an oversight.
+  //
+  // Steps are measured in OKLCH lightness, not in the WCAG ratio. The ratio
+  // flattens the dark end: the 950 → 925 step is 1.08:1 and plainly visible,
+  // and the 1.09 floor this suite used to hold would have refused it while
+  // passing the old ΔL .085 jump that looked wrong. See contrast.ts.
   const LADDER = ['surface/base', 'surface/raised', 'surface/overlay'] as const;
 
   it('sunken shares the canvas, and is still recessed inside a card', () => {
     expect(resolve('surface/sunken', 'dark')).toBe(resolve('surface/base', 'dark'));
-    expect(contrast(resolve('surface/sunken', 'dark'), resolve('surface/raised', 'dark'))).toBeGreaterThanOrEqual(1.09);
+    const step = lightness(resolve('surface/raised', 'dark')) - lightness(resolve('surface/sunken', 'dark'));
+    expect(step).toBeGreaterThanOrEqual(SURFACE_STEP);
   });
 
   /** Adjacent pairs, so the loop never indexes past the end. */
@@ -367,17 +453,20 @@ describe('the dark elevation ladder is ordered and every step is perceptible', (
     return to ? [[from, to] as const] : [];
   });
 
-  it('each step is lighter than the one below it', () => {
+  it('each step is lighter than the one below it, by at least a surface step', () => {
     for (const [from, to] of STEPS) {
-      const lighter = (t: (typeof LADDER)[number]) => contrast(resolve(t, 'dark'), '#000000');
-      expect(lighter(from), `${from} -> ${to}`).toBeLessThan(lighter(to));
+      const step = lightness(resolve(to, 'dark')) - lightness(resolve(from, 'dark'));
+      expect(step, `${from} -> ${to}`).toBeGreaterThanOrEqual(SURFACE_STEP);
     }
   });
 
-  it('each adjacent step is separable', () => {
+  it('holds the steps where the references put theirs', () => {
+    // Radix, Atlassian, Spectrum and Geist place adjacent surface levels at
+    // ΔL .025–.045. Both steps are .043; the ceiling keeps the ladder from
+    // drifting back toward the .085 of one whole stop.
     for (const [from, to] of STEPS) {
-      const ratio = contrast(resolve(from, 'dark'), resolve(to, 'dark'));
-      expect(ratio, `${from} -> ${to}`).toBeGreaterThanOrEqual(1.09);
+      const step = lightness(resolve(to, 'dark')) - lightness(resolve(from, 'dark'));
+      expect(step, `${from} -> ${to}`).toBeLessThanOrEqual(0.05);
     }
   });
 });
@@ -398,8 +487,10 @@ describe('structural invariants', () => {
   });
 
   it('every fill state has a matching on-* token', () => {
+    // The wash is not a fill: it has no label of its own, the text beneath it
+    // keeps its token, and `the wash` above measures it there.
     const fills = Object.keys(theme).filter(
-      (k) => k.startsWith('interactive/') && !k.includes('/on-') && !k.endsWith('selected'),
+      (k) => k.startsWith('interactive/') && !k.includes('/on-') && !k.endsWith('selected') && !k.includes('/wash-'),
     );
     const families = new Set(fills.map((f) => f.split('/')[1]!.split('-')[0]!));
     for (const family of families) {
@@ -433,7 +524,10 @@ describe('the table stays legible in both modes', () => {
   // looser and could never fail first, so it would defend nothing. What is
   // recorded instead is the measured figure, following the exemptions block:
   // an edit that moves the separator in EITHER direction has to be deliberate.
-  const SEPARATOR = { light: 1.17, dark: 1.97 } as const;
+  // As an alpha the separator reads on the sunken surface too, which stone/100
+  // did not (1.00:1 there); the dark figure came down from 1.97 toward the
+  // 1.5 the reference systems draw.
+  const SEPARATOR = { light: 1.18, dark: 1.62 } as const;
 
   it.each(['light', 'dark'] as const)('row separators stay at their measured value in %s', (mode) => {
     const ratio = tokenContrast('border/subtle', 'surface/raised', mode);
@@ -453,7 +547,6 @@ describe('the calendar meets the thresholds its drawing did not', () => {
     ['a selected label on the accent pill', 'interactive/on-accent', 'interactive/accent'],
     ['the range label on the band', 'interactive/on-accent', 'interactive/accent'],
     ['the pagination chevron on its resting fill', 'interactive/on-neutral', 'interactive/neutral'],
-    ['the pagination chevron on its hover fill', 'interactive/on-neutral', 'interactive/neutral-hover'],
   ] as const satisfies readonly (readonly [string, ThemeTokenName, ThemeTokenName])[];
 
   const NON_TEXT_PAIRS = [
@@ -475,11 +568,17 @@ describe('the calendar meets the thresholds its drawing did not', () => {
     }
   }
 
+  it('the pagination chevron clears AA on its washed fill, in both modes', () => {
+    for (const mode of MODES) {
+      expect(tokenContrast('interactive/on-neutral', 'interactive/wash-hover', mode, 'interactive/neutral'), mode).toBeGreaterThanOrEqual(AA_NORMAL);
+    }
+  });
+
   it('keeps a spilled day quieter than an unavailable one, in both modes', () => {
     // Not a WCAG threshold: the spilled days are inert, so 1.4.3 exempts them.
     // What is asserted is the ordering the drawn primitive inverted in dark,
     // where its light grey measured 7.90:1 — brighter than the weekday header.
-    // Measured: text/inert 1.72 light / 1.50 dark; text/disabled 2.39 / 2.30.
+    // Measured: text/inert 1.72 light / 1.97 dark; text/disabled 2.39 / 3.03.
     for (const mode of MODES) {
       expect(tokenContrast('text/inert', 'surface/overlay', mode), mode).toBeLessThan(
         tokenContrast('text/disabled', 'surface/overlay', mode),
@@ -503,8 +602,8 @@ describe('the calendar meets the thresholds its drawing did not', () => {
     // as the dropdown menu does.
     expect(contrast(resolve('surface/overlay', 'light'), resolve('surface/raised', 'light')))
       .toBeCloseTo(1, 2);
-    expect(contrast(resolve('surface/overlay', 'dark'), resolve('surface/raised', 'dark')))
-      .toBeGreaterThan(1.1);
+    expect(lightness(resolve('surface/overlay', 'dark')) - lightness(resolve('surface/raised', 'dark')))
+      .toBeGreaterThanOrEqual(SURFACE_STEP);
   });
 });
 
@@ -516,11 +615,18 @@ describe('surface/scrim', () => {
     expect(wash).toEqual({ hex: primitives['stone/200'], alpha: 0.95 });
   });
 
-  it('keeps a dialog distinguishable from its backdrop in dark', () => {
+  it('records the dialog against its backdrop in dark', () => {
     // Dark was never drawn. The literal mirror of the light wash, the overlay
     // colour at 95%, sits within 1.01:1 of surface/overlay — the dialog would
-    // vanish into its own backdrop.
+    // vanish into its own backdrop — so the scrim is the darkest ink at 95%.
+    // With the overlay at night/900 the dialog is 1.19:1 above it (1.43 while
+    // the overlay was night/800). Nothing darker than the ink exists and a
+    // lighter scrim moves toward the dialog, so the edge is the border's,
+    // as it is for the menu: border/default is 2.97 against the dialog and
+    // 3.5 against the scrim. Recorded, so a move in either direction is
+    // deliberate.
     const scrim = resolve('surface/scrim', 'dark', resolve('surface/base', 'dark'));
-    expect(contrast(resolve('surface/overlay', 'dark'), scrim)).toBeGreaterThanOrEqual(1.4);
+    expect(contrast(resolve('surface/overlay', 'dark'), scrim)).toBeCloseTo(1.19, 1);
+    expect(contrast(resolve('border/default', 'dark'), scrim)).toBeGreaterThanOrEqual(NON_TEXT);
   });
 });

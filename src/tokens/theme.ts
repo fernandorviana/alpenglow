@@ -18,20 +18,33 @@
  *    highlight fills (tertiary, on flare) lighten in BOTH modes, because their
  *    500 carries no label at all — 4.29:1 with a dark one, 3.80:1 with white.
  *
- * 3. In Dark, `surface/sunken` is the canvas. The ladder is eleven stops and
- *    ends at 950; a well reads as recessed only inside a raised surface, and
- *    on the canvas it takes a border instead. A twentieth step was measured
- *    and refused — see primitives.ts.
+ * 3. In Dark, `surface/sunken` is the canvas. The ladder ends at 950; a well
+ *    reads as recessed only inside a raised surface, and on the canvas it
+ *    takes a border instead. A twentieth step was measured and refused — see
+ *    primitives.ts. The dark ladder is 950 → 925 → 900, ΔL .043 per step in
+ *    OKLCH: 925 is the surface step, added 2026-09-12 after every reference
+ *    system measured placed its surface levels at .025–.045 and this one
+ *    jumped .085. Surface against surface is measured in lightness, not in
+ *    the WCAG ratio, which flattens the dark end (the new step is 1.08:1 and
+ *    is plainly visible; the old 1.09 floor would have refused it).
+ *
+ * 4. Hover and pressed on anything that has no fill of its own — rows, menu
+ *    items, ghost and outline buttons — and on the neutral button are a wash:
+ *    `interactive/wash-hover` and `wash-pressed`, an alpha of mist/500 laid
+ *    over whatever is beneath. One token works on every surface in both
+ *    modes, which the opaque hover it replaced did not: mist/100 was
+ *    invisible on the light sunken surface, and stone/700 over a dark card
+ *    was ΔL +.184 where the references sit at +.05 to +.09. The text beneath
+ *    a wash keeps its own token; contrast.test.ts measures it there.
  *
  * The dark ladder is `night`. A product that wants a neutral dark can alias
  * the same stops of `stone` instead — every text and border pair below was
  * measured against both and holds; the tightest, `border/strong` on
  * `stone/800`, is 3.44:1.
  *
- * The tail is deep on purpose: 700–950 sit at L .43 / .33 / .245 / .16, so
- * the dark canvas is #090B1F rather than a slate. Decided 2026-09-11 for a
- * dark theme that reads as night; every dark pair gained by it, and the one
- * cost is the 950→900 step, 1.19:1 against 1.22 before.
+ * The tail is deep on purpose: 700–950 sit at L .43 / .33 / .245 / .205 / .16,
+ * so the dark canvas is #090B1F rather than a slate. Decided 2026-09-11 for a
+ * dark theme that reads as night; every dark pair gained by it.
  */
 
 import type { PrimitiveName, AlphaPrimitiveName } from './primitives';
@@ -42,11 +55,14 @@ type ThemeEntry = { light: Alias; dark: Alias; use: string };
 export const theme = {
   // ---- surface ---------------------------------------------------------
   // A ladder of elevation, not of colour. Dark holds three colour steps —
-  // base, raised, overlay — and sunken shares the canvas. When you run out,
-  // separate with a border rather than inventing a step.
+  // base 950, raised 925, overlay 900, ΔL .043 apart — and sunken shares the
+  // canvas. When you run out, separate with a border rather than inventing a
+  // step. The dialog sits 1.19:1 above its scrim now that overlay is 900;
+  // the border carries its edge there, as it does for the menu (invariant
+  // 11), and the suite records the figure.
   'surface/base':           { light: 'stone/050', dark: 'night/950', use: 'App canvas' },
-  'surface/raised':         { light: 'white',     dark: 'night/900', use: 'Cards, panels, table body' },
-  'surface/overlay':        { light: 'white',     dark: 'night/800', use: 'Modals, popovers, dropdowns' },
+  'surface/raised':         { light: 'white',     dark: 'night/925', use: 'Cards, panels, table body' },
+  'surface/overlay':        { light: 'white',     dark: 'night/900', use: 'Modals, popovers, dropdowns' },
   // Not table headers: in light this resolves to the same hex as
   // border/subtle, so a header band painted with it swallows the row
   // separator. Table uses surface/base. In dark it IS surface/base — a well
@@ -92,15 +108,25 @@ export const theme = {
   'interactive/on-accent':       { light: 'white',        dark: 'night/950',    use: 'Label on accent' },
 
   // In light the secondary button's fill is the canvas and its outline
-  // describes it; hover and pressed step into mist, the soft-state family —
-  // ΔEok 0.013 from the same stops of stone, a cast rather than a colour.
-  // Dark mirrors the outline idea: the fill is the overlay's own lightness in
-  // stone, and border/default carries the shape on a modal. Mist stays out of
-  // dark — mist/800 is the overlay's lightness in another hue, 1.00:1 on it.
+  // describes it; in dark the fill is stone/800, 1.47:1 on a card and 1.33
+  // on a modal, and border/default carries the shape. It has no ladder of
+  // its own: hover and pressed are the wash below, laid over the fill.
   'interactive/neutral':         { light: 'stone/050', dark: 'stone/800', use: 'Secondary button fill' },
-  'interactive/neutral-hover':   { light: 'mist/100',  dark: 'stone/700', use: 'Secondary hover, row hover' },
-  'interactive/neutral-pressed': { light: 'mist/200',  dark: 'stone/600', use: 'Secondary pressed' },
   'interactive/on-neutral':      { light: 'stone/900', dark: 'stone/050', use: 'Label on neutral' },
+
+  // The wash. A state layer, not a fill: it composites over whatever is
+  // beneath, so one token serves rows on a card, items on a menu, ghost
+  // buttons on the canvas and the neutral button's own fill. Light darkens
+  // by ΔL .024–.029 on hover and .050–.058 pressed; dark lightens by
+  // .050–.064 and .083–.106. The text beneath keeps its token. Every text
+  // token clears AA under both washes on base, raised and overlay in both
+  // modes, and under hover on sunken; the exceptions are text/tertiary,
+  // which clears them on raised and overlay — where rows and menu items
+  // live — and is recorded elsewhere (4.64 / 4.28 light hover / pressed on
+  // base, 4.27 / 3.94 on sunken), and text/accent under the light pressed
+  // wash on sunken, 4.38. No control that can be pressed sits on a well.
+  'interactive/wash-hover':   { light: 'alpha/haze-08', dark: 'alpha/haze-12', use: 'Hover wash over any surface or the neutral fill: rows, menu items, ghost, outline and neutral buttons, icon buttons' },
+  'interactive/wash-pressed': { light: 'alpha/haze-16', dark: 'alpha/haze-20', use: 'Pressed wash, same consumers' },
 
   // The highlight fill: flare/400 with a dark label in both modes. flare/500
   // carries no label (4.29:1 dark, 3.80:1 white), so the only three-step
@@ -133,10 +159,11 @@ export const theme = {
   // ---- border ----------------------------------------------------------
   // `strong` is the only value clearing 3:1 against all four surfaces in both
   // modes, which is why every form control uses it and why it is the same
-  // primitive in Light and Dark. In dark, subtle has to sit above the overlay
-  // (night/800) to be visible on it, so it is night/700 and default is
-  // night/600.
-  'border/subtle':  { light: 'stone/100', dark: 'night/700', use: 'Dividers, row separators' },
+  // primitive in Light and Dark. `subtle` is an alpha, so it reads on every
+  // surface without picking a stop above any of them: 1.18–1.19:1 in light
+  // (stone/100, which it replaced, was 1.00 on sunken) and 1.54–1.65 in dark
+  // (night/700 was 1.97 on a card, twice what the references draw).
+  'border/subtle':  { light: 'alpha/ink-08', dark: 'alpha/white-16', use: 'Dividers, row separators' },
   'border/default': { light: 'stone/300', dark: 'night/600', use: 'Cards and containers — decorative' },
   'border/strong':  { light: 'stone/500', dark: 'stone/500', use: 'All form control boundaries' },
   'border/accent':  { light: 'twilight/600', dark: 'twilight/400', use: 'Active, selected' },

@@ -51,6 +51,32 @@ export function contrast(a: string, b: string): number {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
+/**
+ * OKLCH lightness, 0–1. The instrument for surface against surface.
+ *
+ * The WCAG ratio adds 0.05 to both luminances, which flattens the dark end:
+ * two dark greys everyone can tell apart come back at 1.06–1.08:1, while a
+ * step twice as large reads 1.19. Text on a surface and a boundary on a
+ * surface stay on the ratio, which is what WCAG asks of them; a ladder step,
+ * a well inside a card and a wash over a surface are measured here, with a
+ * floor of ΔL .035 — just under the smallest step the reference systems ship.
+ */
+export function lightness(hex: string): number {
+  const { r, g, b } = hexToRgb(hex);
+  const lin = (v: number) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const [lr, lg, lb] = [lin(r), lin(g), lin(b)];
+  const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+  const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+  const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+  return 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+}
+
+/** The smallest lightness step between two surfaces that counts as a step. */
+export const SURFACE_STEP = 0.035;
+
 function isAlpha(name: string): name is keyof typeof alphaPrimitives {
   return name in alphaPrimitives;
 }
@@ -77,9 +103,20 @@ export function resolve(token: ThemeTokenName, mode: Mode, over?: string): strin
   return value;
 }
 
-/** Contrast between two theme tokens in the same mode. */
-export function tokenContrast(a: ThemeTokenName, b: ThemeTokenName, mode: Mode): number {
-  return contrast(resolve(a, mode), resolve(b, mode));
+/**
+ * Contrast between two theme tokens in the same mode.
+ *
+ * `b` is the ground. If it is an alpha token — a wash — it is flattened over
+ * `ground` first, and it is an error to leave `ground` out. If `a` is an
+ * alpha token — a wash or the subtle border — it is flattened over `b`. So
+ * `tokenContrast('text/tertiary', 'interactive/wash-hover', mode, 'surface/raised')`
+ * is helper text on a hovered row on a card, and
+ * `tokenContrast('border/subtle', 'surface/sunken', mode)` is the divider on
+ * a well.
+ */
+export function tokenContrast(a: ThemeTokenName, b: ThemeTokenName, mode: Mode, ground?: ThemeTokenName): number {
+  const bg = resolve(b, mode, ground ? resolve(ground, mode) : undefined);
+  return contrast(resolve(a, mode, bg), bg);
 }
 
 export const AA_NORMAL = 4.5;

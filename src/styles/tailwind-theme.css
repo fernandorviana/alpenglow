@@ -38,9 +38,9 @@
   --color-interactive-accent-pressed: var(--ap-color-interactive-accent-pressed);
   --color-interactive-on-accent: var(--ap-color-interactive-on-accent);
   --color-interactive-neutral: var(--ap-color-interactive-neutral);
-  --color-interactive-neutral-hover: var(--ap-color-interactive-neutral-hover);
-  --color-interactive-neutral-pressed: var(--ap-color-interactive-neutral-pressed);
   --color-interactive-on-neutral: var(--ap-color-interactive-on-neutral);
+  --color-interactive-wash-hover: var(--ap-color-interactive-wash-hover);
+  --color-interactive-wash-pressed: var(--ap-color-interactive-wash-pressed);
   --color-interactive-tertiary: var(--ap-color-interactive-tertiary);
   --color-interactive-tertiary-hover: var(--ap-color-interactive-tertiary-hover);
   --color-interactive-tertiary-pressed: var(--ap-color-interactive-tertiary-pressed);

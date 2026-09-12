@@ -135,7 +135,10 @@ html:has(.dialog:modal) {
   .iconButton { transition: none; }
 }
 
-.iconButton:hover { background: var(--ap-color-interactive-neutral-hover); }
+/* The wash over the fill, as on Button's neutral tone. */
+.iconButton:hover {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+}
 
 .iconButton:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);

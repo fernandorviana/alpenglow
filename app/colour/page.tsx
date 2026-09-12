@@ -1,12 +1,12 @@
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
-import { primitives } from '@/tokens/primitives';
+import { primitives, alphaPrimitives } from '@/tokens/primitives';
 import { theme, type ThemeTokenName } from '@/tokens/theme';
 import { resolve } from '@/tokens/contrast';
 
 const RAMPS = ['glow', 'twilight', 'flare', 'glacier', 'stone', 'night', 'mist', 'ember', 'moss', 'amber'] as const;
-const STEPS = ['050', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'] as const;
+const STEPS = ['050', '100', '200', '300', '400', '500', '600', '700', '800', '900', '925', '950'] as const;
 
 const ROLES: Record<(typeof RAMPS)[number], string> = {
   glow: 'the brand — hero, gradient, one call to action per screen; never a button tone',
@@ -15,7 +15,7 @@ const ROLES: Record<(typeof RAMPS)[number], string> = {
   glacier: 'the second highlight, and the info status',
   stone: 'the neutral foundation — text, borders, the light canvas',
   night: 'the dark surface ladder',
-  mist: 'soft states — hover and pressed in light',
+  mist: 'soft states — the wash that hover and pressed lay over any surface, in both modes',
   ember: 'danger',
   moss: 'success',
   amber: 'warning',
@@ -30,6 +30,9 @@ function against(token: ThemeTokenName): ThemeTokenName {
   if (token.endsWith('-subtle')) return token;
   return 'surface/raised';
 }
+
+/** An alpha token has no colour of its own until it lands on something; here that is a card. */
+const isAlpha = (alias: string) => alias in alphaPrimitives;
 
 function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold: number }) {
   return (
@@ -46,9 +49,16 @@ function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold
         {tokens.map((token) => {
           const entry = theme[token];
           const scrim = token === 'surface/scrim';
-          const light = scrim ? resolve(token, 'light', resolve('surface/base', 'light')) : resolve(token, 'light');
-          const dark = scrim ? resolve(token, 'dark', resolve('surface/base', 'dark')) : resolve(token, 'dark');
-          const measurable = !scrim && !token.startsWith('surface/');
+          const wash = token.startsWith('interactive/wash-');
+          // The scrim is flattened over the canvas it covers; every other
+          // alpha — the wash, the subtle border — over the card it lands on.
+          const ground = (mode: 'light' | 'dark') =>
+            isAlpha(entry[mode]) ? resolve(scrim ? 'surface/base' : 'surface/raised', mode) : undefined;
+          const light = resolve(token, 'light', ground('light'));
+          const dark = resolve(token, 'dark', ground('dark'));
+          // A wash is a ground for text, not a figure against one; its
+          // readings are on the Elevation page.
+          const measurable = !scrim && !wash && !token.startsWith('surface/');
 
           return (
             <tr key={token}>
@@ -96,7 +106,7 @@ export default function Page() {
     >
       <h1>Colour</h1>
       <p className="lead">
-        Ten families of eleven stops, {themeCount} roles, and a rule that keeps them apart:
+        Ten families of twelve stops, {themeCount} roles, and a rule that keeps them apart:
         nothing in the product references a primitive directly.
       </p>
 
@@ -110,9 +120,13 @@ export default function Page() {
         Chroma and hue are each family&rsquo;s own.
       </p>
       <p>
-        There are eleven stops and no half steps. The twenty-step neutral this replaced had
+        There are no half steps for text or fills. The twenty-step neutral this replaced had
         adjacent steps 1.08 to 1.23:1 apart, and produced two text levels nobody could tell
-        apart. When a ladder runs out, separate with a border.
+        apart. The one exception is <code>925</code>, the surface step: no text is ever set in
+        one surface against another, and every reference system measured places its surface
+        levels closer than any ramp places its text stops — see{' '}
+        <a href="/elevation">Elevation and states</a>. When a ladder runs out, separate with
+        a border.
       </p>
 
       {RAMPS.map((ramp) => (
@@ -140,10 +154,11 @@ export default function Page() {
         both white and the shadow does the separating; in dark, overlay steps lighter
         because shadow no longer reads as height, and sunken shares the canvas because the
         ramp ends at 950 — a well on the canvas takes a border. The dark ladder is{' '}
-        <code>night</code>; a product that wants a neutral dark aliases the same stops of{' '}
-        <code>stone</code>, and every pair holds — the tightest, <code>border/strong</code> on{' '}
-        <code>stone/800</code>, is 3.44:1. The tail is deep on purpose: 700 to 950 sit at L
-        .43, .33, .245 and .16, so the dark canvas reads as night rather than slate.
+        <code>night</code> 950, 925, 900, ΔL .043 per step; a product that wants a neutral
+        dark aliases the same stops of <code>stone</code>, and every pair holds — the
+        tightest, <code>border/strong</code> on <code>stone/800</code>, is 3.44:1. The tail
+        is deep on purpose: 700 to 950 sit at L .43, .33, .245, .205 and .16, so the dark
+        canvas reads as night rather than slate. Alpha tokens are shown flattened over a card.
       </p>
       <TokenTable tokens={group('surface/')} threshold={3} />
 
@@ -159,14 +174,18 @@ export default function Page() {
       <h2>Interactive</h2>
       <p>
         Fills and the labels that sit on them. Every <code>on-*</code> token is measured
-        against all of its fill states, not just the resting one.
+        against all of its fill states, not just the resting one. The two wash tokens are a
+        state layer rather than a fill — laid over a row, a menu item, a ghost button or the
+        neutral button&rsquo;s own fill — and are shown here over a card; their readings are
+        on the <a href="/elevation">Elevation page</a>.
       </p>
       <TokenTable tokens={group('interactive/')} threshold={3} />
 
       <h2>Border</h2>
       <p>
-        Three tiers by function, not by weight. <code>subtle</code> divides,{' '}
-        <code>default</code> outlines containers, and <code>strong</code> is the only tier
+        Three tiers by function, not by weight. <code>subtle</code> divides, and is an alpha
+        so it reads on every surface without picking a stop above any of them;{' '}
+        <code>default</code> outlines containers; and <code>strong</code> is the only tier
         that clears WCAG 1.4.11 — which is why every form control uses it.
       </p>
       <TokenTable tokens={group('border/')} threshold={3} />

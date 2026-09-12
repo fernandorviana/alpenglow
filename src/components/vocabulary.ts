@@ -21,18 +21,14 @@ export type Tone = 'neutral' | 'accent' | 'tertiary' | 'success' | 'warning' | '
 type Has<Name extends string> = Name extends ThemeTokenName ? true : false;
 type All<Checks extends readonly boolean[]> = Checks[number] extends true ? true : false;
 
-/** Tones the theme can fill: a rest, hover and pressed fill, and a label colour for them. */
+/**
+ * Tones the theme can fill: a rest fill and a label colour for it. A tone
+ * either owns a hover and pressed ladder (`accent`, `danger`, `success`,
+ * `tertiary`) or takes the wash over its fill (`neutral`); the stylesheet
+ * says which, and the ceiling does not ask.
+ */
 export type FillTone = {
-  [T in Tone]: All<
-    [
-      Has<`interactive/${T}`>,
-      Has<`interactive/${T}-hover`>,
-      Has<`interactive/${T}-pressed`>,
-      Has<`interactive/on-${T}`>,
-    ]
-  > extends true
-    ? T
-    : never;
+  [T in Tone]: All<[Has<`interactive/${T}`>, Has<`interactive/on-${T}`>]> extends true ? T : never;
 }[Tone];
 
 /**

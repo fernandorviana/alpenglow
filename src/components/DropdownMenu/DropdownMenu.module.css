@@ -52,7 +52,7 @@
  * falls on, black at 8% in light reaches 1.19:1 while black at 64% in dark
  * reaches 1.16:1: the shadow stops carrying elevation. Invariant 4 says what
  * to do when the ramp runs out — separate with a border. Against the canvas
- * border/default is 1.77:1 in dark against 1.31:1 in light, so the border is
+ * border/default is 3.55:1 in dark against 1.60:1 in light, so the border is
  * stronger exactly where it is needed. Adding one in light would draw the
  * edge twice.
  *
@@ -130,7 +130,7 @@
 }
 
 .item:focus:not([aria-disabled='true']) {
-  background: var(--ap-color-interactive-neutral-hover);
+  background: var(--ap-color-interactive-wash-hover);
 }
 
 .item:focus-visible {
@@ -140,8 +140,10 @@
 
 /* --- tones ---------------------------------------------------------------- */
 
-/* Each tone hovers to its own subtle surface. Measured in contrast.test.ts:
-   text/accent on the neutral fill is 3.50:1 in dark and 5.00:1 on its own. */
+/* Each tone hovers to its own subtle surface, and the neutral row takes the
+   wash. Measured in contrast.test.ts: text/accent was 3.50:1 on the opaque
+   neutral fill in dark when the rule was made, and is 7.86 on the wash over
+   the menu now; on its own surface it is 9.64. The rule is the design. */
 
 .accent { color: var(--ap-color-text-accent); }
 
@@ -163,8 +165,8 @@
  * end. It keeps role="menuitem" and aria-disabled, so a screen reader in
  * browse mode still finds it: the discoverability stays, the dead end does not.
  *
- * text/disabled is 2.77:1 on surface/overlay in light and 2.66:1 in dark. Both
- * are below AA and both are exempt — WCAG 2.1 excludes inactive components.
+ * text/disabled is 2.39:1 on surface/overlay in light and 3.03:1 in dark. The
+ * light one is below AA and exempt — WCAG 2.1 excludes inactive components.
  */
 .item[aria-disabled='true'] {
   color: var(--ap-color-text-disabled);

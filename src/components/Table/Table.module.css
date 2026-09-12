@@ -249,9 +249,11 @@
   background: var(--ap-color-interactive-selected);
 }
 
-/* Not the empty state or the loading cell: both are placeholders, not rows to scan. */
+/* Not the empty state or the loading cell: both are placeholders, not rows to
+   scan. The wash rather than a fill: it composites over the body, so the row
+   lifts by the same amount wherever the table sits. */
 .tr:hover:not([data-selected='true']) .td:not(.empty):not(.loadingCell) {
-  background: var(--ap-color-interactive-neutral-hover);
+  background: var(--ap-color-interactive-wash-hover);
 }
 
 /* --- action column ---------------------------------------------------------

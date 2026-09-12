@@ -32,6 +32,7 @@
   --ap-glow-700: #97002F;
   --ap-glow-800: #680020;
   --ap-glow-900: #430012;
+  --ap-glow-925: #33000C;
   --ap-glow-950: #220006;
   --ap-twilight-050: #F8F5FF;
   --ap-twilight-100: #F0E8FF;
@@ -43,6 +44,7 @@
   --ap-twilight-700: #532CB1;
   --ap-twilight-800: #361583;
   --ap-twilight-900: #20055B;
+  --ap-twilight-925: #17004A;
   --ap-twilight-950: #0D0033;
   --ap-flare-050: #FFF5EC;
   --ap-flare-100: #FFE8D6;
@@ -54,6 +56,7 @@
   --ap-flare-700: #843300;
   --ap-flare-800: #5C1F00;
   --ap-flare-900: #3C1000;
+  --ap-flare-925: #2E0A00;
   --ap-flare-950: #1E0400;
   --ap-glacier-050: #E1FDFF;
   --ap-glacier-100: #C3F8FC;
@@ -65,6 +68,7 @@
   --ap-glacier-700: #005A6B;
   --ap-glacier-800: #003C49;
   --ap-glacier-900: #00252F;
+  --ap-glacier-925: #001B23;
   --ap-glacier-950: #001016;
   --ap-stone-050: #F5F7F9;
   --ap-stone-100: #EAEDF1;
@@ -76,6 +80,7 @@
   --ap-stone-700: #4C5057;
   --ap-stone-800: #32353C;
   --ap-stone-900: #1E2026;
+  --ap-stone-925: #15171C;
   --ap-stone-950: #0B0D12;
   --ap-night-050: #F3F7FF;
   --ap-night-100: #E7EDFB;
@@ -87,6 +92,7 @@
   --ap-night-700: #444C76;
   --ap-night-800: #2D3254;
   --ap-night-900: #1B1E38;
+  --ap-night-925: #12142C;
   --ap-night-950: #090B1F;
   --ap-mist-050: #F0F9F9;
   --ap-mist-100: #E1F0F1;
@@ -98,6 +104,7 @@
   --ap-mist-700: #385656;
   --ap-mist-800: #213A3B;
   --ap-mist-900: #102425;
+  --ap-mist-925: #091A1B;
   --ap-mist-950: #031010;
   --ap-ember-050: #FFF4F3;
   --ap-ember-100: #FFE6E5;
@@ -109,6 +116,7 @@
   --ap-ember-700: #94131E;
   --ap-ember-800: #6A000F;
   --ap-ember-900: #440007;
+  --ap-ember-925: #340005;
   --ap-ember-950: #220002;
   --ap-moss-050: #EEFBF0;
   --ap-moss-100: #DDF4E0;
@@ -120,6 +128,7 @@
   --ap-moss-700: #006031;
   --ap-moss-800: #004120;
   --ap-moss-900: #002912;
+  --ap-moss-925: #001E0C;
   --ap-moss-950: #001206;
   --ap-amber-050: #FDF7E1;
   --ap-amber-100: #F8EDC5;
@@ -131,6 +140,7 @@
   --ap-amber-700: #684A00;
   --ap-amber-800: #483100;
   --ap-amber-900: #2E1D00;
+  --ap-amber-925: #221400;
   --ap-amber-950: #150B00;
 
   --ap-alpha-black-04: rgb(0 0 0 / 0.04);
@@ -145,10 +155,15 @@
   --ap-alpha-white-32: rgb(255 255 255 / 0.32);
   --ap-alpha-white-48: rgb(255 255 255 / 0.48);
   --ap-alpha-white-64: rgb(255 255 255 / 0.64);
+  --ap-alpha-ink-08: rgb(11 13 18 / 0.08);
   --ap-alpha-ink-10: rgb(11 13 18 / 0.1);
   --ap-alpha-ink-12: rgb(11 13 18 / 0.12);
   --ap-alpha-ink-95: rgb(11 13 18 / 0.95);
   --ap-alpha-mist-95: rgb(217 221 226 / 0.95);
+  --ap-alpha-haze-08: rgb(106 144 143 / 0.08);
+  --ap-alpha-haze-12: rgb(106 144 143 / 0.12);
+  --ap-alpha-haze-16: rgb(106 144 143 / 0.16);
+  --ap-alpha-haze-20: rgb(106 144 143 / 0.2);
 }
 
 /* ---------------------------------------------------------------------------
@@ -186,9 +201,9 @@
   --ap-color-interactive-accent-pressed: var(--ap-twilight-800);
   --ap-color-interactive-on-accent: var(--ap-white);
   --ap-color-interactive-neutral: var(--ap-stone-050);
-  --ap-color-interactive-neutral-hover: var(--ap-mist-100);
-  --ap-color-interactive-neutral-pressed: var(--ap-mist-200);
   --ap-color-interactive-on-neutral: var(--ap-stone-900);
+  --ap-color-interactive-wash-hover: var(--ap-alpha-haze-08);
+  --ap-color-interactive-wash-pressed: var(--ap-alpha-haze-16);
   --ap-color-interactive-tertiary: var(--ap-flare-400);
   --ap-color-interactive-tertiary-hover: var(--ap-flare-300);
   --ap-color-interactive-tertiary-pressed: var(--ap-flare-200);
@@ -204,7 +219,7 @@
   --ap-color-interactive-selected: var(--ap-twilight-050);
   --ap-color-interactive-disabled: var(--ap-stone-200);
   --ap-color-interactive-on-disabled: var(--ap-stone-400);
-  --ap-color-border-subtle: var(--ap-stone-100);
+  --ap-color-border-subtle: var(--ap-alpha-ink-08);
   --ap-color-border-default: var(--ap-stone-300);
   --ap-color-border-strong: var(--ap-stone-500);
   --ap-color-border-accent: var(--ap-twilight-600);
@@ -221,8 +236,8 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --ap-color-surface-base: var(--ap-night-950);
-    --ap-color-surface-raised: var(--ap-night-900);
-    --ap-color-surface-overlay: var(--ap-night-800);
+    --ap-color-surface-raised: var(--ap-night-925);
+    --ap-color-surface-overlay: var(--ap-night-900);
     --ap-color-surface-sunken: var(--ap-night-950);
     --ap-color-surface-scrim: var(--ap-alpha-ink-95);
     --ap-color-surface-inverse: var(--ap-stone-050);
@@ -248,9 +263,9 @@
     --ap-color-interactive-accent-pressed: var(--ap-twilight-200);
     --ap-color-interactive-on-accent: var(--ap-night-950);
     --ap-color-interactive-neutral: var(--ap-stone-800);
-    --ap-color-interactive-neutral-hover: var(--ap-stone-700);
-    --ap-color-interactive-neutral-pressed: var(--ap-stone-600);
     --ap-color-interactive-on-neutral: var(--ap-stone-050);
+    --ap-color-interactive-wash-hover: var(--ap-alpha-haze-12);
+    --ap-color-interactive-wash-pressed: var(--ap-alpha-haze-20);
     --ap-color-interactive-tertiary: var(--ap-flare-400);
     --ap-color-interactive-tertiary-hover: var(--ap-flare-300);
     --ap-color-interactive-tertiary-pressed: var(--ap-flare-200);
@@ -266,7 +281,7 @@
     --ap-color-interactive-selected: var(--ap-twilight-900);
     --ap-color-interactive-disabled: var(--ap-stone-800);
     --ap-color-interactive-on-disabled: var(--ap-stone-600);
-    --ap-color-border-subtle: var(--ap-night-700);
+    --ap-color-border-subtle: var(--ap-alpha-white-16);
     --ap-color-border-default: var(--ap-night-600);
     --ap-color-border-strong: var(--ap-stone-500);
     --ap-color-border-accent: var(--ap-twilight-400);
@@ -291,8 +306,8 @@
   color-scheme: dark;
 
   --ap-color-surface-base: var(--ap-night-950);
-  --ap-color-surface-raised: var(--ap-night-900);
-  --ap-color-surface-overlay: var(--ap-night-800);
+  --ap-color-surface-raised: var(--ap-night-925);
+  --ap-color-surface-overlay: var(--ap-night-900);
   --ap-color-surface-sunken: var(--ap-night-950);
   --ap-color-surface-scrim: var(--ap-alpha-ink-95);
   --ap-color-surface-inverse: var(--ap-stone-050);
@@ -318,9 +333,9 @@
   --ap-color-interactive-accent-pressed: var(--ap-twilight-200);
   --ap-color-interactive-on-accent: var(--ap-night-950);
   --ap-color-interactive-neutral: var(--ap-stone-800);
-  --ap-color-interactive-neutral-hover: var(--ap-stone-700);
-  --ap-color-interactive-neutral-pressed: var(--ap-stone-600);
   --ap-color-interactive-on-neutral: var(--ap-stone-050);
+  --ap-color-interactive-wash-hover: var(--ap-alpha-haze-12);
+  --ap-color-interactive-wash-pressed: var(--ap-alpha-haze-20);
   --ap-color-interactive-tertiary: var(--ap-flare-400);
   --ap-color-interactive-tertiary-hover: var(--ap-flare-300);
   --ap-color-interactive-tertiary-pressed: var(--ap-flare-200);
@@ -336,7 +351,7 @@
   --ap-color-interactive-selected: var(--ap-twilight-900);
   --ap-color-interactive-disabled: var(--ap-stone-800);
   --ap-color-interactive-on-disabled: var(--ap-stone-600);
-  --ap-color-border-subtle: var(--ap-night-700);
+  --ap-color-border-subtle: var(--ap-alpha-white-16);
   --ap-color-border-default: var(--ap-night-600);
   --ap-color-border-strong: var(--ap-stone-500);
   --ap-color-border-accent: var(--ap-twilight-400);

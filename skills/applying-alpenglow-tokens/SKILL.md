@@ -60,7 +60,8 @@ A further eight exist in Carbon under a different name: `notifications` is `Noti
 | Primary button fill | `color/interactive/accent` |
 | Secondary button fill | `color/interactive/neutral` + `border/default` outline |
 | Highlight (tertiary) button fill | `color/interactive/tertiary` — flare, lightens on hover |
-| Row hover (transient) | `color/interactive/neutral-hover` |
+| Row hover, menu-item hover, ghost or outline button hover — anything with no fill of its own | `color/interactive/wash-hover` as the background; `wash-pressed` when pressed |
+| Secondary button hover, or any filled control's hover | the same wash, as a `background-image` gradient over the fill — the neutral tone has no hover ladder |
 | Row selected (persistent) | `color/interactive/selected` |
 | Destructive button fill | `color/interactive/danger` |
 | Label on any filled button | `color/interactive/on-<variant>` |
@@ -95,7 +96,7 @@ In Light, `raised` and `overlay` are both white and the shadow separates them. I
 
 ### One lightness per stop, in every family
 
-Ten families of eleven stops (`050`–`950`), generated in OKLCH. The lightness of a stop is the same in every family — 050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625 · 600 .525 · 700 .43 · 800 .33 · 900 .245 · 950 .16 — so a number means the same amount of light everywhere:
+Ten families of twelve stops (`050`–`950`), generated in OKLCH. The lightness of a stop is the same in every family — 050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625 · 600 .525 · 700 .43 · 800 .33 · 900 .245 · 925 .205 · 950 .16 — so a number means the same amount of light everywhere:
 
 - any **600** carries a white label at ≥ 4.5:1 (5.1 to 6.0 across the families);
 - any **400** carries a `night/950` label at ≥ 4.5:1 (7.6 or better);
@@ -112,10 +113,10 @@ The tail is deep on purpose — the dark canvas is `#090B1F`, decided 2026-09-11
 | `glacier` | The second highlight and the info status. |
 | `stone` | The neutral foundation — text, borders, the light canvas. |
 | `night` | The dark surface ladder. |
-| `mist` | Soft states — hover and pressed in Light. Stays out of Dark: `mist/800` is the overlay's lightness in another hue, 1.00:1 on it. |
+| `mist` | Soft states — the wash. `mist/500` at 8–20% is `alpha/haze-*`, the ink of `interactive/wash-hover` / `wash-pressed` in both modes. Its opaque stops are not used in Dark: `mist/800` is a surface's lightness in another hue. |
 | `ember` · `moss` · `amber` | Danger, success, warning. |
 
-There are no half steps. The twenty-step neutral this replaced had adjacent steps 1.08–1.23:1 apart and gave the theme two text levels 1.22:1 from each other. Do not propose one.
+There are no half steps for text or fills. The twenty-step neutral this replaced had adjacent steps 1.08–1.23:1 apart and gave the theme two text levels 1.22:1 from each other. The one exception is `925`, the **surface step** (2026-09-12): no text is ever set in one surface against another, and every reference system measured (Radix, Atlassian, Spectrum, Geist) places adjacent surface levels at ΔL .025–.045 in OKLCH, where one whole stop is .085. It is generated in every family and aliased only in `night` and `stone`. Do not propose another, and do not propose a `975`.
 
 ---
 
@@ -123,7 +124,9 @@ There are no half steps. The twenty-step neutral this replaced had adjacent step
 
 ### The dark ramp holds 3 colour levels, and `sunken` is the canvas
 
-`base → raised → overlay` is `night` 950 / 900 / 800 (`#090B1F` → `#1B1E38` → `#2D3254`, steps of 1.19 and 1.32), and the ramp ends at 950. `surface/sunken` therefore resolves to `surface/base` in Dark: a well reads as recessed inside a card (1.19:1) and on the canvas it takes `border/default`. `contrast.test.ts` asserts the equality so it is not mistaken for an oversight.
+`base → raised → overlay` is `night` 950 / 925 / 900 (`#090B1F` → `#12142C` → `#1B1E38`, ΔL .043 per step), and the ramp ends at 950. `surface/sunken` therefore resolves to `surface/base` in Dark: a well reads as recessed inside a card (ΔL .043) and on the canvas it takes `border/default`. `contrast.test.ts` asserts the equality so it is not mistaken for an oversight.
+
+**Surface against surface is measured in OKLCH lightness, floor ΔL .035 — not in the WCAG ratio.** The ratio flattens the dark end: the 950→925 step is 1.08:1 and plainly visible, and Radix's first two dark greys are 1.06. Text on a surface and a boundary on a surface stay on the ratio. Do not "fix" a surface step by reading its WCAG figure.
 
 **When you run out of elevation, separate with a border, not another step.** A popover opened inside a modal stays on `surface/overlay` and is outlined with `border/default`. Do not invent `overlay-raised`, and do not invent a `975`.
 
@@ -133,14 +136,15 @@ There are no half steps. The twenty-step neutral this replaced had adjacent step
 
 | Trap | What happens | Correct value |
 |---|---|---|
-| `border/subtle` in Dark as `night/800` | Identical to `surface/overlay` — **1.00:1, invisible** | `night/700` `#444C76` — 1.50 on the overlay, 1.97 on a card |
+| `border/subtle` as an opaque stop | In Light `stone/100` was the sunken surface itself, 1.00:1; in Dark a stop has to sit above the overlay and then reads 1.97 on a card, twice what the references draw | An alpha: `alpha/ink-08` Light, `alpha/white-16` Dark — 1.18–1.19 and 1.54–1.65 on every surface |
 | `border/strong` as `stone/400` (Light) or `stone/600` (Dark) | 2.39 on white; **2.30 on the dark overlay** | `stone/500` `#83888F` in **both** modes — 3.04 on light sunken is the tight one; 3.47 on the dark overlay |
 | `text/placeholder` as `stone/500` | 3.57:1 on white, and a placeholder is text | `stone/600`, the same stop as tertiary — 5.38 / 4.58 on sunken |
 | `interactive/selected` as `mist/200` | `text/accent` on it is **4.42:1**, and the calendar paints today's label that way | `twilight/050` / `twilight/900` — 5.55 / 8.39 |
-| `interactive/neutral` in Dark as `night/800` | Identical to `surface/overlay` | `stone/800` — the same lightness in the neutral family. The fill is still 1.00:1 on a modal **by design**: the secondary button is an outline button, and `border/default` (2.26 on the overlay) carries its shape, exactly as in Light where the fill is the canvas |
+| `interactive/neutral` in Dark as a `night` stop | Reads as a hole or a lift in the ladder | `stone/800` — 1.47:1 on a card, 1.33 on a modal; `border/default` (2.97 on the overlay) still carries the shape, as in Light where the fill is the canvas |
+| An opaque hover — `mist/100`, `stone/700` | In Light it is the sunken surface itself; in Dark it is ΔL +.184 over a card where the references sit at +.05 to +.09 | `interactive/wash-hover` — `mist/500` at 8% Light / 12% Dark, laid over whatever is beneath |
 | A `flare` or `glacier` 500 as a fill | No label passes — 4.29 with `stone/900`, 3.80 with white | 400 with a dark label; hover 300, pressed 200 |
 
-**`border/subtle` on `surface/sunken` is invisible in Light** — the two are the same primitive. Step up to `border/default` there. In Dark, where sunken is the canvas, `night/700` is 2.35:1 against it and reads.
+**`border/subtle` reads on every surface, sunken included** (1.18 Light, 1.54 Dark): it is an alpha now. The old rule — step up to `border/default` on sunken — is gone with the old value.
 
 ### Shadows in Dark reinforce, they do not carry
 
@@ -148,7 +152,7 @@ Shadows stop being the *primary* elevation signal in Dark — that job moves to 
 
 ### A table inside a modal
 
-The modal is `surface/overlay` (night/800). A table placed inside it must **not** use `surface/raised` for the body and `surface/sunken` for the header — both are *darker* than their container and the elevation reads backwards.
+The modal is `surface/overlay` (night/900). A table placed inside it must **not** use `surface/raised` for the body and `surface/sunken` for the header — both are *darker* than their container and the elevation reads backwards.
 
 Inside an overlay, a table keeps `surface/overlay` for the body, separates rows with `border/subtle`, and marks the header with `border/default` beneath it rather than a fill. Same rule as the dropdown-in-modal case: out of elevation, use a border.
 
@@ -166,7 +170,7 @@ Resolution: in Dark, the accent fill **lightens** (`twilight` 400 → 300 → 20
 
 **Always pair a fill with its matching `on-*` token. Never assume white.** Success and danger follow the same shape: white on the 600 in Light, `night/950` on the 400 in Dark.
 
-The tight pairs are in Light, and both in `stone`: `text/tertiary` on sunken is **4.58:1** and `border/strong` on sunken is **3.04:1**. Dark gained headroom from the deep tail (the same pairs are 5.18 and 3.47 on the overlay). Do not nudge `stone/100`, `stone/500` or `stone/600`.
+The tight pairs are in Light, and both in `stone`: `text/tertiary` on sunken is **4.58:1** and `border/strong` on sunken is **3.04:1**. Dark has headroom (the same pairs are 6.81 and 4.56 on the overlay). Do not nudge `stone/100`, `stone/500` or `stone/600`. Under the wash, `text/tertiary` holds AA on raised and overlay — where rows and menu items live — and not on base (pressed, 4.28) or sunken (4.27 / 3.94); do not put helper text on a washed control over those two.
 
 ### Focus and error
 
@@ -175,7 +179,7 @@ The tight pairs are in Light, and both in `stone`: `text/tertiary` on sunken is 
 - **Error plus focus:** the border stays `border/danger`, and the focus ring is drawn in addition. Focus never replaces the error signal.
 - **A focused field's border does not recolour.** It stays `border/default` (or `border/danger` if in error); the ring alone carries focus.
 - **The focus ring cannot sit on the accent fill.** `border/focus` is `twilight/500` in Light and `twilight/300` in Dark; against the accent fill that is 1.51 and 1.43. The offset puts the ring on the surface, where it is 3.34 to 11.02.
-- **The secondary button always carries a `border/default` outline**, in both modes. Its fill is 1.07:1 against a white card in Light and 1.00:1 against a modal in Dark — the fill alone does not describe the button's shape. The outline does.
+- **The secondary button always carries a `border/default` outline**, in both modes. Its fill is 1.07:1 against a white card in Light and 1.33:1 against a modal in Dark — the fill alone does not describe the button's shape. The outline does. It has no hover ladder: hover and pressed are the wash over its fill.
 - **Disabled drops that outline to `border/subtle`** and removes hover. In Dark `interactive/disabled` resolves to the same value as `interactive/neutral`, so without this the disabled and enabled states would be identical — and colour would be the only channel, which is exactly what the focus rule forbids.
 - **Checked checkbox/radio** use `border/accent` at `border-width/control`, matching the unchecked geometry so the box does not resize between states.
 - The 2px gap between control and ring shows the parent surface. The ring follows the control's own `radius/*`, stepped up by the 2px offset.
@@ -194,8 +198,8 @@ Ratios are not shown: surfaces are grounds, and the ladder is asserted in `contr
 | Token | Light | Dark | Use |
 |---|---|---|---|
 | `color/surface/base` | `#F5F7F9` stone/050 | `#090B1F` night/950 | App canvas |
-| `color/surface/raised` | `#FFFFFF` white | `#1B1E38` night/900 | Cards, panels, table body |
-| `color/surface/overlay` | `#FFFFFF` white | `#2D3254` night/800 | Modals, popovers, dropdowns |
+| `color/surface/raised` | `#FFFFFF` white | `#12142C` night/925 | Cards, panels, table body |
+| `color/surface/overlay` | `#FFFFFF` white | `#1B1E38` night/900 | Modals, popovers, dropdowns |
 | `color/surface/sunken` | `#EAEDF1` stone/100 | `#090B1F` night/950 | Read-only fields, checkbox and radio box, neutral badge, avatar overflow |
 | `color/surface/scrim` | `alpha/mist-95` | `alpha/ink-95` | Modal backdrop |
 | `color/surface/inverse` | `#0B0D12` stone/950 | `#F5F7F9` stone/050 | Avatar fill |
@@ -211,12 +215,12 @@ Ratios against `surface/raised` in each mode. Every status token also clears AA 
 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
-| `color/text/primary` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Headings and body | 16.3 / 15.2 |
-| `color/text/secondary` | `#32353C` stone/800 | `#C1C6CC` stone/300 | Labels, metadata — 1.33:1 from primary in Light, by Fernando's choice | 12.3 / 9.5 |
-| `color/text/tertiary` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Helper text, timestamps | 5.4 / 6.8 |
-| `color/text/placeholder` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Input placeholders | 5.4 / 6.8 |
-| `color/text/disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled text (WCAG-exempt) | 2.4 / 3.0 |
-| `color/text/inert` | `#C1C6CC` stone/300 | `#444C76` night/700 | Inert text beside interactive content (WCAG-exempt); always below disabled | 1.7 / 2.0 |
+| `color/text/primary` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Headings and body | 16.3 / 16.8 |
+| `color/text/secondary` | `#32353C` stone/800 | `#C1C6CC` stone/300 | Labels, metadata — 1.33:1 from primary in Light, by Fernando's choice | 12.3 / 10.5 |
+| `color/text/tertiary` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Helper text, timestamps | 5.4 / 7.5 |
+| `color/text/placeholder` | `#666B71` stone/600 | `#A3A8AF` stone/400 | Input placeholders | 5.4 / 7.5 |
+| `color/text/disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled text (WCAG-exempt) | 2.4 / 3.4 |
+| `color/text/inert` | `#C1C6CC` stone/300 | `#444C76` night/700 | Inert text beside interactive content (WCAG-exempt); always below disabled | 1.7 / 2.4 |
 | `color/text/inverse` | `#FFFFFF` white | `#0B0D12` stone/950 | Text on `surface/inverse` — 19.4 / 18.1 there | — |
 | `color/text/accent` | `#6F43DC` twilight/600 | `#CDB8FF` twilight/300 | Links | 6.0 / 9.2 |
 | `color/text/success` | `#006031` moss/700 | `#93D9A3` moss/300 | Success messages | 7.7 / 9.8 |
@@ -234,10 +238,10 @@ Ratios for `on-*` tokens are against their resting fill; for fills, against `sur
 | `color/interactive/accent-hover` | `#532CB1` twilight/700 | `#CDB8FF` twilight/300 | Primary hover | 8.9 / 9.2 |
 | `color/interactive/accent-pressed` | `#361583` twilight/800 | `#E2D4FF` twilight/200 | Primary pressed | 13.2 / 11.7 |
 | `color/interactive/on-accent` | `#FFFFFF` white | `#090B1F` night/950 | Label on accent | 6.0 / 7.7 |
-| `color/interactive/neutral` | `#F5F7F9` stone/050 | `#32353C` stone/800 | Secondary button fill | 1.1 / 1.3 |
-| `color/interactive/neutral-hover` | `#E1F0F1` mist/100 | `#4C5057` stone/700 | Secondary hover, row hover | 1.2 / 2.0 |
-| `color/interactive/neutral-pressed` | `#CBE2E2` mist/200 | `#666B71` stone/600 | Secondary pressed | 1.4 / 3.0 |
-| `color/interactive/on-neutral` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Label on neutral | 15.2 / 11.4 |
+| `color/interactive/neutral` | `#F5F7F9` stone/050 | `#32353C` stone/800 | Secondary button fill — no ladder; takes the wash | 1.1 / 1.5 |
+| `color/interactive/on-neutral` | `#1E2026` stone/900 | `#F5F7F9` stone/050 | Label on neutral — 14.1 / 9.8 under the hover wash, 13.0 / 8.9 pressed | 15.2 / 11.4 |
+| `color/interactive/wash-hover` | `alpha/haze-08` (mist/500 at 8%) | `alpha/haze-12` (12%) | Hover wash over any surface or the neutral fill — ΔL −.029 on a light card, +.057 on a dark one | — |
+| `color/interactive/wash-pressed` | `alpha/haze-16` (16%) | `alpha/haze-20` (20%) | Pressed wash, same consumers — ΔL −.058 / +.094 | — |
 | `color/interactive/tertiary` | `#FF7F05` flare/400 | `#FF7F05` flare/400 | Highlight fill | 2.5 / 6.4 |
 | `color/interactive/tertiary-hover` | `#FFB27B` flare/300 | `#FFB27B` flare/300 | Highlight hover — lighter, see decisions | 1.8 / 9.2 |
 | `color/interactive/tertiary-pressed` | `#FFD2B1` flare/200 | `#FFD2B1` flare/200 | Highlight pressed | 1.4 / 11.7 |
@@ -260,9 +264,9 @@ Ratios against `surface/raised`.
 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
-| `color/border/subtle` | `#EAEDF1` stone/100 | `#444C76` night/700 | Dividers, row separators | 1.2 / 2.0 |
-| `color/border/default` | `#C1C6CC` stone/300 | `#5C6796` night/600 | Cards, containers, text inputs — see decisions | 1.7 / 3.0 |
-| `color/border/strong` | `#83888F` stone/500 | `#83888F` stone/500 | All form control boundaries — 3:1 on every surface | 3.6 / 4.6 |
+| `color/border/subtle` | `alpha/ink-08` (stone/950 at 8%) | `alpha/white-16` | Dividers, row separators — reads on every surface | 1.2 / 1.6 |
+| `color/border/default` | `#C1C6CC` stone/300 | `#5C6796` night/600 | Cards, containers, text inputs — see decisions | 1.7 / 3.3 |
+| `color/border/strong` | `#83888F` stone/500 | `#83888F` stone/500 | All form control boundaries — 3:1 on every surface | 3.6 / 5.1 |
 | `color/border/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Active, selected | 6.0 / 6.5 |
 | `color/border/focus` | `#8F62FF` twilight/500 | `#CDB8FF` twilight/300 | Focus ring — the **only** focus token | 3.9 / 9.2 |
 | `color/border/danger` | `#BC2C2F` ember/600 | `#FF7873` ember/400 | Error | 5.9 / 6.3 |
@@ -303,23 +307,23 @@ Most used in production: gap 16 / 8 / 12 / 4 · padding 8 / 12 / 16 / 20.
 
 You cannot set opacity on an alias — it resolves to the primitive's own alpha. Scrims, hover washes and focus halos therefore need dedicated alpha primitives, or raw values will leak into the semantic layer:
 
-`alpha/black-04 08 16 32 48 64` and `alpha/white-04 08 16 32 48 64`, plus four off the doubling ramp: `alpha/ink-10` and `alpha/ink-12` (stone/950, the shadow ink — ΔE76 1.88 and 2.27 from the drawn navy over white), `alpha/ink-95` (the dark scrim) and `alpha/mist-95` (stone/200 at 95%, the drawn light scrim).
+`alpha/black-04 08 16 32 48 64` and `alpha/white-04 08 16 32 48 64`, plus nine off the doubling ramp: `alpha/ink-08` (the light divider), `alpha/ink-10` and `alpha/ink-12` (stone/950, the shadow ink — ΔE76 1.88 and 2.27 from the drawn navy over white), `alpha/ink-95` (the dark scrim), `alpha/mist-95` (stone/200 at 95%, the drawn light scrim), and `alpha/haze-08 12 16 20` (mist/500, the wash: hover 8 Light / 12 Dark, pressed 16 / 20).
 
 ### Primitives
 
-| Family | 050 → 950 |
+| Family | 050 → 900, then 925, 950 |
 |---|---|
 | `white` | `#FFFFFF` (single) |
-| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `97002F` `680020` `430012` `220006` |
-| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `532CB1` `361583` `20055B` `0D0033` |
-| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `843300` `5C1F00` `3C1000` `1E0400` |
-| `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `005A6B` `003C49` `00252F` `001016` |
-| `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `4C5057` `32353C` `1E2026` `0B0D12` |
-| `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `444C76` `2D3254` `1B1E38` `090B1F` |
-| `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `385656` `213A3B` `102425` `031010` |
-| `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `94131E` `6A000F` `440007` `220002` |
-| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `006031` `004120` `002912` `001206` |
-| `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `684A00` `483100` `2E1D00` `150B00` |
+| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `97002F` `680020` `430012` `33000C` `220006` |
+| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `532CB1` `361583` `20055B` `17004A` `0D0033` |
+| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `843300` `5C1F00` `3C1000` `2E0A00` `1E0400` |
+| `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `005A6B` `003C49` `00252F` `001B23` `001016` |
+| `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `4C5057` `32353C` `1E2026` `15171C` `0B0D12` |
+| `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `444C76` `2D3254` `1B1E38` `12142C` `090B1F` |
+| `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `385656` `213A3B` `102425` `091A1B` `031010` |
+| `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `94131E` `6A000F` `440007` `340005` `220002` |
+| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `006031` `004120` `002912` `001E0C` `001206` |
+| `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `684A00` `483100` `2E1D00` `221400` `150B00` |
 
 The brand gradient — `flare/300 → glow/300 → glow/500 → twilight/400 → night/600` in Light, one stop more saturated in Dark (`400 → 400 → 500 → 500 → 500`) — is a gradient asset, not a variable. It never carries text.
 
@@ -386,7 +390,7 @@ async function token(name, lightPrimId, darkPrimId, scopes) {
 }
 ```
 
-**Verify by reading back the resolved hex, not just that an alias exists.** Some values are shared — `#666B71` is both `text/tertiary` and `text/placeholder` in Light, `stone/500` is `border/strong` in both modes, `night/950` is `surface/base`, `surface/sunken` and every dark `on-*` label — so hex alone does not identify the source. Check the resolved value *together with* the primitive name.
+**Verify by reading back the resolved hex, not just that an alias exists.** Some values are shared — `#666B71` is both `text/tertiary` and `text/placeholder` in Light, `stone/500` is `border/strong` in both modes, `night/950` is `surface/base`, `surface/sunken` and every dark `on-*` label, and the two wash tokens and `border/subtle` resolve to alpha primitives whose `a` must survive the alias — so hex alone does not identify the source. Check the resolved value *together with* the primitive name.
 
 If you set `codeSyntax`, confirm the naming convention against the React component library first — a mechanically derived custom-property name will be confidently wrong across every token if the library uses something else. The library's names are `--ap-color-<group>-<token>` for the theme and `--ap-<family>-<stop>` for primitives.
 
@@ -442,17 +446,18 @@ Only failures actually observed in testing, or collisions measured in this palet
 | Leaving `scopes` at default | Set explicitly from the table above — the one step agents reliably skip |
 | Assuming a white label on a filled button | Use the matching `on-*` token; in Dark it is `night/950` |
 | Concluding the palette can't support a lighter dark hover | It can — lighten the fill *and* darken the label |
-| Adding a fourth dark colour level, or a `975` | `sunken` is the canvas in Dark; separate with `border/default` instead |
+| Adding a fourth dark colour level, or a `975` | `sunken` is the canvas in Dark; separate with `border/default` instead. `925` is the one surface step and it is already in the ladder |
+| Judging a surface step by its WCAG ratio | Surface against surface is OKLCH ΔL, floor .035; the 950→925 step is 1.08:1 and correct |
+| An opaque hover fill on a row, a menu item or a ghost button | `interactive/wash-hover` as the background; over a filled control, as a `background-image` gradient |
 | Mixing `stone` and `night` in one surface ladder | Pick one family per product; the chroma difference reads as two materials |
-| `border/subtle` as `night/800` in Dark | Collides with `surface/overlay` at 1.00:1 — use `night/700` |
-| `border/subtle` on `surface/sunken` | Invisible in both modes — step up to `border/default` |
+| `border/subtle` as an opaque stop | It is an alpha — `alpha/ink-08` Light, `alpha/white-16` Dark — and reads on every surface, sunken included |
 | `text/placeholder` as `stone/500` | 3.57:1 — a placeholder is text; use `stone/600` |
 | `interactive/selected` in `mist` | The accent label on it is 4.42:1; selection is `twilight/050` / `900` |
 | Signalling focus by recolouring the border | Add a 2px ring at 2px offset; colour alone is never the sole channel |
 | Focus replacing the error border | Error border stays; the ring is drawn in addition |
 | Raw hex anywhere in `Alpenglow Theme` | Alias a primitive; add it to `Primitives` first if missing |
 | Semi-transparent colour without alpha primitives | Use `alpha/*`; you cannot set opacity on an alias |
-| Secondary button with no outline | Its fill is 1.07:1 against a card in Light and 1.00:1 against a modal in Dark — `border/default` describes the shape |
+| Secondary button with no outline | Its fill is 1.07:1 against a card in Light and 1.33:1 against a modal in Dark — `border/default` describes the shape |
 | Disabled looking identical to enabled in Dark | Same fill by design; drop the outline to `border/subtle` and remove hover |
 | Recolouring a field's border on focus | Border stays; only the ring is added |
 | Thickening a field's border on focus or error | Width never changes; colour changes and the ring is added |

@@ -4,12 +4,20 @@
  * Raw values with no meaning attached. Nothing in the product references these
  * directly; the theme layer aliases them and components reference the theme.
  *
- * Ten families, eleven stops each, generated in OKLCH — `scripts/generate-ramps.mjs`
+ * Ten families, twelve stops each, generated in OKLCH — `scripts/generate-ramps.mjs`
  * is the generator, and every ratio quoted below was read from it, not
  * estimated. The lightness of a stop is the same in every family:
  *
  *   050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625
- *   600 .525 · 700 .43  · 800 .33  · 900 .245 · 950 .16
+ *   600 .525 · 700 .43  · 800 .33  · 900 .245 · 925 .205 · 950 .16
+ *
+ * 925 is the surface step, and the only stop that exists for surfaces rather
+ * than for text or fills. The dark ladder is 950 → 925 → 900, ΔL .043 per
+ * step, which is where the reference systems place their surface levels
+ * (Radix, Atlassian, Spectrum and Geist sit at .025–.045; the old ladder
+ * jumped .085). Only night and stone are aliased at it; it is generated in
+ * every family so a stop number keeps meaning the same amount of light
+ * everywhere. Added 2026-09-12 — see the elevation spec of that date.
  *
  * That is the rule that makes the families interchangeable by role: any 600
  * carries a white label at 4.5:1 or better, any 400 carries a night/950
@@ -34,10 +42,12 @@
  *   mist      soft states — a near-neutral with a cyan cast. Hover, selection.
  *   ember / moss / amber   danger, success, warning.
  *
- * Eleven stops and no half steps, on purpose. Adjacent steps of the twenty-step
- * neutral this replaced measured 1.08–1.23:1 apart and produced text levels
- * nobody could tell apart — secondary against tertiary was 1.22:1. When a
- * ladder runs out, separate with a border.
+ * No half steps for text or fills, on purpose. Adjacent steps of the
+ * twenty-step neutral this replaced measured 1.08–1.23:1 apart and produced
+ * text levels nobody could tell apart — secondary against tertiary was
+ * 1.22:1. 925 is the one exception and it is a surface step: no text is ever
+ * set in one surface against another. When a ladder runs out, separate with
+ * a border; do not add a 975.
  */
 
 export const primitives = {
@@ -53,6 +63,7 @@ export const primitives = {
   'glow/700': '#97002F',
   'glow/800': '#680020',
   'glow/900': '#430012',
+  'glow/925': '#33000C',
   'glow/950': '#220006',
 
   'twilight/050': '#F8F5FF',
@@ -65,6 +76,7 @@ export const primitives = {
   'twilight/700': '#532CB1',
   'twilight/800': '#361583',
   'twilight/900': '#20055B',
+  'twilight/925': '#17004A',
   'twilight/950': '#0D0033',
 
   'flare/050': '#FFF5EC',
@@ -77,6 +89,7 @@ export const primitives = {
   'flare/700': '#843300',
   'flare/800': '#5C1F00',
   'flare/900': '#3C1000',
+  'flare/925': '#2E0A00',
   'flare/950': '#1E0400',
 
   'glacier/050': '#E1FDFF',
@@ -89,6 +102,7 @@ export const primitives = {
   'glacier/700': '#005A6B',
   'glacier/800': '#003C49',
   'glacier/900': '#00252F',
+  'glacier/925': '#001B23',
   'glacier/950': '#001016',
 
   'stone/050': '#F5F7F9',
@@ -101,6 +115,7 @@ export const primitives = {
   'stone/700': '#4C5057',
   'stone/800': '#32353C',
   'stone/900': '#1E2026',
+  'stone/925': '#15171C',
   'stone/950': '#0B0D12',
 
   'night/050': '#F3F7FF',
@@ -113,6 +128,7 @@ export const primitives = {
   'night/700': '#444C76',
   'night/800': '#2D3254',
   'night/900': '#1B1E38',
+  'night/925': '#12142C',
   'night/950': '#090B1F',
 
   'mist/050': '#F0F9F9',
@@ -125,6 +141,7 @@ export const primitives = {
   'mist/700': '#385656',
   'mist/800': '#213A3B',
   'mist/900': '#102425',
+  'mist/925': '#091A1B',
   'mist/950': '#031010',
 
   'ember/050': '#FFF4F3',
@@ -137,6 +154,7 @@ export const primitives = {
   'ember/700': '#94131E',
   'ember/800': '#6A000F',
   'ember/900': '#440007',
+  'ember/925': '#340005',
   'ember/950': '#220002',
 
   'moss/050': '#EEFBF0',
@@ -149,6 +167,7 @@ export const primitives = {
   'moss/700': '#006031',
   'moss/800': '#004120',
   'moss/900': '#002912',
+  'moss/925': '#001E0C',
   'moss/950': '#001206',
 
   'amber/050': '#FDF7E1',
@@ -161,6 +180,7 @@ export const primitives = {
   'amber/700': '#684A00',
   'amber/800': '#483100',
   'amber/900': '#2E1D00',
+  'amber/925': '#221400',
   'amber/950': '#150B00',
 } as const satisfies Record<string, `#${string}`>;
 
@@ -187,7 +207,8 @@ export const alphaPrimitives = {
   /**
    * Shadow ink. Deliberately off the doubling ramp above, and deliberately not
    * called `black`: this is stone/950, the system's darkest neutral ink, at
-   * the two opacities the elevation layer uses, and at 95% for the dark scrim.
+   * 8% for the light divider (`border/subtle`), at the two opacities the
+   * elevation layer uses, and at 95% for the dark scrim.
    *
    * The drawn shadow is #18274B at 10% and 12% — a navy that exists nowhere
    * else in the palette. Over white, stone/950 lands ΔE76 1.88 and 2.27 from
@@ -195,6 +216,7 @@ export const alphaPrimitives = {
    * 1.32 and 1.59, and was rejected: the ink is shared by both surface
    * ladders, so it stays neutral rather than following one of them.
    */
+  'alpha/ink-08': { hex: '#0B0D12', alpha: 0.08 },
   'alpha/ink-10': { hex: '#0B0D12', alpha: 0.1 },
   'alpha/ink-12': { hex: '#0B0D12', alpha: 0.12 },
   /**
@@ -211,6 +233,19 @@ export const alphaPrimitives = {
    * shadow.
    */
   'alpha/mist-95': { hex: '#D9DDE2', alpha: 0.95 },
+  /**
+   * The wash: mist/500, the soft-state family's mid stop, at the four
+   * opacities the two wash tokens take (hover 8/12, pressed 16/20, light then
+   * dark). One ink serves both modes — it darkens a light surface with the
+   * faint cyan cast the light hover always had, and lightens a dark one — the
+   * way Primer's #656c76 and Apple's 120,120,128 do. Measured over every
+   * surface in contrast.test.ts; at 12% over the dark canvas the hue lands
+   * ΔEok .003 from what a neutral stone/500 would give. Added 2026-09-12.
+   */
+  'alpha/haze-08': { hex: '#6A908F', alpha: 0.08 },
+  'alpha/haze-12': { hex: '#6A908F', alpha: 0.12 },
+  'alpha/haze-16': { hex: '#6A908F', alpha: 0.16 },
+  'alpha/haze-20': { hex: '#6A908F', alpha: 0.2 },
 } as const;
 
 export type PrimitiveName = keyof typeof primitives;

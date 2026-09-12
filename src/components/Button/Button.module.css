@@ -106,14 +106,24 @@
 
 /* The neutral fill is ~1.1:1 against the surfaces it sits on — in light it is
    identical to the canvas. The outline is what describes the button's shape,
-   so it is not optional here. */
+   so it is not optional here.
+
+   Neutral has no hover ladder of its own: it takes the wash, laid over the
+   fill as a background image so the two composite. A gradient does not
+   animate, so this state change is instant where a ghost's fades; a
+   pseudo-element with an opacity transition would be a second box to size
+   and clip on every filled control, and was not taken. */
 .solid.neutral {
   background: var(--ap-color-interactive-neutral);
   border-color: var(--ap-color-border-default);
   color: var(--ap-color-interactive-on-neutral);
 }
-.solid.neutral:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
-.solid.neutral:active:not(:disabled) { background: var(--ap-color-interactive-neutral-pressed); }
+.solid.neutral:hover:not(:disabled) {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+}
+.solid.neutral:active:not(:disabled) {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-pressed), var(--ap-color-interactive-wash-pressed));
+}
 
 .solid.tertiary {
   background: var(--ap-color-interactive-tertiary);
@@ -138,11 +148,13 @@
 
 /* --- outline -------------------------------------------------------------- */
 
+/* No fill of its own, so the wash is the background: one token, and the same
+   button reads on the canvas, on a card and on a modal. */
 .outline {
   background: transparent;
 }
-.outline:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
-.outline:active:not(:disabled) { background: var(--ap-color-interactive-neutral-pressed); }
+.outline:hover:not(:disabled) { background: var(--ap-color-interactive-wash-hover); }
+.outline:active:not(:disabled) { background: var(--ap-color-interactive-wash-pressed); }
 
 .outline.accent  { border-color: var(--ap-color-border-accent);  color: var(--ap-color-text-accent); }
 .outline.neutral { border-color: var(--ap-color-border-default); color: var(--ap-color-text-primary); }
@@ -153,8 +165,8 @@
 .ghost {
   background: transparent;
 }
-.ghost:hover:not(:disabled) { background: var(--ap-color-interactive-neutral-hover); }
-.ghost:active:not(:disabled) { background: var(--ap-color-interactive-neutral-pressed); }
+.ghost:hover:not(:disabled) { background: var(--ap-color-interactive-wash-hover); }
+.ghost:active:not(:disabled) { background: var(--ap-color-interactive-wash-pressed); }
 
 .ghost.accent  { color: var(--ap-color-text-accent); }
 .ghost.neutral { color: var(--ap-color-text-primary); }

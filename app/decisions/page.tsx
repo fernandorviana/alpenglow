@@ -1,7 +1,10 @@
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
-import { resolve, contrast } from '@/tokens/contrast';
+import { resolve, contrast, lightness, tokenContrast } from '@/tokens/contrast';
 import { primitives } from '@/tokens/primitives';
+
+const f3 = (n: number) => n.toFixed(3);
+const f2 = (n: number) => n.toFixed(2);
 
 export default function Page() {
   return (
@@ -82,15 +85,58 @@ export default function Page() {
 
       <h2>The dark ramp holds three elevation levels, and sunken shares the canvas</h2>
       <p>
-        Base, raised, overlay — and then it is full. The ramp is eleven stops and ends at
-        950, so in dark <code>surface/sunken</code> is the canvas: a well reads as recessed
-        inside a card, and on the canvas it takes a border. A dropdown opened inside a modal
-        stays on <code>surface/overlay</code> and is separated by a border rather than another
-        fill step. A twentieth step was measured and refused — adjacent steps of the
-        neutral it would have extended were 1.08 to 1.23:1 apart, which is how a system ends
-        up with two text levels nobody can tell apart. Running out is not a flaw to design
-        around; it is a constraint to state plainly so nobody invents a level that collides
-        with something.
+        Base, raised, overlay — 950, 925, 900 — and then it is full. The ramp ends at 950, so
+        in dark <code>surface/sunken</code> is the canvas: a well reads as recessed inside a
+        card, and on the canvas it takes a border. A dropdown opened inside a modal stays on{' '}
+        <code>surface/overlay</code> and is separated by a border rather than another fill
+        step. A twentieth step was measured and refused — adjacent steps of the neutral it
+        would have extended were 1.08 to 1.23:1 apart, which is how a system ends up with two
+        text levels nobody can tell apart. Running out is not a flaw to design around; it is
+        a constraint to state plainly so nobody invents a level that collides with something.
+      </p>
+
+      <h2>925 is a surface step, and the only half step there will be</h2>
+      <p>
+        The ladder used to be 950, 900, 800: one whole stop per level, ΔL .085 in OKLCH, and
+        it looked strong because it was. Every reference system measured — Radix, Atlassian,
+        Spectrum, Geist — places adjacent surface levels at .025 to .045. The rule against
+        half steps was written against text levels nobody could tell apart, and no text is
+        ever set in one surface against another, so one stop was added for surfaces and
+        nothing else: <code>925</code> at L .205, generated in every family, aliased only in{' '}
+        <code>night</code> and <code>stone</code>. The steps are now{' '}
+        {f3(lightness(resolve('surface/raised', 'dark')) - lightness(resolve('surface/base', 'dark')))} and{' '}
+        {f3(lightness(resolve('surface/overlay', 'dark')) - lightness(resolve('surface/raised', 'dark')))}.
+        The <code>975</code> the old rule refused stays refused. See{' '}
+        <a href="/elevation">Elevation and states</a> for the survey.
+      </p>
+
+      <h2>Surfaces are measured in lightness, not in the contrast ratio</h2>
+      <p>
+        The WCAG ratio adds 0.05 to both luminances, which flattens the dark end: Radix&rsquo;s
+        first two dark greys are 1.06:1 apart and everyone sees the step. This system&rsquo;s
+        new step is{' '}
+        {f2(contrast(resolve('surface/base', 'dark'), resolve('surface/raised', 'dark')))}:1, and
+        the suite&rsquo;s old floor of 1.09 would have refused it while passing the jump that
+        looked wrong. Text on a surface and a boundary on a surface stay on the ratio, which is
+        what WCAG asks of them. A ladder step, a well inside a card and a wash over a surface
+        are measured in OKLCH lightness, floor .035.
+      </p>
+
+      <h2>Hover is a wash, not a fill</h2>
+      <p>
+        A row, a menu item, a ghost button and the neutral button all used to hover to one
+        opaque colour: <code>mist/100</code> in light, <code>stone/700</code> in dark. Over a
+        dark card that was ΔL +.184 where the references sit at +.05 to +.09, and in light it
+        was invisible on <code>surface/sunken</code>, the same primitive. Now they take{' '}
+        <code>interactive/wash-hover</code>, <code>mist/500</code> at 8% in light and 12% in
+        dark — one ink that darkens a light surface and lightens a dark one, laid over whatever
+        is beneath. A hovered row on a dark card is{' '}
+        {f3(lightness(resolve('interactive/wash-hover', 'dark', resolve('surface/raised', 'dark'))) - lightness(resolve('surface/raised', 'dark')))}{' '}
+        above it. The text beneath keeps its own token and is measured there: the tightest
+        pair where rows live, <code>text/tertiary</code> on a hovered row on a light card, is{' '}
+        <Ratio fg={resolve('text/tertiary', 'light')} bg={resolve('interactive/wash-hover', 'light', resolve('surface/raised', 'light'))} />.
+        The filled ladders — accent, danger, success, tertiary — are untouched: a filled button
+        changes its own colour, and its label is themed with it.
       </p>
 
       <h2>The menu takes a border in dark and not in light</h2>
@@ -111,7 +157,8 @@ export default function Page() {
         label on a shared neutral fill was 3.50:1 in dark when the rule was made. The deeper
         dark tail brought it to 4.59:1, which passes, and the rule stays: a tone hovers to its
         own subtle surface because that is the design, not because of 0.09 of headroom. On its
-        own surface the label is 9.64:1.
+        own surface the label is 9.64:1, and on the wash the neutral row takes now it would be{' '}
+        {f2(tokenContrast('text/accent', 'interactive/wash-hover', 'dark', 'surface/overlay'))}:1.
       </p>
 
       <h2>The menu takes the top layer, and the suite cannot see it</h2>

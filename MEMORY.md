@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-11**, at the deep-tail commit that follows `dc3aaca` (the new bedrock).
+Last verified against the tree on **2026-09-12**, at the elevation-and-states commit (the surface step, the wash, the lightness instrument).
 
 ---
 
@@ -32,7 +32,7 @@ generated from it.
 
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
-| Primitives | `src/tokens/primitives.ts` | no | 111 opaque colours (white + ten families of eleven stops, 050–950, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs`) + 16 alpha (12 on the black/white ramps, 3 inks — two for shadows, one for the dark scrim — and the light scrim's mist). Never referenced directly. |
+| Primitives | `src/tokens/primitives.ts` | no | 121 opaque colours (white + ten families of twelve stops, 050–950 with `925` the surface step, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs`) + 21 alpha (12 on the black/white ramps, 4 inks — the light divider, two shadows, the dark scrim — the light scrim's mist, and 4 hazes: mist/500 at 8/12/16/20 for the wash). Never referenced directly. |
 | Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, two steps (`md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
@@ -76,23 +76,32 @@ have all been mistaken for errors at least once.
    success is possible, and stays out until someone draws it (decided
    2026-09-11). The Button page renders both ratios live.
 
-4. **The dark elevation ramp holds three colour levels, and `sunken` shares
-   the canvas.** The ramp is eleven stops and ends at 950, so in dark
+4. **The dark elevation ramp holds three colour levels — 950, 925, 900 —
+   and `sunken` shares the canvas.** The ramp ends at 950, so in dark
    `surface/sunken` resolves to `surface/base` — a well reads as recessed
-   inside a card (1.22:1) and on the canvas it takes a border. A twentieth
-   step was measured and refused on 2026-09-11: adjacent steps of the old
-   twenty-step neutral were 1.08–1.23:1 apart and gave the theme two text
-   levels 1.22:1 from each other. When you run out, separate with a border
-   rather than inventing a step. `contrast.test.ts` asserts the equality so it
-   is not mistaken for an oversight. The dark ladder is `night`; a product
-   that wants a neutral dark aliases the same stops of `stone`, and every
-   pair holds (the tightest, `border/strong` on `stone/800`, is 3.44:1).
-   Never mix the two families in one ladder. The tail is deep on purpose —
-   700–950 at L .43 / .33 / .245 / .16, canvas `#090B1F` — decided
-   2026-09-11 so the dark theme reads as night; every dark pair gained by
-   it and the 950→900 step went from 1.22 to 1.19:1, still above the 1.09
-   the suite requires. A deeper tail (950 at L .13) was measured and
-   refused because that step fell to 1.11.
+   inside a card (ΔL .043) and on the canvas it takes a border. When you run
+   out, separate with a border rather than inventing a step; `contrast.test.ts`
+   asserts the equality so it is not mistaken for an oversight. `925` (L
+   .205) is the **surface step**, added 2026-09-12 after a survey of eleven
+   reference systems (the spec of that date): every one that reads as calm
+   places adjacent surface levels at ΔL .025–.045, and this ladder jumped a
+   whole stop, .085. It is the one half step there will be: the rule against
+   them was written on 2026-09-11 against a twenty-step neutral that gave the
+   theme two *text* levels 1.22:1 apart, and no text is ever set in one
+   surface against another. It is generated in every family and aliased only
+   in `night` and `stone`; the `975` stays refused. **Surface against surface
+   is measured in OKLCH lightness (floor .035, `SURFACE_STEP`), not in the
+   WCAG ratio**, which flattens the dark end — the 950→925 step is 1.08:1 and
+   plainly visible, and the 1.09 floor the suite used to hold would have
+   refused it while passing the .085 jump. Text and boundaries stay on the
+   ratio. The dark ladder is `night`; a product that wants a neutral dark
+   aliases the same stops of `stone`, and every pair holds (the tightest,
+   `border/strong` on `stone/800`, is 3.44:1). Never mix the two families in
+   one ladder. The tail is deep on purpose — 700–950 at L .43 / .33 / .245 /
+   .205 / .16, canvas `#090B1F` — decided 2026-09-11 so the dark theme reads
+   as night. One cost, recorded not asserted: the dialog sits 1.19:1 above
+   its scrim (1.43 while overlay was `night/800`); nothing darker than the ink
+   exists, and the border carries the edge, as it does for the menu.
 
 5. **A loading button is `disabled` but must not look disabled.** Every
    paint-bearing disabled rule in `Button.module.css` carries `:not(.loading)`.
@@ -147,10 +156,36 @@ have all been mistaken for errors at least once.
     applied, not an accident of asymmetry: in dark the shadow stops separating, and
     `border/default` is 3.55:1 against the canvas there against 1.60:1 in
     light. Each menu tone also hovers to its own subtle fill rather than one
-    shared neutral — `text/accent` on the neutral fill was 3.50:1 in dark
-    when the rule was made and is 4.59:1 since the deeper tail; the rule is
-    the design, not the margin, and the suite records the figure.
+    shared neutral — `text/accent` on the opaque neutral fill was 3.50:1 in
+    dark when the rule was made, 4.59 after the deeper tail, and would be
+    7.86 on the wash the neutral row takes now; the rule is the design, not
+    the margin, and the suite records the figure.
     Both are asserted in `DropdownMenu.test.tsx` and `contrast.test.ts`.
+
+21. **Hover and pressed are a wash, not a fill, on everything that has no
+    ladder of its own.** `interactive/wash-hover` / `wash-pressed` are
+    `mist/500` at 8/16% light and 12/20% dark (`alpha/haze-*`), laid over
+    whatever is beneath: rows, menu items, ghost and outline buttons as
+    `background`; the neutral button, the calendar's month buttons, the
+    dialog's icon buttons and the site's theme toggle as a
+    `background-image` gradient over their own fill (a gradient does not
+    animate, so those change instantly where a ghost fades — accepted over a
+    pseudo-element per filled control). `interactive/neutral-hover` and
+    `-pressed` are gone (2026-09-12; the package went to `0.2.0` for it).
+    The opaque one they replaced was ΔL +.184 over a dark card against the
+    references' +.05 to +.09, and in light was the same primitive as
+    `surface/sunken`, invisible there. The text under a wash keeps its own
+    token and is measured there: every text token clears AA under both
+    washes on base, raised and overlay and under hover on sunken, except
+    `text/tertiary`, which holds on raised and overlay only (the surfaces
+    rows and menu items sit on; base and sunken figures are recorded), and
+    `text/accent` under the light pressed wash on sunken (4.38, recorded).
+    `border/subtle` is an alpha for the same reason — `alpha/ink-08` light,
+    `alpha/white-16` dark — and reads on all four surfaces; the old
+    `stone/100` was invisible on light sunken and the old `night/700` was
+    1.97:1 on a dark card, twice what the references draw. `FillTone` asks
+    for a rest fill and a label only; a tone either owns a ladder or takes
+    the wash.
 
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
     implements none of it. `src/test/popover.ts` covers show, hide, toggle, the
@@ -420,7 +455,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 898 tests across 36 files
+npm test            # 909 tests across 36 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 npm run build:lib       # the package, in dist/
@@ -431,7 +466,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 120 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 130 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -456,7 +491,43 @@ Ordered by what it costs the project *as a portfolio piece*, which is not the
 same as what it would cost a library with adopters. Reviewers arrive through the
 documentation site, so an absent component costs more than an absent package.
 
-### 0. The bedrock landed; the theme is expected to move (2026-09-11)
+### 0. Elevation and states landed; the Figma file has not seen it (2026-09-12)
+
+Spec: `docs/superpowers/specs/2026-09-12-elevation-and-states-design.md`.
+Fernando asked whether dark-mode layers and hovers are done with white alphas
+or a colour scale, and said the colour scales looked too strong. Eleven
+reference systems were read from their published packages; the survey is on
+`/elevation` and in the spec. What landed: the surface step `925` in every
+family; the dark ladder `950 / 925 / 900`; `interactive/wash-hover` and
+`wash-pressed` (`alpha/haze-*`, mist/500 at 8/12/16/20) replacing the opaque
+`interactive/neutral-hover` / `-pressed`; `border/subtle` as an alpha;
+surface-to-surface separation measured in OKLCH ΔL (`lightness`,
+`SURFACE_STEP` in `contrast.ts`; `tokenContrast` composites an alpha token
+over a ground); `FillTone` relaxed to rest + label; every component and the
+site moved onto the wash; the `/elevation` page and three Decisions entries;
+the package at `0.2.0`. Invariants 4 and 21 carry the rules.
+
+Open from it:
+
+- **The Figma file.** `docs/figma/alpenglow-variables.json` and
+  `apply-variables.md` are regenerated (142 primitives, 54 theme tokens),
+  but the file was not touched — the MCP was not authorised in the session.
+  The plugin script adds the ten `925`s and five alphas, re-points
+  `surface/raised`, `surface/overlay` and `border/subtle`, deletes
+  `neutral-hover` / `-pressed` and creates the two wash variables. Aliases
+  to alpha primitives must keep the primitive's `a`; verify by resolved
+  value and name.
+- **Not yet seen in a browser by a person.** The change was checked in the
+  Browser pane, both modes (see the commit); Fernando has not looked.
+- **The neutral button's hover is instant, not faded**, because the wash is
+  a `background-image` gradient over its fill. Accepted; a pseudo-element
+  with an opacity transition would reverse it.
+- **The filled ladders were left alone** — accent, danger, success and
+  tertiary still hover to their own opaque stops (ΔL .10 per step in dark).
+  Not in the question that was asked; a wash over those fills would need the
+  `on-*` labels re-measured on the composite.
+
+### 1. The bedrock landed; the theme is expected to move (2026-09-11)
 
 `dc3aaca` replaced the twenty-step neutral and the two brand ramps with ten
 OKLCH families of eleven stops (invariant 4, primitives.ts). The theme kept

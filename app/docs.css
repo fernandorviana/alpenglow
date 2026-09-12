@@ -95,7 +95,7 @@ html[data-nav-open] { overflow: hidden; }
   text-decoration: none;
 }
 
-.navLink:hover { background: var(--ap-color-interactive-neutral-hover); color: var(--ap-color-text-primary); }
+.navLink:hover { background: var(--ap-color-interactive-wash-hover); color: var(--ap-color-text-primary); }
 
 .navLink[aria-current='page'] {
   background: var(--ap-color-interactive-selected);
@@ -202,7 +202,6 @@ html[data-nav-open] { overflow: hidden; }
    resting icon in light. */
 .themeToggle {
   --toggle-track: var(--ap-color-surface-sunken);
-  --toggle-track-hover: var(--ap-color-interactive-neutral-pressed);
   --toggle-knob: var(--ap-color-surface-raised);
   --toggle-knob-edge: var(--ap-color-border-default);
   --toggle-knob-shadow: var(--ap-alpha-black-08);
@@ -226,7 +225,10 @@ html[data-nav-open] { overflow: hidden; }
   transition: background-color var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
-.themeToggle:hover { background: var(--toggle-track-hover); }
+/* The wash over the track, as on every filled control. */
+.themeToggle:hover {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+}
 
 /* The knob. The drop shadow is the drawing's, converted to the nearest alpha
    token: #C0C8D2 at 50% over the light track is within a step of black at 8%,
@@ -268,7 +270,6 @@ html[data-nav-open] { overflow: hidden; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .themeToggle {
     --toggle-track: var(--ap-color-surface-raised);
-    --toggle-track-hover: var(--ap-color-interactive-neutral);
     --toggle-knob: var(--ap-color-surface-base);
     --toggle-knob-edge: var(--ap-night-700);
     --toggle-knob-shadow: var(--ap-alpha-black-16);
@@ -281,7 +282,6 @@ html[data-nav-open] { overflow: hidden; }
 
 :root[data-theme='dark'] .themeToggle {
   --toggle-track: var(--ap-color-surface-raised);
-  --toggle-track-hover: var(--ap-color-interactive-neutral);
   --toggle-knob: var(--ap-color-surface-base);
   --toggle-knob-edge: var(--ap-night-700);
   --toggle-knob-shadow: var(--ap-alpha-black-16);
@@ -406,7 +406,7 @@ html[data-nav-open] { overflow: hidden; }
   vertical-align: middle;
 }
 
-.tokens tr:hover td { background: var(--ap-color-interactive-neutral-hover); }
+.tokens tr:hover td { background: var(--ap-color-interactive-wash-hover); }
 
 .tokenName {
   font-family: var(--ap-font-mono);
@@ -516,7 +516,7 @@ html[data-nav-open] { overflow: hidden; }
   line-height: 1;
 }
 
-.rowAction:hover { background: var(--ap-color-interactive-neutral-hover); }
+.rowAction:hover { background: var(--ap-color-interactive-wash-hover); }
 
 /* --- responsive ----------------------------------------------------------- */
 
@@ -563,7 +563,9 @@ html[data-nav-open] { overflow: hidden; }
     cursor: pointer;
   }
 
-  .navToggle:hover { background: var(--ap-color-interactive-neutral-hover); }
+  .navToggle:hover {
+    background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+  }
 
   /* Collapsed by default. The sections stay in the document so the toggle can
      point at them with aria-controls. */

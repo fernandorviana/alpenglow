@@ -63,6 +63,11 @@
           "hex": "#430012"
         },
         {
+          "name": "glow/925",
+          "type": "COLOR",
+          "hex": "#33000C"
+        },
+        {
           "name": "glow/950",
           "type": "COLOR",
           "hex": "#220006"
@@ -116,6 +121,11 @@
           "name": "twilight/900",
           "type": "COLOR",
           "hex": "#20055B"
+        },
+        {
+          "name": "twilight/925",
+          "type": "COLOR",
+          "hex": "#17004A"
         },
         {
           "name": "twilight/950",
@@ -173,6 +183,11 @@
           "hex": "#3C1000"
         },
         {
+          "name": "flare/925",
+          "type": "COLOR",
+          "hex": "#2E0A00"
+        },
+        {
           "name": "flare/950",
           "type": "COLOR",
           "hex": "#1E0400"
@@ -226,6 +241,11 @@
           "name": "glacier/900",
           "type": "COLOR",
           "hex": "#00252F"
+        },
+        {
+          "name": "glacier/925",
+          "type": "COLOR",
+          "hex": "#001B23"
         },
         {
           "name": "glacier/950",
@@ -283,6 +303,11 @@
           "hex": "#1E2026"
         },
         {
+          "name": "stone/925",
+          "type": "COLOR",
+          "hex": "#15171C"
+        },
+        {
           "name": "stone/950",
           "type": "COLOR",
           "hex": "#0B0D12"
@@ -336,6 +361,11 @@
           "name": "night/900",
           "type": "COLOR",
           "hex": "#1B1E38"
+        },
+        {
+          "name": "night/925",
+          "type": "COLOR",
+          "hex": "#12142C"
         },
         {
           "name": "night/950",
@@ -393,6 +423,11 @@
           "hex": "#102425"
         },
         {
+          "name": "mist/925",
+          "type": "COLOR",
+          "hex": "#091A1B"
+        },
+        {
           "name": "mist/950",
           "type": "COLOR",
           "hex": "#031010"
@@ -446,6 +481,11 @@
           "name": "ember/900",
           "type": "COLOR",
           "hex": "#440007"
+        },
+        {
+          "name": "ember/925",
+          "type": "COLOR",
+          "hex": "#340005"
         },
         {
           "name": "ember/950",
@@ -503,6 +543,11 @@
           "hex": "#002912"
         },
         {
+          "name": "moss/925",
+          "type": "COLOR",
+          "hex": "#001E0C"
+        },
+        {
           "name": "moss/950",
           "type": "COLOR",
           "hex": "#001206"
@@ -556,6 +601,11 @@
           "name": "amber/900",
           "type": "COLOR",
           "hex": "#2E1D00"
+        },
+        {
+          "name": "amber/925",
+          "type": "COLOR",
+          "hex": "#221400"
         },
         {
           "name": "amber/950",
@@ -635,6 +685,12 @@
           "alpha": 0.64
         },
         {
+          "name": "alpha/ink-08",
+          "type": "COLOR",
+          "hex": "#0B0D12",
+          "alpha": 0.08
+        },
+        {
           "name": "alpha/ink-10",
           "type": "COLOR",
           "hex": "#0B0D12",
@@ -657,6 +713,30 @@
           "type": "COLOR",
           "hex": "#D9DDE2",
           "alpha": 0.95
+        },
+        {
+          "name": "alpha/haze-08",
+          "type": "COLOR",
+          "hex": "#6A908F",
+          "alpha": 0.08
+        },
+        {
+          "name": "alpha/haze-12",
+          "type": "COLOR",
+          "hex": "#6A908F",
+          "alpha": 0.12
+        },
+        {
+          "name": "alpha/haze-16",
+          "type": "COLOR",
+          "hex": "#6A908F",
+          "alpha": 0.16
+        },
+        {
+          "name": "alpha/haze-20",
+          "type": "COLOR",
+          "hex": "#6A908F",
+          "alpha": 0.2
         }
       ]
     },
@@ -685,7 +765,7 @@
           "type": "COLOR",
           "alias": {
             "Light": "white",
-            "Dark": "night/900"
+            "Dark": "night/925"
           },
           "scopes": [
             "FRAME_FILL",
@@ -698,7 +778,7 @@
           "type": "COLOR",
           "alias": {
             "Light": "white",
-            "Dark": "night/800"
+            "Dark": "night/900"
           },
           "scopes": [
             "FRAME_FILL",
@@ -1025,34 +1105,6 @@
           "description": "Secondary button fill"
         },
         {
-          "name": "color/interactive/neutral-hover",
-          "type": "COLOR",
-          "alias": {
-            "Light": "mist/100",
-            "Dark": "stone/700"
-          },
-          "scopes": [
-            "FRAME_FILL",
-            "SHAPE_FILL",
-            "TEXT_FILL"
-          ],
-          "description": "Secondary hover, row hover"
-        },
-        {
-          "name": "color/interactive/neutral-pressed",
-          "type": "COLOR",
-          "alias": {
-            "Light": "mist/200",
-            "Dark": "stone/600"
-          },
-          "scopes": [
-            "FRAME_FILL",
-            "SHAPE_FILL",
-            "TEXT_FILL"
-          ],
-          "description": "Secondary pressed"
-        },
-        {
           "name": "color/interactive/on-neutral",
           "type": "COLOR",
           "alias": {
@@ -1065,6 +1117,34 @@
             "TEXT_FILL"
           ],
           "description": "Label on neutral"
+        },
+        {
+          "name": "color/interactive/wash-hover",
+          "type": "COLOR",
+          "alias": {
+            "Light": "alpha/haze-08",
+            "Dark": "alpha/haze-12"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL"
+          ],
+          "description": "Hover wash over any surface or the neutral fill: rows, menu items, ghost, outline and neutral buttons, icon buttons"
+        },
+        {
+          "name": "color/interactive/wash-pressed",
+          "type": "COLOR",
+          "alias": {
+            "Light": "alpha/haze-16",
+            "Dark": "alpha/haze-20"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL"
+          ],
+          "description": "Pressed wash, same consumers"
         },
         {
           "name": "color/interactive/tertiary",
@@ -1280,8 +1360,8 @@
           "name": "color/border/subtle",
           "type": "COLOR",
           "alias": {
-            "Light": "stone/100",
-            "Dark": "night/700"
+            "Light": "alpha/ink-08",
+            "Dark": "alpha/white-16"
           },
           "scopes": [
             "STROKE_COLOR"
