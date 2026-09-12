@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV, PAGES, route } from './sitemap';
+import { NAV, PAGES, route } from './contents';
 import { ThemeToggle } from './ThemeToggle';
 
 /**

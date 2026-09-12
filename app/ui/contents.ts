@@ -1,6 +1,10 @@
 /**
  * The site's table of contents, in reading order.
  *
+ * Not `sitemap.ts`: Next reads any file of that name under `app/` as the
+ * `sitemap.xml` metadata route, `app/ui/` included, and the build fails on
+ * the missing default export. Nothing checks that before `next build`.
+ *
  * One list serves two components: the sidebar draws it in groups, and the
  * pager at the foot of every page walks it flat, so "next" after the last
  * page of one group is the first page of the next. A page that is not here

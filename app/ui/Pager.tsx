@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from '@carbon/icons-react';
-import { neighbours } from './sitemap';
+import { neighbours } from './contents';
 
 /**
  * The page before and the page after, at the foot of the prose, in the
