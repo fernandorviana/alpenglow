@@ -112,13 +112,18 @@ export default function Page() {
       <div className="specimen">
         <div className="specimenRow">
           <Checkbox defaultChecked>Send a reminder</Checkbox>
-          <Switch checked={reminders} onChange={(event) => setReminders(event.target.checked)}>
-            Reminders {reminders ? 'on' : 'off'}
+          <Switch
+            checked={reminders}
+            onChange={(event) => setReminders(event.target.checked)}
+            description={reminders ? 'An email goes out the day before.' : 'No email goes out.'}
+          >
+            Send reminders
           </Switch>
         </div>
         <p className="alias" style={{ margin: `${spacing[150]}px 0 0` }}>
-          Space toggles either; Tab moves between them. The switch changes the moment it is
-          flipped, and its label says so.
+          Space toggles either; Tab moves between them. The switch takes effect the moment it
+          is flipped, and its description says what changed — the label names the setting
+          and never the state.
         </p>
       </div>
 
