@@ -141,6 +141,15 @@ describe('Table density', () => {
   });
 });
 
+describe('Table figures', () => {
+  it('sets numbers in tabular figures', () => {
+    // An end-aligned column holds numbers. Proportional digits differ in
+    // width, so 14 and 27 do not line up down the column; tabular ones do.
+    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
+    expect(css).toMatch(/\.td\[data-align='end'\]\s*\{[^}]*font-variant-numeric: tabular-nums/);
+  });
+});
+
 describe('nextSort', () => {
   it('starts a new column ascending', () => {
     expect(nextSort(null, 'name')).toEqual({ key: 'name', direction: 'asc' });

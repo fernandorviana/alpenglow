@@ -5,9 +5,49 @@ import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { Button } from '@/components/Button';
 import { Table } from '@/components/Table';
 import type { Column, Sort } from '@/components/Table';
 import { resolve } from '@/tokens/contrast';
+
+type PropRow = { prop: string; type: string; default: string };
+
+const PROPS: PropRow[] = [
+  { prop: 'caption', type: 'string', default: 'required' },
+  { prop: 'captionVisible', type: 'boolean', default: 'false' },
+  { prop: 'columns', type: 'Column<Row>[]', default: 'required' },
+  { prop: 'rows', type: 'Row[]', default: 'required' },
+  { prop: 'getRowId', type: '(row: Row) => string', default: 'required' },
+  { prop: 'density', type: "'comfortable' | 'compact'", default: "'comfortable'" },
+  { prop: 'sort', type: 'Sort | null', default: '—' },
+  { prop: 'onSortChange', type: '(next: Sort | null) => void', default: '—' },
+  { prop: 'selected', type: 'ReadonlySet<string>', default: '—' },
+  { prop: 'onSelectionChange', type: '(next: Set<string>) => void', default: '—' },
+  { prop: 'selectionLabel', type: '(row: Row) => string', default: 'Select row {n}' },
+  { prop: 'rowAction', type: '(row: Row) => ReactNode', default: '—' },
+  { prop: 'empty', type: 'ReactNode', default: "'No rows'" },
+  { prop: 'loading', type: 'boolean', default: 'false' },
+];
+
+const COLUMN_PROPS: PropRow[] = [
+  { prop: 'key', type: 'string', default: 'required' },
+  { prop: 'header', type: 'ReactNode', default: 'required' },
+  { prop: 'cell', type: '(row: Row) => ReactNode', default: 'required' },
+  { prop: 'align', type: "'start' | 'center' | 'end'", default: "'start'" },
+  { prop: 'sortable', type: 'boolean', default: 'false' },
+  { prop: 'width', type: 'string (CSS)', default: 'auto' },
+  { prop: 'primary', type: 'boolean', default: 'false' },
+];
+
+const propColumns: Column<PropRow>[] = [
+  { key: 'prop', header: 'Prop', primary: true, cell: (r) => <code>{r.prop}</code> },
+  { key: 'type', header: 'Type', cell: (r) => <span className="alias">{r.type}</span> },
+  { key: 'default', header: 'Default', cell: (r) => <span className="alias">{r.default}</span> },
+];
+
+/** The two drawn row heights, and the container width below which the table becomes a list. */
+const ROW = { comfortable: 72, compact: 48 };
+const COLLAPSE = '40rem';
 
 type Client = {
   id: string;
@@ -75,9 +115,32 @@ export default function Page() {
     <DocPage
       evidence={
         <>
-          <p>header on band</p>
+          <p>header on its band</p>
           <p>light <Ratio fg={resolve('text/secondary', 'light')} bg={resolve('surface/base', 'light')} /></p>
           <p>dark <Ratio fg={resolve('text/secondary', 'dark')} bg={resolve('surface/base', 'dark')} /></p>
+          <p>cell on a selected row</p>
+          <p>
+            light{' '}
+            <Ratio fg={resolve('text/primary', 'light')} bg={resolve('interactive/selected', 'light')} />
+          </p>
+          <p>
+            dark <Ratio fg={resolve('text/primary', 'dark')} bg={resolve('interactive/selected', 'dark')} />
+          </p>
+          <p>secondary text under the wash</p>
+          <p>
+            light{' '}
+            <Ratio
+              fg={resolve('text/secondary', 'light')}
+              bg={resolve('interactive/wash-hover', 'light', resolve('surface/raised', 'light'))}
+            />
+          </p>
+          <p>
+            dark{' '}
+            <Ratio
+              fg={resolve('text/secondary', 'dark')}
+              bg={resolve('interactive/wash-hover', 'dark', resolve('surface/raised', 'dark'))}
+            />
+          </p>
         </>
       }
     >
@@ -110,11 +173,33 @@ export default function Page() {
         Sort by Client or Visits — three activations return to the natural order.
       </p>
 
-      <h2>Density</h2>
+      <h2>Choosing a table</h2>
       <p>
-        The drawn row is 72 pixels. <code>compact</code> is an addition: a system sold on
+        A table is for records that share their fields: every row answers the same questions,
+        so the eye can run down a column and compare. When each item is a paragraph, or the
+        fields differ from item to item, it is a list. Sorting is the table&rsquo;s reason to
+        exist — a column the reader cannot sort is one they will scan — so put the columns in
+        the order the reader asks the questions, the name first and the number they compare on
+        beside it, and align numbers to the end in tabular figures so they line up.
+      </p>
+      <p>
+        Selection is for acting on several rows at once, and it costs a column; leave it off a
+        table with nothing to do to a set. The trailing action is for the things done to one
+        row, in a <a href="/dropdown-menu">dropdown menu</a>, so a list of records is not a
+        list of buttons. A table that would need to scroll sideways on a laptop has too many
+        columns: the ones nobody compares on belong in the row&rsquo;s own page.
+      </p>
+
+      <h2>Anatomy and density</h2>
+      <p>
+        A header band on <code>surface/base</code>, rows on <code>surface/raised</code>, and
+        hairlines between them. The drawn row is {ROW.comfortable}px, which is comfortable rather
+        than dense; <code>compact</code>, at {ROW.compact}px, is an addition: a system sold on
         dense, data-heavy interfaces cannot have the table be the component that proves it
-        least.
+        least. A {ROW.compact}px row is for one line of content; an avatar beside two lines is
+        what the {ROW.comfortable}px row exists for. Below {COLLAPSE} of container width the
+        table becomes a list — the container&rsquo;s width, not the screen&rsquo;s, so a table
+        in a narrow panel collapses on a wide screen too.
       </p>
       <div className="specimen">
         <Table
@@ -136,8 +221,25 @@ export default function Page() {
       </p>
 
       <h2>States</h2>
+      <p>
+        An empty table says what would be here and offers the way to fill it; a shrug —{' '}
+        <em>No rows</em> — is the default only because the table cannot know. Loading keeps the
+        table&rsquo;s shape and reserves the rows&rsquo; place, so the page does not jump when
+        they arrive.
+      </p>
       <div className="specimen">
-        <Table caption="Empty example" columns={simpleColumns} rows={[]} getRowId={(c) => c.id} empty="No clients yet" />
+        <Table
+          caption="Empty example"
+          columns={simpleColumns}
+          rows={[]}
+          getRowId={(c) => c.id}
+          empty={
+            <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              <span>No clients yet. A client appears here after their first appointment.</span>
+              <Button size="sm">Add a client</Button>
+            </span>
+          }
+        />
       </div>
       <div className="specimen">
         <Table caption="Loading example" columns={simpleColumns} rows={[]} getRowId={(c) => c.id} loading />
@@ -198,63 +300,17 @@ export default function Page() {
       </p>
 
       <h2>Props</h2>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr><th>Prop</th><th>Type</th><th>Default</th></tr>
-          </thead>
-          <tbody>
-            {[
-              ['caption', 'string', 'required'],
-              ['captionVisible', 'boolean', 'false'],
-              ['columns', 'Column<Row>[]', 'required'],
-              ['rows', 'Row[]', 'required'],
-              ['getRowId', '(row: Row) => string', 'required'],
-              ['density', "'comfortable' | 'compact'", "'comfortable'"],
-              ['sort', 'Sort | null', '—'],
-              ['onSortChange', '(next: Sort | null) => void', '—'],
-              ['selected', 'ReadonlySet<string>', '—'],
-              ['onSelectionChange', '(next: Set<string>) => void', '—'],
-              ['selectionLabel', '(row: Row) => string', 'Select row {n}'],
-              ['rowAction', '(row: Row) => ReactNode', '—'],
-              ['empty', 'ReactNode', "'No rows'"],
-              ['loading', 'boolean', 'false'],
-            ].map(([prop, type, def]) => (
-              <tr key={prop}>
-                <td className="tokenName">{prop}</td>
-                <td className="alias">{type}</td>
-                <td className="alias">{def}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="Table props" captionVisible density="compact" columns={propColumns} rows={PROPS} getRowId={(r) => r.prop} />
       </div>
-
-      <h2>Column props</h2>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr><th>Field</th><th>Type</th><th>Default</th></tr>
-          </thead>
-          <tbody>
-            {[
-              ['key', 'string', 'required'],
-              ['header', 'ReactNode', 'required'],
-              ['cell', '(row: Row) => ReactNode', 'required'],
-              ['align', "'start' | 'center' | 'end'", "'start'"],
-              ['sortable', 'boolean', 'false'],
-              ['width', 'string (CSS)', 'auto'],
-              ['primary', 'boolean', 'false'],
-            ].map(([field, type, def]) => (
-              <tr key={field}>
-                <td className="tokenName">{field}</td>
-                <td className="alias">{type}</td>
-                <td className="alias">{def}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="Column props" captionVisible density="compact" columns={propColumns} rows={COLUMN_PROPS} getRowId={(r) => r.prop} />
       </div>
+      <p className="alias" style={{ marginTop: 8 }}>
+        <code>Sort</code> is <code>{'{ key: string; direction: \'asc\' | \'desc\' }'}</code>; three
+        activations of a sortable header go ascending, descending, and back to the natural order,
+        which the table reports as <code>null</code>.
+      </p>
     </DocPage>
   );
 }

@@ -96,6 +96,12 @@
 .th[data-align='end'],
 .td[data-align='end'] { text-align: end; }
 
+/* End-aligned cells hold numbers, and proportional figures put a 1 and a 4
+   at different widths, so a column of them does not line up. Tabular
+   figures give every digit one width, and a sort that reorders the rows
+   changes nothing but the order. */
+.td[data-align='end'] { font-variant-numeric: tabular-nums; }
+
 .empty {
   text-align: center;
   color: var(--ap-color-text-tertiary);
