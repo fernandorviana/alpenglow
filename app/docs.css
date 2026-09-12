@@ -218,7 +218,9 @@ html[data-nav-open] { overflow: hidden; }
 .prose > .specimen,
 .prose > .specimenRow,
 .prose > .tableScroll,
-.prose > .pager {
+.prose > .pager,
+.prose > .hero,
+.prose > .cards {
   max-width: none;
 }
 
@@ -562,6 +564,287 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   font-size: inherit;
 }
 
+/* --- home: hero ----------------------------------------------------------- */
+
+/* The title and the lead on the left, the bedrock on the right. The picture
+   is the one bold thing on the page: ten families of eleven stops, painted
+   from the primitives as the page renders. Below the narrow breakpoint it
+   drops under the text. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: var(--ap-spacing-500);
+  align-items: center;
+  margin-bottom: var(--ap-spacing-600);
+}
+
+.hero .lead { max-width: 37.5rem; }
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-250);
+  margin: var(--ap-spacing-300) 0;
+}
+
+/* A link dressed as the accent button, because it navigates: a <button> that
+   pushes a route cannot be opened in a new tab or middle-clicked. Its
+   numbers are the Button's md size — 40px, the capsule, the semibold label —
+   and its fills are the accent ladder, so it reads as the same control. */
+.heroAction {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding-inline: var(--ap-spacing-250);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-interactive-accent);
+  color: var(--ap-color-interactive-on-accent);
+  font-weight: var(--ap-font-weight-semibold);
+  text-decoration: none;
+  transition:
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.heroAction:hover { background: var(--ap-color-interactive-accent-hover); }
+
+.heroAction:active {
+  background: var(--ap-color-interactive-accent-pressed);
+  transform: scale(0.96);
+}
+
+.prose a.heroAction { color: var(--ap-color-interactive-on-accent); }
+
+/* As the Button: the pressed colour stays, the scale goes. */
+@media (prefers-reduced-motion: reduce) {
+  .heroAction { transition: none; }
+  .heroAction:active { transform: none; }
+}
+
+/* Ten rows of eleven. The cells are squares, and the gap is the smallest
+   step there is, so the grid reads as one surface with a grain rather than
+   as tiles. */
+.bedrock {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: var(--ap-spacing-025);
+  border-radius: var(--ap-radius-lg);
+  overflow: hidden;
+}
+
+.bedrockCell { aspect-ratio: 1; }
+
+/* --- home: cards ---------------------------------------------------------- */
+
+/* One card per page, in the sidebar's groups. The grid fills the column at
+   whatever width it has, three across in the 832px column and one on a
+   phone. */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--ap-spacing-200);
+  margin: 0 0 var(--ap-spacing-400);
+  padding: 0;
+  list-style: none;
+}
+
+/* Concentric: the card's 2xl (16) is the visual's sm (4) plus the 12 of
+   padding between them. The hairline is structure, not depth — in dark a
+   shadow would not separate the card from the canvas (invariant 4). */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ap-spacing-150);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-2xl);
+  background: var(--ap-color-surface-raised);
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+/* The wash over the card's own fill, as on every filled control. */
+.card:hover {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+}
+
+/* The ring on the card rather than the title: the card is the hit area. The
+   link's own ring is turned off only because this one replaces it. */
+.card:has(.cardLink:focus-visible) {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.cardLink:focus-visible { outline: none; }
+
+/* The picture: the component at rest, on a well inside the card, and inert.
+   A minimum height so a row of small pictures lines up, and no maximum: at
+   232px a Dialog's two actions wrap to two rows, and a fixed 120px cut the
+   destructive one in half. The row grows with its tallest picture. */
+.cardVisual {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  margin-bottom: var(--ap-spacing-150);
+  padding: var(--ap-spacing-150);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-sunken);
+  overflow: hidden;
+}
+
+.cardBody { padding: var(--ap-spacing-050) var(--ap-spacing-100) var(--ap-spacing-100); }
+
+.cardTitle {
+  margin: 0 0 var(--ap-spacing-050);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+/* The prose paints links in the accent; a card's title is chrome, and the
+   card is the link, so the selector carries `.prose` to outrank it. */
+.prose .cardLink {
+  color: var(--ap-color-text-primary);
+  text-decoration: none;
+}
+
+.cardLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.cardDescription {
+  margin: 0;
+  color: var(--ap-color-text-secondary);
+  text-wrap: pretty;
+}
+
+/* The pictures that are not a component: drawn from the same tokens. */
+.miniRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-spacing-150);
+}
+
+.miniTable { width: 100%; }
+
+.miniStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-100);
+}
+
+.miniRamp {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  width: 100%;
+  height: 40px;
+  border-radius: var(--ap-radius-xs);
+  overflow: hidden;
+}
+
+.miniElevation {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-300);
+}
+
+.miniElevationMd,
+.miniElevationLg {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-overlay);
+}
+
+.miniElevationMd { box-shadow: var(--ap-elevation-md); }
+.miniElevationLg { box-shadow: var(--ap-elevation-lg); }
+
+.miniType {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+}
+
+.miniTypeSpecimen {
+  font-size: var(--ap-text-heading-h2-size);
+  line-height: var(--ap-text-heading-h2-line-height);
+  letter-spacing: var(--ap-text-heading-h2-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.miniTypeCaption {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
+.miniShape {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-200);
+}
+
+.miniShapeSm,
+.miniShapeLg,
+.miniShapeFull {
+  width: 32px;
+  height: 32px;
+  border: var(--ap-border-width-control) solid var(--ap-color-border-strong);
+}
+
+.miniShapeSm { border-radius: var(--ap-radius-sm); }
+.miniShapeLg { border-radius: var(--ap-radius-lg); }
+.miniShapeFull { border-radius: var(--ap-radius-full); }
+
+.miniIcons {
+  display: flex;
+  gap: var(--ap-spacing-200);
+  color: var(--ap-color-text-secondary);
+}
+
+/* A dialog's top edge: the overlay surface, its shadow, a title, two actions.
+   No border in light and one in dark, as the Dialog itself. */
+.miniDialog {
+  width: 100%;
+  padding: var(--ap-spacing-150) var(--ap-spacing-200);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-color-surface-overlay);
+  box-shadow: var(--ap-elevation-lg);
+}
+
+.miniDialogTitle {
+  margin: 0 0 var(--ap-spacing-100);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.miniDialog .miniRow { justify-content: flex-end; }
+
+/* Three rows of a menu, the middle one under the wash. */
+.miniMenu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: var(--ap-spacing-050);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-overlay);
+  box-shadow: var(--ap-elevation-md);
+}
+
+.miniMenu span {
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-sm);
+}
+
+.miniMenuHover { background: var(--ap-color-interactive-wash-hover); }
+.miniMenuDanger { color: var(--ap-color-text-danger); }
+
 /* --- specimens ------------------------------------------------------------ */
 
 .specimen {
@@ -824,6 +1107,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   }
   .page { padding: var(--ap-spacing-400) var(--ap-spacing-250) var(--ap-spacing-600); }
   .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
+  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
 }
 
 /* The narrowest phones: specimens run edge to edge. The widest thing one holds
