@@ -1,11 +1,42 @@
 'use client';
 
 import { DocPage } from '@ui/DocPage';
+import { Ratio } from '@ui/Ratio';
 import { Button } from '@/components/Button/index';
+import { Table } from '@/components/Table/index';
 import { DropdownMenu } from '@/components/DropdownMenu/index';
 import type { DropdownMenuEntry } from '@/components/DropdownMenu/index';
 import { composite, contrast, hexToRgb, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
 import { alphaPrimitives, primitives } from '@/tokens/primitives';
+import { radius, spacing } from '@/tokens/scale';
+
+type PropRow = { prop: string; type: string; default: string };
+
+const PROPS: PropRow[] = [
+  { prop: 'trigger', type: '(props: DropdownMenuTriggerProps) => ReactNode', default: 'required' },
+  { prop: 'items', type: 'DropdownMenuEntry[]', default: 'required' },
+];
+
+const ENTRY_PROPS: PropRow[] = [
+  { prop: 'id', type: 'string', default: 'required' },
+  { prop: 'label', type: 'ReactNode', default: 'required' },
+  { prop: 'onSelect', type: '() => void', default: '—' },
+  { prop: 'tone', type: "'neutral' | 'accent' | 'danger'", default: "'neutral'" },
+  { prop: 'icon', type: 'ReactNode', default: '—' },
+  { prop: 'iconEnd', type: 'ReactNode', default: '—' },
+  { prop: 'disabled', type: 'boolean', default: 'false' },
+  { prop: 'textValue', type: 'string', default: 'the label, when it is a string' },
+];
+
+const propColumns = [
+  { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
+  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+  { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
+];
+
+/** The drawn geometry: a 40px row, a 20px icon slot. The paddings and radii come from the scale. */
+const ROW = 40;
+const ICON = 20;
 
 const ITEMS: DropdownMenuEntry[] = [
   { id: 'edit', label: 'Edit appointment' },
@@ -33,15 +64,18 @@ export default function Page() {
         <>
           <p>0 lines of positioning JS</p>
           <p>0 new dependencies</p>
-          <p>text/accent on its own fill</p>
+          <p>accent label on its own hover</p>
           <p>
-            {f(tokenContrast('text/accent', 'surface/accent-subtle', 'light'))}:1 light ·{' '}
-            {f(tokenContrast('text/accent', 'surface/accent-subtle', 'dark'))}:1 dark
+            light{' '}
+            <Ratio fg={resolve('text/accent', 'light')} bg={resolve('surface/accent-subtle', 'light')} />
           </p>
-          <p>on the neutral wash</p>
+          <p>
+            dark <Ratio fg={resolve('text/accent', 'dark')} bg={resolve('surface/accent-subtle', 'dark')} />
+          </p>
+          <p>on the neutral wash, rule kept</p>
           <p>
             {f(tokenContrast('text/accent', 'interactive/wash-hover', 'light', 'surface/overlay'))}:1 light ·{' '}
-            {f(tokenContrast('text/accent', 'interactive/wash-hover', 'dark', 'surface/overlay'))}:1 dark — passes, rule kept
+            {f(tokenContrast('text/accent', 'interactive/wash-hover', 'dark', 'surface/overlay'))}:1 dark
           </p>
           <p>shadow against its ground</p>
           <p>
@@ -62,7 +96,42 @@ export default function Page() {
         browser&rsquo;s, not ours.
       </p>
 
-      <h2>Why both words</h2>
+      <h2>Try it</h2>
+      <div className="specimen">
+        <div className="specimenRow">
+          <DropdownMenu
+            trigger={(props) => (
+              <Button variant="outline" tone="neutral" {...props}>
+                Appointment actions
+              </Button>
+            )}
+            items={ITEMS}
+          />
+          <span className="alias">
+            Open it with a click, or with ↓ to land on the first row and ↑ to land on the last.
+          </span>
+        </div>
+      </div>
+
+      <h2>Choosing a menu</h2>
+      <p>
+        A menu runs a command. When the reader is choosing a value that stays in a field, it
+        is a <a href="/select">Select</a>; when a row leads somewhere, it is navigation and
+        wants links, not <code>role=&quot;menu&quot;</code>. A menu belongs on a control that
+        holds more actions than a row or a header has room for — the trailing dots of a table
+        row, the actions of a record — and not in place of a button the reader would press
+        every time.
+      </p>
+      <p>
+        Keep it to a handful of rows, grouped with a label when the groups mean something,
+        with a separator only between groups. Labels start with the verb and name the object
+        the way the page does: <em>Edit appointment</em>, <em>Reschedule</em>. The one command
+        that creates takes the accent; the one that destroys takes danger and goes last, so a
+        hand travelling down the list meets it after everything safe. A command that cannot run
+        now stays in the list, disabled, so the reader learns it exists.
+      </p>
+
+      <h3>Why both words</h3>
       <p>
         The drawing calls this page Dropdown, and &ldquo;dropdown&rdquo; alone covers two
         components with different semantics: a list of commands, which is this one, and a list of
@@ -80,6 +149,16 @@ export default function Page() {
         them finds it where they expect.
       </p>
 
+      <h2>Anatomy</h2>
+      <p>
+        A surface of <code>surface/overlay</code> at {spacing[100]}px of padding and a{' '}
+        {radius.xl}px corner, holding rows of {ROW}px with an {radius.lg}px corner, a{' '}
+        {ICON}px icon slot at either end, group labels in the caption size, and hairline
+        separators. The surface is as wide as its widest row and held at that width, so the
+        menu is the same size open and closed. In dark it takes a hairline border, because
+        the shadow has stopped separating it — see the margin.
+      </p>
+
       <h2>The trade</h2>
       <p>
         The surface is a native <code>popover</code>, placed with CSS anchor positioning. That
@@ -93,17 +172,6 @@ export default function Page() {
         The cost is stated rather than hidden: in a browser older than about 2025, the menu
         opens centred rather than anchored. It still dismisses, and it still takes the keyboard.
       </p>
-
-      <div className="specimen">
-        <DropdownMenu
-          trigger={(props) => (
-            <Button variant="outline" tone="neutral" {...props}>
-              Appointment actions
-            </Button>
-          )}
-          items={ITEMS}
-        />
-      </div>
 
       <h2>Keyboard</h2>
       <div className="tableScroll">
@@ -225,6 +293,38 @@ export default function Page() {
         The top layer was worth that gap. A menu opens from inside other components — a row of
         actions in the <a href="/table">Table</a>, whose scroll container clips anything
         positioned inside it — and escaping that clip is the reason for an overlay to exist.
+      </p>
+
+      <h2>Accessibility</h2>
+      <p>
+        The trigger receives <code>aria-haspopup=&quot;menu&quot;</code> and{' '}
+        <code>aria-expanded</code>, and its label is the accessible name of the menu — so it is
+        named for what the menu holds, <em>Appointment actions</em>, not <em>More</em>. The rows
+        are <code>menuitem</code>s inside a <code>menu</code>, one tab stop with roving focus,
+        and a disabled row keeps its role with <code>aria-disabled</code> so a screen reader
+        finds it rather than a hole.
+      </p>
+      <p>
+        The highlighted row is the focused row, whichever way it got there, so there is one
+        answer to what Enter does. The keyboard ring is drawn on top of the fill; a stylesheet
+        test pins the order of the two rules, after a browser check found the ring losing on
+        specificity.
+      </p>
+
+      <h2>Props</h2>
+      <div className="specimen">
+        <Table caption="DropdownMenu props" captionVisible density="compact" columns={propColumns} rows={PROPS} getRowId={(r) => r.prop} />
+      </div>
+      <p>
+        An entry is an action, a group — <code>{'{ label, items }'}</code> — or the string{' '}
+        <code>&apos;separator&apos;</code>. An action:
+      </p>
+      <div className="specimen">
+        <Table caption="Action props" captionVisible density="compact" columns={propColumns} rows={ENTRY_PROPS} getRowId={(r) => r.prop} />
+      </div>
+      <p className="alias" style={{ marginTop: 8 }}>
+        Spread the trigger props onto a button; they carry the id, the popover target, the two
+        aria attributes, the key handler and the anchor.
       </p>
     </DocPage>
   );
