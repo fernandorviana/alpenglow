@@ -549,9 +549,9 @@ only the forty tail stops. Decided for the generator: it is the stated
 source, the docs already quoted its post-tail figures (twilight/600 on white
 5.96, which the old hex gave as 5.98), and no ratio quoted anywhere moves at
 two decimals except glow/600 against ember/600, 1.02 → 1.01. The Figma file
-still holds the four old values: `glow/600`, `twilight/600`, `flare/600` and
-`moss/600` in `Alpenglow Primitives` need their colour re-set (values, not
-aliases) — not done in the session that found this.
+followed the same day through the MCP: `glow/600`, `twilight/600`,
+`flare/600` and `moss/600` in `Alpenglow Primitives` had their colour re-set
+(values, not aliases — no theme variable moved) and were read back.
 
 ### 1. The bedrock landed; the theme is expected to move (2026-09-11)
 
