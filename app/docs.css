@@ -847,7 +847,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* --- specimens ------------------------------------------------------------ */
 
+/* A bottom margin for the paragraph that follows a specimen. It collapses
+   into the larger margin of a heading or a callout, so those do not move. */
 .specimen {
+  margin-bottom: var(--ap-spacing-200);
   padding: var(--ap-spacing-300);
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   border-radius: var(--ap-radius-xl);

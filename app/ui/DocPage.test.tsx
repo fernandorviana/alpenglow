@@ -41,7 +41,7 @@ const token = (text: string) => {
 describe('the specimen on the narrowest screens', () => {
   const narrow = block(css, '@media (max-width: 760px)');
   const pagePadding = token(declarations(narrow, '.page').match(/padding: \S+ (\S+)/)![1]!);
-  const specimenPadding = token(declarations(css, '.specimen'));
+  const specimenPadding = token(declarations(css, '.specimen').match(/padding: (\S+)/)![1]!);
   const hairline = declarations(css, '.specimen').includes('--ap-border-width-hairline')
     ? borderWidth.hairline
     : NaN;
