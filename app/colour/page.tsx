@@ -3,7 +3,7 @@ import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
 import { primitives, alphaPrimitives } from '@/tokens/primitives';
 import { theme, type ThemeTokenName } from '@/tokens/theme';
-import { resolve } from '@/tokens/contrast';
+import { contrast, lightness, resolve } from '@/tokens/contrast';
 
 const RAMPS = ['glow', 'twilight', 'flare', 'glacier', 'stone', 'night', 'mist', 'ember', 'moss', 'amber'] as const;
 const STEPS = ['050', '100', '200', '300', '400', '500', '600', '700', '800', '900', '925', '950'] as const;
@@ -24,6 +24,29 @@ const ROLES: Record<(typeof RAMPS)[number], string> = {
   moss: 'success',
   amber: 'warning',
 };
+
+/**
+ * What each stop carries, and the pair that proves it. The claim in the
+ * primitives file is that a number means the same amount of light in every
+ * family; each row measures the pair across all ten and shows the tightest,
+ * so the table is the claim tested rather than restated.
+ */
+type Guarantee = { stop: (typeof STEPS)[number]; carries: string; fg: (ramp: string) => string; bg: (ramp: string) => string };
+const p = primitives as Record<string, string>;
+const GUARANTEES: Guarantee[] = [
+  { stop: '300', carries: 'text on its own 900', fg: (r) => p[`${r}/300`]!, bg: (r) => p[`${r}/900`]! },
+  { stop: '400', carries: 'a night/950 label', fg: () => p['night/950']!, bg: (r) => p[`${r}/400`]! },
+  { stop: '500', carries: 'icons and borders on white, 3:1', fg: (r) => p[`${r}/500`]!, bg: () => p.white! },
+  { stop: '600', carries: 'a white label', fg: () => p.white!, bg: (r) => p[`${r}/600`]! },
+  { stop: '700', carries: 'text on its own 050', fg: (r) => p[`${r}/700`]!, bg: (r) => p[`${r}/050`]! },
+];
+
+/** The family where the pair is tightest. */
+function tightest(g: Guarantee) {
+  return [...RAMPS]
+    .map((ramp) => ({ ramp, fg: g.fg(ramp), bg: g.bg(ramp), ratio: contrast(g.fg(ramp), g.bg(ramp)) }))
+    .sort((a, b) => a.ratio - b.ratio)[0]!;
+}
 
 function group(prefix: string) {
   return (Object.keys(theme) as ThemeTokenName[]).filter((t) => t.startsWith(prefix));
@@ -115,6 +138,17 @@ export default function Page() {
         nothing in the product references a primitive directly.
       </p>
 
+      <h2>How colour is organised</h2>
+      <p>
+        Three layers, and a seam between the first two. Primitives name a value —{' '}
+        <code>twilight/600</code> — and are never applied in a component. Theme tokens name a
+        job — <code>interactive/accent</code> — and point at a primitive; they are the only
+        layer a component references, and the only one that changes between light and dark.
+        That seam is what makes the dark theme possible: without it, dark mode would mean
+        auditing every use to work out which meant &ldquo;the accent&rdquo; and which just
+        wanted violet.
+      </p>
+
       <h2>Primitives</h2>
       <p>
         The raw ramps. These carry no meaning and are not used in components — they exist to
@@ -153,6 +187,69 @@ export default function Page() {
           </div>
         </div>
       ))}
+
+      <h3>One lightness per stop</h3>
+      <p>
+        The lightness is <code>stone</code>&rsquo;s, read in OKLCH; every other family sits
+        within a thousandth of it. Each stop&rsquo;s job is measured across all ten families as
+        the page renders, and the family shown is the one where the pair is tightest.
+      </p>
+      <div className="tableScroll">
+        <table className="tokens">
+          <thead>
+            <tr>
+              <th>Stop</th>
+              <th>L</th>
+              <th>Carries</th>
+              <th>Tightest</th>
+            </tr>
+          </thead>
+          <tbody>
+            {STEPS.filter((step) => step !== '925').map((step) => {
+              const guarantee = GUARANTEES.find((g) => g.stop === step);
+              const pair = guarantee && tightest(guarantee);
+              return (
+                <tr key={step}>
+                  <td className="tokenName">{step}</td>
+                  <td className="alias">{lightness(p[`stone/${step}`]!).toFixed(3)}</td>
+                  <td>{guarantee?.carries ?? <span className="alias">—</span>}</td>
+                  <td>
+                    {pair && (
+                      <>
+                        <span className="alias">{pair.ramp} </span>
+                        <Ratio fg={pair.fg} bg={pair.bg} threshold={step === '500' ? 3 : 4.5} />
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Choosing a colour</h2>
+      <p>
+        Reach for the role, never the value. A component that needs the accent takes{' '}
+        <code>interactive/accent</code>; if what it needs has no token, the answer is a new
+        token, not a primitive that happens to look right today — a separator borrowed as a
+        text colour reads until borders get lighter, and then the text goes with them.
+      </p>
+      <p>
+        One colour, one meaning. The accent means interactive, so that hue on static text tells
+        the reader to click something that is not a control. <code>glow</code> is the brand
+        and never a button tone: <code>glow/600</code> and <code>ember/600</code> are 1.02:1
+        apart, and a pink button beside a danger button would be two of the same thing.{' '}
+        <code>amber</code> is warning and <code>flare</code> the highlight, kept far enough
+        apart at 400 to read as two. And filled colour is emphasis: one solid accent per view,
+        with the alternative beside it neutral — see <a href="/button">Button</a>.
+      </p>
+      <p>
+        Measure the pair that renders. Text against the surface it sits on, a border against
+        the fill it edges, a label against its own button in every state, and an alpha over
+        the ground it lands on. The tables below do exactly that, with the function the test
+        suite runs; a value written by hand is a value that can rot.
+      </p>
 
       <h2>Surfaces</h2>
       <p>
@@ -195,6 +292,20 @@ export default function Page() {
         that clears WCAG 1.4.11 — which is why every form control uses it.
       </p>
       <TokenTable tokens={group('border/')} threshold={3} />
+
+      <h2>Accessibility</h2>
+      <p>
+        Colour is never the only channel. A state has an icon, a label or a shape beside its
+        colour; focus adds a ring rather than recolouring a border; a selected row carries an
+        attribute a screen reader can read. Text clears 4.5:1 and non-text, borders and icons
+        and the parts of a control, 3:1, on the surface they render on, in both modes.
+      </p>
+      <p>
+        Two text tokens sit under the line on purpose. <code>disabled</code> and{' '}
+        <code>inert</code> are exempt under WCAG 2.1 — one is an unavailable control, the other
+        decoration — and each is documented at its recorded value above, so an edit that made
+        either worse would show in the table before it shipped.
+      </p>
     </DocPage>
   );
 }
