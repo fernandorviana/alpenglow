@@ -62,14 +62,18 @@ function isWeekend(date: ISODate): boolean {
 
 /** The messages the "Typing a date" specimen writes into its Field. The picker
     reports a reason; the words are the page's, because only the page knows
-    what the field is called and why a day is unavailable. */
+    what the field is called and why a day is unavailable. Each is an
+    instruction — what to enter — rather than a verdict on what was typed. */
 const TYPED_MESSAGES: Record<DatePickerInvalidReason, string> = {
-  incomplete: 'Appointment date must include a day, month and year',
-  'not-a-date': 'Appointment date must be a real date',
-  'before-min': 'Appointment date must be on or after April 3, 2023',
-  'after-max': 'Appointment date must be on or before April 24, 2023',
-  unavailable: 'Appointment date must be a weekday',
+  incomplete: 'Enter the month, day and year',
+  'not-a-date': 'Enter a date that exists',
+  'before-min': 'Choose a date on or after April 3, 2023',
+  'after-max': 'Choose a date on or before April 24, 2023',
+  unavailable: 'Choose a weekday',
 };
+
+/** The drawn geometry of the grid: 280 wide, 40px cells, a 32px pill. `Calendar.module.css` holds them. */
+const CALENDAR = { width: 280, cell: 40, pill: 32 };
 
 type MessageRow = { reason: DatePickerInvalidReason; message: string };
 
@@ -107,17 +111,7 @@ export default function Page() {
             <Ratio fg={resolve('text/primary', 'dark')} bg={resolve('surface/overlay', 'dark')} />
           </p>
 
-          <p>weekend label on the panel</p>
-          <p>
-            light{' '}
-            <Ratio fg={resolve('text/tertiary', 'light')} bg={resolve('surface/overlay', 'light')} />
-          </p>
-          <p>
-            dark{' '}
-            <Ratio fg={resolve('text/tertiary', 'dark')} bg={resolve('surface/overlay', 'dark')} />
-          </p>
-
-          <p>weekday header</p>
+          <p>weekday header, weekend label</p>
           <p>
             light{' '}
             <Ratio fg={resolve('text/tertiary', 'light')} bg={resolve('surface/overlay', 'light')} />
@@ -235,7 +229,7 @@ export default function Page() {
         the month grid on its own — single dates or a range, by keyboard or by pointer.
       </p>
 
-      <h2>Field</h2>
+      <h2>Try it</h2>
       <div className="specimen">
         <div style={{ maxWidth: 320 }}>
           <Field label="Appointment date" description="Typed as month, day, year.">
@@ -252,81 +246,40 @@ export default function Page() {
         with the trigger.
       </p>
 
-      <h2>The band survives a month boundary</h2>
+      <h2>Choosing a picker</h2>
       <p>
-        Days from the adjacent month are drawn, greyed with <code>text/inert</code> and inert: not a tab stop, not
-        clickable, their number hidden from a screen reader. That is what makes their low
-        contrast defensible — a control has to clear WCAG for text, decoration does not. But a
-        spilled day still takes the range band when a selection covers it. Unpainted, the band
-        would break exactly at the boundary a range is most likely to cross.
+        When the reader knows the date — a date of birth, the day on a letter — typing beats
+        picking, and the masked field is why the field comes first: eight digits and the
+        separators arrive on their own. When the date is near and open — an appointment next
+        week — the grid is faster, because the choice is made by looking. Both are one control,
+        so the reader decides, not the form.
       </p>
-      <div className="specimen">
-        <div className="specimenRow">
-          <Calendar
-            label="Booked stay"
-            headingLevel={3}
-            mode="range"
-            defaultMonth="2023-03-01"
-            value={{ start: '2023-02-20', end: '2023-03-03' }}
-          />
-          <div style={{ minWidth: 220 }}>
-            <p style={{ marginTop: 0 }}>
-              With March open, the cells spilled in at the top are 26–28 February — inside a
-              range that started on the 20th, so all three carry the accent band.
-            </p>
-            <DatePicker
-              label="Follow-up window"
-              mode="range"
-              value={followUp}
-              // Range mode only ever reports a complete range.
-              onSelect={(next) => setFollowUp(next as DateRange)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <h2>The Calendar ships on its own</h2>
       <p>
-        The field, the popover and the typing are all <code>DatePicker</code>. Underneath is a
-        plain <code>Calendar</code> — a grid with no opinion about how it got on screen, usable
-        anywhere a picker&rsquo;s trigger and text field would be wrong, such as inline in a
-        page.
+        A range is for a stay, a window, a report period: one field, two dates, one band on
+        the grid. <code>min</code>, <code>max</code> and <code>isDateUnavailable</code> say what
+        can be booked before a date is chosen, which is kinder than refusing one afterwards,
+        and the message that follows a refusal says what to enter, not what was wrong. A
+        <code>Calendar</code> on its own belongs where a field would be odd: a page that is the
+        calendar.
       </p>
-      <div className="specimen">
-        <Calendar
-          label="Consultation date"
-          headingLevel={3}
-          value={consultation}
-          onSelect={(next) => setConsultation(next as ISODate | null)}
-        />
-      </div>
-
-      <h2>Bounds and exclusions</h2>
       <p>
-        <code>min</code> and <code>max</code> disable the days outside them;{' '}
-        <code>isDateUnavailable</code> disables individual days inside them — closed days,
-        booked days. Both leave the day focusable with <code>aria-disabled</code> rather than
-        removing it, so the grid&rsquo;s geometry and its tab order never change shape around a
-        clinic&rsquo;s calendar.
+        Not the platform&rsquo;s <code>&lt;input type=&quot;date&quot;&gt;</code>: it draws a
+        different control in every browser, has no range, and cannot grey a closed day.
+        Everything it does well — the numeric keyboard on a phone, the spoken parts — this
+        field does through <code>inputMode</code> and the description of its mask.
       </p>
-      <div className="specimen">
-        <Calendar
-          label="Clinic days"
-          headingLevel={3}
-          defaultMonth="2023-04-01"
-          min="2023-04-03"
-          max="2023-04-24"
-          isDateUnavailable={isWeekend}
-          value={clinicDay}
-          onSelect={(next) => setClinicDay(next as ISODate | null)}
-        />
-      </div>
 
-      <h2>Sizes</h2>
+      <h2>Anatomy and sizes</h2>
       <p>
-        The trigger shares Button&rsquo;s height scale. The drawing&rsquo;s <code>md</code>{' '}
+        Three parts. The field is an <a href="/input">Input</a> with a mask, and the trigger
+        beside it is a button that opens the panel; both share Button&rsquo;s three heights,
+        so a picker sits level with the controls around it. The drawing&rsquo;s <code>md</code>{' '}
         trigger is this code&rsquo;s <code>lg</code> — the same one-step remap the field already
-        made once between its own <code>md</code> and Button&rsquo;s.
+        made once between its own <code>md</code> and Button&rsquo;s. The panel holds a{' '}
+        {CALENDAR.width}px grid of {CALENDAR.cell}px cells with a {CALENDAR.pill}px pill for a
+        day, a month heading, and Previous and Next; the grid never shrinks below its width,
+        because the {CALENDAR.cell}px cell is what the focus ring and the touch target were
+        measured in.
       </p>
       <div className="specimen">
         <div className="specimenRow">
@@ -350,34 +303,6 @@ export default function Page() {
           />
         </div>
       </div>
-
-      <h2>The panel</h2>
-      <p>
-        It is a native <code>popover=&quot;manual&quot;</code>, anchored to the field with CSS
-        anchor positioning — the top layer, so it escapes <code>overflow: hidden</code> without a
-        portal, and CSS places and flips it without positioning JavaScript. Not{' '}
-        <code>auto</code>, the way <a href="/dropdown-menu">DropdownMenu</a> is: in range mode
-        the first Escape has to cancel a pending start rather than close anything, and that has
-        to run before the platform&rsquo;s own close request would take the panel out from under
-        it. Dismissal is the component&rsquo;s own instead — Escape, a pointer press outside, and
-        focus leaving the field and panel together all close it, and Tab wraps between the
-        header&rsquo;s Previous/Next and the grid rather than escaping to the rest of the page.
-      </p>
-      <p>
-        The panel is <code>surface/overlay</code>, the system&rsquo;s <code>elevation/md</code>{' '}
-        shadow, and in dark a <code>border/default</code> hairline the shadow alone no longer
-        supplies — see the gutter for what that leaves to read against.
-      </p>
-      <p>
-        jsdom has none of the popover API. <code>src/test/popover.ts</code> — shared with{' '}
-        <code>DropdownMenu</code>&rsquo;s suite — stubs <code>showPopover</code>,{' '}
-        <code>hidePopover</code>, the synchronous <code>beforetoggle</code> and queued{' '}
-        <code>toggle</code> events, and a <code>popovertarget</code> click. Escape (including the
-        range layering), the outside press, focus leaving, focus returning to the trigger and the
-        Tab wrap are this component&rsquo;s own handlers, and the suite tests them through that
-        stub. The top layer, the anchor placement, the flip and focus in a real browser are not
-        covered by the suite, and have not yet been checked by hand.
-      </p>
 
       <h2>Typing a date</h2>
       <p>
@@ -456,6 +381,108 @@ export default function Page() {
         typed in reverse is put in order, as the calendar would.
       </p>
 
+      <h2>Bounds and exclusions</h2>
+      <p>
+        <code>min</code> and <code>max</code> disable the days outside them;{' '}
+        <code>isDateUnavailable</code> disables individual days inside them — closed days,
+        booked days. Both leave the day focusable with <code>aria-disabled</code> rather than
+        removing it, so the grid&rsquo;s geometry and its tab order never change shape around a
+        clinic&rsquo;s calendar.
+      </p>
+      <div className="specimen">
+        <Calendar
+          label="Clinic days"
+          headingLevel={3}
+          defaultMonth="2023-04-01"
+          min="2023-04-03"
+          max="2023-04-24"
+          isDateUnavailable={isWeekend}
+          value={clinicDay}
+          onSelect={(next) => setClinicDay(next as ISODate | null)}
+        />
+      </div>
+
+      <h2>Range</h2>
+      <p>
+        In range mode the first click paints a pending start and the second completes the
+        range; <code>onSelect</code> fires once, with both ends. The band runs the whole 40px
+        cell rather than the 32px pill, so consecutive days read as one period rather than
+        loose squares, and its ends are the cell&rsquo;s own rounded corners.
+      </p>
+      <h3>The band survives a month boundary</h3>
+      <p>
+        Days from the adjacent month are drawn, greyed with <code>text/inert</code> and inert: not a tab stop, not
+        clickable, their number hidden from a screen reader. That is what makes their low
+        contrast defensible — a control has to clear WCAG for text, decoration does not. But a
+        spilled day still takes the range band when a selection covers it. Unpainted, the band
+        would break exactly at the boundary a range is most likely to cross.
+      </p>
+      <div className="specimen">
+        <div className="specimenRow">
+          <Calendar
+            label="Booked stay"
+            headingLevel={3}
+            mode="range"
+            defaultMonth="2023-03-01"
+            value={{ start: '2023-02-20', end: '2023-03-03' }}
+          />
+          <div style={{ minWidth: 220 }}>
+            <p style={{ marginTop: 0 }}>
+              With March open, the cells spilled in at the top are 26–28 February — inside a
+              range that started on the 20th, so all three carry the accent band.
+            </p>
+            <DatePicker
+              label="Follow-up window"
+              mode="range"
+              value={followUp}
+              // Range mode only ever reports a complete range.
+              onSelect={(next) => setFollowUp(next as DateRange)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <h2>The Calendar on its own</h2>
+      <p>
+        The field, the popover and the typing are all <code>DatePicker</code>. Underneath is a
+        plain <code>Calendar</code> — a grid with no opinion about how it got on screen, usable
+        anywhere a picker&rsquo;s trigger and text field would be wrong, such as inline in a
+        page.
+      </p>
+      <div className="specimen">
+        <Calendar
+          label="Consultation date"
+          headingLevel={3}
+          value={consultation}
+          onSelect={(next) => setConsultation(next as ISODate | null)}
+        />
+      </div>
+
+      <h2>The panel</h2>
+      <p>
+        It is a native <code>popover=&quot;manual&quot;</code>, anchored to the field with CSS
+        anchor positioning — the top layer, so it escapes <code>overflow: hidden</code> without a
+        portal, and CSS places and flips it without positioning JavaScript. Not{' '}
+        <code>auto</code>, the way <a href="/dropdown-menu">DropdownMenu</a> is: in range mode
+        the first Escape has to cancel a pending start rather than close anything, and that has
+        to run before the platform&rsquo;s own close request would take the panel out from under
+        it. Dismissal is the component&rsquo;s own instead — Escape, a pointer press outside, and
+        focus leaving the field and panel together all close it, and Tab wraps between the
+        header&rsquo;s Previous/Next and the grid rather than escaping to the rest of the page.
+      </p>
+      <p>
+        The panel is <code>surface/overlay</code>, the system&rsquo;s <code>elevation/md</code>{' '}
+        shadow, and in dark a <code>border/default</code> hairline the shadow alone no longer
+        supplies — see the gutter for what that leaves to read against.
+      </p>
+      <p>
+        Dismissal — Escape with its range layering, the outside press, focus leaving, focus
+        returning to the trigger, the Tab wrap — is the component&rsquo;s own and the suite
+        tests all of it through a popover stub, since jsdom has none of the API. The top
+        layer, the anchor placement and the flip are the browser&rsquo;s, and have not yet been
+        checked by hand.
+      </p>
+
       <h2>Accessibility</h2>
       <p>
         The trigger names itself <code>Choose date</code> until there is a value, then{' '}
@@ -484,10 +511,11 @@ export default function Page() {
         clamp to the bounds, so a move never lands past them.
       </p>
 
-      <h2>Calendar props</h2>
+      <h2>Props</h2>
       <div className="tableScroll">
         <Table
           caption="Calendar props"
+          captionVisible
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
@@ -509,11 +537,11 @@ export default function Page() {
         fires once, with both ends, on the second.
       </p>
 
-      <h2>DatePicker props</h2>
-      <p>Every prop above, plus:</p>
+      <p>The DatePicker takes every prop above, plus:</p>
       <div className="tableScroll">
         <Table
           caption="DatePicker props"
+          captionVisible
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
