@@ -509,14 +509,15 @@ the package at `0.2.0`. Invariants 4 and 21 carry the rules.
 
 Open from it:
 
-- **The Figma file.** `docs/figma/alpenglow-variables.json` and
-  `apply-variables.md` are regenerated (142 primitives, 54 theme tokens),
-  but the file was not touched — the MCP was not authorised in the session.
-  The plugin script adds the ten `925`s and five alphas, re-points
-  `surface/raised`, `surface/overlay` and `border/subtle`, deletes
-  `neutral-hover` / `-pressed` and creates the two wash variables. Aliases
-  to alpha primitives must keep the primitive's `a`; verify by resolved
-  value and name.
+- **The Figma file is in step (done 2026-09-12, through the MCP).** The ten
+  `925`s and five alphas were created in `Alpenglow Primitives` (hidden, all
+  four scopes; 143 variables there, the extra one being the pre-existing
+  `black`), `surface/raised`, `surface/overlay` and `border/subtle` were
+  re-pointed, `neutral-hover` / `-pressed` deleted and the two wash
+  variables created with their descriptions. All 54 Theme variables were
+  read back and compared against `docs/figma/alpenglow-variables.json` by
+  alias name and resolved value together, alpha included: zero mismatches.
+  Nodes were not rebound and paint styles were not touched, as before.
 - **Not yet seen in a browser by a person.** The change was checked in the
   Browser pane, both modes (see the commit); Fernando has not looked.
 - **The neutral button's hover is instant, not faded**, because the wash is
