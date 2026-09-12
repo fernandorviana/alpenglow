@@ -39,7 +39,7 @@ Three layers, mirrored in Figma as three variable collections.
 
 | Layer | Varies by mode | What it holds |
 |---|---|---|
-| **Primitives** | no | The raw ramps. 121 opaque colours — white and ten families of twelve stops, generated in OKLCH with one lightness per stop; `925` is the surface step — plus 21 alpha values: twelve on the black and white ramps, four inks (the light divider, two shadows, the dark scrim), the light scrim's mist, and the four hazes of the hover and pressed wash. Nothing references these directly. |
+| **Primitives** | no | The raw ramps. 113 opaque colours — white and ten families of eleven stops, generated in OKLCH with one lightness per stop, plus a twelfth, `925`, the surface step, in stone and night only — plus 21 alpha values: twelve on the black and white ramps, four inks (the light divider, two shadows, the dark scrim), the light scrim's mist, and the four hazes of the hover and pressed wash. Nothing references these directly. |
 | **Theme** | Light / Dark | 54 semantic tokens — `surface`, `text`, `interactive`, `border`. Every value is an alias. |
 | **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |

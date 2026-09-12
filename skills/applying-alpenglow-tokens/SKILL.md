@@ -96,7 +96,7 @@ In Light, `raised` and `overlay` are both white and the shadow separates them. I
 
 ### One lightness per stop, in every family
 
-Ten families of twelve stops (`050`–`950`), generated in OKLCH. The lightness of a stop is the same in every family — 050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625 · 600 .525 · 700 .43 · 800 .33 · 900 .245 · 925 .205 · 950 .16 — so a number means the same amount of light everywhere:
+Ten families of eleven stops (`050`–`950`), generated in OKLCH, plus a twelfth, `925` (L .205), in `stone` and `night` only. The lightness of a stop is the same in every family — 050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625 · 600 .525 · 700 .43 · 800 .33 · 900 .245 · 950 .16 — so a number means the same amount of light everywhere:
 
 - any **600** carries a white label at ≥ 4.5:1 (5.1 to 6.0 across the families);
 - any **400** carries a `night/950` label at ≥ 4.5:1 (7.6 or better);
@@ -116,7 +116,7 @@ The tail is deep on purpose — the dark canvas is `#090B1F`, decided 2026-09-11
 | `mist` | Soft states — the wash. `mist/500` at 8–20% is `alpha/haze-*`, the ink of `interactive/wash-hover` / `wash-pressed` in both modes. Its opaque stops are not used in Dark: `mist/800` is a surface's lightness in another hue. |
 | `ember` · `moss` · `amber` | Danger, success, warning. |
 
-There are no half steps for text or fills. The twenty-step neutral this replaced had adjacent steps 1.08–1.23:1 apart and gave the theme two text levels 1.22:1 from each other. The one exception is `925`, the **surface step** (2026-09-12): no text is ever set in one surface against another, and every reference system measured (Radix, Atlassian, Spectrum, Geist) places adjacent surface levels at ΔL .025–.045 in OKLCH, where one whole stop is .085. It is generated in every family and aliased only in `night` and `stone`. Do not propose another, and do not propose a `975`.
+There are no half steps for text or fills. The twenty-step neutral this replaced had adjacent steps 1.08–1.23:1 apart and gave the theme two text levels 1.22:1 from each other. The one exception is `925`, the **surface step** (2026-09-12): no text is ever set in one surface against another, and every reference system measured (Radix, Atlassian, Spectrum, Geist) places adjacent surface levels at ΔL .025–.045 in OKLCH, where one whole stop is .085. It exists in `night` and `stone` only, the families a surface ladder is built from. Do not propose another, do not add it to another family, and do not propose a `975`.
 
 ---
 
@@ -311,19 +311,19 @@ You cannot set opacity on an alias — it resolves to the primitive's own alpha.
 
 ### Primitives
 
-| Family | 050 → 900, then 925, 950 |
+| Family | 050 → 950 (stone and night carry a 925 between 900 and 950) |
 |---|---|
 | `white` | `#FFFFFF` (single) |
-| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `97002F` `680020` `430012` `33000C` `220006` |
-| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `532CB1` `361583` `20055B` `17004A` `0D0033` |
-| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `843300` `5C1F00` `3C1000` `2E0A00` `1E0400` |
-| `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `005A6B` `003C49` `00252F` `001B23` `001016` |
-| `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `4C5057` `32353C` `1E2026` `15171C` `0B0D12` |
-| `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `444C76` `2D3254` `1B1E38` `12142C` `090B1F` |
-| `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `385656` `213A3B` `102425` `091A1B` `031010` |
-| `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `94131E` `6A000F` `440007` `340005` `220002` |
-| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `006031` `004120` `002912` `001E0C` `001206` |
-| `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `684A00` `483100` `2E1D00` `221400` `150B00` |
+| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `97002F` `680020` `430012` `220006` |
+| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `532CB1` `361583` `20055B` `0D0033` |
+| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `843300` `5C1F00` `3C1000` `1E0400` |
+| `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `005A6B` `003C49` `00252F` `001016` |
+| `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `4C5057` `32353C` `1E2026` **`15171C`** `0B0D12` |
+| `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `444C76` `2D3254` `1B1E38` **`12142C`** `090B1F` |
+| `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `385656` `213A3B` `102425` `031010` |
+| `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `94131E` `6A000F` `440007` `220002` |
+| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `006031` `004120` `002912` `001206` |
+| `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `684A00` `483100` `2E1D00` `150B00` |
 
 The brand gradient — `flare/300 → glow/300 → glow/500 → twilight/400 → night/600` in Light, one stop more saturated in Dark (`400 → 400 → 500 → 500 → 500`) — is a gradient asset, not a variable. It never carries text.
 

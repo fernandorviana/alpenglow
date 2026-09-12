@@ -46,17 +46,20 @@ export function contrast(a, b) {
 }
 
 // ---- Scale logic ---------------------------------------------------------------
-// 12 stops. Lightness is shared by every family so a step means the same
-// amount of light everywhere; chroma and hue are the family's own.
+// 11 stops in every family, and a 12th in the two surface ladders. Lightness
+// is shared by every family so a step means the same amount of light
+// everywhere; chroma and hue are the family's own.
 //
 // 925 is the surface step, added 2026-09-12: the only stop that exists for
 // surfaces rather than for text or fills. 950 → 925 → 900 is the dark
 // elevation ladder, ΔL .043 per step in OKLCH, where the reference systems
 // measured (Radix, Atlassian, Spectrum, Geist) sit at .025–.045. Without it
 // the ladder had to jump a whole stop, ΔL .085, twice what any of them ship.
-// It is generated in every family so a number keeps meaning the same amount
-// of light everywhere; only night and stone are ever aliased at it.
-export const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 925, 950];
+// It exists only in night and stone, the families a surface ladder is built
+// from — Fernando's call, the same day: no finer steps in the other eight.
+export const STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+export const SURFACE_STOPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 925, 950];
+export const SURFACE_FAMILIES = ['stone', 'night'];
 export const LIGHTNESS = {
   50: 0.975, 100: 0.945, 200: 0.895, 300: 0.825, 400: 0.73, 500: 0.625,
   600: 0.525, 700: 0.43, 800: 0.33, 900: 0.245, 925: 0.205, 950: 0.16,
@@ -76,7 +79,7 @@ function bell(peak, ends, floorDark) {
 const lerpHue = (a, b, t) => { let d = ((b - a + 540) % 360) - 180; return (a + d * t + 360) % 360; };
 function drift(h50, h500, h950) {
   const out = {};
-  STOPS.forEach((s) => {
+  SURFACE_STOPS.forEach((s) => {
     const t = s <= 500 ? (LIGHTNESS[50] - LIGHTNESS[s]) / (LIGHTNESS[50] - LIGHTNESS[500]) : 0;
     const u = s >= 500 ? (LIGHTNESS[500] - LIGHTNESS[s]) / (LIGHTNESS[500] - LIGHTNESS[950]) : 0;
     out[s] = s <= 500 ? lerpHue(h50, h500, t) : lerpHue(h500, h950, u);
@@ -109,7 +112,7 @@ export function build() {
   const out = {};
   for (const [name, f] of Object.entries(FAMILIES)) {
     out[name] = {};
-    for (const s of f.stops ?? STOPS) {
+    for (const s of f.stops ?? (SURFACE_FAMILIES.includes(name) ? SURFACE_STOPS : STOPS)) {
       const { hex, clipped, C } = toHex(LIGHTNESS[s], f.chroma[s], f.hue[s]);
       out[name][s] = { hex, L: LIGHTNESS[s], C: +C.toFixed(3), h: +f.hue[s].toFixed(0), clipped };
     }

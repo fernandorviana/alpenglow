@@ -32,7 +32,6 @@
   --ap-glow-700: #97002F;
   --ap-glow-800: #680020;
   --ap-glow-900: #430012;
-  --ap-glow-925: #33000C;
   --ap-glow-950: #220006;
   --ap-twilight-050: #F8F5FF;
   --ap-twilight-100: #F0E8FF;
@@ -44,7 +43,6 @@
   --ap-twilight-700: #532CB1;
   --ap-twilight-800: #361583;
   --ap-twilight-900: #20055B;
-  --ap-twilight-925: #17004A;
   --ap-twilight-950: #0D0033;
   --ap-flare-050: #FFF5EC;
   --ap-flare-100: #FFE8D6;
@@ -56,7 +54,6 @@
   --ap-flare-700: #843300;
   --ap-flare-800: #5C1F00;
   --ap-flare-900: #3C1000;
-  --ap-flare-925: #2E0A00;
   --ap-flare-950: #1E0400;
   --ap-glacier-050: #E1FDFF;
   --ap-glacier-100: #C3F8FC;
@@ -68,7 +65,6 @@
   --ap-glacier-700: #005A6B;
   --ap-glacier-800: #003C49;
   --ap-glacier-900: #00252F;
-  --ap-glacier-925: #001B23;
   --ap-glacier-950: #001016;
   --ap-stone-050: #F5F7F9;
   --ap-stone-100: #EAEDF1;
@@ -104,7 +100,6 @@
   --ap-mist-700: #385656;
   --ap-mist-800: #213A3B;
   --ap-mist-900: #102425;
-  --ap-mist-925: #091A1B;
   --ap-mist-950: #031010;
   --ap-ember-050: #FFF4F3;
   --ap-ember-100: #FFE6E5;
@@ -116,7 +111,6 @@
   --ap-ember-700: #94131E;
   --ap-ember-800: #6A000F;
   --ap-ember-900: #440007;
-  --ap-ember-925: #340005;
   --ap-ember-950: #220002;
   --ap-moss-050: #EEFBF0;
   --ap-moss-100: #DDF4E0;
@@ -128,7 +122,6 @@
   --ap-moss-700: #006031;
   --ap-moss-800: #004120;
   --ap-moss-900: #002912;
-  --ap-moss-925: #001E0C;
   --ap-moss-950: #001206;
   --ap-amber-050: #FDF7E1;
   --ap-amber-100: #F8EDC5;
@@ -140,7 +133,6 @@
   --ap-amber-700: #684A00;
   --ap-amber-800: #483100;
   --ap-amber-900: #2E1D00;
-  --ap-amber-925: #221400;
   --ap-amber-950: #150B00;
 
   --ap-alpha-black-04: rgb(0 0 0 / 0.04);

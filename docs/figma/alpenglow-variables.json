@@ -63,11 +63,6 @@
           "hex": "#430012"
         },
         {
-          "name": "glow/925",
-          "type": "COLOR",
-          "hex": "#33000C"
-        },
-        {
           "name": "glow/950",
           "type": "COLOR",
           "hex": "#220006"
@@ -121,11 +116,6 @@
           "name": "twilight/900",
           "type": "COLOR",
           "hex": "#20055B"
-        },
-        {
-          "name": "twilight/925",
-          "type": "COLOR",
-          "hex": "#17004A"
         },
         {
           "name": "twilight/950",
@@ -183,11 +173,6 @@
           "hex": "#3C1000"
         },
         {
-          "name": "flare/925",
-          "type": "COLOR",
-          "hex": "#2E0A00"
-        },
-        {
           "name": "flare/950",
           "type": "COLOR",
           "hex": "#1E0400"
@@ -241,11 +226,6 @@
           "name": "glacier/900",
           "type": "COLOR",
           "hex": "#00252F"
-        },
-        {
-          "name": "glacier/925",
-          "type": "COLOR",
-          "hex": "#001B23"
         },
         {
           "name": "glacier/950",
@@ -423,11 +403,6 @@
           "hex": "#102425"
         },
         {
-          "name": "mist/925",
-          "type": "COLOR",
-          "hex": "#091A1B"
-        },
-        {
           "name": "mist/950",
           "type": "COLOR",
           "hex": "#031010"
@@ -481,11 +456,6 @@
           "name": "ember/900",
           "type": "COLOR",
           "hex": "#440007"
-        },
-        {
-          "name": "ember/925",
-          "type": "COLOR",
-          "hex": "#340005"
         },
         {
           "name": "ember/950",
@@ -543,11 +513,6 @@
           "hex": "#002912"
         },
         {
-          "name": "moss/925",
-          "type": "COLOR",
-          "hex": "#001E0C"
-        },
-        {
           "name": "moss/950",
           "type": "COLOR",
           "hex": "#001206"
@@ -601,11 +566,6 @@
           "name": "amber/900",
           "type": "COLOR",
           "hex": "#2E1D00"
-        },
-        {
-          "name": "amber/925",
-          "type": "COLOR",
-          "hex": "#221400"
         },
         {
           "name": "amber/950",

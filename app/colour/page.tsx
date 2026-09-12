@@ -8,6 +8,10 @@ import { resolve } from '@/tokens/contrast';
 const RAMPS = ['glow', 'twilight', 'flare', 'glacier', 'stone', 'night', 'mist', 'ember', 'moss', 'amber'] as const;
 const STEPS = ['050', '100', '200', '300', '400', '500', '600', '700', '800', '900', '925', '950'] as const;
 
+/** The stops a ramp actually has: 925 exists only in the two surface ladders. */
+const stepsOf = (ramp: (typeof RAMPS)[number]) =>
+  STEPS.filter((step) => `${ramp}/${step}` in primitives);
+
 const ROLES: Record<(typeof RAMPS)[number], string> = {
   glow: 'the brand — hero, gradient, one call to action per screen; never a button tone',
   twilight: 'everything interactive — fills, links, focus, selection',
@@ -106,7 +110,8 @@ export default function Page() {
     >
       <h1>Colour</h1>
       <p className="lead">
-        Ten families of twelve stops, {themeCount} roles, and a rule that keeps them apart:
+        Ten families of eleven stops, a twelfth in the two surface ladders, {themeCount} roles,
+        and a rule that keeps them apart:
         nothing in the product references a primitive directly.
       </p>
 
@@ -122,9 +127,10 @@ export default function Page() {
       <p>
         There are no half steps for text or fills. The twenty-step neutral this replaced had
         adjacent steps 1.08 to 1.23:1 apart, and produced two text levels nobody could tell
-        apart. The one exception is <code>925</code>, the surface step: no text is ever set in
-        one surface against another, and every reference system measured places its surface
-        levels closer than any ramp places its text stops — see{' '}
+        apart. The one exception is <code>925</code>, the surface step, in <code>stone</code>{' '}
+        and <code>night</code> only: no text is ever set in one surface against another, and
+        every reference system measured places its surface levels closer than any ramp places
+        its text stops — see{' '}
         <a href="/elevation">Elevation and states</a>. When a ladder runs out, separate with
         a border.
       </p>
@@ -135,13 +141,13 @@ export default function Page() {
             {ramp} <span className="alias">{ROLES[ramp]}</span>
           </p>
           <div className="ramp">
-            {STEPS.map((step) => {
+            {stepsOf(ramp).map((step) => {
               const key = `${ramp}/${step}` as keyof typeof primitives;
               return <div key={step} className="rampStep" style={{ background: primitives[key] }} />;
             })}
           </div>
           <div className="rampLabels">
-            {STEPS.map((step) => (
+            {stepsOf(ramp).map((step) => (
               <span key={step}>{step}</span>
             ))}
           </div>

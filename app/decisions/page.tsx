@@ -102,8 +102,8 @@ export default function Page() {
         Spectrum, Geist — places adjacent surface levels at .025 to .045. The rule against
         half steps was written against text levels nobody could tell apart, and no text is
         ever set in one surface against another, so one stop was added for surfaces and
-        nothing else: <code>925</code> at L .205, generated in every family, aliased only in{' '}
-        <code>night</code> and <code>stone</code>. The steps are now{' '}
+        nothing else: <code>925</code> at L .205, in <code>night</code> and <code>stone</code> only,
+        the two families a surface ladder is built from. The steps are now{' '}
         {f3(lightness(resolve('surface/raised', 'dark')) - lightness(resolve('surface/base', 'dark')))} and{' '}
         {f3(lightness(resolve('surface/overlay', 'dark')) - lightness(resolve('surface/raised', 'dark')))}.
         The <code>975</code> the old rule refused stays refused. See{' '}

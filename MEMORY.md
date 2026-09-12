@@ -32,7 +32,7 @@ generated from it.
 
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
-| Primitives | `src/tokens/primitives.ts` | no | 121 opaque colours (white + ten families of twelve stops, 050–950 with `925` the surface step, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs`) + 21 alpha (12 on the black/white ramps, 4 inks — the light divider, two shadows, the dark scrim — the light scrim's mist, and 4 hazes: mist/500 at 8/12/16/20 for the wash). Never referenced directly. |
+| Primitives | `src/tokens/primitives.ts` | no | 113 opaque colours (white + ten families of eleven stops, 050–950, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs` — plus `925`, the surface step, in stone and night only) + 21 alpha (12 on the black/white ramps, 4 inks — the light divider, two shadows, the dark scrim — the light scrim's mist, and 4 hazes: mist/500 at 8/12/16/20 for the wash). Never referenced directly. |
 | Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, two steps (`md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
@@ -88,8 +88,10 @@ have all been mistaken for errors at least once.
    whole stop, .085. It is the one half step there will be: the rule against
    them was written on 2026-09-11 against a twenty-step neutral that gave the
    theme two *text* levels 1.22:1 apart, and no text is ever set in one
-   surface against another. It is generated in every family and aliased only
-   in `night` and `stone`; the `975` stays refused. **Surface against surface
+   surface against another. It exists in `night` and `stone` only — it was
+   generated in every family at first, and Fernando had the other eight
+   removed the same day: no finer steps outside the surface ladders; the
+   `975` stays refused. **Surface against surface
    is measured in OKLCH lightness (floor .035, `SURFACE_STEP`), not in the
    WCAG ratio**, which flattens the dark end — the 950→925 step is 1.08:1 and
    plainly visible, and the 1.09 floor the suite used to hold would have

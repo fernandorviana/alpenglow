@@ -314,3 +314,15 @@ and `interactive/neutral-pressed`, and with them the CSS custom properties
 `--ap-color-interactive-neutral-hover` / `-pressed` and the Tailwind utilities
 `bg-interactive-neutral-hover` / `-pressed`. Every dark surface value changes.
 The next version is `0.2.0`.
+
+---
+
+## Addendum, 2026-09-12 (later the same day)
+
+Fernando saw the `925` on every ramp on the Colour page and did not want it
+there: no finer steps outside the surface ladders. The eight unused `925`s
+were removed from the code, the site, the skill and the Figma file; the stop
+exists in `stone` and `night` only. Section 1's "generated in every family"
+no longer holds; the count is 113 opaque primitives. The generator keeps the
+shared-lightness rule for the eleven common stops and adds the twelfth only
+to `SURFACE_FAMILIES`.

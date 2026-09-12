@@ -4,20 +4,21 @@
  * Raw values with no meaning attached. Nothing in the product references these
  * directly; the theme layer aliases them and components reference the theme.
  *
- * Ten families, twelve stops each, generated in OKLCH — `scripts/generate-ramps.mjs`
+ * Ten families, eleven stops each, generated in OKLCH — `scripts/generate-ramps.mjs`
  * is the generator, and every ratio quoted below was read from it, not
  * estimated. The lightness of a stop is the same in every family:
  *
  *   050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625
- *   600 .525 · 700 .43  · 800 .33  · 900 .245 · 925 .205 · 950 .16
+ *   600 .525 · 700 .43  · 800 .33  · 900 .245 · 950 .16
  *
- * 925 is the surface step, and the only stop that exists for surfaces rather
- * than for text or fills. The dark ladder is 950 → 925 → 900, ΔL .043 per
- * step, which is where the reference systems place their surface levels
- * (Radix, Atlassian, Spectrum and Geist sit at .025–.045; the old ladder
- * jumped .085). Only night and stone are aliased at it; it is generated in
- * every family so a stop number keeps meaning the same amount of light
- * everywhere. Added 2026-09-12 — see the elevation spec of that date.
+ * plus a twelfth stop, 925 at L .205, in stone and night only. It is the
+ * surface step: the only stop that exists for surfaces rather than for text
+ * or fills. The dark ladder is 950 → 925 → 900, ΔL .043 per step, which is
+ * where the reference systems place their surface levels (Radix, Atlassian,
+ * Spectrum and Geist sit at .025–.045; the old ladder jumped .085). It lives
+ * in the two families a surface ladder is built from and nowhere else —
+ * Fernando's call on 2026-09-12, the day it was added; see the elevation
+ * spec of that date.
  *
  * That is the rule that makes the families interchangeable by role: any 600
  * carries a white label at 4.5:1 or better, any 400 carries a night/950
@@ -63,7 +64,6 @@ export const primitives = {
   'glow/700': '#97002F',
   'glow/800': '#680020',
   'glow/900': '#430012',
-  'glow/925': '#33000C',
   'glow/950': '#220006',
 
   'twilight/050': '#F8F5FF',
@@ -76,7 +76,6 @@ export const primitives = {
   'twilight/700': '#532CB1',
   'twilight/800': '#361583',
   'twilight/900': '#20055B',
-  'twilight/925': '#17004A',
   'twilight/950': '#0D0033',
 
   'flare/050': '#FFF5EC',
@@ -89,7 +88,6 @@ export const primitives = {
   'flare/700': '#843300',
   'flare/800': '#5C1F00',
   'flare/900': '#3C1000',
-  'flare/925': '#2E0A00',
   'flare/950': '#1E0400',
 
   'glacier/050': '#E1FDFF',
@@ -102,7 +100,6 @@ export const primitives = {
   'glacier/700': '#005A6B',
   'glacier/800': '#003C49',
   'glacier/900': '#00252F',
-  'glacier/925': '#001B23',
   'glacier/950': '#001016',
 
   'stone/050': '#F5F7F9',
@@ -141,7 +138,6 @@ export const primitives = {
   'mist/700': '#385656',
   'mist/800': '#213A3B',
   'mist/900': '#102425',
-  'mist/925': '#091A1B',
   'mist/950': '#031010',
 
   'ember/050': '#FFF4F3',
@@ -154,7 +150,6 @@ export const primitives = {
   'ember/700': '#94131E',
   'ember/800': '#6A000F',
   'ember/900': '#440007',
-  'ember/925': '#340005',
   'ember/950': '#220002',
 
   'moss/050': '#EEFBF0',
@@ -167,7 +162,6 @@ export const primitives = {
   'moss/700': '#006031',
   'moss/800': '#004120',
   'moss/900': '#002912',
-  'moss/925': '#001E0C',
   'moss/950': '#001206',
 
   'amber/050': '#FDF7E1',
@@ -180,7 +174,6 @@ export const primitives = {
   'amber/700': '#684A00',
   'amber/800': '#483100',
   'amber/900': '#2E1D00',
-  'amber/925': '#221400',
   'amber/950': '#150B00',
 } as const satisfies Record<string, `#${string}`>;
 

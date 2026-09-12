@@ -22,7 +22,8 @@
  *    reads as recessed only inside a raised surface, and on the canvas it
  *    takes a border instead. A twentieth step was measured and refused — see
  *    primitives.ts. The dark ladder is 950 → 925 → 900, ΔL .043 per step in
- *    OKLCH: 925 is the surface step, added 2026-09-12 after every reference
+ *    OKLCH: 925 is the surface step, in night and stone only, added
+ *    2026-09-12 after every reference
  *    system measured placed its surface levels at .025–.045 and this one
  *    jumped .085. Surface against surface is measured in lightness, not in
  *    the WCAG ratio, which flattens the dark end (the new step is 1.08:1 and
