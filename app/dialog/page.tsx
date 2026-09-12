@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from 'react';
 import { DocPage } from '@ui/DocPage';
+import { Ratio } from '@ui/Ratio';
 import { Button } from '@/components/Button/index';
 import { Dialog, type DialogSize } from '@/components/Dialog/index';
 import { Field } from '@/components/Field/index';
@@ -10,6 +11,7 @@ import { Select } from '@/components/Select/index';
 import { Table } from '@/components/Table/index';
 import { composite, contrast, hexToRgb, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
 import type { Mode } from '@/tokens/theme';
+import { radius, spacing } from '@/tokens/scale';
 
 type PropRow = { prop: string; type: string; default: string };
 
@@ -41,6 +43,43 @@ const mirrored = contrast(
   resolve('surface/overlay', 'dark'),
   rgbToHex(composite(hexToRgb(resolve('surface/overlay', 'dark')), hexToRgb(resolve('surface/base', 'dark')), 0.95)),
 );
+
+/**
+ * A destructive confirmation. The button that destroys repeats the
+ * consequence, the safe way out is named for what it keeps, and focus lands
+ * on the safe one — Enter must never destroy by default.
+ */
+function ConfirmDemo() {
+  const [open, setOpen] = useState(false);
+  const keep = useRef<HTMLButtonElement>(null);
+  const close = () => setOpen(false);
+  return (
+    <>
+      <Button variant="outline" tone="danger" onClick={() => setOpen(true)}>
+        Cancel appointment
+      </Button>
+      <Dialog
+        open={open}
+        onClose={close}
+        title="Cancel this appointment?"
+        size="xs"
+        initialFocus={keep}
+        actions={
+          <>
+            <Button ref={keep} variant="outline" tone="neutral" onClick={close}>
+              Keep it
+            </Button>
+            <Button tone="danger" onClick={close}>
+              Cancel appointment
+            </Button>
+          </>
+        }
+      >
+        <p>The client is told by email, and the slot opens to others.</p>
+      </Dialog>
+    </>
+  );
+}
 
 function SizeDemo({ size, width }: { size: DialogSize; width: string }) {
   const [open, setOpen] = useState(false);
@@ -93,7 +132,7 @@ function FormDemo() {
               Cancel
             </Button>
             <Button type="submit" form="staff-form">
-              Save
+              Add staff member
             </Button>
           </>
         }
@@ -167,10 +206,13 @@ export default function Page() {
         <>
           <p>0 lines of focus-trap JS</p>
           <p>0 new dependencies</p>
-          <p>title, text/primary on the surface</p>
+          <p>title on the surface</p>
           <p>
-            {f(tokenContrast('text/primary', 'surface/overlay', 'light'))}:1 light ·{' '}
-            {f(tokenContrast('text/primary', 'surface/overlay', 'dark'))}:1 dark
+            light{' '}
+            <Ratio fg={resolve('text/primary', 'light')} bg={resolve('surface/overlay', 'light')} />
+          </p>
+          <p>
+            dark <Ratio fg={resolve('text/primary', 'dark')} bg={resolve('surface/overlay', 'dark')} />
           </p>
           <p>dialog against the backdrop</p>
           <p>
@@ -187,7 +229,48 @@ export default function Page() {
         caller to close, and a click beside the dialog does nothing.
       </p>
 
-      <h2>Sizes</h2>
+      <h2>Try it</h2>
+      <div className="specimen">
+        <div className="specimenRow">
+          <ConfirmDemo />
+          <span className="alias">
+            Focus lands on <em>Keep it</em>, so Enter keeps the appointment; only the red button
+            cancels it.
+          </span>
+        </div>
+      </div>
+
+      <h2>Choosing a dialog</h2>
+      <p>
+        A dialog interrupts. It is for a decision that cannot wait — confirm, discard, choose —
+        or for a short form that belongs to the page beneath it and would lose its place as a
+        page of its own. It is not for content the reader browses, which is a page, and not
+        for news, which is a status message: nothing that can be read later should stop the
+        reader now.
+      </p>
+      <p>
+        The buttons answer the title. Under <em>Cancel this appointment?</em> they are{' '}
+        <em>Cancel appointment</em> and <em>Keep it</em>, so the dialog can be answered without
+        reading its body — never <em>Yes</em> and <em>No</em>, and never a bare <em>Cancel</em>{' '}
+        that could mean either. The destructive button takes the danger tone and is the only
+        filled one; the safe button is outline, and it is where focus starts. In a form the
+        confirm names what the form does: <em>Add staff member</em>, not <em>Save</em>, so the
+        button reads the same as the title that opened it.
+      </p>
+      <p>
+        <code>xs</code> holds a question and two answers. <code>sm</code> holds a short form.{' '}
+        <code>md</code> holds a form with two columns, and <code>lg</code> a picker or a table
+        the reader chooses from. If the body needs to scroll on a laptop, it is a page.
+      </p>
+
+      <h2>Anatomy and sizes</h2>
+      <p>
+        Three bands. The header holds the back button when there is a previous step, the title,
+        and the close button, at {spacing[300]}px of padding; the body takes {spacing[500]}px;
+        the footer holds the actions in reading order, the safe one first, and it is not drawn
+        without them. Hairlines separate the bands. The corner is {radius['2xl']}px, and the
+        backdrop is the scrim measured in the margin.
+      </p>
       <div className="specimen">
         <div className="specimenRow">
           {SIZES.map(([size, width]) => (
@@ -196,8 +279,8 @@ export default function Page() {
         </div>
       </div>
       <p>
-        On a screen narrower than the dialog it takes the width less 16px each side, and on{' '}
-        <code>xs</code> the actions stack, the first on top.
+        On a screen narrower than the dialog it takes the width less {spacing[200]}px each side,
+        and on <code>xs</code> the actions stack, the first on top.
       </p>
 
       <h2>A form</h2>
@@ -209,8 +292,8 @@ export default function Page() {
       <p>
         The first field takes focus through <code>initialFocus</code>. Not <code>autoFocus</code>:
         React&apos;s client renderer does not write the attribute that <code>showModal()</code> looks
-        for, so it would work on a server-rendered page and not on this one. Save submits the form
-        by its <code>form</code> attribute, from outside it.
+        for, so it would work on a server-rendered page and not on this one. The confirm button
+        submits the form by its <code>form</code> attribute, from outside it.
       </p>
 
       <h2>More than one step</h2>
