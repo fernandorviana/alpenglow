@@ -107,7 +107,7 @@ The tail is deep on purpose — the dark canvas is `#090B1F`, decided 2026-09-11
 
 | Family | Role |
 |---|---|
-| `glow` | The brand — hero, gradient, one call to action per screen. **Never a button or status tone**: `glow/600` and `ember/600` are 1.02:1 apart. |
+| `glow` | The brand — hero, gradient, one call to action per screen. **Never a button or status tone**: `glow/600` and `ember/600` are 1.01:1 apart. |
 | `twilight` | Everything interactive — fills, links, focus, selection tint. |
 | `flare` | The highlight fill, `interactive/tertiary`. Never a status: `amber` was pushed to h 86–95 to stay ΔEok 0.11 from it. |
 | `glacier` | The second highlight and the info status. |
@@ -222,7 +222,7 @@ Ratios against `surface/raised` in each mode. Every status token also clears AA 
 | `color/text/disabled` | `#A3A8AF` stone/400 | `#666B71` stone/600 | Disabled text (WCAG-exempt) | 2.4 / 3.4 |
 | `color/text/inert` | `#C1C6CC` stone/300 | `#444C76` night/700 | Inert text beside interactive content (WCAG-exempt); always below disabled | 1.7 / 2.4 |
 | `color/text/inverse` | `#FFFFFF` white | `#0B0D12` stone/950 | Text on `surface/inverse` — 19.4 / 18.1 there | — |
-| `color/text/accent` | `#6F43DC` twilight/600 | `#CDB8FF` twilight/300 | Links | 6.0 / 9.2 |
+| `color/text/accent` | `#7043DC` twilight/600 | `#CDB8FF` twilight/300 | Links | 6.0 / 9.2 |
 | `color/text/success` | `#006031` moss/700 | `#93D9A3` moss/300 | Success messages | 7.7 / 9.8 |
 | `color/text/warning` | `#483100` amber/800 | `#E3C364` amber/300 | Warning messages | 12.2 / 9.5 |
 | `color/text/danger` | `#94131E` ember/700 | `#FFADA9` ember/300 | Validation errors | 8.9 / 9.2 |
@@ -234,7 +234,7 @@ Ratios for `on-*` tokens are against their resting fill; for fills, against `sur
 
 | Token | Light | Dark | Use | L / D |
 |---|---|---|---|---|
-| `color/interactive/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Primary button fill | 6.0 / 6.5 |
+| `color/interactive/accent` | `#7043DC` twilight/600 | `#B091FF` twilight/400 | Primary button fill | 6.0 / 6.5 |
 | `color/interactive/accent-hover` | `#532CB1` twilight/700 | `#CDB8FF` twilight/300 | Primary hover | 8.9 / 9.2 |
 | `color/interactive/accent-pressed` | `#361583` twilight/800 | `#E2D4FF` twilight/200 | Primary pressed | 13.2 / 11.7 |
 | `color/interactive/on-accent` | `#FFFFFF` white | `#090B1F` night/950 | Label on accent | 6.0 / 7.7 |
@@ -246,7 +246,7 @@ Ratios for `on-*` tokens are against their resting fill; for fills, against `sur
 | `color/interactive/tertiary-hover` | `#FFB27B` flare/300 | `#FFB27B` flare/300 | Highlight hover — lighter, see decisions | 1.8 / 9.2 |
 | `color/interactive/tertiary-pressed` | `#FFD2B1` flare/200 | `#FFD2B1` flare/200 | Highlight pressed | 1.4 / 11.7 |
 | `color/interactive/on-tertiary` | `#1E2026` stone/900 | `#090B1F` night/950 | Label on highlight | 6.4 / 7.7 |
-| `color/interactive/success` | `#1D7E46` moss/600 | `#67BE80` moss/400 | Confirming button fill | 5.1 / 7.2 |
+| `color/interactive/success` | `#1E7E46` moss/600 | `#67BE80` moss/400 | Confirming button fill | 5.1 / 7.2 |
 | `color/interactive/success-hover` | `#006031` moss/700 | `#93D9A3` moss/300 | Confirming hover | 7.7 / 9.8 |
 | `color/interactive/success-pressed` | `#004120` moss/800 | `#BBEAC4` moss/200 | Confirming pressed | 11.8 / 12.2 |
 | `color/interactive/on-success` | `#FFFFFF` white | `#090B1F` night/950 | Label on success | 5.1 / 8.6 |
@@ -267,10 +267,10 @@ Ratios against `surface/raised`.
 | `color/border/subtle` | `alpha/ink-08` (stone/950 at 8%) | `alpha/white-16` | Dividers, row separators — reads on every surface | 1.2 / 1.6 |
 | `color/border/default` | `#C1C6CC` stone/300 | `#5C6796` night/600 | Cards, containers, text inputs — see decisions | 1.7 / 3.3 |
 | `color/border/strong` | `#83888F` stone/500 | `#83888F` stone/500 | All form control boundaries — 3:1 on every surface | 3.6 / 5.1 |
-| `color/border/accent` | `#6F43DC` twilight/600 | `#B091FF` twilight/400 | Active, selected | 6.0 / 6.5 |
+| `color/border/accent` | `#7043DC` twilight/600 | `#B091FF` twilight/400 | Active, selected | 6.0 / 6.5 |
 | `color/border/focus` | `#8F62FF` twilight/500 | `#CDB8FF` twilight/300 | Focus ring — the **only** focus token | 3.9 / 9.2 |
 | `color/border/danger` | `#BC2C2F` ember/600 | `#FF7873` ember/400 | Error | 5.9 / 6.3 |
-| `color/border/success` | `#1D7E46` moss/600 | `#67BE80` moss/400 | Validated | 5.1 / 7.2 |
+| `color/border/success` | `#1E7E46` moss/600 | `#67BE80` moss/400 | Validated | 5.1 / 7.2 |
 | `color/border/inverse` | `#4C5057` stone/700 | `#D9DDE2` stone/200 | On `surface/inverse` | 8.1 / 11.9 |
 
 ### spacing, radius, border-width
@@ -314,15 +314,15 @@ You cannot set opacity on an alias — it resolves to the primitive's own alpha.
 | Family | 050 → 950 (stone and night carry a 925 between 900 and 950) |
 |---|---|
 | `white` | `#FFFFFF` (single) |
-| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C21640` `97002F` `680020` `430012` `220006` |
-| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `6F43DC` `532CB1` `361583` `20055B` `0D0033` |
-| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AC4700` `843300` `5C1F00` `3C1000` `1E0400` |
+| `glow` | `FFF3F8` `FFE5EE` `FFCCDC` `FFA9BF` `FF738F` `EB3B55` `C2173F` `97002F` `680020` `430012` `220006` |
+| `twilight` | `F8F5FF` `F0E8FF` `E2D4FF` `CDB8FF` `B091FF` `8F62FF` `7043DC` `532CB1` `361583` `20055B` `0D0033` |
+| `flare` | `FFF5EC` `FFE8D6` `FFD2B1` `FFB27B` `FF7F05` `D66000` `AB4800` `843300` `5C1F00` `3C1000` `1E0400` |
 | `glacier` | `E1FDFF` `C3F8FC` `9EECF3` `5DDAE9` `00BDD3` `0098B0` `00778C` `005A6B` `003C49` `00252F` `001016` |
 | `stone` | `F5F7F9` `EAEDF1` `D9DDE2` `C1C6CC` `A3A8AF` `83888F` `666B71` `4C5057` `32353C` `1E2026` **`15171C`** `0B0D12` |
 | `night` | `F3F7FF` `E7EDFB` `D3DCF4` `B9C5E7` `98A6D1` `7885B6` `5C6796` `444C76` `2D3254` `1B1E38` **`12142C`** `090B1F` |
 | `mist` | `F0F9F9` `E1F0F1` `CBE2E2` `AFCDCD` `8DB0B0` `6A908F` `4F7272` `385656` `213A3B` `102425` `031010` |
 | `ember` | `FFF4F3` `FFE6E5` `FFCFCD` `FFADA9` `FF7873` `E44B46` `BC2C2F` `94131E` `6A000F` `440007` `220002` |
-| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1D7E46` `006031` `004120` `002912` `001206` |
+| `moss` | `EEFBF0` `DDF4E0` `BBEAC4` `93D9A3` `67BE80` `3E9E5F` `1E7E46` `006031` `004120` `002912` `001206` |
 | `amber` | `FDF7E1` `F8EDC5` `EFDC9D` `E3C364` `CCA21D` `AA8100` `886400` `684A00` `483100` `2E1D00` `150B00` |
 
 The brand gradient — `flare/300 → glow/300 → glow/500 → twilight/400 → night/600` in Light, one stop more saturated in Dark (`400 → 400 → 500 → 500 → 500`) — is a gradient asset, not a variable. It never carries text.
@@ -463,5 +463,5 @@ Only failures actually observed in testing, or collisions measured in this palet
 | Thickening a field's border on focus or error | Width never changes; colour changes and the ring is added |
 | Using `surface/raised` for a table inside a modal | Backwards elevation — stay on `overlay`, separate with borders |
 | Darkening the highlight button on hover | `flare/500` carries no label; the ladder goes 400 → 300 → 200 |
-| Using `glow` for a button or a status | It is the brand; `glow/600` and `ember/600` are 1.02:1 apart |
+| Using `glow` for a button or a status | It is the brand; `glow/600` and `ember/600` are 1.01:1 apart |
 | Assuming variables replace the paint styles | They coexist; migration is a separate deliberate pass |

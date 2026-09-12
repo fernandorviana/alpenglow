@@ -8,6 +8,13 @@
  * is the generator, and every ratio quoted below was read from it, not
  * estimated. The lightness of a stop is the same in every family:
  *
+ * The generator is the source, byte for byte. When the tail deepened on
+ * 2026-09-11 only the forty 700–950 stops were copied across, but the hue
+ * drift between 500 and 950 is interpolated by lightness, so four 600s moved
+ * by one unit in one channel as well (glow, twilight, flare, moss). The file
+ * was brought back to the generator on 2026-09-12; no ratio quoted anywhere
+ * moved at two decimals except glow/600 against ember/600, 1.02 → 1.01.
+ *
  *   050 .975 · 100 .945 · 200 .895 · 300 .825 · 400 .73 · 500 .625
  *   600 .525 · 700 .43  · 800 .33  · 900 .245 · 950 .16
  *
@@ -29,7 +36,7 @@
  *
  * Roles, so a reader does not have to infer them from the names:
  *   glow      the brand — pink to coral. Hero, gradient, one CTA per screen.
- *             Never a button tone: glow/600 and ember/600 are 1.02:1 apart.
+ *             Never a button tone: glow/600 and ember/600 are 1.01:1 apart.
  *   twilight  everything interactive — violet to indigo.
  *   flare     the highlight fill — the gold the peaks take before they turn
  *             pink. The tertiary tone, never a status: amber sits at h 86–95
@@ -60,7 +67,7 @@ export const primitives = {
   'glow/300': '#FFA9BF',
   'glow/400': '#FF738F',
   'glow/500': '#EB3B55',
-  'glow/600': '#C21640',
+  'glow/600': '#C2173F',
   'glow/700': '#97002F',
   'glow/800': '#680020',
   'glow/900': '#430012',
@@ -72,7 +79,7 @@ export const primitives = {
   'twilight/300': '#CDB8FF',
   'twilight/400': '#B091FF',
   'twilight/500': '#8F62FF',
-  'twilight/600': '#6F43DC',
+  'twilight/600': '#7043DC',
   'twilight/700': '#532CB1',
   'twilight/800': '#361583',
   'twilight/900': '#20055B',
@@ -84,7 +91,7 @@ export const primitives = {
   'flare/300': '#FFB27B',
   'flare/400': '#FF7F05',
   'flare/500': '#D66000',
-  'flare/600': '#AC4700',
+  'flare/600': '#AB4800',
   'flare/700': '#843300',
   'flare/800': '#5C1F00',
   'flare/900': '#3C1000',
@@ -158,7 +165,7 @@ export const primitives = {
   'moss/300': '#93D9A3',
   'moss/400': '#67BE80',
   'moss/500': '#3E9E5F',
-  'moss/600': '#1D7E46',
+  'moss/600': '#1E7E46',
   'moss/700': '#006031',
   'moss/800': '#004120',
   'moss/900': '#002912',

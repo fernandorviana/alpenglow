@@ -538,6 +538,21 @@ Open from it:
   Not in the question that was asked; a wash over those fills would need the
   `on-*` labels re-measured on the composite.
 
+### 0b. Four 600 stops brought back to the generator (2026-09-12)
+
+`primitives.ts` says every value is read from `scripts/generate-ramps.mjs`,
+and at `dc3aaca` that was byte-true. The deep tail (`1ceacad`) changed the
+lightness of 700–950, and `drift()` interpolates hue between 500 and 950 by
+lightness, so the generator's four 600s (glow, twilight, flare, moss) moved by
+one unit in one channel while the file kept the old hexes — the commit copied
+only the forty tail stops. Decided for the generator: it is the stated
+source, the docs already quoted its post-tail figures (twilight/600 on white
+5.96, which the old hex gave as 5.98), and no ratio quoted anywhere moves at
+two decimals except glow/600 against ember/600, 1.02 → 1.01. The Figma file
+still holds the four old values: `glow/600`, `twilight/600`, `flare/600` and
+`moss/600` in `Alpenglow Primitives` need their colour re-set (values, not
+aliases) — not done in the session that found this.
+
 ### 1. The bedrock landed; the theme is expected to move (2026-09-11)
 
 `dc3aaca` replaced the twenty-step neutral and the two brand ramps with ten

@@ -45,7 +45,7 @@
         {
           "name": "glow/600",
           "type": "COLOR",
-          "hex": "#C21640"
+          "hex": "#C2173F"
         },
         {
           "name": "glow/700",
@@ -100,7 +100,7 @@
         {
           "name": "twilight/600",
           "type": "COLOR",
-          "hex": "#6F43DC"
+          "hex": "#7043DC"
         },
         {
           "name": "twilight/700",
@@ -155,7 +155,7 @@
         {
           "name": "flare/600",
           "type": "COLOR",
-          "hex": "#AC4700"
+          "hex": "#AB4800"
         },
         {
           "name": "flare/700",
@@ -495,7 +495,7 @@
         {
           "name": "moss/600",
           "type": "COLOR",
-          "hex": "#1D7E46"
+          "hex": "#1E7E46"
         },
         {
           "name": "moss/700",
