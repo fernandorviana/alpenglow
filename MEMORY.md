@@ -620,7 +620,16 @@ the number the suite reports, rather than as assertions, which nothing counts.
 For a system whose pitch is *measured rather than assumed*, a drifted number in
 the README is the most expensive kind of typo.
 
-### 2. Packaging — published (`0.1.0`, 2026-09-11)
+### 2. Packaging — published (`0.2.0`, 2026-09-12)
+
+`alpenglow@0.2.0` is on npm as `latest`, released through the Release
+workflow from tag `v0.2.0` on `3c6120f`: the workflow ran the gates and
+staged it, Fernando approved the staged version on npmjs.com, and it went
+public about two minutes after the approval. 99 files, shasum `a96a9d88`.
+Installed from the registry into an empty app it resolves 49 exports and
+ships `--ap-night-925`, the two wash tokens and no `neutral-hover`. It is
+the first version released through the staged flow, and the first breaking
+one (two token names gone; see invariant 21).
 
 `alpenglow@0.1.0` is on npm, published by hand from `b69bfcd`: 97 files,
 70.4 kB packed. Its shasum, `c033a274`, is the one `npm publish --dry-run`
