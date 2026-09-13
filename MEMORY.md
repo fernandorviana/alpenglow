@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-12**, at the site-layout commit (no bar across the top, the section list, the pager, the skip link).
+Last verified against the tree on **2026-09-13**, at the end of the docs content pass (every page rewritten around the choice, both modes checked).
 
 ---
 
@@ -465,7 +465,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 940 tests across 39 files
+npm test            # 953 tests across 41 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export
 npm run build:lib       # the package, in dist/
@@ -496,6 +496,40 @@ including a divider that resolved to the same colour as the surface beneath it.
 ---
 
 ## Open work
+
+### -1. The docs content pass is done; five decisions wait on Fernando (2026-09-13)
+
+Every page was rewritten on 2026-09-12 and 13 with the `better-*` skills
+(accessibility, layout, writing, typography, colors, ui) in one shape: a
+"Try it" or "See it", a "Choosing …" section on when to use the thing
+against its neighbours, anatomy with the drawn numbers, states,
+accessibility, props. The home is a card index in the M3 shape; the site
+has no bar across the top, a section list beside the prose from 1440, the
+measurements against the right edge, a skip link, a `main`, a pager. Every
+number that was text became a computation. Both modes were checked on every
+page (see the screenshot workaround in the private memory).
+
+Three package files changed and are unreleased: the Button's press scale
+(0.96, colour alone under reduced motion), the Dialog's title wrapping
+(header gap 40 → 24), and tabular figures in the Table's end-aligned cells.
+The next version carries them.
+
+Open, each recorded on its page rather than resolved:
+
+- **The text field at 14px on iOS.** iOS Safari zooms into a field under
+  16px. Two fixes, sixteen on a phone or fourteen held by a transform, and
+  each looks different (Input, Typography).
+- **The text field's resting border.** The 2026-09-07 decision kept a
+  `border/default` hairline; the code draws none. Both versions are on
+  Decisions and Input; neither has been chosen.
+- **The menu's radii are not concentric.** `xl` outside, `lg` rows at 8
+  padding; concentric wants 16 outside. Drawn numbers, recorded on Space
+  and shape and Dropdown menu.
+- **The Tailwind theme keeps Tailwind's palette.** `bg-blue-500` compiles
+  beside the tokens. A `--color-*: initial` in the generated `@theme` would
+  make the system's colours the only ones; it changes what consumers get.
+- **`glow` has no consumer** and the site's page-level look was never
+  redesigned for the palette (carried from item 1).
 
 Ordered by what it costs the project *as a portfolio piece*, which is not the
 same as what it would cost a library with adopters. Reviewers arrive through the
