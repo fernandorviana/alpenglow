@@ -1,10 +1,25 @@
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
-import { resolve, contrast, lightness, tokenContrast } from '@/tokens/contrast';
-import { primitives } from '@/tokens/primitives';
+import { composite, contrast, hexToRgb, lightness, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
+import { alphaPrimitives, primitives } from '@/tokens/primitives';
 
 const f3 = (n: number) => n.toFixed(3);
 const f2 = (n: number) => n.toFixed(2);
+
+/** A shadow's darkest layer flattened over the ground it falls on, as a ratio against that ground. */
+function shadowOn(name: 'alpha/black-08' | 'alpha/black-64', ground: string) {
+  const { hex, alpha } = alphaPrimitives[name];
+  return contrast(rgbToHex(composite(hexToRgb(hex), hexToRgb(ground), alpha)), ground);
+}
+
+/** When a decision was made, where the record has it. A decision without a date is from the first drawing. */
+function Decided({ on }: { on: string }) {
+  return (
+    <p className="alias" style={{ margin: '-8px 0 12px' }}>
+      Decided {on}
+    </p>
+  );
+}
 
 export default function Page() {
   return (
@@ -22,6 +37,13 @@ export default function Page() {
       <p className="lead">
         The parts of the system that look like mistakes, and the measurements that made
         them the right answer.
+      </p>
+      <p>
+        Each entry is a record: what was decided, the number that decided it, and the date
+        where the record has one. An entry with no date is from the first drawing. A decision
+        that runs against a good instinct — a border that fails a guideline on purpose, a
+        ladder that is not symmetric — is written here so the next person finds the number
+        before they find the instinct.
       </p>
 
       <h2>Light and dark are not symmetric</h2>
@@ -75,15 +97,27 @@ export default function Page() {
         </p>
       </div>
 
-      <h2>Text inputs and checkboxes share one border</h2>
+      <h2>Checkboxes take the strong border; text fields have none at rest</h2>
+      <Decided on="2026-09-07, and the code has since moved" />
       <p>
         <code>border/strong</code> is the same primitive in both modes, which is unusual.
         It is the only value in the ramp clearing 3:1 against all four surfaces in light{' '}
-        <em>and</em> dark, so every form control can use it without a per-surface exception.
-        Sitting mid-ramp, it contrasts in both directions.
+        <em>and</em> dark, so a checkbox and a radio — where the border <em>is</em> the
+        control — use it without a per-surface exception. Sitting mid-ramp, it contrasts in
+        both directions.
+      </p>
+      <p>
+        The text field is the exception, and it has two records. The decision of 2026-09-07
+        kept a hairline in <code>border/default</code> at rest, 1.40:1 in light and 1.53:1 in
+        dark, failing 1.4.11 to preserve the drawn look. The code today draws no resting border
+        at all — the boundary is the fill, {f2(contrast(resolve('interactive/neutral', 'light'), resolve('surface/raised', 'light')))}:1
+        against a card in light — and the <a href="/input">Input</a> page records that as a
+        known gap. The two have not been reconciled, and this entry says so rather than
+        picking one quietly.
       </p>
 
       <h2>The dark ramp holds three elevation levels, and sunken shares the canvas</h2>
+      <Decided on="2026-09-11, with the deep tail" />
       <p>
         Base, raised, overlay — 950, 925, 900 — and then it is full. The ramp ends at 950, so
         in dark <code>surface/sunken</code> is the canvas: a well reads as recessed inside a
@@ -96,6 +130,7 @@ export default function Page() {
       </p>
 
       <h2>925 is a surface step, and the only half step there will be</h2>
+      <Decided on="2026-09-12" />
       <p>
         The ladder used to be 950, 900, 800: one whole stop per level, ΔL .085 in OKLCH, and
         it looked strong because it was. Every reference system measured — Radix, Atlassian,
@@ -111,6 +146,7 @@ export default function Page() {
       </p>
 
       <h2>Surfaces are measured in lightness, not in the contrast ratio</h2>
+      <Decided on="2026-09-12" />
       <p>
         The WCAG ratio adds 0.05 to both luminances, which flattens the dark end: Radix&rsquo;s
         first two dark greys are 1.06:1 apart and everyone sees the step. This system&rsquo;s
@@ -123,6 +159,7 @@ export default function Page() {
       </p>
 
       <h2>Hover is a wash, not a fill</h2>
+      <Decided on="2026-09-12" />
       <p>
         A row, a menu item, a ghost button and the neutral button all used to hover to one
         opaque colour: <code>mist/100</code> in light, <code>stone/700</code> in dark. Over a
@@ -141,12 +178,15 @@ export default function Page() {
 
       <h2>The menu takes a border in dark and not in light</h2>
       <p>
-        Not an oversight of symmetry. Against the ground it falls on, the shadow reaches 1.19:1
-        in light at 8% opacity and 1.05:1 in dark at 64% — in dark it has stopped carrying
-        elevation, whatever it is set to. The border is what separates the menu there, and
-        against the canvas it is 3.55:1 in dark against 1.60:1 in light: stronger where it has
-        to be. In light the shadow already does the work, and drawing the edge twice would
-        look like a mistake, because it would be one.
+        Not an oversight of symmetry. Against the ground it falls on, the shadow reaches{' '}
+        {f2(shadowOn('alpha/black-08', primitives.white))}:1 in light at 8% opacity and{' '}
+        {f2(shadowOn('alpha/black-64', resolve('surface/base', 'dark')))}:1 in dark at 64% — in
+        dark it has stopped carrying elevation, whatever it is set to. The border is what
+        separates the menu there, and against the canvas it is{' '}
+        {f2(tokenContrast('border/default', 'surface/base', 'dark'))}:1 in dark against{' '}
+        {f2(tokenContrast('border/default', 'surface/base', 'light'))}:1 in light: stronger where
+        it has to be. In light the shadow already does the work, and drawing the edge twice
+        would look like a mistake, because it would be one.
       </p>
 
       <h2>Each menu tone hovers to its own fill</h2>
@@ -162,6 +202,7 @@ export default function Page() {
       </p>
 
       <h2>The menu takes the top layer, and the suite cannot see it</h2>
+      <Decided on="2026-09-10, checked by hand in Chrome and Safari" />
       <p>
         jsdom, which runs the test suite, implements none of the popover API. The menu uses it
         anyway. A menu opens from inside other components — a row of actions in the Table, whose
@@ -170,6 +211,42 @@ export default function Page() {
         everything the component decides: roles, rows, keys, disabled rows, the stylesheet. Esc,
         the outside click, focus return and placement belong to the browser. All four were
         checked in Chrome, and this entry says so rather than letting a stub claim them.
+      </p>
+
+      <h2>The section list joins the prose at 1440, and not before</h2>
+      <Decided on="2026-09-12" />
+      <p>
+        The site&rsquo;s page has three columns on a wide screen — the sections, the prose,
+        the measurements — and a Table specimen needs 704px of prose to keep its header: 654
+        for the table and a specimen&rsquo;s padding and hairline on both sides. At 1440 the
+        prose has 728 with the list beside it; at 1280 it would have 616 and every Table on
+        its own page would render collapsed. So below 1440 the list sits at the head of the
+        measurements column instead, and the prose keeps 784.
+      </p>
+
+      <h2>The Dialog&rsquo;s title wraps</h2>
+      <Decided on="2026-09-13" />
+      <p>
+        It used to truncate with an ellipsis, and at <code>xs</code> the header&rsquo;s grid
+        left it 112px: two 40px buttons, two 40px gaps, and 48 of padding out of 320.{' '}
+        <em>Reschedule appointment</em>, this system&rsquo;s own example, read &ldquo;Reschedule
+        appoint…&rdquo;, and the question a confirmation asks was cut at &ldquo;Cancel th…&rdquo;.
+        A title the reader cannot read is a dialog they cannot answer, so the title wraps,
+        balanced, and the gap came down to 24 — the header&rsquo;s own padding — because
+        &ldquo;appointment?&rdquo; alone is 115px. A stylesheet test refuses the ellipsis from
+        now on.
+      </p>
+
+      <h2>A theme flip holds every transition but the toggle&rsquo;s own</h2>
+      <Decided on="2026-09-12" />
+      <p>
+        A flip changes the colour of nearly everything at once, and every colour transition on
+        the page fired together: measured on the Button page, 92 on the buttons and 7 on the
+        section list, so the buttons faded for 120ms while the page around them snapped. The
+        toggle now puts an attribute on the root for the frame the theme is written in, the
+        stylesheet turns transitions off under it, and the next frame takes it away. The
+        toggle&rsquo;s own transitions are excepted, because the knob&rsquo;s slide is the
+        control answering the click. Measured after: four transitions, all the toggle&rsquo;s.
       </p>
     </DocPage>
   );
