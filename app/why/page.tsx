@@ -144,6 +144,31 @@ export default function Page() {
         crests stay lit. The numbers are on the <a href="/decisions">Decisions</a> page;
         the surfaces themselves are on <a href="/colour">Colour</a>.
       </p>
+
+      <h2>How to read a page</h2>
+      <p>
+        Every component page has the same shape, so what you learn on one carries to the
+        next. It opens with the thing itself to try, then says when to choose it over its
+        neighbours — a select over radios, a menu over a select, a dialog over a page. Then
+        the anatomy with its drawn numbers, the states, the accessibility it carries, and the
+        props. The foundation pages do the same for a token: how it is organised, how to
+        choose one, and what is measured.
+      </p>
+      <p>
+        The margin on the right is the evidence. Every number there is calculated from the
+        tokens as the page renders, by the function the test suite runs, so it cannot drift
+        from the code without the build noticing. A grey box with a rule down its left is a
+        decision that was rejected, or a gap that is kept on purpose, with the number that
+        decided it — the part other systems leave out. The list on the left is the page&rsquo;s
+        sections, and the page before and after are at the foot.
+      </p>
+      <p>
+        The site is built from what it documents, and it holds itself to the same rules: a
+        skip link and landmarks for a keyboard, every specimen reachable by Tab, both modes on
+        the toggle in the sidebar, and no colour anywhere in its chrome that is not a token.
+        If something here fails on your screen, it is a defect in the system, and the
+        measurement that would have caught it belongs on the page.
+      </p>
     </DocPage>
   );
 }
