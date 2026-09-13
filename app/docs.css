@@ -81,6 +81,17 @@ html[data-nav-open] { overflow: hidden; }
   background: var(--ap-color-surface-raised);
 }
 
+/* The page and the footer, stacked beside the sidebar. The page takes the
+   height it needs and the footer follows it, so on a page shorter than the
+   window the footer rests at the foot of the viewport rather than half way
+   up it — the shell's `min-height` gives this column 100vh, and the page
+   grows into it. */
+.column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* The sections take the height; the theme toggle sits at the foot, below
    them, where the M3 site keeps its own. There is no bar across the top of
    the page: the prose starts where the viewport does. */
@@ -161,7 +172,8 @@ html[data-nav-open] { overflow: hidden; }
 
 /* --- main ----------------------------------------------------------------- */
 
-.main { min-width: 0; }
+/* Takes the height the column has spare, which puts the footer at the foot. */
+.main { flex: 1; min-width: 0; }
 
 /* Three columns on a wide screen — the page's sections, the prose, the
    evidence — and two below it, with the sections at the head of the evidence
@@ -998,6 +1010,100 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .rowAction:hover { background: var(--ap-color-interactive-wash-hover); }
 
+/* --- footer --------------------------------------------------------------- */
+
+/* The links the sidebar cannot hold — the package, the source, the licence —
+   at the foot of every page, on the raised surface the sidebar uses so the
+   chrome reads as one piece around the base-coloured page.
+
+   It sits beside the sidebar rather than under it (see the shell), and its
+   inner block takes the page's own padding and measure, so its first column
+   starts where the page's content does at every tier.
+
+   `contentinfo` only counts as a landmark outside `main`, which is why the
+   markup puts it after it rather than at the end of the prose. The pager,
+   which closes the prose, is the page's own end; this is the site's. */
+.footer {
+  padding: var(--ap-spacing-600) var(--ap-spacing-400) var(--ap-spacing-500);
+  border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-raised);
+}
+
+.footerInner {
+  display: grid;
+  grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+  gap: var(--ap-spacing-500);
+  max-width: 1120px;
+}
+
+/* Three groups across the rest of the width. `auto-fit` rather than a count:
+   the floor is the longest label with the widest group title above it, so a
+   narrow window drops to two columns and then to one on its own, at the width
+   where a label would otherwise wrap. */
+.footerGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--ap-spacing-300) var(--ap-spacing-400);
+}
+
+.footerName {
+  margin: 0 0 var(--ap-spacing-050);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-primary);
+}
+
+.footerNote,
+.footerColophon {
+  margin: 0;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  color: var(--ap-color-text-tertiary);
+  text-wrap: pretty;
+}
+
+.footerColophon {
+  max-width: 1120px;
+  margin-top: var(--ap-spacing-500);
+  padding-top: var(--ap-spacing-200);
+  border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.footerTitle {
+  margin: 0 0 var(--ap-spacing-100);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+}
+
+.footerList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ap-spacing-075);
+}
+
+/* Chrome, not prose: the accent is kept for links inside a sentence, and the
+   mark here is the text coming forward on hover. The underline waits for the
+   hover so that a column of links is a column rather than a block of rules. */
+.footerLink {
+  color: var(--ap-color-text-secondary);
+  text-decoration: none;
+  transition: color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.footerLink:hover {
+  color: var(--ap-color-text-primary);
+  text-decoration: underline;
+}
+
+/* The colophon's links sit in a sentence already set in the tertiary tone;
+   they come forward by one step rather than two. */
+.footerColophon .footerLink { color: var(--ap-color-text-secondary); }
+
 /* --- responsive ----------------------------------------------------------- */
 
 /* Wide: the sections join on the left. The breakpoint is where the prose
@@ -1019,6 +1125,9 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   }
   .prose { grid-column: 2; }
   .gutter { grid-column: 4; grid-row: 1 / 3; }
+  /* The page drops its measure here, so the footer drops the same one. */
+  .footerInner,
+  .footerColophon { max-width: none; }
 }
 
 @media (max-width: 1080px) {
@@ -1109,6 +1218,11 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
     border-bottom: none;
   }
   .page { padding: var(--ap-spacing-400) var(--ap-spacing-250) var(--ap-spacing-600); }
+
+  /* The page's padding, and one column: 19rem of description beside the
+     groups leaves each of them under the 9rem their labels need. */
+  .footer { padding: var(--ap-spacing-500) var(--ap-spacing-250) var(--ap-spacing-400); }
+  .footerInner { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
   .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
   .hero { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
 }
