@@ -281,6 +281,11 @@ export default function Page() {
         <li>No token collapses into the surface behind it.</li>
         <li>Both generated stylesheets stay in step with the token source.</li>
         <li>Components keep their semantics: labels, roles, keyboard, form participation.</li>
+        <li>
+          Every page of this site passes axe at WCAG A and AA, and the states a page cannot
+          show — an open menu, an open date picker, a field in error — are checked beside
+          their component.
+        </li>
       </ul>
       <p>
         The colour checks caught five real defects the first time they ran. One was a
@@ -320,8 +325,68 @@ export default function Page() {
       </p>
       <p>
         <strong>Motion asks first.</strong> Every transition is removed under{' '}
-        <code>prefers-reduced-motion</code>.
+        <code>prefers-reduced-motion</code>, and what it carried stays: the switch&rsquo;s knob
+        still moves, it stops sliding. The one animation, the Loader&rsquo;s spin, slows rather
+        than stops, because a frozen spinner reads as a hung page.
       </p>
+      <p>
+        <strong>Targets have a floor.</strong> No control is under 24px, the AA target size,
+        and the ones that are close borrow the rest from what wraps them — a checkbox from its
+        label, a row&rsquo;s checkbox from the row. The small button is 32px; for a screen that
+        is touched, the large one is 48.
+      </p>
+
+      <h2>Keyboard and structure</h2>
+      <p>
+        Every component has a keyboard path, and it is the platform&rsquo;s wherever the
+        platform has one: Space and arrows on the native inputs, Enter on a button, Esc on a
+        popover. Where the pattern asks for more, it is the APG&rsquo;s — one tab stop and
+        roving arrows in the menu and the calendar grid, Tab wrapping inside an open picker,
+        Esc handed to the caller by the dialog rather than closing behind its back. A modal
+        makes the page behind it inert and returns focus to what opened it; a closing menu
+        does the same.
+      </p>
+      <p>
+        The site is built the same way. A skip link is the first tab stop, the page is a{' '}
+        <code>main</code> landmark with the navigation, the section list and the pager as named{' '}
+        <code>nav</code>s, every page has one <code>h1</code> and a heading outline with no
+        skipped level, and every section heading is an anchor. The page reflows to 320px and to
+        200% zoom with no sideways scroll.
+      </p>
+
+      <h2>What a product still has to do</h2>
+      <p>
+        The system carries what it can: the ratios, the roles, the focus, the keyboard. A
+        product built on it still owns the parts only it can know.
+      </p>
+      <ul>
+        <li>
+          Name every icon-only button for its action — <em>Add attachment</em>, not the
+          glyph — and every image for its meaning, or mark it decorative.
+        </li>
+        <li>
+          Write the error: what to enter, beside the field that failed, with focus moved to the
+          first one on submit. The components mark and announce; the words are the
+          product&rsquo;s.
+        </li>
+        <li>
+          Keep one <code>h1</code> per page and an outline underneath it, and put a skip link
+          and a <code>main</code> before the chrome, as this site does.
+        </li>
+        <li>
+          Announce what changes away from the control that changed it: a polite status region
+          for a toast or a result count, <code>alert</code> only for an error the reader must
+          hear now.
+        </li>
+        <li>
+          Give a field its <code>type</code>, <code>inputMode</code> and{' '}
+          <code>autoComplete</code>, and never block paste.
+        </li>
+        <li>
+          Keep hit areas apart in a layout of your own, and never let a decorative layer sit
+          over a control without <code>pointer-events: none</code>.
+        </li>
+      </ul>
     </DocPage>
   );
 }
