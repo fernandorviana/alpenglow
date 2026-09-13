@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { Footer } from '@ui/Footer';
 import { Nav } from '@ui/Nav';
 import { SkipLink } from '@ui/SkipLink';
 import { InlineScript } from '@ui/InlineScript';
@@ -43,9 +44,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SkipLink />
         <div className="shell">
           <Nav />
-          <main className="main" id="content" tabIndex={-1}>
-            {children}
-          </main>
+          {/* The page and the footer share a column beside the sidebar, so the
+              footer runs to the width of the page rather than under the
+              sidebar, and the nav's narrow-screen overlay covers both: it makes
+              every sibling of its own inert, and this column is the sibling.
+              The footer is outside `main` because `contentinfo` is a landmark
+              only there. */}
+          <div className="column">
+            <main className="main" id="content" tabIndex={-1}>
+              {children}
+            </main>
+            <Footer />
+          </div>
         </div>
         <Analytics />
       </body>

@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 import { render } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { axeViolations } from '@/test/axe';
+import { Footer } from '@ui/Footer';
 import { Nav } from '@ui/Nav';
 
 /**
@@ -33,6 +34,11 @@ const pages = readdirSync('app', { recursive: true, encoding: 'utf8' })
 describe('axe finds no WCAG A or AA violation', () => {
   it('in the site navigation, theme toggle included', async () => {
     const { container } = render(<Nav />);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('in the site footer', async () => {
+    const { container } = render(<Footer />);
     expect(await axeViolations(container)).toEqual([]);
   });
 

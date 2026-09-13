@@ -509,6 +509,21 @@ measurements against the right edge, a skip link, a `main`, a pager. Every
 number that was text became a computation. Both modes were checked on every
 page (see the screenshot workaround in the private memory).
 
+The chrome gained a **footer** on 2026-09-13, the one thing the sidebar had
+no room for: where the package is (`npm`), where the source is (repository,
+issues, MIT licence), three pages each from the developer and the system
+paths, and the icon set and the typeface credited under a rule. Its off-site
+URLs are derived from `package.json` — repository, bugs, name, licence,
+version — the way the Install page reads the version, so the foot of the
+site cannot name a repository the package does not; `Footer.test.tsx` holds
+every on-site link to a page the sidebar lists, so a footer link cannot
+outlive its page. It sits outside `main`, where `contentinfo` is a landmark,
+in a column that holds the page above it: the footer runs to the page's
+width rather than under the sidebar, rests at the foot of the viewport on a
+page shorter than the window, and goes inert with the rest of the column
+under the narrow-screen menu. Tertiary text on the raised surface, its
+lightest pairing, measures 5.38:1 light and 7.55:1 dark.
+
 Three package files changed and are unreleased: the Button's press scale
 (0.96, colour alone under reduced motion), the Dialog's title wrapping
 (header gap 40 → 24), and tabular figures in the Table's end-aligned cells.
