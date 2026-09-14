@@ -34,9 +34,9 @@ body {
 /* --- skip link ------------------------------------------------------------ */
 
 /* Off screen, not hidden: `display: none` would take it out of the tab
-   order it exists for. Focused, it sits over the sidebar's head on a raised
-   card, in the position the brand holds, so the eye finds it where the eye
-   already was. `main` takes `tabindex="-1"` so the jump moves focus as well
+   order it exists for. Focused, it sits over the head of the rail on a raised
+   card — the top left corner, where the eye lands first on a wide screen and
+   where the brand is on a narrow one. `main` takes `tabindex="-1"` so the jump moves focus as well
    as the scroll, and the ring is left off it: the target is the page, not a
    control. */
 .skipLink {
@@ -62,21 +62,33 @@ body {
 /* Set by the nav while its narrow-screen overlay is open. */
 html[data-nav-open] { overflow: hidden; }
 
+/* The first column is whatever the two bars add up to — the rail and the
+   drawer, each with a width of its own below — so the sum is written once. */
 .shell {
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   min-height: 100vh;
 }
 
+/* Two bars side by side, the shape of the Material 3 site: a rail with the
+   sections, a drawer with the pages of the section the reader is in. Each
+   bar scrolls on its own and keeps its own surface; the nav itself only
+   holds them in place. There is no bar across the top of the page: the
+   prose starts where the viewport does. */
 .sidebar {
   position: sticky;
   top: 0;
   align-self: start;
   display: flex;
-  flex-direction: column;
   height: 100vh;
+}
+
+.rail,
+.drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow-y: auto;
-  padding: var(--ap-spacing-300) var(--ap-spacing-200);
   border-inline-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   background: var(--ap-color-surface-raised);
 }
@@ -92,28 +104,91 @@ html[data-nav-open] { overflow: hidden; }
   min-width: 0;
 }
 
-/* The sections take the height; the theme toggle sits at the foot, below
-   them, where the M3 site keeps its own. There is no bar across the top of
-   the page: the prose starts where the viewport does. */
-.navSections { flex: 1; }
+/* --- rail ----------------------------------------------------------------- */
 
-/* Written before the sections in the markup, so the narrow bar can put it in
-   its head; `order` moves it last here and the auto margin takes it to the
-   foot. Sticky there, because the sections alone are taller than a 900px
-   laptop window — the sidebar scrolls, and a toggle that scrolled with it
-   would be under the fold on the most common screen there is. The sidebar's
-   own padding is taken back at the bottom so the sections pass under the
-   foot rather than showing through a strip below it. */
+/* The M3 rail is 80 wide; this one is 96 because the theme toggle at its
+   foot is 84, and 80 would leave it touching both edges. Each item is the
+   M3 rail's geometry — a 56×32 pill around a 24px icon, a caption under it
+   — so the four sections read as one set at a glance and the pill, not the
+   caption, carries the selected state. */
+.rail {
+  width: 96px;
+  padding-block: var(--ap-spacing-200);
+}
+
+.railList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-100);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  padding-block: var(--ap-spacing-050);
+  border-radius: var(--ap-radius-md);
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  text-align: center;
+  text-decoration: none;
+  transition: color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.railPill {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 32px;
+  border-radius: var(--ap-radius-full);
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.railLink:hover { color: var(--ap-color-text-primary); }
+.railLink:hover .railPill { background: var(--ap-color-interactive-wash-hover); }
+
+/* The section the reader is in, whether on its own page (`page`) or on one
+   inside it (`location`): the pill fills, the caption takes weight. Weight
+   is safe here — a section's name is one word, and the mark changes on a
+   click, not a scroll. */
+.railLink[aria-current] { color: var(--ap-color-text-primary); font-weight: var(--ap-font-weight-medium); }
+.railLink[aria-current] .railPill { background: var(--ap-color-interactive-selected); }
+
+/* The theme toggle at the foot of the rail, where the M3 site keeps its own.
+   Sticky there, because on a screen shorter than the rail the toggle would
+   otherwise be under the fold; the rail's padding is taken back at the
+   bottom so the items pass under the foot rather than showing through a
+   strip below it. */
 .sidebarTheme {
-  order: 1;
   position: sticky;
   bottom: 0;
+  display: flex;
+  justify-content: center;
   margin-top: auto;
-  margin-bottom: calc(-1 * var(--ap-spacing-300));
-  padding-block: var(--ap-spacing-200) var(--ap-spacing-300);
+  margin-bottom: calc(-1 * var(--ap-spacing-200));
+  padding-block: var(--ap-spacing-200);
   border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   background: var(--ap-color-surface-raised);
 }
+
+/* --- drawer --------------------------------------------------------------- */
+
+/* The old sidebar's width, kept: the longest page name, "Checkbox, Radio,
+   Switch", fits it on one line. The brand is in its head, as it was in the
+   sidebar's, so the site's name is in the same place on every page. */
+.drawer {
+  width: 232px;
+  padding: var(--ap-spacing-300) var(--ap-spacing-200);
+}
+
+/* The open menu on a narrow screen. On a wide one the rail and the drawer
+   hold the same links, so it is not drawn. */
+.navSections { display: none; }
 
 .brand {
   display: block;
@@ -148,6 +223,25 @@ html[data-nav-open] { overflow: hidden; }
 }
 
 .navList { margin: 0; padding: 0; list-style: none; }
+
+/* In the open menu the section's title is the link to its page. A caption
+   alone is a 16px target between 36px page links, so it takes the page
+   links' own padding: 32px tall, and the wash on hover like them. */
+.navTitleLink {
+  display: block;
+  margin-bottom: 0;
+  padding: var(--ap-spacing-100);
+  border-radius: var(--ap-radius-sm);
+  text-decoration: none;
+  transition:
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.navTitleLink:hover { background: var(--ap-color-interactive-wash-hover); }
+
+.navTitleLink:hover,
+.navTitleLink[aria-current] { color: var(--ap-color-text-primary); }
 
 .navLink {
   display: block;
@@ -195,9 +289,9 @@ html[data-nav-open] { overflow: hidden; }
   max-width: 1120px;
 }
 
-/* Below 1440 there is no room for a column of its own beside the prose —
+/* Below 1512 there is no room for a column of its own beside the prose —
    see the wide block — so the list sits at the head of the evidence column,
-   above the measurements, and only from 1440 does it cross to the left. On
+   above the measurements, and only from 1512 does it cross to the left. On
    the narrowest tier the evidence column is gone and the list with it. */
 .onThisPage {
   grid-column: 2;
@@ -647,6 +741,52 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .bedrockCell { aspect-ratio: 1; }
 
+/* --- section pages: the hero's picture ------------------------------------ */
+
+/* Foundations: the ten families as strips, one per row, lightest to darkest.
+   The bedrock on the home page is the same primitives as a grid; here the
+   families are read across, the way the Colour page reads them. */
+.ramps {
+  display: grid;
+  gap: var(--ap-spacing-075);
+}
+
+.rampStrip {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  height: 16px;
+  border-radius: var(--ap-radius-full);
+  overflow: hidden;
+}
+
+/* Components: a few of them composed, at rest, on a well — the same well a
+   card's picture sits on, larger. Inert, as the cards' pictures are. */
+.heroSpecimen {
+  display: grid;
+  gap: var(--ap-spacing-200);
+  padding: var(--ap-spacing-300);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-color-surface-sunken);
+}
+
+.heroSpecimenRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+}
+
+.heroSpecimenName {
+  flex: 1;
+  min-width: 0;
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* Developers: the install lines. The prose's own code block, in the hero's
+   right column; a line never wraps, because a wrapped shell line is a
+   different command. */
+.hero pre { margin: 0; }
+
 /* --- home: cards ---------------------------------------------------------- */
 
 /* One card per page, in the sidebar's groups. The grid fills the column at
@@ -734,6 +874,21 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* The pictures that are not a component: drawn from the same tokens. */
+/* Two lines of code on a card: the prose's code block, smaller, and never
+   wider than the well. */
+.miniCode {
+  max-width: 100%;
+  margin: 0;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  overflow: hidden;
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-raised);
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+}
+
 .miniRow {
   display: flex;
   flex-wrap: wrap;
@@ -1107,10 +1262,13 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 /* --- responsive ----------------------------------------------------------- */
 
 /* Wide: the sections join on the left. The breakpoint is where the prose
-   still has its measure with the list beside it: 1440 less the 232px sidebar
-   and 80px of page padding is 1128; less the list, the evidence, three gaps
-   and the spacer's minimum, 712 — over the 704 a Table specimen needs. */
-@media (min-width: 1440px) {
+   still holds a Table specimen with the list beside it: the 96px rail, the
+   232px drawer and the page's 64px of padding leave 1120; less the list, the
+   evidence, three gaps and the spacer's minimum, 704 — exactly what a Table
+   specimen needs (654 plus the specimen's padding and hairlines). It is a
+   literal because a media query cannot read a custom property;
+   `Nav.test.tsx` checks it against the numbers it is made of. */
+@media (min-width: 1512px) {
   .page {
     grid-template-columns: 152px minmax(0, 832px) minmax(var(--ap-spacing-300), 1fr) 168px;
     column-gap: var(--ap-spacing-300);
@@ -1130,7 +1288,8 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   .footerColophon { max-width: none; }
 }
 
-@media (max-width: 1080px) {
+/* The rail's 96px added to where the evidence column used to leave. */
+@media (max-width: 1176px) {
   .page { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
   .prose { grid-row: auto; }
   .onThisPage,
@@ -1140,8 +1299,12 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 @media (max-width: 760px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
 
-  /* Narrow: the sidebar becomes a bar that stays put while the page scrolls, so
-     navigation is one tap away instead of a scroll back to the top. */
+  /* Narrow: the nav becomes a bar that stays put while the page scrolls, so
+     navigation is one tap away instead of a scroll back to the top. The rail
+     and the drawer dissolve into it — `display: contents` hands their
+     children to the bar's grid — so the brand and the theme toggle are the
+     same elements in both layouts, placed by area here. Their lists go; the
+     open menu lists every section and page in one place instead. */
   .sidebar {
     position: sticky;
     top: 0;
@@ -1156,9 +1319,15 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
     column-gap: var(--ap-spacing-150);
     height: auto;
     padding: var(--ap-spacing-150) var(--ap-spacing-250);
-    border-inline-end: none;
     border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+    background: var(--ap-color-surface-raised);
   }
+
+  .rail,
+  .drawer { display: contents; }
+
+  .railList,
+  .drawerNav { display: none; }
 
   .sidebarBrand { grid-area: brand; min-width: 0; }
 
@@ -1170,6 +1339,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   .sidebarTheme {
     grid-area: theme;
     position: static;
+    justify-content: flex-start;
     margin: 0;
     padding: var(--ap-spacing-200) 0 var(--ap-spacing-100);
     background: none;
@@ -1202,7 +1372,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
   /* Collapsed by default. The sections stay in the document so the toggle can
      point at them with aria-controls. */
-  .navSections { margin-top: var(--ap-spacing-200); }
+  .navSections { display: block; margin-top: var(--ap-spacing-200); }
   .sidebar[data-open='false'] .navSections { display: none; }
 
   /* Open, the bar becomes the whole viewport: the head stays where it was, so

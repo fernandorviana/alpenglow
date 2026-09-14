@@ -46,7 +46,7 @@ export default function DarkModePage() {
 
       <h2>See it</h2>
       <p>
-        Flip the toggle at the foot of the sidebar. The page, the components in it and the
+        Flip the toggle at the foot of the rail. The page, the components in it and the
         numbers in the margin change together, because they read the same tokens; nothing
         moves, because dimension is not a token that changes with the light.
       </p>

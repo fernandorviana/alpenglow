@@ -5,19 +5,30 @@
  * `sitemap.xml` metadata route, `app/ui/` included, and the build fails on
  * the missing default export. Nothing checks that before `next build`.
  *
- * One list serves two components: the sidebar draws it in groups, and the
- * pager at the foot of every page walks it flat, so "next" after the last
- * page of one group is the first page of the next. A page that is not here
- * has no neighbours and no place in the sidebar, which is the same thing.
+ * Four sections, each with a page of its own that presents the pages inside
+ * it. One list serves three components: the rail draws the sections, the
+ * drawer draws the pages of the section the reader is in, and the pager at
+ * the foot of every page walks it flat — section page first, then its pages
+ * — so "next" after the last page of one section is the next section's page.
+ * A page that is not here has no neighbours, no drawer and no place in the
+ * overlay, which is the same thing.
  */
 export type NavItem = { href: string; label: string };
-export type NavGroup = { title: string; items: readonly NavItem[] };
+export type NavGroup = {
+  title: string;
+  /** The section's own page, which presents the pages below. */
+  href: string;
+  /** What the section holds, in one line, for the home page's section cards. */
+  blurb: string;
+  items: readonly NavItem[];
+};
 
 export const NAV: readonly NavGroup[] = [
   {
     title: 'Start here',
+    href: '/',
+    blurb: 'The name, what is measured, and the decisions that look like mistakes.',
     items: [
-      { href: '/', label: 'Overview' },
       { href: '/why', label: 'Why Alpenglow' },
       { href: '/accessibility', label: 'Accessibility' },
       { href: '/decisions', label: 'Decisions' },
@@ -25,6 +36,8 @@ export const NAV: readonly NavGroup[] = [
   },
   {
     title: 'Developers',
+    href: '/develop',
+    blurb: 'The package in a Next.js or Vite app, its Tailwind theme, and the dark mode switch.',
     items: [
       { href: '/install', label: 'Install' },
       { href: '/tailwind', label: 'Tailwind' },
@@ -33,6 +46,8 @@ export const NAV: readonly NavGroup[] = [
   },
   {
     title: 'Foundations',
+    href: '/foundations',
+    blurb: 'Colour, elevation, type, space and icons — the tokens every component is built from.',
     items: [
       { href: '/colour', label: 'Colour' },
       { href: '/elevation', label: 'Elevation and states' },
@@ -43,6 +58,8 @@ export const NAV: readonly NavGroup[] = [
   },
   {
     title: 'Components',
+    href: '/components',
+    blurb: 'Ten components, each with its states measured in both modes.',
     items: [
       { href: '/avatar', label: 'Avatar and Loader' },
       { href: '/badge', label: 'Badge' },
@@ -58,11 +75,20 @@ export const NAV: readonly NavGroup[] = [
   },
 ];
 
-/** Every page, in reading order. */
-export const PAGES: readonly NavItem[] = NAV.flatMap((group) => group.items);
+/** A section's own page, as a page: it is the section's name in the pager and the narrow bar. */
+export const sectionPage = (group: NavGroup): NavItem => ({ href: group.href, label: group.title });
+
+/** Every page, in reading order: each section's page, then the pages inside it. */
+export const PAGES: readonly NavItem[] = NAV.flatMap((group) => [sectionPage(group), ...group.items]);
 
 /** `/button/` and `/button` are one page; the export writes the first. */
 export const route = (pathname: string) => pathname.replace(/\/+$/, '') || '/';
+
+/** The section `pathname` is in — by its own route or one of its pages — or `undefined`. */
+export function sectionOf(pathname: string): NavGroup | undefined {
+  const here = route(pathname);
+  return NAV.find((group) => group.href === here || group.items.some((item) => item.href === here));
+}
 
 /** The pages either side of `pathname` in reading order; `undefined` at each end. */
 export function neighbours(pathname: string): { previous?: NavItem; next?: NavItem } {

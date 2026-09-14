@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-13**, at the end of the docs content pass (every page rewritten around the choice, both modes checked).
+Last verified against the tree on **2026-09-14**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`).
 
 ---
 
@@ -286,15 +286,28 @@ have all been mistaken for errors at least once.
     inserted after a lone day or month digit completes that part (`1/` becomes
     `01/`).
 
-19. **The site's narrow-screen menu is a fixed overlay, and the component
-    owns what the stylesheet cannot.** Below 760px the sidebar is a sticky bar
-    with a toggle; open, `.sidebar[data-open='true']` fixes it over the whole
+19. **The site's navigation is two bars on a wide screen and one on a narrow
+    one, and the component owns what the stylesheet cannot.** From 2026-09-14
+    the shape is the Material 3 site's: a 96px rail with the four sections
+    (`app/ui/contents.ts` — Start here `/`, Developers `/develop`,
+    Foundations `/foundations`, Components `/components`; a Carbon icon on a
+    56×32 pill, `interactive/selected` for the section the reader is in,
+    `aria-current="page"` on the section's own page and `"location"` inside
+    it) and a 232px drawer with the brand and the current section's pages,
+    "Overview" first. Each section has a page presenting the pages inside it
+    with the cards the home used to hold; the home keeps the hero, the three
+    Start here cards and three section cards. The rail costs 96px, so the
+    wide breakpoint is 1512 (derived in `Nav.test.tsx` from the rail, the
+    drawer, the page's padding and the 704 a Table specimen needs) and the
+    evidence column leaves at 1176. Below 760px the nav is a sticky bar
+    with a toggle — the rail and the drawer take `display: contents`, so the
+    brand and the toggle are the same elements in both layouts; open, `.sidebar[data-open='true']` fixes it over the whole
     viewport (`100dvh`, a scroll of its own) rather than growing the bar and
     pushing the page down. `app/ui/Nav.tsx` then sets `data-nav-open` on
     `html` to lock document scroll, puts `inert` on every sibling of the nav —
     siblings, not a named element, so the overlay covers whatever the shell
     holds — closes on Esc, and closes when the viewport widens past the
-    breakpoint, because on a wide screen the sidebar shows whatever `open`
+    breakpoint, because on a wide screen the bars show whatever `open`
     says and the lock and the inert page would outlive the overlay. `NARROW`
     is exported from `Nav.tsx` and `Nav.test.tsx` finds the stylesheet's media
     block by it, so the two cannot drift apart. `inert` is written as an
@@ -308,7 +321,9 @@ have all been mistaken for errors at least once.
     the open overlay on a narrow one — at 320px the bar holds the brand and
     the page's name with nothing to spare, and the 84px toggle beside them
     clipped the brand to "Alpen". Left out on purpose: a hamburger icon and
-    an entry animation.
+    an entry animation. The open menu lists every section and page, the
+    section's title being the link to its page: one tap to any page, where
+    the rail would cost two.
 20. **A click on the Dialog's backdrop does not close it, and Esc does not
     close it by itself.** Esc arrives as `cancel`, which is prevented and
     handed to `onClose`; the caller sets `open`. A stray click beside a form
@@ -504,7 +519,7 @@ Every page was rewritten on 2026-09-12 and 13 with the `better-*` skills
 "Try it" or "See it", a "Choosing …" section on when to use the thing
 against its neighbours, anatomy with the drawn numbers, states,
 accessibility, props. The home is a card index in the M3 shape; the site
-has no bar across the top, a section list beside the prose from 1440, the
+has no bar across the top, a section list beside the prose from 1512 (1440 until the rail), the
 measurements against the right edge, a skip link, a `main`, a pager. Every
 number that was text became a computation. Both modes were checked on every
 page (see the screenshot workaround in the private memory).

@@ -213,15 +213,18 @@ export default function Page() {
         checked in Chrome, and this entry says so rather than letting a stub claim them.
       </p>
 
-      <h2>The section list joins the prose at 1440, and not before</h2>
-      <Decided on="2026-09-12" />
+      <h2>The section list joins the prose at 1512, and not before</h2>
+      <Decided on="2026-09-12, moved on 2026-09-14" />
       <p>
         The site&rsquo;s page has three columns on a wide screen — the sections, the prose,
         the measurements — and a Table specimen needs 704px of prose to keep its header: 654
-        for the table and a specimen&rsquo;s padding and hairline on both sides. At 1440 the
-        prose has 728 with the list beside it; at 1280 it would have 616 and every Table on
-        its own page would render collapsed. So below 1440 the list sits at the head of the
-        measurements column instead, and the prose keeps 784.
+        for the table and a specimen&rsquo;s padding and hairline on both sides. The
+        breakpoint is where the chrome and the columns leave exactly that: the 96px rail, the
+        232px drawer, the page&rsquo;s 64 of padding, the 152px list, the 168px measurements,
+        three 24px gaps and a 24px spacer take 808 of 1512. It was 1440 while the navigation
+        was one 232px sidebar; the rail moved it by its own width, and the test derives the
+        number from those parts rather than reading it. Below it the list sits at the head
+        of the measurements column instead, and the prose keeps 784.
       </p>
 
       <h2>The Dialog&rsquo;s title wraps</h2>

@@ -3,12 +3,7 @@ import { DocPage } from '@ui/DocPage';
 import { Button } from '@/components/Button';
 import { tokenContrast } from '@/tokens/contrast';
 import { fontFamily } from '@/tokens/typography';
-import pkg from '../../package.json';
-
-/** Read from the package itself, so the page cannot say one version and ship another. */
-const VERSION = pkg.version;
-const PEERS = Object.entries(pkg.peerDependencies as Record<string, string>);
-const ENTRY_POINTS = Object.keys(pkg.exports).filter((key) => key !== './package.json').length;
+import { ENTRY_POINTS, PEERS, VERSION } from '@ui/package';
 
 export default function InstallPage() {
   const secondaryOnRaised = tokenContrast('text/secondary', 'surface/raised', 'dark').toFixed(2);

@@ -44,6 +44,12 @@ describe('OnThisPage', () => {
     expect(screen.getByRole('navigation', { name: 'On this page' })).toBeInTheDocument();
   });
 
+  it('renders nothing for a page with one section', () => {
+    // A list of one place to go is not a table of contents.
+    const { container } = render(<OnThisPage sections={SECTIONS.slice(0, 1)} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('renders nothing for a page with no sections', () => {
     const { container } = render(<OnThisPage sections={[]} />);
     expect(container).toBeEmptyDOMElement();

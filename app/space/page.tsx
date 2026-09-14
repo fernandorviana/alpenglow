@@ -81,9 +81,9 @@ export default function Page() {
         button — whose edge nothing draws. Controls stay inside the layout&rsquo;s margins and
         the safe area; a full-width button on a phone is inset by {spacing[200]}px, never
         against the edge. Breakpoints come from content, not devices: this site breaks at 370
-        where a Calendar stops fitting a bordered specimen, at 760 where the sidebar stops
-        fitting beside the prose, and at 1440 where the section list can join the prose without
-        squeezing a Table below its width.
+        where a Calendar stops fitting a bordered specimen, at 760 where the rail and the
+        drawer stop fitting beside the prose, and at 1512 where the section list can join the
+        prose without squeezing a Table below its width.
       </p>
 
       <h2>Size</h2>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV, PAGES, route } from './contents';
+import { Code, Cube, Home, Layers } from '@carbon/icons-react';
+import { NAV, PAGES, route, sectionOf } from './contents';
 import { ThemeToggle } from './ThemeToggle';
 
 /**
@@ -13,10 +14,30 @@ import { ThemeToggle } from './ThemeToggle';
  */
 export const NARROW = '(max-width: 760px)';
 
+/**
+ * One icon per section, keyed by the section's route. Carbon, like every
+ * icon on the site; the four were chosen for what the section holds — the
+ * start, code, the layers under the components, and the components as a
+ * solid — not for a set they belong to, because Carbon has no such set.
+ */
+const ICONS: Record<string, ComponentType<{ size?: number; 'aria-hidden'?: 'true' }>> = {
+  '/': Home,
+  '/develop': Code,
+  '/foundations': Layers,
+  '/components': Cube,
+};
 
+/**
+ * Two bars on a wide screen, the shape of the Material 3 site: a rail with
+ * the four sections, and beside it a drawer with the pages of the section
+ * the reader is in. On a narrow screen both give way to one bar with a
+ * toggle, and the open menu lists every section and page — the reader on a
+ * phone should not need two taps to reach a page in another section.
+ */
 export function Nav() {
   const pathname = usePathname();
   const here = route(pathname);
+  const section = sectionOf(here);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLElement>(null);
 
@@ -74,23 +95,84 @@ export function Nav() {
 
   const current = PAGES.find((i) => i.href === here);
 
+  /**
+   * The section's mark in the rail and the overlay: `page` on the section's
+   * own page, `location` on any page inside it — the reader is in the section
+   * without being on its page, which is what `location` is for.
+   */
+  const inSection = (href: string) =>
+    here === href ? 'page' : section?.href === href ? 'location' : undefined;
+
   return (
     <nav className="sidebar" aria-label="Documentation" data-open={open} ref={ref}>
-      <div className="sidebarBrand">
-        <Link href="/" className="brand">
-          Alpenglow
-        </Link>
-        <p className="brandNote">Theme: Eleonora</p>
+      {/* The rail. On a narrow screen its list is gone and its foot — the
+          theme toggle — is laid out by the bar's grid instead: the toggle is
+          one element, placed by the stylesheet in either bar. */}
+      <div className="rail">
+        <ul className="railList" aria-label="Sections">
+          {NAV.map((group) => {
+            const Icon = ICONS[group.href];
+            return (
+              <li key={group.href}>
+                <Link href={group.href} className="railLink" aria-current={inSection(group.href)}>
+                  <span className="railPill">{Icon && <Icon size={24} aria-hidden="true" />}</span>
+                  <span className="railLabel">{group.title}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* At the foot of the rail on a wide screen, where the M3 site keeps
+            its own; at the foot of the open menu on a narrow one. */}
+        <div className="sidebarTheme">
+          <ThemeToggle />
+        </div>
       </div>
 
-      {/* The site has no bar across the top. The toggle lives here: at the
-          foot of the sidebar on a wide screen, and at the foot of the open
-          menu on a narrow one, where the stylesheet places it by grid area. */}
-      <div className="sidebarTheme">
-        <ThemeToggle />
+      {/* The drawer: the brand, then the pages of the section the reader is
+          in, its own page first. A route no section lists gets the brand
+          alone rather than a wrong section. */}
+      <div className="drawer">
+        <div className="sidebarBrand">
+          <Link href="/" className="brand">
+            Alpenglow
+          </Link>
+          <p className="brandNote">Theme: Eleonora</p>
+        </div>
+
+        {section && (
+          <div className="drawerNav">
+            <p className="navTitle" id="drawer-title">
+              {section.title}
+            </p>
+            <ul className="navList" aria-labelledby="drawer-title">
+              <li>
+                <Link
+                  href={section.href}
+                  className="navLink"
+                  aria-current={here === section.href ? 'page' : undefined}
+                >
+                  Overview
+                </Link>
+              </li>
+              {section.items.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="navLink"
+                    aria-current={here === item.href ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      {/* Shown only on narrow screens; the sidebar is always open on wider ones. */}
+      {/* Shown only on narrow screens; the rail and drawer are always open on wider ones. */}
       <button
         type="button"
         className="navToggle"
@@ -101,10 +183,14 @@ export function Nav() {
         {open ? 'Close' : (current?.label ?? 'Menu')}
       </button>
 
+      {/* The open menu on a narrow screen: every section and every page, the
+          section's title being the link to its page. */}
       <div className="navSections" id="nav-sections">
         {NAV.map((group) => (
-          <div className="navGroup" key={group.title}>
-            <p className="navTitle">{group.title}</p>
+          <div className="navGroup" key={group.href}>
+            <Link href={group.href} className="navTitle navTitleLink" aria-current={inSection(group.href)}>
+              {group.title}
+            </Link>
             <ul className="navList">
               {group.items.map((item) => (
                 <li key={item.href}>

@@ -1,7 +1,9 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { block, readCss } from '@/test/css';
+import { spacing } from '@/tokens/scale';
+import { NAV } from './contents';
 import { Nav, NARROW } from './Nav';
 
 /**
@@ -207,6 +209,63 @@ describe('Nav', () => {
 });
 
 /**
+ * On a wide screen the nav is two bars: the rail names the sections and
+ * marks the one the reader is in, the drawer lists that section's pages with
+ * the section's own page first. The narrow overlay lists everything.
+ */
+describe('the rail and the drawer', () => {
+  const rail = () => within(screen.getByRole('list', { name: 'Sections' }));
+
+  it('marks the section the page is in, in the rail', () => {
+    pathname = '/button';
+    renderShell();
+    expect(rail().getByRole('link', { name: 'Components' })).toHaveAttribute('aria-current', 'location');
+    expect(rail().getByRole('link', { name: 'Foundations' })).not.toHaveAttribute('aria-current');
+  });
+
+  it("marks a section's own page as the page", () => {
+    pathname = '/components';
+    renderShell();
+    expect(rail().getByRole('link', { name: 'Components' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('lists the pages of the current section in the drawer, its own page first', () => {
+    pathname = '/colour';
+    renderShell();
+    const foundations = NAV.find((group) => group.title === 'Foundations')!;
+    const drawer = within(screen.getByRole('list', { name: 'Foundations' }));
+    expect(drawer.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+      foundations.href,
+      ...foundations.items.map((item) => item.href),
+    ]);
+    expect(drawer.getByRole('link', { name: 'Overview' })).not.toHaveAttribute('aria-current');
+    expect(drawer.getByRole('link', { name: 'Colour' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('draws the brand alone on a route no section lists', () => {
+    // A wrong section beside a page is worse than no section.
+    pathname = '/nowhere';
+    const { container } = renderShell();
+    expect(container.querySelector('.drawerNav')).toBeNull();
+    expect(rail().queryAllByRole('link', { current: 'page' })).toEqual([]);
+    expect(rail().queryAllByRole('link', { current: 'location' })).toEqual([]);
+  });
+
+  it('links every section and page from the open menu, the title being the section link', () => {
+    pathname = '/colour';
+    renderShell();
+    const sections = within(document.getElementById('nav-sections')!);
+    for (const group of NAV) {
+      expect(sections.getByRole('link', { name: group.title })).toHaveAttribute('href', group.href);
+      for (const item of group.items) {
+        expect(sections.getByRole('link', { name: item.label })).toHaveAttribute('href', item.href);
+      }
+    }
+    expect(sections.getByRole('link', { name: 'Foundations' })).toHaveAttribute('aria-current', 'location');
+  });
+});
+
+/**
  * The covering itself lives in the stylesheet, under the narrow media query.
  * These read it the way `ThemeToggle.test.tsx` does.
  */
@@ -241,5 +300,47 @@ describe('the nav stylesheet', () => {
 
   it('stops the document scrolling under the open menu', () => {
     expect(declarations(css, 'html[data-nav-open]')).toMatch(/overflow: hidden/);
+  });
+
+  it("gives the open menu's section links the page links' padding", () => {
+    // A caption alone is a 16px target; padded like a page link it is 32.
+    expect(rulesOf('.navTitleLink')).toMatch(/padding: var\(--ap-spacing-100\)/);
+  });
+
+  it('dissolves both bars into the narrow bar, keeping the brand and the toggle', () => {
+    // `display: contents` hands the rail's and the drawer's children to the
+    // bar's grid; their lists go, because the open menu lists everything.
+    const shared = (a: string, b: string) =>
+      narrow.match(new RegExp(`\\${a},\\s*\\${b}\\s*\\{([^}]*)\\}`))?.[1] ?? '';
+    expect(shared('.rail', '.drawer')).toMatch(/display: contents/);
+    expect(shared('.railList', '.drawerNav')).toMatch(/display: none/);
+  });
+
+  /** Every rule for `selector` alone, joined — a selector that shares a rule and has one of its own. */
+  const rulesOf = (selector: string) =>
+    [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter(([, selectors]) => selectors!.split(',').some((s) => s.trim() === selector))
+      .map(([, , body]) => body!.replace(/\s+/g, ' ').trim())
+      .join(' ');
+
+  const px = (text: string, property: string) => Number(text.match(new RegExp(`${property}: (\\d+)px`))?.[1]);
+  const step = (text: string) => spacing[Number(text.match(/--ap-spacing-(\d+)/)?.[1]) as keyof typeof spacing];
+
+  it('puts the wide breakpoint where the prose still holds a Table specimen beside the list', () => {
+    // The breakpoint is a literal because a media query cannot read a custom
+    // property, so it is checked against the numbers it is made of: the two
+    // bars, the page's padding, the list, the evidence, the three gaps and
+    // the spacer's minimum leave the 704 a Table specimen needs — 654 of
+    // table plus the specimen's padding and hairlines on both sides.
+    const wide = Number(css.match(/@media \(min-width: (\d+)px\)/)?.[1]);
+    const page = block(css, `@media (min-width: ${wide}px)`);
+    const columns = page.match(/\.page\s*\{[^}]*grid-template-columns: ([^;]+);/)![1]!;
+    const [list, , spacer, evidence] = columns.split(/\s+(?![^(]*\))/);
+    const gap = step(page.match(/column-gap: ([^;]+);/)![1]!);
+    const padding = step(rulesOf('.page').match(/padding: \S+ (\S+)/)![1]!);
+
+    const chrome = px(rulesOf('.rail'), 'width') + px(rulesOf('.drawer'), 'width') + 2 * padding;
+    const beside = Number(list!.replace('px', '')) + Number(evidence!.replace('px', '')) + 3 * gap + step(spacer!);
+    expect(wide - chrome - beside).toBe(704);
   });
 });

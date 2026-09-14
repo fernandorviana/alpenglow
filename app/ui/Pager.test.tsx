@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { NAV, PAGES, neighbours } from './contents';
+import { NAV, PAGES, neighbours, sectionOf, sectionPage } from './contents';
 import { Pager } from './Pager';
 
 /**
@@ -19,12 +19,14 @@ vi.mock('next/navigation', () => ({
 const link = (name: RegExp) => screen.getByRole('link', { name });
 
 describe('neighbours', () => {
-  it('follows the sidebar order across group boundaries', () => {
-    // The last page of one group leads to the first of the next.
+  it('follows the sidebar order across section boundaries, through the section page', () => {
+    // The last page of one section leads to the next section's own page,
+    // and that page to the first inside it.
     const lastOfFirst = NAV[0]!.items.at(-1)!;
+    const second = sectionPage(NAV[1]!);
     const firstOfSecond = NAV[1]!.items[0]!;
-    expect(neighbours(lastOfFirst.href).next).toEqual(firstOfSecond);
-    expect(neighbours(firstOfSecond.href).previous).toEqual(lastOfFirst);
+    expect(neighbours(lastOfFirst.href).next).toEqual(second);
+    expect(neighbours(second.href)).toEqual({ previous: lastOfFirst, next: firstOfSecond });
   });
 
   it('has no previous on the first page and no next on the last', () => {
@@ -38,6 +40,19 @@ describe('neighbours', () => {
 
   it('knows nothing about a page that is not listed', () => {
     expect(neighbours('/nowhere')).toEqual({});
+  });
+});
+
+describe('sectionOf', () => {
+  it('finds a section from its own route or any page inside it', () => {
+    expect(sectionOf('/foundations')?.title).toBe('Foundations');
+    expect(sectionOf('/colour')?.title).toBe('Foundations');
+    expect(sectionOf('/')?.title).toBe('Start here');
+    expect(sectionOf('/why/')?.title).toBe('Start here');
+  });
+
+  it('finds nothing for a page no section lists', () => {
+    expect(sectionOf('/nowhere')).toBeUndefined();
   });
 });
 

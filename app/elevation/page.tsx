@@ -250,7 +250,7 @@ export default function Page() {
       <h2>See it</h2>
       <p>
         The ladder in the theme you are reading in: the canvas, a card on it, a well inside
-        the card, and a panel above them all. Flip the theme with the toggle in the sidebar and
+        the card, and a panel above them all. Flip the theme with the toggle in the rail and
         watch what does the separating — the shadow in light, the colour step in dark.
       </p>
       <div
@@ -302,7 +302,7 @@ export default function Page() {
       <h2>Choosing a level</h2>
       <p>
         <code>base</code> is the canvas. <code>raised</code> is anything that sits on it and
-        stays — a card, the sidebar, a table&rsquo;s rows. <code>overlay</code> is anything
+        stays — a card, the drawer, a table&rsquo;s rows. <code>overlay</code> is anything
         that comes and goes above the page — a menu, a popover, a dialog — and it is the last
         step: a popover inside a dialog stays on <code>overlay</code> and takes a border, rather
         than inventing a level. <code>sunken</code> is a well inside a card — a read-only field,

@@ -165,7 +165,7 @@ export default function Page() {
       <p>
         The site is built from what it documents, and it holds itself to the same rules: a
         skip link and landmarks for a keyboard, every specimen reachable by Tab, both modes on
-        the toggle in the sidebar, and no colour anywhere in its chrome that is not a token.
+        the toggle in the rail, and no colour anywhere in its chrome that is not a token.
         If something here fails on your screen, it is a defect in the system, and the
         measurement that would have caught it belongs on the page.
       </p>

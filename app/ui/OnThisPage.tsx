@@ -51,7 +51,9 @@ export function OnThisPage({ sections }: { sections: readonly Section[] }) {
     };
   }, [ids]);
 
-  if (sections.length === 0) return null;
+  // A section page has one heading, and a list of one place to go is not a
+  // table of contents; the anchor it would carry is a scroll of one screen.
+  if (sections.length < 2) return null;
 
   return (
     <nav className="onThisPage" aria-label="On this page">
