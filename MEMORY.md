@@ -558,6 +558,21 @@ including a divider that resolved to the same colour as the surface beneath it.
 
 ## Open work
 
+### -3. Code blocks became windows (2026-09-14)
+
+`app/ui/CodeBlock.tsx` replaced every bare `pre` on Install, Tailwind, Dark
+mode and Developers: the Card's surface (invariant 4 — sunken is the canvas
+in dark, and the old block had no edge), a caption with the file's name and
+CSS-counter line numbers when `title` is given, a copy button, and colour from
+`app/ui/highlight.ts` — five token kinds painted with `text/*` tokens, no
+shiki, on Decisions. What it leaves open: the tokenizer knows the site's
+samples, not the languages — `html` reads script keywords throughout, `sh`
+has comments and strings only, and a mixed block (an npm line over an import)
+is typed `ts`; a block is titled only where its code already named its file in
+a comment; the home card's `.miniCode` stays a picture, not a CodeBlock; and
+the copy button's live region has not been heard in a screen reader.
+
+
 ### -2. The search landed; what is open (2026-09-14)
 
 `ddb82a7`, live the same day (spec

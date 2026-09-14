@@ -1,5 +1,6 @@
 'use client';
 
+import { CodeBlock } from '@ui/CodeBlock';
 import { DocPage } from '@ui/DocPage';
 import { Card, Cards } from '@ui/Card';
 import { DEPENDENCIES, ENTRY_POINTS, PEERS, VERSION } from '@ui/package';
@@ -35,9 +36,7 @@ export default function Page() {
             is everything an app has to decide, in the order it decides it.
           </p>
         </div>
-        <pre>
-          <code>{INSTALL}</code>
-        </pre>
+        <CodeBlock lang="ts" code={INSTALL} />
       </div>
 
       <h2>In this section</h2>

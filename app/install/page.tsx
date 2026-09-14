@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CodeBlock } from '@ui/CodeBlock';
 import { DocPage } from '@ui/DocPage';
 import { Button } from '@/components/Button';
 import { tokenContrast } from '@/tokens/contrast';
@@ -27,9 +28,7 @@ export default function InstallPage() {
       <p className="lead">One package and one stylesheet. React 19 is all it asks of your app.</p>
 
       <h2>Install the package</h2>
-      <pre>
-        <code>npm install alpenglow</code>
-      </pre>
+      <CodeBlock lang="sh" code="npm install alpenglow" />
       <p>
         It brings no dependencies of its own. React and React DOM are peers — your app already
         has them — and the icons are installed separately, below, so an app carries only the
@@ -42,10 +41,8 @@ export default function InstallPage() {
         once, where the app starts: the root layout in Next.js, the entry file in Vite. The
         components inject nothing themselves, so without this import they render unstyled.
       </p>
-      <pre>
-        <code>{`// app/layout.tsx, or src/main.tsx
-import 'alpenglow/styles.css';`}</code>
-      </pre>
+      <CodeBlock lang="ts" code={`// app/layout.tsx, or src/main.tsx
+import 'alpenglow/styles.css';`} />
       <p>
         With Tailwind, import it into a layer instead. <Link href="/tailwind">Tailwind</Link> says
         why.
@@ -58,9 +55,10 @@ import 'alpenglow/styles.css';`}</code>
         <code>Inter</code> — with <code>next/font</code>, which declares that family name, or
         with your own <code>@font-face</code> — in the four weights the system uses.
       </p>
-      <pre>
-        <code>{`// app/layout.tsx
-import { Inter } from 'next/font/google';
+      <CodeBlock
+        lang="tsx"
+        title="app/layout.tsx"
+        code={`import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], display: 'swap' });
 
@@ -70,15 +68,16 @@ export default function RootLayout({ children }) {
       <body>{children}</body>
     </html>
   );
-}`}</code>
-      </pre>
+}`}
+      />
       <p className="alias">
         The stack, for reference: <code>{fontFamily.sans}</code>.
       </p>
 
       <h2>Use the components</h2>
-      <pre>
-        <code>{`import { Button, Field, Input } from 'alpenglow';
+      <CodeBlock
+        lang="tsx"
+        code={`import { Button, Field, Input } from 'alpenglow';
 
 export function Invite() {
   return (
@@ -89,8 +88,8 @@ export function Invite() {
       <Button type="submit">Send invite</Button>
     </form>
   );
-}`}</code>
-      </pre>
+}`}
+      />
 
       <h2>Check it</h2>
       <p>
@@ -114,8 +113,9 @@ export function Invite() {
         <code>trigger</code>, a <code>Table</code> column&apos;s <code>cell</code>, any{' '}
         <code>onSelect</code> or <code>onChange</code> — belong in a client component of your own.
       </p>
-      <pre>
-        <code>{`'use client';
+      <CodeBlock
+        lang="tsx"
+        code={`'use client';
 
 import { useRouter } from 'next/navigation';
 import { Button, DropdownMenu } from 'alpenglow';
@@ -132,8 +132,8 @@ export function RowActions({ id }: { id: string }) {
       items={[{ id: 'edit', label: 'Edit', onSelect: () => router.push(\`/rows/\${id}\`) }]}
     />
   );
-}`}</code>
-      </pre>
+}`}
+      />
 
       <h2>Icons</h2>
       <p>
@@ -141,12 +141,13 @@ export function RowActions({ id }: { id: string }) {
         installed on its own so an app carries only the icons it uses.{' '}
         <Link href="/icons">Icons</Link> lists the drawn ones, and the Carbon names that mislead.
       </p>
-      <pre>
-        <code>{`npm install @carbon/icons-react
+      <CodeBlock
+        lang="ts"
+        code={`npm install @carbon/icons-react
 
 import { AiSparkle } from 'alpenglow';
-import { Search } from '@carbon/icons-react';`}</code>
-      </pre>
+import { Search } from '@carbon/icons-react';`}
+      />
 
       <h2>Dark mode</h2>
       <p>
@@ -192,11 +193,12 @@ import { Search } from '@carbon/icons-react';`}</code>
         choosing a label colour, a test asserting contrast. The function below is the one
         every number on this site is computed with.
       </p>
-      <pre>
-        <code>{`import { tokenContrast } from 'alpenglow';
+      <CodeBlock
+        lang="ts"
+        code={`import { tokenContrast } from 'alpenglow';
 
-tokenContrast('text/secondary', 'surface/raised', 'dark'); // ${secondaryOnRaised}`}</code>
-      </pre>
+tokenContrast('text/secondary', 'surface/raised', 'dark'); // ${secondaryOnRaised}`}
+      />
     </DocPage>
   );
 }

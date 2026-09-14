@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CodeBlock } from '@ui/CodeBlock';
 import { DocPage } from '@ui/DocPage';
 import { radius, spacing } from '@/tokens/scale';
 import { theme } from '@/tokens/theme';
@@ -33,12 +34,13 @@ export default function TailwindPage() {
       </p>
 
       <h2>Set it up</h2>
-      <pre>
-        <code>{`/* app/globals.css */
-@import "tailwindcss";
+      <CodeBlock
+        lang="css"
+        title="app/globals.css"
+        code={`@import "tailwindcss";
 @import "alpenglow/styles.css" layer(components);
-@import "alpenglow/tailwind-theme.css";`}</code>
-      </pre>
+@import "alpenglow/tailwind-theme.css";`}
+      />
 
       <h2>Why a layer</h2>
       <p>
@@ -52,9 +54,7 @@ export default function TailwindPage() {
         <code>layer(components)</code> puts the stylesheet between the two: above the reset, so
         preflight cannot strip a button, and below the utilities, so your classes win.
       </p>
-      <pre>
-        <code>{`<Button className="rounded-none mt-6">Save</Button>`}</code>
-      </pre>
+      <CodeBlock lang="tsx" code={`<Button className="rounded-none mt-6">Save</Button>`} />
 
       <h2>What the layer costs</h2>
       <p>
@@ -83,19 +83,18 @@ export default function TailwindPage() {
         — is Tailwind&apos;s: the utility is <code>text-</code> and the token is{' '}
         <code>text/primary</code>, and <code>bg-surface-raised</code> reads the same way.
       </p>
-      <pre>
-        <code>{`<section className="rounded-lg bg-surface-raised p-300 text-text-primary">
+      <CodeBlock
+        lang="tsx"
+        code={`<section className="rounded-lg bg-surface-raised p-300 text-text-primary">
   <p className="text-text-secondary">Due today</p>
-</section>`}</code>
-      </pre>
+</section>`}
+      />
       <p>
         When something should differ in dark, <code>dark:</code> follows the components&apos;
         rule: <code>data-theme=&quot;dark&quot;</code>, or the system preference when no theme is
         set. <Link href="/dark-mode">Dark mode</Link> covers setting it.
       </p>
-      <pre>
-        <code>{`<img className="dark:opacity-80" src="/chart.png" alt="Bookings this week" />`}</code>
-      </pre>
+      <CodeBlock lang="tsx" code={`<img className="dark:opacity-80" src="/chart.png" alt="Bookings this week" />`} />
 
       <h2>Choosing a utility</h2>
       <p>

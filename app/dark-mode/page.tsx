@@ -1,3 +1,4 @@
+import { CodeBlock } from '@ui/CodeBlock';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
@@ -62,9 +63,7 @@ export default function DarkModePage() {
       </div>
 
       <h2>Set it</h2>
-      <pre>
-        <code>{`<html data-theme="dark">`}</code>
-      </pre>
+      <CodeBlock lang="html" code={`<html data-theme="dark">`} />
       <p>
         Both themes are in <code>styles.css</code>. <code>data-theme=&quot;light&quot;</code> or{' '}
         <code>&quot;dark&quot;</code> wins; with no attribute, the viewer&apos;s system preference
@@ -134,8 +133,9 @@ export default function DarkModePage() {
 
       <h2>Switching</h2>
       <p>Write the attribute and store the choice. Remove both to hand the decision back to the system.</p>
-      <pre>
-        <code>{`function setTheme(theme: 'light' | 'dark' | null) {
+      <CodeBlock
+        lang="ts"
+        code={`function setTheme(theme: 'light' | 'dark' | null) {
   const root = document.documentElement;
   if (theme) root.setAttribute('data-theme', theme);
   else root.removeAttribute('data-theme');
@@ -145,8 +145,8 @@ export default function DarkModePage() {
   } catch {
     // Private windows and blocked site data throw. The page still switches.
   }
-}`}</code>
-      </pre>
+}`}
+      />
       <p>
         A flip changes the colour of nearly everything at once, and every colour transition on
         the page fires together: this site measured 99 of them on one page, and the buttons
@@ -161,16 +161,17 @@ export default function DarkModePage() {
         dark sees one frame of light. A script in the document head runs while the HTML is
         parsed, which is early enough:
       </p>
-      <pre>
-        <code>{`<script>
+      <CodeBlock
+        lang="html"
+        code={`<script>
   try {
     var theme = localStorage.getItem('theme');
     if (theme === 'light' || theme === 'dark') {
       document.documentElement.setAttribute('data-theme', theme);
     }
   } catch (e) {}
-</script>`}</code>
-      </pre>
+</script>`}
+      />
       <p>
         In Vite or plain HTML it goes in <code>index.html</code>. In the Next.js App Router, not{' '}
         <code>next/script</code> with <code>beforeInteractive</code>: that queues the code for the
@@ -183,16 +184,12 @@ export default function DarkModePage() {
       </p>
 
       <h2>With next-themes</h2>
-      <pre>
-        <code>{`<ThemeProvider attribute="data-theme">{children}</ThemeProvider>`}</code>
-      </pre>
+      <CodeBlock lang="tsx" code={`<ThemeProvider attribute="data-theme">{children}</ThemeProvider>`} />
       <p>
         Beside shadcn/ui, whose components read a <code>.dark</code> class, set both, and one
         switch drives the two systems:
       </p>
-      <pre>
-        <code>{`<ThemeProvider attribute={['class', 'data-theme']}>{children}</ThemeProvider>`}</code>
-      </pre>
+      <CodeBlock lang="tsx" code={`<ThemeProvider attribute={['class', 'data-theme']}>{children}</ThemeProvider>`} />
 
       <h2>Accessibility</h2>
       <p>

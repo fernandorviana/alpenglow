@@ -655,25 +655,140 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   background: var(--ap-color-surface-sunken);
 }
 
-/* A long line scrolls inside its block; the page body never scrolls sideways
-   on a phone. */
-.prose pre {
+/* --- code block ----------------------------------------------------------- */
+
+/* A code window, app/ui/CodeBlock.tsx. It takes the Card's surface — raised,
+   a hairline, the 2xl radius — because in dark `surface/sunken`, where the
+   bare `pre` used to sit, is the canvas (invariant 4), and the block had no
+   edge at all. A long line scrolls inside the block; the page body never
+   scrolls sideways on a phone. */
+.codeBlock {
+  position: relative;
   margin: 0 0 var(--ap-spacing-200);
-  padding: var(--ap-spacing-200);
-  overflow-x: auto;
-  border-radius: var(--ap-radius-lg);
-  background: var(--ap-color-surface-sunken);
-  font-family: var(--ap-font-mono);
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-2xl);
+  background: var(--ap-color-surface-raised);
+  overflow: hidden;
 }
 
-.prose pre code {
+.codeBlock pre {
+  margin: 0;
+  padding: var(--ap-spacing-200);
+  overflow-x: auto;
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  color: var(--ap-color-text-primary);
+}
+
+/* Without a header the copy button floats over the first line, which keeps
+   clear of it. */
+.codeBlock:not(:has(.codeHeader)) pre { padding-right: var(--ap-spacing-700); }
+
+/* The prose's inline code is a pill; inside the block the code is the block. */
+.codeBlock code {
   padding: 0;
   border-radius: 0;
   background: none;
   font-size: inherit;
+  counter-reset: line;
 }
+
+/* The file's name and its language, on a bar the copy button shares. */
+.codeHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  height: 40px;
+  padding: 0 var(--ap-spacing-700) 0 var(--ap-spacing-200);
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  color: var(--ap-color-text-secondary);
+}
+
+.codeLang {
+  padding: 2px var(--ap-spacing-075);
+  border-radius: var(--ap-radius-xs);
+  background: var(--ap-color-surface-sunken);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-caption-caps-size);
+  line-height: var(--ap-text-caption-caps-line-height);
+  letter-spacing: var(--ap-text-caption-caps-tracking);
+  text-transform: var(--ap-text-caption-caps-transform);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.codeTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A ghost control: the wash as its background, as on every ghost button.
+   Centred in the 40px header; a header-less block sets it in its padding. */
+.codeCopy {
+  position: absolute;
+  top: var(--ap-spacing-050);
+  right: var(--ap-spacing-100);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ap-radius-full);
+  background: transparent;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.codeBlock:not(:has(.codeHeader)) .codeCopy { top: var(--ap-spacing-100); }
+
+.codeCopy:hover { background: var(--ap-color-interactive-wash-hover); }
+
+.codeCopy:active { background: var(--ap-color-interactive-wash-pressed); }
+
+@media (prefers-reduced-motion: reduce) {
+  .codeCopy { transition: none; }
+}
+
+/* The live region that says "Copied": off screen, not hidden. */
+.codeCopyLive {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Line numbers on a file, from a counter: not in the text, not in a
+   selection, not in the copy. */
+.codeNumbered .codeLine::before {
+  content: counter(line);
+  counter-increment: line;
+  display: inline-block;
+  width: 2ch;
+  margin-right: var(--ap-spacing-200);
+  text-align: right;
+  color: var(--ap-color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* The colour, from the theme's text tokens, every one measured on raised:
+   three greys and two hues, which is what a reader's eye needs to find a
+   keyword, a string and a comment. */
+.tokComment { color: var(--ap-color-text-tertiary); }
+.tokKeyword { color: var(--ap-color-text-accent); }
+.tokString { color: var(--ap-color-text-success); }
+.tokPunctuation { color: var(--ap-color-text-secondary); }
 
 /* --- home: hero ----------------------------------------------------------- */
 
@@ -787,10 +902,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   font-weight: var(--ap-font-weight-medium);
 }
 
-/* Developers: the install lines. The prose's own code block, in the hero's
-   right column; a line never wraps, because a wrapped shell line is a
-   different command. */
-.hero pre { margin: 0; }
+/* Developers: the install lines. The code block, in the hero's right
+   column; a line never wraps, because a wrapped shell line is a different
+   command. */
+.hero .codeBlock { margin: 0; }
 
 /* --- home: cards ---------------------------------------------------------- */
 
@@ -886,7 +1001,8 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   margin: 0;
   padding: var(--ap-spacing-100) var(--ap-spacing-150);
   overflow: hidden;
-  border-radius: var(--ap-radius-sm);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
   background: var(--ap-color-surface-raised);
   font-family: var(--ap-font-mono);
   font-size: var(--ap-text-caption-md-size);

@@ -278,6 +278,20 @@ export default function Page() {
         and has no analytics at runtime, so the five suggestions offered before anything is
         typed are chosen by hand, after the reader&rsquo;s own recent destinations.
       </p>
+      <h2>A code block is a card, and its colour is the theme&rsquo;s</h2>
+      <Decided on="2026-09-14" />
+      <p>
+        The site&rsquo;s code sat on <code>surface/sunken</code>, which in dark is the canvas:
+        the block had no edge at all. It now takes the Card&rsquo;s surface — raised, a
+        hairline of <code>border/subtle</code>, the 2xl radius — with the file&rsquo;s name over
+        it and numbered lines when the code is a file, and a button that copies it. The syntax
+        is coloured by a tokenizer of the site&rsquo;s own, five kinds painted with text tokens
+        the suite measures on raised: a keyword in <code>text/accent</code>, a string in{' '}
+        <code>text/success</code>, a comment in <code>text/tertiary</code>, punctuation in{' '}
+        <code>text/secondary</code>. A grammar engine was not taken: its themes are fixed hex,
+        and this site has no colour outside the tokens. The package-manager tabs the shadcn
+        site draws over an install line are left out too: there is one line, and it is npm.
+      </p>
     </DocPage>
   );
 }
