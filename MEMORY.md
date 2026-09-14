@@ -558,6 +558,49 @@ including a divider that resolved to the same colour as the surface beneath it.
 
 ## Open work
 
+### -2. The search landed; what is open (2026-09-14)
+
+`ddb82a7`, live the same day (spec
+`docs/superpowers/specs/2026-09-14-search-design.md`, invariant 22). Checked
+in the Browser pane only — Chromium, light and dark, 800 and 320 — and on
+the live site once. Open, in the order it probably matters:
+
+- **Nobody has used it yet.** The ranking rules were set from a handful of
+  queries (`butt`, `npm`, `surface/raised`, `dialgo`, `figma`). Fernando has
+  not typed into it; the weights in `app/ui/search/index.ts` (title 10/9/6,
+  labels 4, body 1 × mentions ÷ length) are the first guess, and every one
+  is a case in `search.test.ts` — change the test first.
+- **One page can crowd the eight slots.** `butt` lists the Button page and
+  then five of its own sections, each matched only by the page label (4 ×
+  0.7), ahead of two Decisions entries whose *titles* say "button" (6 ×
+  0.7, but grouped after Components because groups follow their best hit).
+  A cap per page, or a smaller label weight, is the likely tune; not
+  decided.
+- **The shortcut is a tooltip.** The rail caption has one line, so ⌘K /
+  Ctrl K lives in the button's `title` and `aria-keyshortcuts` only. If the
+  shortcut needs to be seen, the Install or Developers page could say it;
+  the M3 rail says "Search" alone and was the model.
+- **The accessible name is asserted, not heard.** jsdom names the button
+  "Search" (content) with the title as description, as the spec says; the
+  Browser pane's tree showed `button "Search — ⌘K"`, which is that tool's
+  computation. Not yet checked in Chrome's accessibility panel or with
+  VoiceOver, nor in Safari or Firefox at all — Esc, focus return and the
+  top layer over the narrow overlay are the things to press by hand there
+  (the DropdownMenu note, invariant 12, applies: the pane's Esc and Return
+  are not trusted keys; its Enter is).
+- **IME and Android are guarded, not tried.** `isComposing` is honoured
+  and tested in jsdom; no real IME has typed into the field.
+- **Avatar and Badge have no Props table**, so their props are not
+  searchable; every other component page's are. A table on those two pages
+  is indexed the day it exists, no code change.
+- **No record of what readers search for.** The site has Vercel Analytics;
+  a custom event on Enter (query, chosen href) would be the ground for the
+  "popularity" the suggestions decided against. Not built, not decided.
+- **The index chunk is 176 KB** (303 entries, ~35 KB compressed), fetched
+  on the first open. Grows with the prose; `extract.test.tsx` fails at
+  200 KB so a specimen dumping data is noticed, and the cap will need
+  raising as pages are added — deliberately, after looking at what grew.
+
 ### -1. The docs content pass is done; five decisions wait on Fernando (2026-09-13)
 
 Every page was rewritten on 2026-09-12 and 13 with the `better-*` skills
