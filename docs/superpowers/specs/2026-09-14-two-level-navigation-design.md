@@ -1,7 +1,10 @@
 # Two-level navigation — design
 
 **Date:** 2026-09-14
-**Status:** implemented the same day
+**Status:** implemented the same day; revised the same evening after the first
+cut was seen live — the toggle stood on end, the drawer's caption dropped, the
+rail back to 80 and the breakpoints moved with it. This is the revised text;
+the code on `main` is what it describes.
 
 ## What changes
 
@@ -24,13 +27,19 @@ that group before. Nothing else moves; no page route changes.
 
 ## The rail
 
-96px wide, sticky, the full height of the viewport. One item per section: a
-24px Carbon icon on a 56×32 pill and a caption under it, the M3 rail's
-geometry. The pill takes `interactive/selected` for the section the reader is
-in — `aria-current="page"` on the section's own page, `aria-current="location"`
-on any page inside it — and the wash on hover. The theme toggle sits at the
-foot of the rail, where the M3 site keeps its own; the rail is 96 rather than
-80 because the toggle is 84 wide.
+80px wide — the M3 rail's own width — sticky, the full height of the
+viewport. One item per section: a 24px Carbon icon on a 56×32 pill and a
+caption under it, the M3 rail's geometry. The pill takes
+`interactive/selected` for the section the reader is in —
+`aria-current="page"` on the section's own page, `aria-current="location"`
+on any page inside it — and the wash on hover.
+
+The theme toggle sits at the foot of the rail, where the M3 site keeps its
+own, and stands on end to fit it: 48 wide by 84 tall, the sun above the moon,
+a 32px knob that travels 36px down in dark (`translateY`, written in both
+dark blocks as invariant 9 requires). The first cut kept the toggle
+horizontal and widened the rail to 96 to hold it; standing it on end gives
+the rail its reference width back.
 
 Icons: Home (Start here), Code (Developers), Layers (Foundations), Cube
 (Components).
@@ -39,11 +48,13 @@ Icons: Home (Start here), Code (Developers), Layers (Foundations), Cube
 
 232px wide — the old sidebar's width — sticky, on `surface/raised` like the
 rail, with a hairline between the two and one at its outer edge. Its head
-holds the brand and the theme name, as the old sidebar's did. Under a
-caption naming the section, a list: **Overview** (the section's page) then
-the section's pages, the current one on `interactive/selected`. The narrow
-overlay does not repeat "Overview": there, each group's title is the link to
-its page.
+holds the brand and the theme name, as the old sidebar's did. Then a list:
+**Overview** (the section's page) then the section's pages, the current one
+on `interactive/selected`. No caption names the section above the list — the
+rail beside it already does, with the section's pill filled, and a label
+that restates it is noise; the list carries the section's name as its
+`aria-label` so assistive technology still hears it. The narrow overlay does
+not repeat "Overview": there, each group's title is the link to its page.
 
 On a route no section lists, the drawer is empty below the brand.
 
@@ -65,15 +76,19 @@ the home page held, with their pictures, moved to the section they belong to.
 
 ## Breakpoints
 
-The rail adds 96px to the chrome, so the two wide breakpoints move by the
+The rail adds 80px to the chrome, so the two wide breakpoints move by the
 same amount and the arithmetic that set them still holds:
 
-- the sections list crosses to the left at **1536**, not 1440
-  (1536 − 96 − 232 − 80 = 1128, what 1440 left the page before);
-- the sections and the gutter leave at **1176**, not 1080.
+- the sections list crosses to the left at **1496**, not 1440: the rail, the
+  drawer, twice the page padding, the 152 list, the 168 evidence column, the
+  three 24 gaps and the 24 spacer come to 792, leaving the 704 the Table
+  specimen needs (80 + 232 + 64 + 152 + 168 + 72 + 24 = 792; 1496 − 792 = 704);
+- the sections and the gutter leave at **1160**, not 1080.
 
 Below 760 nothing changes: the nav is the sticky bar and the fixed overlay of
-invariant 19, listing every group and page.
+invariant 19, listing every group and page. On a tall phone the open overlay
+keeps its rows to their content (`align-content: start`); left to stretch,
+the grid floated the sections a third of the way down the screen.
 
 ## Reading order
 
@@ -86,9 +101,13 @@ list; the drawer, the overlay and the pager read it.
 - `contents`: `sectionOf` finds a section from its page or its own route and
   nothing from a stranger; the pager crosses a group boundary through the
   section page.
-- `Nav`: the rail marks the section, the drawer lists Overview first and
-  marks the page, a route outside the list gets an empty drawer; the narrow
-  overlay behaviour as before.
-- Stylesheet: the wide breakpoint is the rail, the drawer, the page padding
-  and the 1128 the page needs, read from the CSS rather than written twice.
+- `Nav`: the rail marks the section, the drawer lists Overview first (found
+  by the list's `aria-label`, since there is no caption) and marks the page,
+  a route outside the list gets an empty drawer; the narrow overlay behaviour
+  as before.
+- Stylesheet: the wide breakpoint less the rail, the drawer, the page padding
+  and the columns beside the prose is the 704 the Table specimen needs, read
+  from the CSS rather than written twice.
+- `ThemeToggle`: the toggle's width, height and the knob's travel are summed
+  from the padding, the slot and the gap in the stylesheet, not typed.
 - `pages.test.tsx` picks up the three new pages for axe by itself.
