@@ -288,7 +288,7 @@ have all been mistaken for errors at least once.
 
 19. **The site's navigation is two bars on a wide screen and one on a narrow
     one, and the component owns what the stylesheet cannot.** From 2026-09-14
-    the shape is the Material 3 site's: a 96px rail with the four sections
+    the shape is the Material 3 site's: an 80px rail with the four sections
     (`app/ui/contents.ts` — Start here `/`, Developers `/develop`,
     Foundations `/foundations`, Components `/components`; a Carbon icon on a
     56×32 pill, `interactive/selected` for the section the reader is in,
@@ -296,10 +296,13 @@ have all been mistaken for errors at least once.
     it) and a 232px drawer with the brand and the current section's pages,
     "Overview" first. Each section has a page presenting the pages inside it
     with the cards the home used to hold; the home keeps the hero, the three
-    Start here cards and three section cards. The rail costs 96px, so the
-    wide breakpoint is 1512 (derived in `Nav.test.tsx` from the rail, the
-    drawer, the page's padding and the 704 a Table specimen needs) and the
-    evidence column leaves at 1176. Below 760px the nav is a sticky bar
+    Start here cards and three section cards. The theme toggle stands on end
+    at the rail's foot, 48×84 as drawn (it lay down while it lived in a bar
+    and a sidebar); the drawer carries no caption naming the section, the
+    rail's filled pill does that. The rail costs 80px, so the wide
+    breakpoint is 1496 (derived in `Nav.test.tsx` from the rail, the drawer,
+    the page's padding and the 704 a Table specimen needs) and the evidence
+    column leaves at 1160. Below 760px the nav is a sticky bar
     with a toggle — the rail and the drawer take `display: contents`, so the
     brand and the toggle are the same elements in both layouts; open, `.sidebar[data-open='true']` fixes it over the whole
     viewport (`100dvh`, a scroll of its own) rather than growing the bar and
@@ -519,7 +522,7 @@ Every page was rewritten on 2026-09-12 and 13 with the `better-*` skills
 "Try it" or "See it", a "Choosing …" section on when to use the thing
 against its neighbours, anatomy with the drawn numbers, states,
 accessibility, props. The home is a card index in the M3 shape; the site
-has no bar across the top, a section list beside the prose from 1512 (1440 until the rail), the
+has no bar across the top, a section list beside the prose from 1496 (1440 until the rail), the
 measurements against the right edge, a skip link, a `main`, a pager. Every
 number that was text became a computation. Both modes were checked on every
 page (see the screenshot workaround in the private memory).

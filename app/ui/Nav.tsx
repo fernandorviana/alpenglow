@@ -131,8 +131,9 @@ export function Nav() {
       </div>
 
       {/* The drawer: the brand, then the pages of the section the reader is
-          in, its own page first. A route no section lists gets the brand
-          alone rather than a wrong section. */}
+          in, its own page first. No caption naming the section — the rail
+          beside it already does, with the section's pill filled. A route no
+          section lists gets the brand alone rather than a wrong section. */}
       <div className="drawer">
         <div className="sidebarBrand">
           <Link href="/" className="brand">
@@ -143,10 +144,7 @@ export function Nav() {
 
         {section && (
           <div className="drawerNav">
-            <p className="navTitle" id="drawer-title">
-              {section.title}
-            </p>
-            <ul className="navList" aria-labelledby="drawer-title">
+            <ul className="navList" aria-label={section.title}>
               <li>
                 <Link
                   href={section.href}

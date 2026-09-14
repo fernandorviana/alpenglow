@@ -306,7 +306,7 @@ describe('the toggle stylesheet', () => {
   });
 
   it('keeps the drawn geometry adding up', () => {
-    // The drawing is an 84x48 pill holding two 32px slots. These numbers are
+    // The drawing is a 48x84 pill, stood on end, holding two 32px slots. These numbers are
     // literals in the stylesheet because they are drawn, not derived — but
     // they have to agree with each other and with the scale, and the travel is
     // the one that silently stops agreeing. Change the width alone and the
@@ -335,10 +335,10 @@ describe('the toggle stylesheet', () => {
     expect(gap, 'the gap is a spacing token').toBeTypeOf('number');
 
     expect(slot).toBe(px(knobRule, 'height'));
-    expect(px(toggleRule, 'width')).toBe(pad + slot + gap + slot + pad);
-    expect(px(toggleRule, 'height')).toBe(pad + slot + pad);
+    expect(px(toggleRule, 'width')).toBe(pad + slot + pad);
+    expect(px(toggleRule, 'height')).toBe(pad + slot + gap + slot + pad);
     expect(step(knobRule, 'top'), 'the knob is inset by the track’s own padding').toBe(pad);
     expect(step(knobRule, 'left')).toBe(pad);
-    expect(Number(travel?.declarations[0]?.match(/translateX\((\d+)px\)/)?.[1])).toBe(slot + gap);
+    expect(Number(travel?.declarations[0]?.match(/translateY\((\d+)px\)/)?.[1])).toBe(slot + gap);
   });
 });
