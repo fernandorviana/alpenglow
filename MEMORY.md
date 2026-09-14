@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-14**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`) and the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`).
+Last verified against the tree on **2026-09-15**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`), the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`), and the Atlassian site was surveyed (open work, item -4).
 
 ---
 
@@ -557,6 +557,28 @@ including a divider that resolved to the same colour as the surface beneath it.
 ---
 
 ## Open work
+
+### -4. The Atlassian site was read; what of it is ours to take (2026-09-15)
+
+Fernando liked the complexity of atlassian.design and asked for a survey.
+Read in the Browser pane the same day — home, Components, Button on all four
+tabs, Tokens, Colour palette, Elevation, Spacing, Accessibility, Tools,
+Release phases, the search and the 404 — and recorded in
+`docs/superpowers/specs/2026-09-15-atlassian-site-survey.md`: what their
+site does, eight things worth taking, five to take when there is something
+to attach them to, and seven refused with the reason. Nothing is built. The
+eight, in order of worth to a portfolio piece: a light/dark switch on the
+specimen rather than the site (two "Try it"s side by side, one per mode —
+costs a scoped dark block in the generated `tokens.css`); a page for
+`skills/applying-alpenglow-tokens`, which is in the repository and nowhere
+on the site; a Source link to the component's folder on every component
+page, derived from `package.json` as the footer's links are; a keyboard
+legend and a body snippet in the search dialog; an `app/not-found.tsx` in
+the site's chrome; both names — the custom property and the Tailwind class
+— on every token row; a `CHANGELOG.md`, then "since 0.x" on tokens and a
+git-built *Changes* section per component; Do/Don't pairs only where a
+decision already exists. Refused: tabs per component, generated props, the
+checkerboard, the mirrored dark ramp, a token picker.
 
 ### -3. Code blocks became windows (2026-09-14)
 
