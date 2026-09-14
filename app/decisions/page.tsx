@@ -227,6 +227,22 @@ export default function Page() {
         of the measurements column instead, and the prose keeps 784.
       </p>
 
+      <h2>At 1440 the drawer waits under the rail</h2>
+      <Decided on="2026-09-15" />
+      <p>
+        From 1440 down to the narrow bar at 760, the drawer is out of the flow: the rail alone
+        is the sidebar, the page gains the drawer&rsquo;s 232, and the drawer slides out over
+        the page — 140ms, the travel duration — while the pointer or the focus is in the
+        sidebar, and back under the rail when they leave. Focus opens it because a keyboard
+        reaches the drawer&rsquo;s links through the rail&rsquo;s; the search&rsquo;s own
+        dialog does not, since its field is focus inside the sidebar and the drawer would
+        slide out behind the scrim. Hidden as well as moved, so its links are out of the tab
+        order while it is under the rail. The reader without a pointer, on a tablet in this
+        range, has the section&rsquo;s page one tap away on the rail, and it lists the same
+        pages as cards. The brand goes with the drawer on this tier; the rail is 80 wide and
+        the name does not fit it.
+      </p>
+
       <h2>The Dialog&rsquo;s title wraps</h2>
       <Decided on="2026-09-13" />
       <p>

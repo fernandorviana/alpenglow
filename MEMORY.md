@@ -565,7 +565,16 @@ mode and Developers: the Card's surface (invariant 4 — sunken is the canvas
 in dark, and the old block had no edge), a caption with the file's name and
 CSS-counter line numbers when `title` is given, a copy button, and colour from
 `app/ui/highlight.ts` — five token kinds painted with `text/*` tokens, no
-shiki, on Decisions. What it leaves open: the tokenizer knows the site's
+shiki, on Decisions. The home card's picture stays the small `pre`: Fernando said on 2026-09-15
+to leave it, since the cards will get assets of their own. The same day the
+drawer got a
+**laptop tier**: from 1440 down to 761 it is absolute under the rail,
+`visibility: hidden` and `translateX(-100%)`, slid out by `.sidebar:hover`
+and `:focus-within` (the search dialog excluded), on Decisions, on Space,
+and asserted in `Nav.test.tsx`. Not changed with it: the 1160 breakpoint,
+which still assumes the drawer's 232 beside the page and could fall to 928;
+and the brand, which leaves the page with the drawer on that tier — the
+rail is 80 wide. What the code block leaves open: the tokenizer knows the site's
 samples, not the languages — `html` reads script keywords throughout, `sh`
 has comments and strings only, and a mixed block (an npm line over an import)
 is typed `ts`; a block is titled only where its code already named its file in

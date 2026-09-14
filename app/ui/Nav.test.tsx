@@ -318,6 +318,35 @@ describe('the nav stylesheet', () => {
     expect(shared('.railList', '.drawerNav')).toMatch(/display: none/);
   });
 
+  describe('the laptop tier, 1440 and below', () => {
+    // The floor is the narrow tier's edge: below 760 both bars dissolve
+    // into the narrow bar, and a drawer left absolute there would take the
+    // brand and the toggle with it.
+    const floor = Number(NARROW.match(/(\d+)px/)?.[1]) + 1;
+    const laptop = block(css, `@media (max-width: 1440px) and (min-width: ${floor}px)`);
+
+    it('takes the drawer out of the flow and under the rail, so the page gains its width', () => {
+      const drawer = declarations(laptop, '.drawer');
+      expect(drawer).toMatch(/position: absolute/);
+      expect(drawer).toMatch(/visibility: hidden/);
+      expect(drawer).toMatch(/transform: translateX\(-100%\)/);
+      expect(px(drawer, 'left')).toBe(px(rulesOf('.rail'), 'width'));
+      expect(declarations(laptop, '.rail')).toMatch(/z-index/);
+    });
+
+    it('slides it over the page while the pointer or the focus is in the sidebar, not the search', () => {
+      const open = declarations(laptop, '.sidebar:hover .drawer, .sidebar:focus-within:not(:has(dialog[open])) .drawer');
+      expect(open).toMatch(/visibility: visible/);
+      expect(open).toMatch(/transform: none/);
+    });
+
+    it('moves in the travel duration, and not at all under reduced motion', () => {
+      expect(declarations(laptop, '.drawer')).toMatch(/transform var\(--ap-motion-duration-travel\)/);
+      const reduced = block(laptop, '@media (prefers-reduced-motion: reduce)');
+      expect(declarations(reduced, '.drawer')).toMatch(/transition: none/);
+    });
+  });
+
   /** Every rule for `selector` alone, joined — a selector that shares a rule and has one of its own. */
   const rulesOf = (selector: string) =>
     [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]

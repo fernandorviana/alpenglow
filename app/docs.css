@@ -1515,6 +1515,50 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   .footerColophon { max-width: none; }
 }
 
+/* The laptop tier: at 1440 and below the drawer leaves the flow and waits
+   under the rail, and slides out over the page while the pointer or the
+   focus is in the sidebar — the rail alone is the sidebar's width, so the
+   page gains the drawer's 232. Focus opens it too, because a keyboard
+   reaches the drawer's links through the rail's; the search's dialog is
+   left out, since its field is focus inside the sidebar and the drawer
+   would slide out behind the scrim. Hidden as well as moved, so its links
+   are out of the tab order while it is under the rail. The floor is the
+   narrow tier's edge: below 760 both bars dissolve into the narrow bar,
+   and `visibility: hidden` on a `display: contents` drawer would take the
+   brand and the toggle with it. `Nav.test.tsx` holds the floor to NARROW. */
+@media (max-width: 1440px) and (min-width: 761px) {
+  .sidebar { z-index: 2; }
+
+  .rail {
+    position: relative;
+    z-index: 1;
+  }
+
+  .drawer {
+    position: absolute;
+    top: 0;
+    left: 80px;
+    visibility: hidden;
+    transform: translateX(-100%);
+    box-shadow: var(--ap-elevation-md);
+    /* Visibility is discrete: given the travel's duration it turns visible
+       at once on the way out and hidden only at the end of the way back,
+       which is the delay a hand-written `0s` would have set. */
+    transition:
+      transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard),
+      visibility var(--ap-motion-duration-travel);
+  }
+
+  .sidebar:hover .drawer, .sidebar:focus-within:not(:has(dialog[open])) .drawer {
+    visibility: visible;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer { transition: none; }
+  }
+}
+
 /* The rail's 80px added to where the evidence column used to leave. */
 @media (max-width: 1160px) {
   .page { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
