@@ -84,7 +84,7 @@ describe('Footer', () => {
 
 /**
  * Two stylesheet invariants jsdom cannot compute: the footer is a landmark of
- * the chrome, so it takes the sidebar's surface rather than the page's, and it
+ * the chrome, so it takes the navigation's surface rather than the page's, and it
  * keeps the page's own side padding at the narrow tier — the two are read
  * together, so the footer's first column lines up with the prose above it.
  */
@@ -95,9 +95,11 @@ describe('the stylesheet', () => {
       .filter(([, selectors]) => selectors!.trim() === selector)
       .map(([, , body]) => body!.replace(/\s+/g, ' ').trim());
 
-  it('puts the footer on the raised surface the sidebar uses', () => {
+  it('puts the footer on the raised surface the rail and the drawer use', () => {
+    // The surface sits on the two bars, not on the nav that holds them.
+    const bars = rule('.rail,\n.drawer')[0] ?? rule('.rail, .drawer')[0];
     expect(rule('.footer')[0]).toMatch(/background: var\(--ap-color-surface-raised\)/);
-    expect(rule('.sidebar')[0]).toMatch(/background: var\(--ap-color-surface-raised\)/);
+    expect(bars).toMatch(/background: var\(--ap-color-surface-raised\)/);
   });
 
   it('takes the page’s side padding at every tier', () => {
