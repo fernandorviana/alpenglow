@@ -251,6 +251,33 @@ export default function Page() {
         toggle&rsquo;s own transitions are excepted, because the knob&rsquo;s slide is the
         control answering the click. Measured after: four transitions, all the toggle&rsquo;s.
       </p>
+
+      <h2>The search index is built from the pages, not written beside them</h2>
+      <Decided on="2026-09-14" />
+      <p>
+        The palette searches pages, sections, tokens and props. The entries are read from
+        the pages themselves, rendered to static markup at build time and walked: a page is
+        searchable the day it is in the contents, a heading the day the page anchors it, a
+        token the day it is in the theme. The file is a build artefact and is not committed —
+        prose changes in nearly every commit, and a diff guard like the stylesheets&rsquo;
+        would fail on most of them for nothing. The matcher is a prefix with one typo allowed
+        from four characters, weighted so a page title outranks a token, a token a section, a
+        section the labels and the labels the body, where a term counts for more the more it
+        is said and the shorter the section; twenty-three pages do not need an engine, and
+        each rule is a test.
+      </p>
+
+      <h2>The search suggests; it does not complete</h2>
+      <Decided on="2026-09-14" />
+      <p>
+        The Material 3 site fills its field with the first suggestion as you type. This one
+        lists the suggestions and leaves the field alone: editing a field&rsquo;s value under
+        the reader&rsquo;s fingers is the class of bug the date mask fought — an IME
+        composition, Android&rsquo;s <code>Unidentified</code> keys, a paste — and the list
+        gives the same answer without it. Nor does it rank by popularity: the site is static
+        and has no analytics at runtime, so the five suggestions offered before anything is
+        typed are chosen by hand, after the reader&rsquo;s own recent destinations.
+      </p>
     </DocPage>
   );
 }

@@ -96,3 +96,10 @@ export function neighbours(pathname: string): { previous?: NavItem; next?: NavIt
   if (at === -1) return {};
   return { previous: PAGES[at - 1], next: PAGES[at + 1] };
 }
+
+/**
+ * What the palette offers before anything is typed, after the reader's own
+ * recent destinations. Chosen by hand — the site is static and has no
+ * analytics at runtime to rank by — and held to `PAGES` by `Search.test.tsx`.
+ */
+export const SUGGESTED: readonly string[] = ['/install', '/button', '/colour', '/decisions', '/dark-mode'];

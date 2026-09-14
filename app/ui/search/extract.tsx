@@ -1,0 +1,95 @@
+import { createElement, type ComponentType } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { JSDOM } from 'jsdom';
+import { theme, type ThemeTokenName } from '@/tokens/theme';
+import { PAGES, sectionOf } from '../contents';
+import { tokenId } from '../slug';
+import { setPathname } from './navigation-stub';
+import type { Entry, Index } from './index';
+
+/**
+ * Builds the search index from the pages themselves, rendered to static
+ * markup and walked. Nothing is kept in step by hand: a page is searchable
+ * the day it is in `PAGES`, and a heading the day `DocPage` anchors it.
+ *
+ * The loader is injected because the two callers resolve modules
+ * differently — Vite's `ssrLoadModule` in the build script, a dynamic
+ * `import()` under vitest.
+ */
+export type Loader = (file: string) => Promise<{ default: ComponentType }>;
+
+/** `/button` → `app/button/page.tsx`; the home is `app/page.tsx`. */
+export const pageFile = (href: string) => `app${href === '/' ? '' : href}/page.tsx`;
+
+/**
+ * The element's text with a space between every text node — not
+ * `textContent`, which glues neighbours: a card's title ran into its blurb
+ * ("DevelopersThe package") and a table's cells into each other, words no
+ * query could match. The constant is NodeFilter.SHOW_TEXT; the script's
+ * Node has no NodeFilter global.
+ */
+function text(el: Element): string {
+  const walker = el.ownerDocument.createTreeWalker(el, 4);
+  const parts: string[] = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) parts.push(node.nodeValue ?? '');
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+export async function buildIndex(load: Loader): Promise<Index> {
+  const entries: Entry[] = [];
+  let order = 0;
+
+  for (const page of PAGES) {
+    const section = sectionOf(page.href)?.title ?? page.label;
+    const common = { section, page: page.label };
+
+    setPathname(page.href);
+    const { default: Page } = await load(pageFile(page.href));
+    const html = renderToStaticMarkup(createElement(Page));
+    const { document } = new JSDOM(html).window;
+    const article = document.querySelector('article') ?? document.body;
+
+    const head: Entry = { kind: 'page', href: page.href, title: page.label, body: '', order: order++, ...common };
+    entries.push(head);
+
+    // Direct children only: an h2 inside a specimen is the specimen's, and
+    // DocPage anchors only the page's own. The pager is a nav at the foot of
+    // the article and is not the page's text.
+    let current = head;
+    for (const child of [...article.children]) {
+      if (child.tagName === 'H1' || child.tagName === 'NAV') continue;
+      if (child.tagName === 'H2' && child.id) {
+        current = { kind: 'section', href: `${page.href}#${child.id}`, title: text(child), body: '', order: order++, ...common };
+        entries.push(current);
+        continue;
+      }
+      const t = text(child);
+      if (t) current.body = current.body ? `${current.body} ${t}` : t;
+    }
+
+    // The first table after the Props heading, one entry per row: the name,
+    // then the type and the default as its body.
+    const props = article.querySelector('h2#props');
+    for (let el = props?.nextElementSibling; el && el.tagName !== 'H2'; el = el.nextElementSibling) {
+      const table = el.tagName === 'TABLE' ? el : el.querySelector('table');
+      if (!table) continue;
+      for (const row of table.querySelectorAll('tbody tr')) {
+        const cells = [...row.children].filter((c) => c.tagName === 'TD').map(text);
+        const [name, ...rest] = cells;
+        if (!name) continue;
+        entries.push({ kind: 'prop', href: `${page.href}#props`, title: name, body: rest.join(' ').trim(), order: order++, ...common });
+      }
+      break;
+    }
+
+    // The theme's tokens, from the source rather than the page: the page
+    // shows them without their group prefix.
+    if (page.href === '/colour') {
+      for (const token of Object.keys(theme) as ThemeTokenName[]) {
+        entries.push({ kind: 'token', href: `/colour#${tokenId(token)}`, title: token, body: theme[token].use, order: order++, ...common });
+      }
+    }
+  }
+
+  return { entries };
+}

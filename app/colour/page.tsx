@@ -1,6 +1,7 @@
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
+import { tokenId } from '@ui/slug';
 import { primitives, alphaPrimitives } from '@/tokens/primitives';
 import { theme, type ThemeTokenName } from '@/tokens/theme';
 import { contrast, lightness, resolve } from '@/tokens/contrast';
@@ -88,7 +89,7 @@ function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold
           const measurable = !scrim && !wash && !token.startsWith('surface/');
 
           return (
-            <tr key={token}>
+            <tr key={token} id={tokenId(token)}>
               <td>
                 <div className="tokenName">{token.split('/').slice(1).join('/')}</div>
                 <div className="alias">{entry.use}</div>

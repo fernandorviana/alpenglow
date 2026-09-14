@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-14**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`).
+Last verified against the tree on **2026-09-14**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`) and the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`).
 
 ---
 
@@ -192,6 +192,49 @@ have all been mistaken for errors at least once.
     1.97:1 on a dark card, twice what the references draw. `FillTone` asks
     for a rest fill and a label only; a tone either owns a ladder or takes
     the wash.
+
+22. **The site's search is built from the pages and lives in the rail; it
+    suggests and never completes.** From 2026-09-14 (spec
+    `docs/superpowers/specs/2026-09-14-search-design.md`). The index,
+    `app/ui/search/search-index.json`, is **generated and git-ignored**:
+    `scripts/build-search-index.ts` loads `app/ui/search/extract.tsx` through
+    Vite SSR (`next/navigation` aliased to `app/ui/search/navigation-stub.ts`,
+    which the extractor sets before each page), renders every page in `PAGES`
+    with `renderToStaticMarkup`, and walks the article into entries — one per
+    page (the intro), one per anchored `h2` (its text to the next `h2`, the
+    pager's `nav` skipped), one per row of a Props table, and the 54 theme
+    tokens read from `theme.ts`, landing on `id={tokenId(token)}` rows on the
+    Colour page (`app/ui/slug.ts`, where `slug` moved from `DocPage`).
+    `build:search` runs inside `build:docs` and `predev`; a clone that has not
+    built typechecks through `search-index.d.ts`, and under vitest the
+    loader's `import()` is aliased (`vitest.config.ts`, a whole-specifier
+    regex — the alias plugin replaces only what matched) to the committed
+    empty stand-in `search-index.empty.json`, held by `load.test.ts`: Vite
+    refuses a dynamic import of a missing file at transform time, and every
+    suite that mounts the Nav went through it — found by the review, with
+    the JSON moved away. Do not commit the JSON and do not add a CI diff
+    guard for it — prose changes in most commits. The extractor joins text
+    nodes with a space; `textContent` glued a card's title to its blurb. The matcher
+    (`app/ui/search/index.ts`, pure) is a prefix with one typo from four
+    characters, weighted title 10/9/6 by kind, labels 4, body 1 × mentions ÷
+    length, ties to reading order, eight hits; every rule is a case in
+    `search.test.ts`. The palette is the system's `Dialog` and `Input` as a
+    combobox (`Search.tsx`), opened by ⌘K/Ctrl+K anywhere and by a rail item
+    at the head of the rail — Fernando moved it there from the drawer during
+    the first browser check ("fora do painel secundário") — which on a
+    narrow screen is the first row of the open menu (`grid-area: search`,
+    hidden while closed; the bar has 2px to spare at 320). Esc is stopped in
+    the field so the Nav's document listener does not close that menu under
+    the palette; an IME's committing Enter (`isComposing`) is left alone; a
+    failed load is forgotten on close and tried again on the next open. No
+    inline completion (the M3 site's), by decision: the date mask's class
+    of bug.
+    No popularity: `SUGGESTED` in `contents.ts` is five pages by hand,
+    after five recents in `localStorage['alpenglow-search-recent']` inside
+    try/catch. `Nav.test.tsx` and `pages.test.tsx` mock `useRouter` now, or
+    `Nav` throws. Checked in the Browser pane on 2026-09-14, light and dark,
+    800 and 320: the automation's "Return" key does not reach the handler
+    (its "Enter" does), like its Esc — not the component.
 
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
     implements none of it. `src/test/popover.ts` covers show, hide, toggle, the
@@ -483,9 +526,9 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 953 tests across 41 files
+npm test            # 1061 tests across 49 files
 npm run build:css   # regenerate both stylesheets
-npm run build:docs  # static export
+npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
 npm run check:package   # publint, attw, and what the build must never lose
 ```

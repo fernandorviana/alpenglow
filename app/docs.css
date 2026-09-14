@@ -1264,6 +1264,112 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    they come forward by one step rather than two. */
 .footerColophon .footerLink { color: var(--ap-color-text-secondary); }
 
+/* --- search --------------------------------------------------------------- */
+
+/* The rail's own item, made a button: the pill and the caption come from
+   `.railLink`, and this undoes what a button brings. It opens the palette
+   rather than searching in place — the rail is 80px wide and the drawer's
+   232 would not hold "Components › Button › States" either — and it sits
+   at the head of the rail, where the M3 site keeps its own. */
+.railSearch {
+  width: 100%;
+  margin: 0 0 var(--ap-spacing-100);
+  padding-inline: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  /* `font: inherit` resets what .railLink set; both come back so the caption
+     sits on the same line box as the four sections'. */
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  cursor: pointer;
+}
+
+.railSearch:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+/* Held near the top so the list grows downward without the box jumping as
+   the results change; the platform would centre it. */
+.searchDialog { margin-top: 12vh; }
+
+.searchStatus {
+  margin: var(--ap-spacing-200) 0 0;
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-body-md-size);
+}
+
+.searchList {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--ap-spacing-200);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.searchGroup + .searchGroup { margin-top: var(--ap-spacing-150); }
+
+.searchGroupTitle {
+  padding: 0 var(--ap-spacing-150) var(--ap-spacing-075);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+}
+
+/* The DropdownMenu's row: lg radius, the wash on hover, selected when the
+   arrows reach it. Title left, breadcrumb right, the excerpt under both. */
+.searchOption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--ap-spacing-150);
+  align-items: baseline;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border-radius: var(--ap-radius-lg);
+  cursor: pointer;
+  transition: background var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.searchOption:hover { background: var(--ap-color-interactive-wash-hover); }
+.searchOption[aria-selected='true'] { background: var(--ap-color-interactive-selected); }
+
+.searchTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ap-text-body-md-size);
+  color: var(--ap-color-text-primary);
+}
+
+/* The mark is weight, not a highlight: the wash and the selected fill are the
+   only fills a row takes. */
+.searchTitle mark,
+.searchExcerpt mark {
+  background: none;
+  color: inherit;
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.searchMono .searchTitle {
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+}
+
+.searchCrumb {
+  font-size: var(--ap-text-caption-md-size);
+  color: var(--ap-color-text-secondary);
+  white-space: nowrap;
+}
+
+.searchExcerpt {
+  grid-column: 1 / -1;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
 /* --- responsive ----------------------------------------------------------- */
 
 /* Wide: the sections join on the left. The breakpoint is where the prose
@@ -1318,6 +1424,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'brand toggle'
+      'search search'
       'sections sections'
       'theme theme';
     align-items: center;
@@ -1354,6 +1461,24 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   .navToggle { grid-area: toggle; }
 
   .navSections { grid-area: sections; }
+
+  /* A row of the open menu, above the sections, the pill and the caption
+     side by side; hidden with the sections while the menu is closed. */
+  .railSearch {
+    grid-area: search;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--ap-spacing-100);
+    margin: var(--ap-spacing-200) 0 0;
+    padding: var(--ap-spacing-050) var(--ap-spacing-100);
+    font-size: var(--ap-text-body-md-size);
+  }
+  .sidebar[data-open='false'] .railSearch { display: none; }
+
+  /* At 320px the breadcrumb took the row and the title truncated to five
+     characters — "Choos…" — so the breadcrumb goes under the title here. */
+  .searchOption { grid-template-columns: minmax(0, 1fr); }
+  .searchCrumb { white-space: normal; }
 
   .brandNote { margin-bottom: 0; }
 

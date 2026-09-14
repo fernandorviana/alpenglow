@@ -1,6 +1,7 @@
 import { Children, Fragment, cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { OnThisPage, type Section } from './OnThisPage';
 import { Pager } from './Pager';
+import { slug } from './slug';
 
 /** The text a node renders, for a heading's id. */
 function textOf(node: ReactNode): string {
@@ -10,16 +11,6 @@ function textOf(node: ReactNode): string {
   if (isValidElement<{ children?: ReactNode }>(node)) return textOf(node.props.children);
   return '';
 }
-
-/** `Variants and tones` → `variants-and-tones`. Accents fold, punctuation goes. */
-const slug = (text: string) =>
-  text
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/[\s-]+/g, '-');
 
 type Heading = ReactElement<{ id?: string; children?: ReactNode }, 'h2'>;
 

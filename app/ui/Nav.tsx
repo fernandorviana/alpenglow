@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Code, Cube, Home, Layers } from '@carbon/icons-react';
 import { NAV, PAGES, route, sectionOf } from './contents';
 import { ThemeToggle } from './ThemeToggle';
+import { Search } from './search/Search';
 
 /**
  * Where the sidebar becomes a bar with a toggle. The stylesheet's narrow
@@ -109,6 +110,11 @@ export function Nav() {
           theme toggle — is laid out by the bar's grid instead: the toggle is
           one element, placed by the stylesheet in either bar. */}
       <div className="rail">
+        {/* The search at the head of the rail, where the M3 site keeps its
+            own: a rail item on a wide screen, a row of the open menu on a
+            narrow one — one element, placed by the stylesheet, like the
+            brand and the toggle. */}
+        <Search />
         <ul className="railList" aria-label="Sections">
           {NAV.map((group) => {
             const Icon = ICONS[group.href];

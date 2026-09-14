@@ -18,6 +18,8 @@ let pathname = '/';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => pathname,
+  // The search in the drawer follows a chosen row through the router.
+  useRouter: () => ({ push: () => {} }),
 }));
 
 type Listener = (event: MediaQueryListEvent) => void;
@@ -342,5 +344,30 @@ describe('the nav stylesheet', () => {
     const chrome = px(rulesOf('.rail'), 'width') + px(rulesOf('.drawer'), 'width') + 2 * padding;
     const beside = Number(list!.replace('px', '')) + Number(evidence!.replace('px', '')) + 3 * gap + step(spacer!);
     expect(wide - chrome - beside).toBe(704);
+  });
+});
+
+describe('search', () => {
+  it('heads the rail, above the sections, as a rail item', () => {
+    stubViewport(false);
+    renderShell();
+    const rail = document.querySelector('.rail') as HTMLElement;
+    const button = within(rail).getByRole('button', { name: 'Search' });
+    // Before the sections' list; the palette's dialog sits between the two.
+    const list = within(rail).getByRole('list', { name: 'Sections' });
+    expect(button.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(button).toHaveClass('railLink');
+    expect(button.querySelector('.railPill')).not.toBeNull();
+  });
+
+  it('takes a row of the narrow bar and hides with the sections while the menu is closed', () => {
+    // The rail is `display: contents` below the breakpoint, so the same
+    // button is placed by the bar's grid. At 320px the bar holds the brand
+    // and the page's name with 2px to spare (the theme toggle's comment), so
+    // it is a row of the open menu, not an icon in the bar.
+    const narrow = block(readCss('app/docs.css'), `@media ${NARROW}`);
+    expect(narrow).toMatch(/grid-template-areas:[^;]*'search search'/);
+    expect(narrow).toMatch(/\.railSearch\s*\{[^}]*grid-area: search/);
+    expect(narrow).toMatch(/\.sidebar\[data-open='false'\]\s+\.railSearch\s*\{[^}]*display: none/);
   });
 });
