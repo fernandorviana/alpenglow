@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-15**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`), the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`), and the Atlassian site was surveyed (open work, item -4).
+Last verified against the tree on **2026-09-18**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`), the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`), and the Atlassian site (open work, item -4) and eighteen more design-system sites (item -5) were surveyed.
 
 ---
 
@@ -557,6 +557,45 @@ including a divider that resolved to the same colour as the surface beneath it.
 ---
 
 ## Open work
+
+### -5. Eighteen design-system sites were read; the improvements are listed (2026-09-18)
+
+Fernando asked for the same survey as the Atlassian one across the best-rated
+systems — what sets each apart, its strengths, its gaps, across technology,
+code, design, layout and tokens — compiled into candidate improvements.
+Read in the Browser pane on 2026-09-18 (home, Button, colour/tokens, and a
+probe of framework, custom elements, `:root` custom-property count and body
+face): Material 3, Carbon, Polaris (now inside shopify.dev, web components),
+Primer, Spectrum, Fluent 2, Lightning 2 (zeroheight), shadcn/ui, Radix
+Themes, GOV.UK, USWDS, Cloudscape, Geist, Chakra, Nord, Gestalt (2.0 behind
+a login), Helios, Ant Design. Recorded in
+`docs/superpowers/specs/2026-09-18-design-system-sites-survey.md`: a
+technology table, a profile per system, the cross-cutting patterns, sixteen
+candidate improvements in order of worth and nine refusals with reasons.
+The finding that matters: **not one of the eighteen prints a contrast ratio
+beside a token pair or a component state**; three make contrast structural
+without measuring (Spectrum's grays generated to target ratios, USWDS's
+grade "magic number" — 40+ → 3:1, 50+ → 4.5:1, 70+ → 7:1 — and Cloudscape's
+ratio in a charts token's description), and USWDS alone renders every
+interactive state statically. That is where Alpenglow already stands alone,
+and the first four improvements build on it: a state matrix with the ratio
+in every cell in both modes (needs the scoped-mode block in `tokens.css`
+from the Atlassian survey and a `data-state` rule for forced paint); a
+"what the suite holds" list per component page; the Colour page's stops
+explained by job, as Radix and Geist do; a `why` beside `use` on the tokens
+that carry a decision. Then the 2026 baseline every developer-first site
+has: `llms.txt` and Copy-page-as-Markdown (one more output of the search
+extractor), Source · Issue links beside the title, version, date and
+lifecycle on the page, Geist's tone × variant matrix, Helios's anatomy table
+(Required / Optional / focus only), Gestalt's "also known as" aliases fed to
+the search index, enum values explained per line in Props, "which of the 54
+tokens this component reads", a drawer filter past a dozen components,
+page feedback tied to the undecided analytics event, Nord's "rendered live —
+inspect away" line, a freshness line. Refused: tabs, a Storybook or
+configurator, a live editor, primitive tabs, an MCP server, the three
+predict-without-measuring rules (named on Decisions as the alternatives),
+web components, a cookie banner, sponsors and blogs, a login-gated site.
+Nothing is built.
 
 ### -4. The Atlassian site was read; what of it is ours to take (2026-09-15)
 
