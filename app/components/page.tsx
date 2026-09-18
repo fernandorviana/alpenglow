@@ -14,6 +14,7 @@ import { Loader } from '@/components/Loader';
 import { Select } from '@/components/Select';
 import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
+import { Tabs } from '@/components/Tabs';
 import * as lib from '@/index';
 import * as icons from '@/icons/index';
 
@@ -216,6 +217,23 @@ export default function Page() {
                 getRowId={(p) => p.id}
               />
             </div>
+          }
+        />
+        <Card
+          href="/tabs"
+          title="Tabs"
+          description="Underline, segmented and pill over one keyboard pattern, with a thumb that slides."
+          visual={
+            <Tabs
+              label="Appointment"
+              variant="segmented"
+              defaultValue="people"
+              items={[
+                { id: 'details', label: 'Details', content: null },
+                { id: 'people', label: 'Participants', content: null },
+                { id: 'chat', label: 'Chat', content: null },
+              ]}
+            />
           }
         />
       </Cards>

@@ -349,8 +349,10 @@ export default function Page() {
 
       <h2>Shadows</h2>
       <p>
-        Two steps, <code>md</code> for anchored panels and <code>lg</code> for the Dialog, and
-        each is two layers: a long soft one and a short contact one, at the drawn offsets.
+        Three steps. <code>sm</code> is one short layer for a part that lifts inside its own
+        control, the segmented tab&rsquo;s thumb. <code>md</code> for anchored panels and{' '}
+        <code>lg</code> for the Dialog are two layers each: a long soft one and a short
+        contact one, at the drawn offsets.
         The geometry is shared between modes; only the ink changes. Light takes the ink alphas
         of the drawing. Dark was never drawn, and it is modest on purpose: black at 64% over
         the dark canvas would reach 1.05:1 against it while black at 8% over white reaches

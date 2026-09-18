@@ -1,0 +1,411 @@
+/**
+ * Tabs
+ *
+ * The variant's class is on every element it styles — bar, list, tab — and
+ * every selector is compound (`.tab.underline`), never descendant
+ * (`.underline .tab`). A Tabs inside another's panel is ordinary: a settings
+ * dialog with segmented views inside an underline section. With descendant
+ * selectors the inner one took the outer one's look, which the browser showed
+ * on the docs page and jsdom could not. Tabs.test.tsx refuses the shape.
+ *
+ * Three looks over one structure: root > bar > list > tab > ghost > label,
+ * count. Every value is a token; the literals are the control heights the
+ * scale implies (32, 40) and the 28 and 24 that follow from them.
+ *
+ * docs/superpowers/specs/2026-09-18-tabs-design.md holds the drawing, the
+ * seven deviations from it, and why the underline variant exists at all.
+ */
+
+.root, .bar, .list, .tab, .tab::after, .ghost, .count, .thumb, .panel {
+  box-sizing: border-box;
+}
+
+/* 16 between the list and its panel, as a gap and not a padding on the
+   panel: a hidden panel (keepMounted) is display: none and adds nothing. */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-200);
+  /* As a flex or grid item the root's automatic minimum is its content, so a
+     long list would widen its parent instead of scrolling. Found at 320 on
+     the docs page, inside a flex row. */
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--ap-font-sans);
+}
+
+.list {
+  position: relative;
+  /* The thumb sits under the labels without a z-index escaping the list. */
+  isolation: isolate;
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--ap-font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  appearance: none;
+  transition:
+    color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.tab[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+/* A panel with nothing in it takes no room, so the root's gap does not open
+   under a Tabs whose content the caller renders elsewhere. */
+.panel:empty {
+  display: none;
+}
+
+/* scrollbar-width reached Safari in 18.2; before it, this. */
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+/* The ring adds geometry rather than recolouring anything: colour is never
+   the only channel carrying a state. */
+.tab:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+  z-index: 2;
+}
+
+.panel:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+/* --- underline ------------------------------------------------------------
+   Not drawn: proposed and approved on 2026-09-18. 40 high, the md of
+   ControlSize, so it shares a row with buttons and fields. */
+
+/* The rule lives on the bar, not the list: the list scrolls, and a border on
+   a scroller ends where the viewport does, not where the tabs do. */
+.bar.underline {
+  border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+/* A scroller clips what overflows it, the focus ring included. The list is
+   padded by the ring's reach and pulled back by the same, so the first tab
+   still starts at the rule's start. The bottom margin goes one hairline
+   further so the active bar sits on the rule rather than above it. */
+.list.underline {
+  display: flex;
+  gap: var(--ap-spacing-050);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--ap-spacing-050) var(--ap-spacing-050) 0;
+  margin: calc(-1 * var(--ap-spacing-050)) calc(-1 * var(--ap-spacing-050)) calc(-1 * var(--ap-border-width-hairline));
+}
+
+.tab.underline {
+  height: 40px;
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-button-md-size);
+  line-height: var(--ap-text-button-md-line-height);
+  letter-spacing: var(--ap-text-button-md-tracking);
+}
+
+/* The active bar. A bar, not a colour change alone: the selected tab differs
+   in shape from its neighbours. */
+.tab.underline::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  block-size: var(--ap-spacing-025);
+  background: transparent;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+/* text/primary, not the text/accent the segmented variant draws: text/accent
+   is the link colour, and this tab sits on a page beside real links. */
+.tab.underline[aria-selected='true'] {
+  color: var(--ap-color-text-primary);
+}
+
+.tab.underline[aria-selected='true']::after {
+  background: var(--ap-color-border-accent);
+}
+
+/* Fernando, 2026-09-18: the hover is a rounded ghost inside the tab, not the
+   tab's whole box. 32 inside 40 leaves 4 above and below, so the wash touches
+   neither the rule nor the bar. The hit area is still the 40. */
+.tab.underline > .ghost {
+  height: 32px;
+  gap: var(--ap-spacing-075);
+  padding-inline: var(--ap-spacing-150);
+  border-radius: var(--ap-radius-lg);
+}
+
+.tab.underline:hover:not([aria-disabled='true']) > .ghost {
+  background: var(--ap-color-interactive-wash-hover);
+}
+
+.tab.underline:active:not([aria-disabled='true']) > .ghost {
+  background: var(--ap-color-interactive-wash-pressed);
+}
+
+/* The ring follows the ghost, so it never crosses the bar. */
+.tab.underline:focus-visible {
+  outline: none;
+}
+
+.tab.underline:focus-visible > .ghost {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.tab.underline .count {
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- segmented ------------------------------------------------------------
+   Drawn as `Tabs`. The track is surface/sunken with a hairline, not the drawn
+   surface/base with none: base is the canvas, where the drawn track vanishes.
+   In dark, sunken *is* the canvas and the hairline alone carries the track.
+   Radii 8 outside and 6 inside, concentric over 2 of padding; the drawn 10 is
+   not on the scale. */
+
+.list.segmented {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--ap-spacing-025);
+  height: 32px;
+  padding: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-sunken);
+  vertical-align: top;
+}
+
+.list.segmented.fullWidth {
+  display: grid;
+}
+
+.tab.segmented {
+  min-width: 0;
+  border-radius: var(--ap-radius-md);
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+.tab.segmented[aria-selected='true'] {
+  color: var(--ap-color-text-accent);
+}
+
+.tab.segmented > .ghost {
+  width: 100%;
+  height: 100%;
+  gap: var(--ap-spacing-050);
+  padding-inline: var(--ap-spacing-150);
+  border-radius: var(--ap-radius-md);
+}
+
+/* Not drawn with a count; when a caller gives one it takes the label's own
+   colour a weight lighter. Tertiary would fail under the wash on a well. */
+.tab.segmented .count {
+  font-weight: var(--ap-font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The selected segment keeps its thumb; a wash over it would grey the one
+   surface that is meant to read as lifted. */
+.tab.segmented:hover:not([aria-disabled='true'], [aria-selected='true']) > .ghost {
+  background: var(--ap-color-interactive-wash-hover);
+}
+
+.tab.segmented:active:not([aria-disabled='true'], [aria-selected='true']) > .ghost {
+  background: var(--ap-color-interactive-wash-pressed);
+}
+
+/* One element, moved by index. The columns are equal, so a step is the
+   thumb's own width plus the gap and nothing is measured in script. */
+.thumb {
+  position: absolute;
+  inset-block: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
+  inset-inline-start: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
+  width: calc(
+    (100% - 2 * (var(--ap-spacing-025) - var(--ap-border-width-hairline)) - (var(--tabs-count) - 1) * var(--ap-spacing-025)) /
+      var(--tabs-count)
+  );
+  border-radius: var(--ap-radius-md);
+  /* overlay, not raised. In light both are white and the shadow lifts the
+     thumb. In dark a segmented control usually sits on a card, which is
+     raised: a raised thumb is the card's own colour and reads as a hole in
+     the track. overlay is a step above the card (ΔL .04) and two above the
+     track (.085). Seen in the browser on 2026-09-18. */
+  background: var(--ap-color-surface-overlay);
+  box-shadow: var(--ap-elevation-sm);
+  transform: translateX(calc(var(--tabs-index) * (100% + var(--ap-spacing-025))));
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.thumb:dir(rtl) {
+  transform: translateX(calc(var(--tabs-index) * (-100% - var(--ap-spacing-025))));
+}
+
+/* --- pill -----------------------------------------------------------------
+   Drawn as `Tab Pill` and `Tab Group`. A capsule: the drawn radius 20 on a
+   32 box is one, and the capsule is the system's shape. */
+
+.list.pill {
+  display: flex;
+  gap: var(--ap-spacing-100);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--ap-spacing-050);
+  margin: calc(-1 * var(--ap-spacing-050));
+}
+
+.tab.pill {
+  height: 32px;
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-full);
+  background-color: var(--ap-color-surface-sunken);
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.tab.pill[aria-selected='true'] {
+  background-color: var(--ap-color-surface-inverse);
+  color: var(--ap-color-text-inverse);
+}
+
+/* The wash over a fill is an image, as on the neutral button (invariant 21):
+   a gradient does not animate, so a pill changes at once where a ghost fades.
+   Accepted there, accepted here. */
+.tab.pill:hover:not([aria-disabled='true']) {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+}
+
+.tab.pill:active:not([aria-disabled='true']) {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-pressed), var(--ap-color-interactive-wash-pressed));
+}
+
+.tab.pill[aria-disabled='true'] {
+  background-color: var(--ap-color-interactive-disabled);
+  color: var(--ap-color-interactive-on-disabled);
+}
+
+.tab.pill > .ghost {
+  gap: var(--ap-spacing-100);
+  padding-inline: calc(var(--ap-spacing-200) - var(--ap-border-width-hairline));
+}
+
+/* With a count the pill closes 4 from the circle, as drawn. */
+.tab.pill > .ghost:has(.count) {
+  padding-inline-end: calc(var(--ap-spacing-050) - var(--ap-border-width-hairline));
+}
+
+/* surface/raised, not the drawn surface/base: base is the canvas, and in dark
+   so is the pill, which would leave the circle with nothing to stand on. */
+.tab.pill .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding-inline: var(--ap-spacing-050);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Drawn as text/inverse on interactive/selected — white on twilight/050, an
+   empty circle in the file's own render. The fill is kept, the text corrected:
+   5.53:1 light, 9.64:1 dark. */
+.tab.pill[aria-selected='true'] .count {
+  background: var(--ap-color-interactive-selected);
+  color: var(--ap-color-text-accent);
+}
+
+/* --- disabled, underline and segmented ------------------------------------ */
+
+.tab.underline[aria-disabled='true'],
+.tab.segmented[aria-disabled='true'],
+.tab.underline[aria-disabled='true'] .count {
+  color: var(--ap-color-text-disabled);
+}
+
+/* --- dark -----------------------------------------------------------------
+   An unselected pill's fill is surface/sunken, which in dark is the canvas
+   (invariant 4). It takes a border there, the Badge's treatment. Written
+   twice, like the generated token file: the media query for a reader with no
+   stored choice, the attribute for one who chose. */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .tab.pill {
+    border-color: var(--ap-color-border-default);
+  }
+  :root:not([data-theme='light']) .tab.pill[aria-selected='true'] {
+    border-color: transparent;
+  }
+}
+
+:root[data-theme='dark'] .tab.pill {
+  border-color: var(--ap-color-border-default);
+}
+
+:root[data-theme='dark'] .tab.pill[aria-selected='true'] {
+  border-color: transparent;
+}
+
+/* --- reduced motion -------------------------------------------------------
+   The thumb jumps; the selected segment is still the lifted one, so nothing
+   is lost but the slide. */
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb {
+    transition: none;
+  }
+  .tab, .ghost, .tab.underline::after {
+    transition: none;
+  }
+}

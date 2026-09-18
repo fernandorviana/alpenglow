@@ -9,8 +9,14 @@
  * It is NOT a fourth Figma collection. Effects are styles there, not
  * variables, so the three-collection architecture is unchanged.
  *
- * Two steps. `md` for panels anchored to a control, `lg` for the Dialog. The
- * drawing also has `sm` in Light Mode; it lands when a component asks for it.
+ * Three steps. `sm` for a part that lifts inside its own control — the
+ * segmented tab's thumb, the component that asked for it (2026-09-18) —
+ * `md` for panels anchored to a control, `lg` for the Dialog.
+ *
+ * `sm` was drawn as a literal on the thumb, `0 2px 4px rgba(192,200,210,.5)`.
+ * Over white that grey at 50% and the ink at 12% land within two units of
+ * each other, so it takes the ink the other steps take and follows a
+ * primitive edit the way they do.
  *
  * Dark was never drawn. The source library has Drop Shadow sm/md/lg for
  * Light Mode and only sm for Dark Mode, so the dark values here are a decision
@@ -33,6 +39,12 @@ export type ShadowLayer = {
 };
 
 export const elevation = {
+  sm: {
+    light: [{ y: 2, blur: 4, spread: 0, colour: 'alpha/ink-12' }],
+    // Not drawn. The md decision at the sm geometry; the thumb is also one
+    // surface step above its track there, which does the separating.
+    dark: [{ y: 2, blur: 4, spread: 0, colour: 'alpha/black-32' }],
+  },
   md: {
     light: [
       { y: 10, blur: 32, spread: -4, colour: 'alpha/ink-10' },

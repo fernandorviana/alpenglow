@@ -76,3 +76,6 @@ export type { DatePickerProps, DatePickerInvalidReason } from './components/Date
 
 export { Dialog } from './components/Dialog/index';
 export type { DialogProps, DialogSize } from './components/Dialog/index';
+
+export { Tabs, tabsVariants } from './components/Tabs/index';
+export type { TabsProps, TabItem, TabsVariant } from './components/Tabs/index';

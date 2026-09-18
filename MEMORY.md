@@ -34,7 +34,7 @@ generated from it.
 |---|---|---|---|
 | Primitives | `src/tokens/primitives.ts` | no | 113 opaque colours (white + ten families of eleven stops, 050–950, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs` — plus `925`, the surface step, in stone and night only) + 21 alpha (12 on the black/white ramps, 4 inks — the light divider, two shadows, the dark scrim — the light scrim's mist, and 4 hazes: mist/500 at 8/12/16/20 for the wash). Never referenced directly. |
 | Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
-| Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, two steps (`md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
+| Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, three steps (`sm` for a part that lifts inside its own control — the segmented tab's thumb, 2026-09-18 — `md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 | Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
 
@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1061 tests across 49 files
+npm test            # 1157 tests across 53 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 130 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 145 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,7 +589,32 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
-- none yet
+- **Tabs** — built 2026-09-18, not committed when this was written. Spec
+  `docs/superpowers/specs/2026-09-18-tabs-design.md`, plan
+  `docs/superpowers/plans/2026-09-18-tabs.md`. `variant` is `underline`
+  (not drawn: proposed, and approved by Fernando with one correction — the
+  hover is a rounded 32px ghost inside the 40px tab, not the tab's box),
+  `segmented` and `pill` (drawn as `Tabs`, `Tab Pill`, `Tab Group`). Seven
+  deviations from the drawing are in the spec and on `/tabs`; the ones that
+  look like mistakes: the segmented track is `surface/sunken` with a hairline
+  because the drawn `surface/base` is the canvas; the thumb is
+  `surface/overlay`, not `raised`, because in dark a `raised` thumb on a card
+  is the card's own colour; the selected pill's count is `text/accent` on
+  `interactive/selected` because the drawn white does not read. Added
+  `elevation/sm`. **Every variant selector is compound (`.tab.underline`),
+  never descendant (`.underline .tab`)**, and the variant's class is on the
+  bar, the list and every tab: a Tabs nested in another's panel took the
+  outer one's look, which only the browser showed; `Tabs.test.tsx` refuses
+  the shape. The root is `min-width: 0` so a long list scrolls instead of
+  widening a flex parent (found at 320). A count gets a real space before it
+  or the accessible name is "Participants12". Checked in the Browser pane,
+  both modes, 1280 and 320: ring on the ghost clear of the bar, thumb slides,
+  dark track by its hairline, selected tab kept in view. Not checked: Safari
+  and Firefox (`:dir(rtl)` on the thumb, anchorless so low risk), a screen
+  reader, `dir="rtl"` by eye. Open for Fernando: writing the deviations back
+  to the Figma file (the Montserrat counter and the stray `brand-alt/800`
+  are leftovers there); route tabs (`nav` + `aria-current`) wait for the
+  navigation components.
 
 ### -5. Eighteen design-system sites were read; the improvements are listed (2026-09-18)
 

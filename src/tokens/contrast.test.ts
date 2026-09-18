@@ -471,6 +471,64 @@ describe('the dark elevation ladder is ordered and every step is perceptible', (
   });
 });
 
+describe('tabs read in every variant and every state', () => {
+  const WASH = ['interactive/wash-hover', 'interactive/wash-pressed'] as const;
+
+  for (const mode of MODES) {
+    it(`the selected pill's count reads on its own fill — ${mode}`, () => {
+      // Drawn as text/inverse on interactive/selected: white on twilight/050,
+      // an empty circle in the file's own render. The fill is kept, the text
+      // corrected. 5.53 light, 9.64 dark.
+      expect(tokenContrast('text/accent', 'interactive/selected', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+
+    it(`the selected pill's label reads while hovered and pressed — ${mode}`, () => {
+      for (const wash of WASH) {
+        expect(tokenContrast('text/inverse', wash, mode, 'surface/inverse'), wash).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+
+    it(`a segment's label reads under both washes on the track — ${mode}`, () => {
+      // The track is a well, where tertiary is recorded as failing under the
+      // wash. That is why a segment's resting label is secondary.
+      for (const wash of WASH) {
+        expect(tokenContrast('text/secondary', wash, mode, 'surface/sunken'), wash).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+
+    it(`an unselected pill's label reads under both washes — ${mode}`, () => {
+      for (const wash of WASH) {
+        expect(tokenContrast('text/primary', wash, mode, 'surface/sunken'), wash).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+
+    it(`the underline tab's bar is a non-text indicator on every surface — ${mode}`, () => {
+      for (const surface of ['surface/base', 'surface/raised', 'surface/overlay'] as const) {
+        expect(tokenContrast('border/accent', surface, mode), surface).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+
+    it(`the thumb sits above its track, and above a card it may stand on — ${mode}`, () => {
+      // surface/overlay. In dark the shadow does no separating (invariant 10);
+      // the steps do. In light overlay and raised are both white, and the
+      // shadow is what lifts the thumb off a card there.
+      const thumb = lightness(resolve('surface/overlay', mode));
+      expect(thumb - lightness(resolve('surface/sunken', mode))).toBeGreaterThanOrEqual(SURFACE_STEP);
+      if (mode === 'dark') expect(thumb - lightness(resolve('surface/raised', mode))).toBeGreaterThanOrEqual(SURFACE_STEP);
+    });
+
+    it(`the selected segment's label reads on the thumb — ${mode}`, () => {
+      expect(tokenContrast('text/accent', 'surface/overlay', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+
+  it('the unselected pill takes a border in dark, where its fill is the canvas', () => {
+    expect(resolve('surface/sunken', 'dark')).toBe(resolve('surface/base', 'dark'));
+    expect(tokenContrast('border/default', 'surface/base', 'dark')).toBeGreaterThanOrEqual(NON_TEXT);
+    expect(tokenContrast('border/default', 'surface/raised', 'dark')).toBeGreaterThanOrEqual(NON_TEXT);
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

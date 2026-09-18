@@ -220,6 +220,7 @@
   --ap-color-border-success: var(--ap-moss-600);
   --ap-color-border-inverse: var(--ap-stone-700);
 
+  --ap-elevation-sm: 0 2px 4px 0px var(--ap-alpha-ink-12);
   --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-ink-10), 0 6px 14px -6px var(--ap-alpha-ink-12);
   --ap-elevation-lg: 0 14px 64px -4px var(--ap-alpha-ink-12), 0 8px 22px -6px var(--ap-alpha-ink-12);
 }
@@ -282,6 +283,7 @@
     --ap-color-border-success: var(--ap-moss-400);
     --ap-color-border-inverse: var(--ap-stone-200);
 
+    --ap-elevation-sm: 0 2px 4px 0px var(--ap-alpha-black-32);
     --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-black-32), 0 6px 14px -6px var(--ap-alpha-black-48);
     --ap-elevation-lg: 0 14px 64px -4px var(--ap-alpha-black-32), 0 8px 22px -6px var(--ap-alpha-black-48);
   }
@@ -352,6 +354,7 @@
   --ap-color-border-success: var(--ap-moss-400);
   --ap-color-border-inverse: var(--ap-stone-200);
 
+  --ap-elevation-sm: 0 2px 4px 0px var(--ap-alpha-black-32);
   --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-black-32), 0 6px 14px -6px var(--ap-alpha-black-48);
   --ap-elevation-lg: 0 14px 64px -4px var(--ap-alpha-black-32), 0 8px 22px -6px var(--ap-alpha-black-48);
 }

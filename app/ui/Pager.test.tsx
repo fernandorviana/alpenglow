@@ -75,9 +75,11 @@ describe('Pager', () => {
   });
 
   it('offers only previous on the last page', () => {
-    pathname = '/table';
+    // Read from the list, not written: the last page changes every time a
+    // component is added, and this failed the day Tabs followed Table.
+    pathname = PAGES.at(-1)!.href;
     render(<Pager />);
-    expect(link(/Previous/)).toHaveAttribute('href', '/select');
+    expect(link(/Previous/)).toHaveAttribute('href', PAGES.at(-2)!.href);
     expect(screen.queryByRole('link', { name: /Next/ })).toBeNull();
   });
 
