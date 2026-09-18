@@ -589,7 +589,7 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
-- **Tabs** — built 2026-09-18, not committed when this was written. Spec
+- **Tabs** — built 2026-09-18, on main as `14c99ea`, unreleased. Spec
   `docs/superpowers/specs/2026-09-18-tabs-design.md`, plan
   `docs/superpowers/plans/2026-09-18-tabs.md`. `variant` is `underline`
   (not drawn: proposed, and approved by Fernando with one correction — the
