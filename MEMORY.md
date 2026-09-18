@@ -4,7 +4,7 @@ A durable brief for anyone (person or agent) picking this up cold. It records
 what is not derivable from reading the code: why things are the way they are,
 what must not be "corrected", and what is still open.
 
-Last verified against the tree on **2026-09-18**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`), the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`), and the Atlassian site (open work, item -4) and eighteen more design-system sites (item -5) were surveyed.
+Last verified against the tree on **2026-09-18**, after the navigation became two bars with a page per section (invariant 19; spec `docs/superpowers/specs/2026-09-14-two-level-navigation-design.md`), the site gained a search (invariant 22; spec `docs/superpowers/specs/2026-09-14-search-design.md`), and the Atlassian site (open work, item -4) and eighteen more design-system sites (item -5) were surveyed, and the roadmap to a more complete system was written (item -6).
 
 ---
 
@@ -557,6 +557,39 @@ including a divider that resolved to the same colour as the surface beneath it.
 ---
 
 ## Open work
+
+### -6. The roadmap to a more complete system (2026-09-18)
+
+Decided with Fernando after the two site surveys: Alpenglow is for
+designers and developers **equally**, it is meant to be **used in real
+implementations**, and **the idea is a more complete design system** — this
+replaces the earlier priority of six to eight components over broad
+coverage; the bar per component does not drop. No embedded Storybook:
+interactive pieces are built from the system's own components. The roadmap
+is `docs/superpowers/specs/2026-09-18-completeness-roadmap.md`: a "done"
+list of nine steps every component meets; one dense screen built only from
+Alpenglow as the instrument that reorders the list; three waves —
+**wave 1 (`0.3.0`, with the first `CHANGELOG.md`)** Tabs, Tooltip, Toast,
+Alert, Card, Pagination, Link; **wave 2 (`0.4.0`)** Popover (extracted from
+DatePicker and DropdownMenu), Combobox (graduated from the site's Search),
+Drawer, Accordion, Breadcrumb, Skeleton, EmptyState, Progress, Tag, and the
+dense Table (sort, sticky header, bulk actions, filters, pagination);
+**wave 3 (`0.5.0`)** SideNav and TopBar (graduated from the site's Nav),
+SegmentedControl, Slider, FileUpload, Scheduler, CommandPalette. "Crest
+feeds Terrain": a site piece that is the general pattern is graduated into
+the package, not rewritten beside it. Foundations to add: breakpoints as
+tokens, a data-vis palette with measured ratios, grid, content and voice,
+the first Paths — and a candidate decision to ship **no z-index tokens**,
+since every overlay lives in the top layer. Around the code: a deprecation
+policy, brand theming that re-runs the contrast suite, a public Figma
+library, starters, the LLM surface; the shadcn registry and an MCP server
+are reopened, not decided. Each component still gets its own spec, and
+whether it is already drawn in Figma is not known from the repository.
+Nothing is built.
+
+Claimed components (add a line before starting; one per session and branch):
+
+- none yet
 
 ### -5. Eighteen design-system sites were read; the improvements are listed (2026-09-18)
 
