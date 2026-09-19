@@ -15,6 +15,12 @@ break: a removed token or prop is named here under **Breaking**.
   tab's name, `keepMounted`, and a list that scrolls to keep the selected tab
   in view. Exports `Tabs`, `tabsVariants`, `TabsProps`, `TabItem`,
   `TabsVariant`.
+- **Tooltip** — the overlay card (`md`) and a compact size (`sm`), opened by
+  hover after 400ms and by keyboard focus at once, hoverable, dismissed by
+  Esc without moving focus, persistent (WCAG 1.4.13). Describes its trigger
+  or, with `purpose="label"`, names it; an optional `description` and
+  `shortcut`; four placements that flip. Exports `Tooltip`, `tooltipSizes`,
+  `tooltipPlacements`, `TooltipProps`, `TooltipSize`, `TooltipPlacement`.
 - **`elevation/sm`** (`--ap-elevation-sm`) — one short layer, for a part that
   lifts inside its own control.
 

@@ -529,6 +529,40 @@ describe('tabs read in every variant and every state', () => {
   });
 });
 
+describe('a tooltip reads, and stands off what it floats over', () => {
+  for (const mode of MODES) {
+    it(`its text, its description and its shortcut — ${mode}`, () => {
+      // The surface loop above covers the first two; named here so the
+      // Tooltip's pairs can be found by its name.
+      expect(tokenContrast('text/primary', 'surface/overlay', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/tertiary', 'surface/overlay', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/secondary', 'surface/sunken', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+
+  it('dark: a surface step above a card and above the canvas', () => {
+    const panel = lightness(resolve('surface/overlay', 'dark'));
+    expect(panel - lightness(resolve('surface/raised', 'dark'))).toBeGreaterThanOrEqual(SURFACE_STEP);
+    expect(panel - lightness(resolve('surface/base', 'dark'))).toBeGreaterThanOrEqual(SURFACE_STEP);
+  });
+
+  it('light: the card\'s own white, so the shadow and the edge do the separating', () => {
+    expect(resolve('surface/overlay', 'light')).toBe(resolve('surface/raised', 'light'));
+  });
+
+  it('records its edge, which is decorative and expected to change', () => {
+    // Fernando, 2026-09-19: border/default is too strong for a tooltip, and
+    // more border tokens are to come from the colour tests in Figma. The
+    // drawn stone/200 is 1.36 on this surface; the new token belongs between
+    // these two. Recorded, not held to a floor: the panel has a shadow in
+    // light and a surface step in dark, and the edge carries neither.
+    const edge = (token: 'border/subtle' | 'border/default', mode: Mode) =>
+      Number(tokenContrast(token, 'surface/overlay', mode, 'surface/overlay').toFixed(2));
+    expect([edge('border/subtle', 'light'), edge('border/subtle', 'dark')]).toEqual([1.18, 1.65]);
+    expect([edge('border/default', 'light'), edge('border/default', 'dark')]).toEqual([1.72, 2.97]);
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

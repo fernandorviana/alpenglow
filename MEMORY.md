@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1157 tests across 53 files
+npm test            # 1195 tests across 54 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 145 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 150 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,40 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Tooltip** — built 2026-09-19, on main, unreleased. Spec
+  `docs/superpowers/specs/2026-09-19-tooltip-design.md`, plan
+  `docs/superpowers/plans/2026-09-19-tooltip.md`. **It is drawn** — on the
+  *Tooltip* page of the Figma file, as two frames, `Tootltip` and `Popover`,
+  which are not published components: a search for a component named
+  "tooltip" finds nothing, and a first proposal (an inverse surface) was made
+  and withdrawn before Fernando pointed at the drawing. The drawn surface is
+  the overlay one. **The edge is `border/subtle`, not `border/default`**:
+  Fernando found `default` too strong and will add border tokens after his
+  colour and layout tests in Figma; the drawn `stone/200` is 1.36:1 on the
+  surface, between `subtle` (1.18 light, 1.65 dark) and `default` (1.72,
+  2.97), and the suite records all four figures. A compact `sm` size was
+  added for the word or two on an icon button; `md` is the drawn card. One
+  `Tooltip` covers both frames (hover and focus, nothing to click); the
+  click Popover of wave 2 will share its surface. `popover="manual"` with
+  anchor positioning; where anchor positioning is missing it is
+  `display: none` rather than centred, and `aria-describedby` still reads it.
+  Spans all the way down, so it can sit inside a paragraph without the HTML
+  parser closing the `p` early. The anchor name travels as one custom
+  property on the wrapper (jsdom drops `anchor-name` from an inline style).
+  From the review: a press on the panel does not close it; the Esc that
+  dismisses it is cancelled, so a Dialog behind it stays open; one tooltip
+  at a time, kept by module functions because the Compiler lint refuses a
+  component reassigning a module variable. **In tests, `.focus()` after
+  another test's pointerdown is not `:focus-visible` in jsdom** — the suite's
+  `tabTo` sends a Tab keydown first. Checked in the Browser pane, both modes:
+  8 above and centred, stays open under the pointer, Esc cancelled, no
+  console errors; the pane's screenshot lags a frame behind a hover. Not
+  checked: Safari and Firefox, a screen reader, a tooltip inside a real
+  Dialog, a flip at the viewport's edge by eye. Open: the wrapper is
+  `inline-flex` and does not stretch a `fullWidth` trigger; the site's rail
+  Search still keeps ⌘K in a `title` (its tests assert it), which this
+  component was partly built to replace; the Figma frames are bound to old
+  primitives, and the cover's title layer is still named "Australis".
 - **Tabs** — built 2026-09-18, on main as `14c99ea`, unreleased. Spec
   `docs/superpowers/specs/2026-09-18-tabs-design.md`, plan
   `docs/superpowers/plans/2026-09-18-tabs.md`. `variant` is `underline`

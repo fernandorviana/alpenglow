@@ -1,0 +1,176 @@
+/**
+ * Tooltip
+ *
+ * The drawn card (`md`) and a compact size (`sm`) on one surface. Size and
+ * placement are classes on the panel itself and every selector is compound,
+ * never reached by descent from an ancestor (the Tabs lesson).
+ *
+ * docs/superpowers/specs/2026-09-19-tooltip-design.md holds the drawing, why
+ * the surface is the overlay and not the inverse one, and the edge's story.
+ */
+
+.wrapper, .tooltip, .body, .content, .shortcut, .description {
+  box-sizing: border-box;
+}
+
+/* The anchor. inline-flex so the wrapper is exactly the trigger's box and
+   adds no line of its own. The name arrives as a custom property and is read
+   here and by the panel, which inherits it. */
+.wrapper {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: top;
+  anchor-name: var(--tooltip-anchor);
+}
+
+.tooltip {
+  /* The UA sheet gives [popover] `inset: 0; margin: auto`, which centres it.
+     Anchor positioning needs both cleared. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  overflow: visible;
+
+  /* border/subtle, not border/default. Fernando, 2026-09-19: default is too
+     strong here, and more border tokens are to come from the colour tests in
+     Figma. The drawn edge is stone/200, 1.36:1 on this surface, between
+     subtle (1.18) and default (1.72); the tooltip moves to the token that
+     lands there. In dark this is 1.65 where the menu's default is 2.97. */
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-overlay);
+  color: var(--ap-color-text-primary);
+  box-shadow: var(--ap-elevation-md);
+
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-medium);
+  text-align: start;
+  /* Never the trigger's: a tooltip on an uppercase eyebrow is not uppercase. */
+  text-transform: none;
+  white-space: normal;
+  cursor: default;
+
+  position-anchor: var(--tooltip-anchor);
+  position-try-fallbacks: flip-block, flip-inline;
+  /* Gone with its trigger, not left floating over the page it scrolled off. */
+  position-visibility: anchors-visible;
+
+  opacity: 0;
+  transition:
+    opacity var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    display var(--ap-motion-duration-fade) allow-discrete,
+    overlay var(--ap-motion-duration-fade) allow-discrete;
+}
+
+.tooltip:popover-open {
+  opacity: 1;
+}
+
+@starting-style {
+  .tooltip:popover-open {
+    opacity: 0;
+  }
+}
+
+/* --- placement ------------------------------------------------------------
+   8 from the trigger. The margin is on the side that faces it, and
+   flip-block and flip-inline carry it to the other side with the panel. */
+
+.tooltip.top {
+  position-area: block-start;
+  margin-block-end: var(--ap-spacing-100);
+}
+
+.tooltip.bottom {
+  position-area: block-end;
+  margin-block-start: var(--ap-spacing-100);
+}
+
+.tooltip.start {
+  position-area: inline-start;
+  margin-inline-end: var(--ap-spacing-100);
+}
+
+.tooltip.end {
+  position-area: inline-end;
+  margin-inline-start: var(--ap-spacing-100);
+}
+
+/* --- md: the drawn card ---------------------------------------------------- */
+
+.tooltip.md {
+  max-width: 266px;
+  padding: calc(var(--ap-spacing-250) - var(--ap-border-width-hairline));
+  border-radius: var(--ap-radius-xl);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+/* --- sm: not drawn --------------------------------------------------------
+   20 of padding is right for an explanation and too heavy for the two words
+   on an icon button. The same surface, edge and shadow, a size down. */
+
+.tooltip.sm {
+  max-width: 240px;
+  padding: calc(var(--ap-spacing-075) - var(--ap-border-width-hairline))
+    calc(var(--ap-spacing-150) - var(--ap-border-width-hairline));
+  border-radius: var(--ap-radius-lg);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+/* --- inside ---------------------------------------------------------------- */
+
+.body {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+}
+
+.content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.shortcut {
+  flex: none;
+  padding-inline: var(--ap-spacing-050);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-sunken);
+  color: var(--ap-color-text-secondary);
+  font-family: inherit;
+  font-size: var(--ap-text-caption-sm-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: 0;
+}
+
+.description {
+  display: block;
+  margin: var(--ap-spacing-200) 0 0;
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+/**
+ * The degraded path. Without anchor positioning the menu returns to the UA's
+ * centred placement; a tooltip in the middle of the screen describes nothing,
+ * so it is not shown at all. Its text still reaches assistive technology:
+ * aria-describedby reads hidden content. A JavaScript positioner was refused
+ * for the menu and is refused here for the same reason.
+ */
+@supports not (anchor-name: --a) {
+  .tooltip {
+    display: none;
+  }
+}
+
+/* It appears. Nothing is lost but the fade. */
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    transition: none;
+  }
+}

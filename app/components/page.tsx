@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkmark } from '@carbon/icons-react';
+import { Checkmark, Copy, Search as SearchIcon } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Card, Cards } from '@ui/Card';
 import { sectionOf } from '@ui/contents';
@@ -15,6 +15,7 @@ import { Select } from '@/components/Select';
 import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
 import { Tabs } from '@/components/Tabs';
+import { Tooltip } from '@/components/Tooltip';
 import * as lib from '@/index';
 import * as icons from '@/icons/index';
 
@@ -234,6 +235,21 @@ export default function Page() {
                 { id: 'chat', label: 'Chat', content: null },
               ]}
             />
+          }
+        />
+        <Card
+          href="/tooltip"
+          title="Tooltip"
+          description="The overlay card and a compact size, opened by hover and by focus, and out of the way on Esc."
+          visual={
+            <div className="miniRow">
+              <Tooltip content="Copy link" purpose="label">
+                <Button size="sm" variant="ghost" tone="neutral" iconStart={<Copy size={16} />} />
+              </Tooltip>
+              <Tooltip content="Search" shortcut="⌘K" purpose="label">
+                <Button size="sm" variant="ghost" tone="neutral" iconStart={<SearchIcon size={16} />} />
+              </Tooltip>
+            </div>
           }
         />
       </Cards>
