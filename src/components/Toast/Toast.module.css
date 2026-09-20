@@ -1,0 +1,240 @@
+/**
+ * Toast
+ *
+ * Not drawn: proposed on 2026-09-20 and approved by Fernando on the inverse
+ * surface, with no colour for the tone until the theme has tokens for status
+ * on that surface. docs/superpowers/specs/2026-09-20-toast-design.md holds
+ * the three surfaces that were shown and why this one is the opposite of the
+ * Tooltip's.
+ *
+ * Every selector is compound, never reached by descent (the Tabs lesson).
+ */
+
+.region, .list, .toast, .icon, .message, .spoken, .action, .close {
+  box-sizing: border-box;
+}
+
+.region {
+  /* The UA sheet gives [popover] `inset: 0; margin: auto`, a border, a
+     padding and a canvas colour. The region is only a place. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  overflow: visible;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--ap-spacing-300));
+}
+
+/* --- placement --------------------------------------------------------------
+   24 from the viewport. Logical, so `end` is the left corner under dir="rtl". */
+
+.region.top-start    { inset-block-start: var(--ap-spacing-300); inset-inline-start: var(--ap-spacing-300); }
+.region.top-end      { inset-block-start: var(--ap-spacing-300); inset-inline-end: var(--ap-spacing-300); }
+.region.bottom-start { inset-block-end: var(--ap-spacing-300); inset-inline-start: var(--ap-spacing-300); }
+.region.bottom-end   { inset-block-end: var(--ap-spacing-300); inset-inline-end: var(--ap-spacing-300); }
+
+.region.top-center,
+.region.bottom-center {
+  inset-inline: 0;
+  margin-inline: auto;
+}
+
+.region.top-center    { inset-block-start: var(--ap-spacing-300); }
+.region.bottom-center { inset-block-end: var(--ap-spacing-300); }
+
+/* The DOM order is the order they arrived in, which is the order they are
+   read in. The newest sits nearest the edge: last at the bottom, and at the
+   top the column is turned over. They stretch to the widest of them, so the
+   stack has two straight sides. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-100);
+}
+
+.list.top-start,
+.list.top-center,
+.list.top-end {
+  flex-direction: column-reverse;
+}
+
+/* --- the toast ------------------------------------------------------------- */
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  min-width: min(288px, 100%);
+  max-width: 360px;
+  min-height: var(--ap-spacing-600);
+  padding-block: var(--ap-spacing-100);
+  padding-inline: var(--ap-spacing-200) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-xl);
+
+  background: var(--ap-color-surface-inverse);
+  color: var(--ap-color-text-inverse);
+  box-shadow: var(--ap-elevation-lg);
+
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-medium);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  text-align: start;
+
+  transition:
+    opacity var(--ap-motion-duration-travel) var(--ap-motion-easing-enter),
+    translate var(--ap-motion-duration-travel) var(--ap-motion-easing-enter);
+}
+
+/* It fades in, */
+@starting-style {
+  .toast {
+    opacity: 0;
+  }
+}
+
+/* and arrives from its edge, for a reader who has not asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .toast.fromBottom {
+      translate: 0 var(--ap-spacing-100);
+    }
+
+    .toast.fromTop {
+      translate: 0 calc(-1 * var(--ap-spacing-100));
+    }
+  }
+}
+
+/**
+ * The ring is the text's colour, not border/focus. In dark this surface is a
+ * near-white block and border/focus is 1.64:1 on it; currentColor is 18:1 or
+ * more in both modes. The geometry is the system's. contrast.test.ts records
+ * the figure.
+ */
+.toast:focus-visible,
+.action:focus-visible,
+.close:focus-visible {
+  outline: var(--ap-border-width-ring) solid currentColor;
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Said, not shown: the tone is otherwise only a shape. */
+.spoken {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- the two buttons --------------------------------------------------------
+   Transparent on the toast, so the theme's wash composites over the inverse
+   surface: lighter in light, darker in dark, a surface step in both. */
+
+.action,
+.close {
+  flex: none;
+  height: var(--ap-spacing-400);
+  margin: 0;
+  border: 0;
+  border-radius: var(--ap-radius-lg);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.action {
+  padding: 0 var(--ap-spacing-100);
+  font-weight: var(--ap-font-weight-semibold);
+  /* The accent has no token on this surface, so the action is told from the
+     message by weight and a rule under it. */
+  text-decoration: underline;
+  text-underline-offset: var(--ap-spacing-050);
+  white-space: nowrap;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ap-spacing-400);
+  padding: var(--ap-spacing-075);
+}
+
+.action:hover,
+.close:hover {
+  background-color: var(--ap-color-interactive-wash-hover);
+}
+
+.action:active,
+.close:active {
+  background-color: var(--ap-color-interactive-wash-pressed);
+}
+
+/* --- a narrow screen --------------------------------------------------------
+   Every placement becomes the bottom edge, the width of the viewport less 16
+   a side: a corner means nothing at 320, and the top is where the page's own
+   header is. */
+
+@media (max-width: 480px) {
+  .region.top-start,
+  .region.top-center,
+  .region.top-end,
+  .region.bottom-start,
+  .region.bottom-center,
+  .region.bottom-end {
+    inset-block: auto var(--ap-spacing-200);
+    inset-inline: var(--ap-spacing-200);
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .list.top-start,
+  .list.top-center,
+  .list.top-end,
+  .list.bottom-start,
+  .list.bottom-center,
+  .list.bottom-end {
+    flex-direction: column;
+  }
+
+  .toast {
+    max-width: none;
+  }
+}
+
+/* The roadmap's rule for it: reduced motion keeps the fade and drops the
+   travel. The fade is what says something arrived. */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: opacity var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+  }
+
+  .action,
+  .close {
+    transition: none;
+  }
+}

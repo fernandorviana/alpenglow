@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1195 tests across 54 files
+npm test            # 1248 tests across 56 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 150 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 157 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,55 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Toast** — built 2026-09-20, on main, unreleased. Spec
+  `docs/superpowers/specs/2026-09-20-toast-design.md`, plan
+  `docs/superpowers/plans/2026-09-20-toast.md`. **It is not drawn.** The
+  published `Notification status` set on the Figma file's *Notifications*
+  page is the inline **Alert** (880 by 56, a tinted status surface with a
+  border of its tone; Info, Danger, Success, Alert; close, no button, one
+  action) and is kept for the Alert, the next component; the three trial
+  bars beside it are banners, which Fernando will draw with the other bars.
+  Decided with Fernando: **the surface is `surface/inverse`**, chosen over
+  the overlay surface after seeing both over a card in both modes — a toast
+  floats in a corner away from where the reader looks, the opposite case to
+  the Tooltip's; **no colour for the tone for now**, the icon is
+  `text/inverse` and its shape carries the tone, because the theme has only
+  text and border for the inverse surface and he is about to change the
+  theme; simple — a message, one action at most, a close. Measured: the
+  theme's wash is a surface step on the inverse surface in both modes (ΔL
+  .043 and .040), so hover is the wash as everywhere; `border/focus` is
+  1.64:1 on it in dark, so **the ring is `currentColor`** and a test refuses
+  `border/focus` in the stylesheet. `toast()` is a function over a module
+  store (`store.ts`, no React) read by `Toaster` through
+  `useSyncExternalStore`; no provider. The region is a named
+  `popover="manual"` **open from the start and while empty** — a closed
+  popover is `display: none` and a live region that is not rendered is not
+  listening — closed and opened in one task on every arrival (not while
+  focus is inside), to sit above what entered the top layer since; nothing
+  is painted between the two calls, so the toasts showing do not fade again. 5s, 10s with an action, an error stays;
+  each toast has its own clock, held by the pointer, the focus and a hidden
+  document, and restarted whole. F6 focuses the newest, Esc dismisses and
+  gives focus back. Three show, the rest wait; they stretch to the widest.
+  Carbon's vectors are inlined, since the package does not depend on
+  `@carbon/icons-react` at runtime. The site mounts one `Toaster` in
+  `app/layout.tsx`; `app/ui/ToastSpecimen.tsx` is the picture of one for the
+  anatomy and the Components card, whose visual is inert. Known limit: a
+  modal `<dialog>` makes the top layer inert too, so a toast raised over an
+  open Dialog can be neither pressed nor heard. By hand in the Browser
+  pane: 24 from the corner, 48 tall, 8 apart, both modes, the wash on the
+  close, F6 and Esc, the fourth arriving when one goes, 288 wide at 320
+  with no page overflow. The pane reports `document.hidden`, so the clock
+  never ran there: auto-dismiss is covered by the suite only. Not checked:
+  Safari and Firefox, a screen reader (whether the close-and-open keeps the
+  live region listening is the thing to hear), the five other placements
+  by eye. From the review, each with a test: a focused toast dismissed with nowhere
+  to send the focus lets the hold go by hand (a removed element fires no
+  blur); the action's handler runs after the toast is gone, so one that
+  throws cannot leave it up; `toast()` on the server does nothing; F6 from
+  inside the region is the browser's. Open: status-on-inverse tokens, then
+  colour on the icon; an exit animation; an error is `role="alert"` inside
+  a polite list and may be said twice; `ToastSpecimen` restates the
+  stylesheet by hand.
 - **Tooltip** — built 2026-09-19, on main, unreleased. Spec
   `docs/superpowers/specs/2026-09-19-tooltip-design.md`, plan
   `docs/superpowers/plans/2026-09-19-tooltip.md`. **It is drawn** — on the

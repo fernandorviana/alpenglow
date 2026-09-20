@@ -6,6 +6,7 @@ import { Footer } from '@ui/Footer';
 import { Nav } from '@ui/Nav';
 import { SkipLink } from '@ui/SkipLink';
 import { InlineScript } from '@ui/InlineScript';
+import { Toaster } from '@/components/Toast';
 import '@/styles/tokens.css';
 import './docs.css';
 
@@ -57,6 +58,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Footer />
           </div>
         </div>
+        {/* Once, for the whole site: /toast raises them and so does the Components page. */}
+        <Toaster />
         <Analytics />
       </body>
     </html>

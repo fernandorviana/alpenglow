@@ -15,6 +15,15 @@ break: a removed token or prop is named here under **Breaking**.
   tab's name, `keepMounted`, and a list that scrolls to keep the selected tab
   in view. Exports `Tabs`, `tabsVariants`, `TabsProps`, `TabItem`,
   `TabsVariant`.
+- **Toast** — `toast(message, options)` and one `<Toaster />`: a line on the
+  inverse surface in a corner, with a tone read from its icon (`neutral`,
+  `success`, `danger`, `warning`, `info`), at most one action and a close.
+  5s, 10s with an action, an error stays (WCAG 2.2.1); the clock stops under
+  the pointer, with focus inside and in a background tab. A named live
+  region in the top layer, F6 to reach the newest and Esc to dismiss it;
+  six placements; an `id` updates a toast in place. Exports `Toaster`,
+  `toast`, `toastTones`, `toasterPlacements`, `ToasterProps`,
+  `ToasterPlacement`, `ToastOptions`, `ToastAction`, `ToastTone`.
 - **Tooltip** — the overlay card (`md`) and a compact size (`sm`), opened by
   hover after 400ms and by keyboard focus at once, hoverable, dismissed by
   Esc without moving focus, persistent (WCAG 1.4.13). Describes its trigger

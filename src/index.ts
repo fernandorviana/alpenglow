@@ -80,5 +80,8 @@ export type { DialogProps, DialogSize } from './components/Dialog/index';
 export { Tabs, tabsVariants } from './components/Tabs/index';
 export type { TabsProps, TabItem, TabsVariant } from './components/Tabs/index';
 
+export { Toaster, toast, toastTones, toasterPlacements } from './components/Toast/index';
+export type { ToasterProps, ToasterPlacement, ToastOptions, ToastAction, ToastTone } from './components/Toast/index';
+
 export { Tooltip, tooltipSizes, tooltipPlacements } from './components/Tooltip/index';
 export type { TooltipProps, TooltipSize, TooltipPlacement } from './components/Tooltip/index';

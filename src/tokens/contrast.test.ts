@@ -563,6 +563,39 @@ describe('a tooltip reads, and stands off what it floats over', () => {
   });
 });
 
+describe('a toast reads on the inverse surface, and is seen over any other', () => {
+  const WASHES = ['interactive/wash-hover', 'interactive/wash-pressed'] as const;
+
+  for (const mode of MODES) {
+    it(`its text, at rest and under both washes — ${mode}`, () => {
+      expect(tokenContrast('text/inverse', 'surface/inverse', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      for (const wash of WASHES) {
+        expect(tokenContrast('text/inverse', wash, mode, 'surface/inverse'), wash).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+
+    it(`the wash is a step on it: lighter in light, darker in dark — ${mode}`, () => {
+      const rest = resolve('surface/inverse', mode);
+      const hover = resolve('interactive/wash-hover', mode, rest);
+      expect(Math.abs(lightness(hover) - lightness(rest))).toBeGreaterThanOrEqual(SURFACE_STEP);
+    });
+
+    it(`it is a boundary against every surface it floats over — ${mode}`, () => {
+      for (const under of ['surface/base', 'surface/raised', 'surface/overlay'] as const) {
+        expect(tokenContrast('surface/inverse', under, mode), under).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+
+  it('records why its focus ring is currentColor and not border/focus', () => {
+    // In dark the inverse surface is a near-white block and the focus colour
+    // was chosen against dark ones. The ring takes text/inverse instead.
+    const ring = (mode: Mode) => Number(tokenContrast('border/focus', 'surface/inverse', mode).toFixed(2));
+    expect([ring('light'), ring('dark')]).toEqual([4.96, 1.64]);
+    expect(ring('dark')).toBeLessThan(NON_TEXT);
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

@@ -1,8 +1,9 @@
 'use client';
 
-import { Checkmark, Copy, Search as SearchIcon } from '@carbon/icons-react';
+import { Checkmark, CheckmarkOutline, Copy, Search as SearchIcon } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Card, Cards } from '@ui/Card';
+import { ToastSpecimen } from '@ui/ToastSpecimen';
 import { sectionOf } from '@ui/contents';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
@@ -235,6 +236,16 @@ export default function Page() {
                 { id: 'chat', label: 'Chat', content: null },
               ]}
             />
+          }
+        />
+        <Card
+          href="/toast"
+          title="Toast"
+          description="A line on the inverse surface, in a corner: what happened, one way to take it back, and a close."
+          visual={
+            <ToastSpecimen icon={<CheckmarkOutline size={20} />} action="Undo">
+              Appointment saved
+            </ToastSpecimen>
           }
         />
         <Card
