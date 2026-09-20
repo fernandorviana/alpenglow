@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { block, readCss } from '@/test/css';
 import type { TintTone } from './vocabulary';
 import { buttonFillTones, buttonTextTones } from './Button/Button';
+import { alertTones } from './Alert/Alert';
 import { badgeTones } from './Badge/Badge';
 import { loaderTones } from './Loader/Loader';
 import { menuItemTones } from './DropdownMenu/rows';
@@ -40,6 +41,7 @@ describe('every tone a component lists is painted', () => {
     ['Button, solid', 'src/components/Button/Button.module.css', buttonFillTones.map((t) => `.solid.${t}`)],
     ['Button, outline', 'src/components/Button/Button.module.css', buttonTextTones.map((t) => `.outline.${t}`)],
     ['Button, ghost', 'src/components/Button/Button.module.css', buttonTextTones.map((t) => `.ghost.${t}`)],
+    ['Alert', 'src/components/Alert/Alert.module.css', alertTones.map((t) => `.alert.${t}`)],
     ['Badge', 'src/components/Badge/Badge.module.css', badgeTones.map((t) => `.${t}`)],
     ['Loader', 'src/components/Loader/Loader.module.css', loaderTones.map((t) => `.${t}`)],
     // A neutral row is the row's own style and carries no tone class.

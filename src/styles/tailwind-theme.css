@@ -64,6 +64,10 @@
   --color-border-danger: var(--ap-color-border-danger);
   --color-border-success: var(--ap-color-border-success);
   --color-border-inverse: var(--ap-color-border-inverse);
+  --color-border-info-subtle: var(--ap-color-border-info-subtle);
+  --color-border-success-subtle: var(--ap-color-border-success-subtle);
+  --color-border-warning-subtle: var(--ap-color-border-warning-subtle);
+  --color-border-danger-subtle: var(--ap-color-border-danger-subtle);
 
   /* Spacing */
   --spacing-0: 0px;

@@ -80,6 +80,9 @@ export type { DialogProps, DialogSize } from './components/Dialog/index';
 export { Tabs, tabsVariants } from './components/Tabs/index';
 export type { TabsProps, TabItem, TabsVariant } from './components/Tabs/index';
 
+export { Alert, alertTones, ALERT_NARROW } from './components/Alert/index';
+export type { AlertProps, AlertTone, AlertAction } from './components/Alert/index';
+
 export { Toaster, toast, toastTones, toasterPlacements } from './components/Toast/index';
 export type { ToasterProps, ToasterPlacement, ToastOptions, ToastAction, ToastTone } from './components/Toast/index';
 

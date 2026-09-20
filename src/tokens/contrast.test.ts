@@ -596,6 +596,46 @@ describe('a toast reads on the inverse surface, and is seen over any other', () 
   });
 });
 
+describe('an alert reads on its tint, and is found on a card', () => {
+  const TONES = ['info', 'success', 'warning', 'danger'] as const;
+  const surface = (tone: (typeof TONES)[number]) => `surface/${tone}-subtle` as const;
+
+  for (const mode of MODES) {
+    it(`its text, at rest and under the wash its buttons take — ${mode}`, () => {
+      for (const tone of TONES) {
+        expect(tokenContrast(`text/${tone}`, surface(tone), mode), tone).toBeGreaterThanOrEqual(AA_NORMAL);
+        for (const wash of ['interactive/wash-hover', 'interactive/wash-pressed'] as const) {
+          expect(tokenContrast(`text/${tone}`, wash, mode, surface(tone)), `${tone} ${wash}`).toBeGreaterThanOrEqual(AA_NORMAL);
+        }
+      }
+    });
+
+    it(`the focus ring on every tint — ${mode}`, () => {
+      for (const tone of TONES) {
+        expect(tokenContrast('border/focus', surface(tone), mode), tone).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+
+  it('dark: every tint is a surface step above a card', () => {
+    const card = lightness(resolve('surface/raised', 'dark'));
+    for (const tone of TONES) {
+      expect(lightness(resolve(surface(tone), 'dark')) - card, tone).toBeGreaterThanOrEqual(SURFACE_STEP);
+    }
+  });
+
+  it('records its soft edges, which are decorative', () => {
+    // Fernando, 2026-09-20: all four soft, over completing the 600 family.
+    // Light is the drawn stops; dark is */700, stronger as every border in
+    // the theme is in dark. In light the tint has the canvas's own lightness,
+    // so on the canvas the hue and this edge are what find it.
+    const edges = (mode: Mode) =>
+      TONES.map((tone) => Number(tokenContrast(`border/${tone}-subtle`, surface(tone), mode).toFixed(2)));
+    expect(edges('light')).toEqual([1.25, 1.26, 1.6, 1.29]);
+    expect(edges('dark')).toEqual([2.05, 2.05, 1.99, 1.9]);
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

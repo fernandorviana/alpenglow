@@ -33,7 +33,7 @@ generated from it.
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
 | Primitives | `src/tokens/primitives.ts` | no | 113 opaque colours (white + ten families of eleven stops, 050–950, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs` — plus `925`, the surface step, in stone and night only) + 21 alpha (12 on the black/white ramps, 4 inks — the light divider, two shadows, the dark scrim — the light scrim's mist, and 4 hazes: mist/500 at 8/12/16/20 for the wash). Never referenced directly. |
-| Theme | `src/tokens/theme.ts` | Light / Dark | 54 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 8. Every value is an alias — no raw hex. |
+| Theme | `src/tokens/theme.ts` | Light / Dark | 58 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 12 (four `border/*-subtle` added in code on 2026-09-20 for the Alert; **not yet variables in Figma**, whose Theme collection still has 54). Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, three steps (`sm` for a part that lifts inside its own control — the segmented tab's thumb, 2026-09-18 — `md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 | Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1248 tests across 56 files
+npm test            # 1290 tests across 57 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 157 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 163 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,48 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Alert** — built 2026-09-20, on main, unreleased. Spec
+  `docs/superpowers/specs/2026-09-20-alert-design.md`, plan
+  `docs/superpowers/plans/2026-09-20-alert.md`. **It is drawn**: the
+  published `Notification status` set (880 by 56, radius 12, icon 20, 14/22
+  Medium with a Semibold fragment, `surface/*-subtle` and `text/*`; Info,
+  Danger, Success, Alert; a 24 close, no button, one filled action pill).
+  Decided with Fernando: **every edge is soft** — the drawing edges Danger
+  and Success in the theme's 600 borders and Info and Alert in primitives
+  with no token, and shown drawn, all strong and all soft he chose soft, so
+  four tokens were added, `border/{info,success,warning,danger}-subtle`
+  (light the drawn stops with `ember/200` and `moss/200` for the two drawn
+  strong, dark `*/700`; 1.25 to 1.60 light, 1.90 to 2.05 dark, recorded and
+  held to no floor); **the action is an outline in `currentColor`, "for
+  now"** — the drawn fill has tokens for two tones of four, filling the
+  other two would take about eight, and white on the drawn `glacier/500` is
+  about 3.4:1; it returns when the theme has the fills. By convention:
+  `warning` for the drawn "Alert" state; a `title` that is not drawn; it
+  never hides itself (`onClose` tells the caller); not a live region unless
+  `announce` (then `alert` for danger and warning, `status` for the rest),
+  with the tone always said in words; the close is the Toast's 32, not the
+  drawn 24; dark keeps the tint, a surface step above a card, not the
+  Badge's outline. The Figma variable `radius/lg` is 12 where the code's
+  `lg` is 8 and `xl` 12: the number was kept. A grid inside a root that is
+  an inline-size container, so under 400 of its own width the action drops
+  under the message and the close keeps the corner; no column-gap, because
+  an empty action track beside a gap put the close 20 from the edge, which
+  only the browser showed. The title is a `div`, not a `p`: the docs' prose
+  rule gave the `p` a margin, as a consumer's reset would. Carbon's vectors
+  moved to `src/components/statusGlyphs.tsx`, shared with the Toast. The
+  search index's 200 KB total cap was crossed by this 5.6 KB page and is
+  now 25 KB per page, which is what it was for. By hand in the Browser
+  pane: 56 tall, 8 between parts, 12 to the close in every shape, both
+  modes, the 320 specimen. From the review: the root is `width: 100%`,
+  because a size container cannot take its width from its content and was
+  0 wide in a flex row; `alertTones` satisfies `TintTone` and is in
+  vocabulary.test.ts; `ALERT_NARROW` is the 400 the container query says,
+  held by a test; the search index keeps a total budget too, 400 KB (206
+  today); the Toaster takes `closeLabel`. Not checked: Safari and Firefox,
+  a screen reader. Open: the tone said to screen readers is an English
+  word in the Alert and the Toast, with no prop; the four variables in Figma (only when asked); the filled
+  action; a neutral tone; the banners and trial bars, which Fernando will
+  draw.
 - **Toast** — built 2026-09-20, on main, unreleased. Spec
   `docs/superpowers/specs/2026-09-20-toast-design.md`, plan
   `docs/superpowers/plans/2026-09-20-toast.md`. **It is not drawn.** The

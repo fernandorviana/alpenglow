@@ -172,6 +172,16 @@ export const theme = {
   'border/danger':  { light: 'ember/600',    dark: 'ember/400',    use: 'Error' },
   'border/success': { light: 'moss/600',     dark: 'moss/400',     use: 'Validated' },
   'border/inverse': { light: 'stone/700',    dark: 'stone/200',    use: 'On surface/inverse' },
+  // The edge of a tinted status surface: the Alert. Drawn soft, and chosen
+  // soft by Fernando on 2026-09-20 over completing the 600 family above. The
+  // light stops are the drawn ones, amber a step further because yellow loses
+  // luminance slowly. Dark is */700, about 2:1 where light is 1.25 to 1.6,
+  // as every border in this group is stronger in dark. Decorative:
+  // contrast.test.ts records the figures and holds them to no floor.
+  'border/info-subtle':    { light: 'glacier/200', dark: 'glacier/700', use: 'Edge of surface/info-subtle' },
+  'border/success-subtle': { light: 'moss/200',    dark: 'moss/700',    use: 'Edge of surface/success-subtle' },
+  'border/warning-subtle': { light: 'amber/300',   dark: 'amber/700',   use: 'Edge of surface/warning-subtle' },
+  'border/danger-subtle':  { light: 'ember/200',   dark: 'ember/700',   use: 'Edge of surface/danger-subtle' },
 } as const satisfies Record<string, ThemeEntry>;
 
 export type ThemeTokenName = keyof typeof theme;

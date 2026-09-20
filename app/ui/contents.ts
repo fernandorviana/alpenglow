@@ -59,8 +59,9 @@ export const NAV: readonly NavGroup[] = [
   {
     title: 'Components',
     href: '/components',
-    blurb: 'Thirteen components, each with its states measured in both modes.',
+    blurb: 'Fourteen components, each with its states measured in both modes.',
     items: [
+      { href: '/alert', label: 'Alert' },
       { href: '/avatar', label: 'Avatar and Loader' },
       { href: '/badge', label: 'Badge' },
       { href: '/button', label: 'Button' },

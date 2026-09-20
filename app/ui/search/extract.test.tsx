@@ -114,7 +114,22 @@ describe('buildIndex', () => {
     expect(pages).toEqual([...pages].sort((a, b) => a - b));
   });
 
-  it('stays under 200 KB, so a specimen that starts dumping data is noticed', () => {
-    expect(JSON.stringify(index).length).toBeLessThan(200_000);
+  it('keeps every page under 25 KB, so a specimen that starts dumping data is noticed', () => {
+    // Per page, not in total: the total was capped at 200 KB and the fourteenth
+    // component crossed it with a page of 5.6 KB. The roadmap adds a page per
+    // component, so a total only says the site grew. The largest page today
+    // is /colour, at 21 KB.
+    const bytes = new Map<string, number>();
+    for (const entry of index.entries) {
+      const page = entry.href.split('#')[0]!;
+      bytes.set(page, (bytes.get(page) ?? 0) + JSON.stringify(entry).length);
+    }
+    expect([...bytes].filter(([, size]) => size >= 25_000)).toEqual([]);
+  });
+
+  it('and the whole index under 400 KB, which is what the browser fetches', () => {
+    // 206 KB at fourteen components. Raised on purpose when it is reached,
+    // with the new figure written here, or the index is split by section.
+    expect(JSON.stringify(index).length).toBeLessThan(400_000);
   });
 });

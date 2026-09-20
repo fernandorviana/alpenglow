@@ -15,13 +15,22 @@ break: a removed token or prop is named here under **Breaking**.
   tab's name, `keepMounted`, and a list that scrolls to keep the selected tab
   in view. Exports `Tabs`, `tabsVariants`, `TabsProps`, `TabItem`,
   `TabsVariant`.
+- **Alert** — a tinted line that stays in the page: `info`, `success`,
+  `warning` and `danger`, a message with an optional `title`, at most one
+  `action`, and a close when `onClose` is given (the caller removes it).
+  Not a live region unless `announce`. It measures its own container, so in
+  a narrow column the action drops under the message. Exports `Alert`,
+  `alertTones`, `ALERT_NARROW`, `AlertProps`, `AlertTone`, `AlertAction`.
+- **`border/info-subtle`, `border/success-subtle`, `border/warning-subtle`,
+  `border/danger-subtle`** (`--ap-color-border-*-subtle`) — the soft edge of
+  a tinted status surface.
 - **Toast** — `toast(message, options)` and one `<Toaster />`: a line on the
   inverse surface in a corner, with a tone read from its icon (`neutral`,
   `success`, `danger`, `warning`, `info`), at most one action and a close.
   5s, 10s with an action, an error stays (WCAG 2.2.1); the clock stops under
   the pointer, with focus inside and in a background tab. A named live
   region in the top layer, F6 to reach the newest and Esc to dismiss it;
-  six placements; an `id` updates a toast in place. Exports `Toaster`,
+  six placements; `closeLabel`; an `id` updates a toast in place. Exports `Toaster`,
   `toast`, `toastTones`, `toasterPlacements`, `ToasterProps`,
   `ToasterPlacement`, `ToastOptions`, `ToastAction`, `ToastTone`.
 - **Tooltip** — the overlay card (`md`) and a compact size (`sm`), opened by

@@ -15,6 +15,7 @@ import { Loader } from '@/components/Loader';
 import { Select } from '@/components/Select';
 import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
+import { Alert } from '@/components/Alert';
 import { Tabs } from '@/components/Tabs';
 import { Tooltip } from '@/components/Tooltip';
 import * as lib from '@/index';
@@ -87,6 +88,16 @@ export default function Page() {
 
       <h2>In this section</h2>
       <Cards>
+        <Card
+          href="/alert"
+          title="Alert"
+          description="A tinted line that stays beside what it is about: four tones, one action, a close."
+          visual={
+            <Alert tone="success" onClose={() => {}}>
+              Appointment saved
+            </Alert>
+          }
+        />
         <Card
           href="/avatar"
           title="Avatar and Loader"

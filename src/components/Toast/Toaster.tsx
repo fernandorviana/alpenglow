@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { FocusEvent, KeyboardEvent } from 'react';
 import { serverSnapshot, snapshot, subscribe, toast } from './store';
-import type { ToastRecord, ToastTone } from './store';
+import type { ToastRecord } from './store';
+import { SPOKEN_TONE, StatusGlyph } from '../statusGlyphs';
 import styles from './Toast.module.css';
 
 export const toasterPlacements = [
@@ -19,60 +20,24 @@ export type ToasterPlacement = (typeof toasterPlacements)[number];
 /** Three at once. The rest wait their turn rather than pile over the page. */
 export const TOAST_LIMIT = 3;
 
-/**
- * Carbon's own vectors, the ones drawn in the design file's notifications
- * (checkmark--outline, error, warning, information, close), on their 32
- * grid. Inlined because the package does not depend on @carbon/icons-react
- * at runtime. Apache-2.0, © IBM.
- */
-const ICONS: Record<Exclude<ToastTone, 'neutral'> | 'close', readonly string[]> = {
-  success: [
-    'M14 21.414 9 16.413 10.413 15 14 18.586 21.585 11 23 12.415 14 21.414z',
-    'M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,26A12,12,0,1,1,28,16,12,12,0,0,1,16,28Z',
-  ],
-  danger: [
-    'M2,16H2A14,14,0,1,0,16,2,14,14,0,0,0,2,16Zm23.15,7.75L8.25,6.85a12,12,0,0,1,16.9,16.9ZM8.24,25.16A12,12,0,0,1,6.84,8.27L23.73,25.16a12,12,0,0,1-15.49,0Z',
-  ],
-  warning: [
-    'M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,26A12,12,0,1,1,28,16,12,12,0,0,1,16,28Z',
-    'M15 8H17V19H15z',
-    'M16,22a1.5,1.5,0,1,0,1.5,1.5A1.5,1.5,0,0,0,16,22Z',
-  ],
-  info: [
-    'M17 22 17 14 13 14 13 16 15 16 15 22 12 22 12 24 20 24 20 22 17 22z',
-    'M16,8a1.5,1.5,0,1,0,1.5,1.5A1.5,1.5,0,0,0,16,8Z',
-    'M16,30A14,14,0,1,1,30,16,14,14,0,0,1,16,30ZM16,4A12,12,0,1,0,28,16,12,12,0,0,0,16,4Z',
-  ],
-  close: [
-    'M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z',
-  ],
-};
-
-function Glyph({ name }: { name: keyof typeof ICONS }) {
-  return (
-    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true" focusable="false">
-      {ICONS[name].map((d) => (
-        <path key={d} d={d} />
-      ))}
-    </svg>
-  );
-}
-
-// The tone is read from the icon's shape alone, so a screen reader is told it in words.
-const SPOKEN: Record<ToastTone, string | undefined> = {
-  neutral: undefined,
-  success: 'Success',
-  danger: 'Error',
-  warning: 'Warning',
-  info: 'Information',
-};
-
 const subscribeHidden = (listener: () => void) => {
   document.addEventListener('visibilitychange', listener);
   return () => document.removeEventListener('visibilitychange', listener);
 };
 
-function Toast({ item, held, fromTop, onLeave }: { item: ToastRecord; held: boolean; fromTop: boolean; onLeave: () => void }) {
+function Toast({
+  item,
+  held,
+  fromTop,
+  closeLabel,
+  onLeave,
+}: {
+  item: ToastRecord;
+  held: boolean;
+  fromTop: boolean;
+  closeLabel: string;
+  onLeave: () => void;
+}) {
   const { id, duration, revision } = item;
 
   // Its own clock, so a toast arriving does not restart the ones showing.
@@ -99,11 +64,11 @@ function Toast({ item, held, fromTop, onLeave }: { item: ToastRecord; held: bool
     >
       {item.tone !== 'neutral' && (
         <span className={styles.icon}>
-          <Glyph name={item.tone} />
+          <StatusGlyph name={item.tone} />
         </span>
       )}
       <span className={styles.message}>
-        {SPOKEN[item.tone] && <span className={styles.spoken}>{SPOKEN[item.tone]}: </span>}
+        {item.tone !== 'neutral' && <span className={styles.spoken}>{SPOKEN_TONE[item.tone]}: </span>}
         {item.message}
       </span>
       {item.action && (
@@ -120,8 +85,8 @@ function Toast({ item, held, fromTop, onLeave }: { item: ToastRecord; held: bool
           {item.action.label}
         </button>
       )}
-      <button type="button" className={styles.close} aria-label="Dismiss" onClick={leave}>
-        <Glyph name="close" />
+      <button type="button" className={styles.close} aria-label={closeLabel} onClick={leave}>
+        <StatusGlyph name="close" />
       </button>
     </div>
   );
@@ -132,6 +97,8 @@ export type ToasterProps = {
   placement?: ToasterPlacement;
   /** The region's name, a landmark a screen reader can jump to. */
   label?: string;
+  /** The name of every toast's close. */
+  closeLabel?: string;
   className?: string;
 };
 
@@ -140,7 +107,12 @@ export type ToasterProps = {
  * the document, empty, so that a screen reader is already listening to it
  * when the first toast is put there.
  */
-export function Toaster({ placement = 'bottom-end', label = 'Notifications', className }: ToasterProps) {
+export function Toaster({
+  placement = 'bottom-end',
+  label = 'Notifications',
+  closeLabel = 'Dismiss',
+  className,
+}: ToasterProps) {
   const toasts = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
   const hidden = useSyncExternalStore(
     subscribeHidden,
@@ -255,6 +227,7 @@ export function Toaster({ placement = 'bottom-end', label = 'Notifications', cla
             item={item}
             held={hovered || focused || hidden}
             fromTop={placement.startsWith('top')}
+            closeLabel={closeLabel}
             onLeave={giveFocusBack}
           />
         ))}

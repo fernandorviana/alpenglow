@@ -75,6 +75,7 @@ const OPTIONS: PropRow[] = [
 const PROPS: PropRow[] = [
   { prop: 'placement', type: "'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end'", default: "'bottom-end'" },
   { prop: 'label', type: 'string', default: "'Notifications'" },
+  { prop: 'closeLabel', type: 'string', default: "'Dismiss'" },
   { prop: 'className', type: 'string', default: '—' },
 ];
 

@@ -52,8 +52,10 @@ describe('Toaster — the region', () => {
     expect(toggles).toEqual([]);
   });
 
-  it('takes its name and its placement', () => {
-    render(<Toaster label="Avisos" placement="top-center" />);
+  it('takes its name, its placement and the name of the close', () => {
+    render(<Toaster label="Avisos" placement="top-center" closeLabel="Fechar" />);
+    raise('Guardado');
+    expect(screen.getByRole('button', { name: 'Fechar' })).toBeInTheDocument();
     const region = screen.getByRole('region', { name: 'Avisos' });
     expect(region).toHaveClass(styles.region!, styles['top-center']!);
   });

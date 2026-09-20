@@ -1,0 +1,192 @@
+/**
+ * Alert
+ *
+ * The drawn `Notification status`. docs/superpowers/specs/2026-09-20-alert-design.md
+ * holds where it leaves the drawing: every edge soft, the action an outline,
+ * the close the Toast's.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson). The
+ * one descent is to an element: a `strong` in the message, which the caller
+ * writes and cannot class.
+ */
+
+.root, .alert, .icon, .content, .spoken, .title, .message, .action, .close {
+  box-sizing: border-box;
+}
+
+/* The alert asks how wide it is, not how wide the screen is: it lives in
+   cards and columns. An element cannot query itself, so the root is the
+   container and the alert inside it is what is painted. */
+.root {
+  container-type: inline-size;
+  /* A size container's width cannot come from its content, so where a parent
+     would shrink to fit — a flex row, an auto grid column — it would be 0
+     wide. It is as wide as what holds it, which is what an alert is anyway. */
+  width: 100%;
+  /* A flex or grid item by default refuses to be narrower than its words. */
+  min-width: 0;
+}
+
+.alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: start;
+  /* No column-gap: an alert with no action still has the action's track, and
+     a gap beside an empty track is 8 of nothing before the close. The 8 is a
+     margin on each part that is there. */
+  /* 12 + the 32 of a button row + 12 is the drawn 56. */
+  min-height: var(--ap-spacing-700);
+  padding-block: calc(var(--ap-spacing-150) - var(--ap-border-width-hairline));
+  padding-inline: calc(var(--ap-spacing-200) - var(--ap-border-width-hairline))
+    calc(var(--ap-spacing-150) - var(--ap-border-width-hairline));
+  border: var(--ap-border-width-hairline) solid;
+  border-radius: var(--ap-radius-xl);
+
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-medium);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  text-align: start;
+}
+
+/* --- tones -------------------------------------------------------------------
+   Three tokens each: the tinted surface, its text, its soft edge. Dark is the
+   same three, not the Badge's outline on a sunken fill: that was chosen for a
+   24px label, and an alert is a panel whose tint is how it is found. */
+
+.alert.info {
+  background: var(--ap-color-surface-info-subtle);
+  color: var(--ap-color-text-info);
+  border-color: var(--ap-color-border-info-subtle);
+}
+
+.alert.success {
+  background: var(--ap-color-surface-success-subtle);
+  color: var(--ap-color-text-success);
+  border-color: var(--ap-color-border-success-subtle);
+}
+
+.alert.warning {
+  background: var(--ap-color-surface-warning-subtle);
+  color: var(--ap-color-text-warning);
+  border-color: var(--ap-color-border-warning-subtle);
+}
+
+.alert.danger {
+  background: var(--ap-color-surface-danger-subtle);
+  color: var(--ap-color-text-danger);
+  border-color: var(--ap-color-border-danger-subtle);
+}
+
+/* --- parts -------------------------------------------------------------------
+   Everything keeps to the first line: the icon and the message are centred in
+   the 32 a button takes, and a second line grows the alert downward. */
+
+.icon {
+  display: inline-flex;
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+  margin-block: var(--ap-spacing-075);
+  margin-inline-end: var(--ap-spacing-100);
+}
+
+.content {
+  min-width: 0;
+  /* (32 - 22) / 2 */
+  padding-block: calc((var(--ap-spacing-400) - var(--ap-text-body-md-line-height)) / 2);
+  overflow-wrap: anywhere;
+}
+
+.spoken {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.title {
+  margin: 0;
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.message {
+  margin: 0;
+}
+
+.message strong {
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+/* --- the two buttons ---------------------------------------------------------
+   Transparent on the alert, so the theme's wash composites over the tint and
+   the text under it keeps its token: 6:1 or more, held by contrast.test.ts. */
+
+.action,
+.close {
+  height: var(--ap-spacing-400);
+  margin: 0;
+  margin-inline-start: var(--ap-spacing-100);
+  border-radius: var(--ap-radius-full);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+/* An outline in the text's colour, not the drawn fill: the theme fills
+   success and danger only. It returns when there are fills for all four. */
+.action {
+  grid-column: 3;
+  padding: 0 calc(var(--ap-spacing-200) - var(--ap-border-width-control));
+  border: var(--ap-border-width-control) solid currentColor;
+  font-weight: var(--ap-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.close {
+  grid-column: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ap-spacing-400);
+  padding: var(--ap-spacing-075);
+  border: 0;
+}
+
+.action:hover,
+.close:hover {
+  background-color: var(--ap-color-interactive-wash-hover);
+}
+
+.action:active,
+.close:active {
+  background-color: var(--ap-color-interactive-wash-pressed);
+}
+
+.action:focus-visible,
+.close:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+/* Narrow, the action goes under the message and the close keeps the corner:
+   beside a button, the message would be a column three words wide. */
+@container (max-width: 400px) {
+  .action {
+    grid-area: 2 / 2;
+    justify-self: start;
+    margin-block-start: var(--ap-spacing-050);
+    margin-inline-start: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action,
+  .close {
+    transition: none;
+  }
+}
