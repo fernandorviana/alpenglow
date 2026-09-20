@@ -24,6 +24,15 @@ break: a removed token or prop is named here under **Breaking**.
 - **`border/info-subtle`, `border/success-subtle`, `border/warning-subtle`,
   `border/danger-subtle`** (`--ap-color-border-*-subtle`) — the soft edge of
   a tinted status surface.
+- **Pagination** — a named `nav` of pages in seven places that never move
+  the arrows, with `aria-current`, arrows that are `aria-disabled` at the
+  ends, `hrefFor` for links, and the page arrived at announced. With `total`
+  and `pageSize` it adds a summary, "Showing 10 per page · 1–10 of 72",
+  whose page size is an editable combobox inside the sentence when
+  `onPageSizeChange` is given: typed or picked, and the reader's place is
+  kept. `summary` and every label are props, for other languages. Exports
+  `Pagination`, `pageItems`, `PAGE_SIZE_OPTIONS`, `PaginationProps`,
+  `PaginationSummaryParts`, `PageItem`.
 - **Toast** — `toast(message, options)` and one `<Toaster />`: a line on the
   inverse surface in a corner, with a tone read from its icon (`neutral`,
   `success`, `danger`, `warning`, `info`), at most one action and a close.

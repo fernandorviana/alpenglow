@@ -83,6 +83,9 @@ export type { TabsProps, TabItem, TabsVariant } from './components/Tabs/index';
 export { Alert, alertTones, ALERT_NARROW } from './components/Alert/index';
 export type { AlertProps, AlertTone, AlertAction } from './components/Alert/index';
 
+export { Pagination, pageItems, PAGE_SIZE_OPTIONS } from './components/Pagination/index';
+export type { PaginationProps, PaginationSummaryParts, PageItem } from './components/Pagination/index';
+
 export { Toaster, toast, toastTones, toasterPlacements } from './components/Toast/index';
 export type { ToasterProps, ToasterPlacement, ToastOptions, ToastAction, ToastTone } from './components/Toast/index';
 

@@ -1,0 +1,283 @@
+/**
+ * Pagination
+ *
+ * The drawn pages, and the page size as a field inside the sentence that
+ * reports it. docs/superpowers/specs/2026-09-20-pagination-design.md holds
+ * the drawing, the investigation behind the field, and the deviations.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson). The
+ * one descent is to an element: a `strong` in the summary, which the caller's
+ * sentence writes and cannot class.
+ */
+
+.root, .summary, .spoken, .nav, .list, .place, .item, .item::after, .gap,
+.size, .sizeInput, .sizeChevron, .sizeList, .sizeOption {
+  box-sizing: border-box;
+}
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ap-spacing-100) var(--ap-spacing-200);
+  min-width: 0;
+
+  font-family: var(--ap-font-sans);
+  font-weight: var(--ap-font-weight-medium);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.spoken {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- the pages ------------------------------------------------------------- */
+
+.nav {
+  /* Alone, or wrapped under the summary, it keeps to the end. */
+  margin-inline-start: auto;
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Nine places of 40 are 360, and a phone has 280 to give. A place gives way
+   down to 24, the least a target may be (WCAG 2.5.8), before anything
+   overflows; the height stays, so a squeezed page is an upright capsule. */
+.place {
+  /* A width, not a basis: the nav is sized by its content, and a basis is
+     not content, so with a basis every place collapsed to its least. */
+  flex: 0 1 auto;
+  width: var(--ap-spacing-500);
+  min-width: var(--ap-spacing-300);
+}
+
+.item,
+.gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--ap-spacing-500);
+  color: var(--ap-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.item {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: none;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.item:hover {
+  background-color: var(--ap-color-interactive-wash-hover);
+}
+
+.item:active {
+  background-color: var(--ap-color-interactive-wash-pressed);
+}
+
+/* Focus adds geometry and recolours nothing: the drawn round ring. */
+.item:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(-1 * var(--ap-border-width-ring));
+}
+
+/* The drawn bar: 2 by 16 at the foot. The number is primary where the others
+   are secondary, since a 2px bar alone is a thin difference. */
+.item.current {
+  color: var(--ap-color-text-primary);
+}
+
+.item.current::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  /* 16 wide in a place of 40, and no wider than a squeezed place allows. */
+  inset-inline: min(var(--ap-spacing-150), 25%);
+  height: var(--ap-spacing-025);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-border-accent);
+}
+
+.item.previous,
+.item.next {
+  color: var(--ap-color-text-primary);
+}
+
+/* One caret, turned over for Next, and both again under rtl. */
+.item.next svg,
+.item.previous:dir(rtl) svg {
+  transform: scaleX(-1);
+}
+
+.item.next:dir(rtl) svg {
+  transform: none;
+}
+
+/* An arrow at an end: still in the tab order, and says it is disabled. */
+.item.inert,
+.item.inert:hover,
+.item.inert:active {
+  background: none;
+  color: var(--ap-color-interactive-on-disabled);
+  cursor: default;
+}
+
+/* --- the summary ----------------------------------------------------------- */
+
+.summary {
+  margin: 0;
+  min-width: 0;
+  color: var(--ap-color-text-secondary);
+}
+
+.summary strong {
+  color: var(--ap-color-text-primary);
+  font-weight: var(--ap-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- the page size, in the sentence ----------------------------------------
+   It shows it can be changed at rest, by its weight and its chevron: a touch
+   screen has no hover to find it with. 32 tall (WCAG 2.5.8), pulled back by
+   its own padding so the sentence's spacing is a word's. */
+
+.size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-025);
+  height: var(--ap-spacing-400);
+  margin-block: calc((var(--ap-text-body-md-line-height) - var(--ap-spacing-400)) / 2);
+  /* On the sentence's baseline: an inline-flex box's baseline is its first item's, the field's. */
+  padding-inline: var(--ap-spacing-100) var(--ap-spacing-050);
+  border-radius: var(--ap-radius-lg);
+  vertical-align: baseline;
+  cursor: text;
+  anchor-name: var(--page-size-anchor);
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.size:hover,
+.size:focus-within {
+  background-color: var(--ap-color-interactive-wash-hover);
+}
+
+.size:focus-within {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(-1 * var(--ap-border-width-ring));
+}
+
+.sizeInput {
+  /* As wide as its digits. Tabular figures are each one `ch`, so this is
+     exact and needs no field-sizing, which only became Baseline in 2026. */
+  width: calc(var(--page-size-digits) * 1ch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--ap-color-text-primary);
+  font: inherit;
+  font-weight: var(--ap-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.sizeChevron {
+  display: inline-flex;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+}
+
+/* The menu's surface, so every list in the system is one list. */
+.sizeList {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  margin-block-start: var(--ap-spacing-050);
+  min-width: var(--ap-spacing-1000);
+  padding: var(--ap-spacing-100);
+  overflow: visible;
+
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-color-surface-overlay);
+  color: var(--ap-color-text-primary);
+  box-shadow: var(--ap-elevation-md);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+
+  position-anchor: var(--page-size-anchor);
+  position-area: block-end span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  position-visibility: anchors-visible;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .sizeList {
+    border-color: var(--ap-color-border-default);
+  }
+}
+
+:root[data-theme='dark'] .sizeList {
+  border-color: var(--ap-color-border-default);
+}
+
+.sizeOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ap-spacing-150);
+  height: var(--ap-spacing-400);
+  padding-inline: var(--ap-spacing-100);
+  border-radius: var(--ap-radius-md);
+  cursor: pointer;
+}
+
+.sizeOption:hover,
+.sizeOption.sizeOptionActive {
+  background-color: var(--ap-color-interactive-wash-hover);
+}
+
+.sizeOption[aria-selected='true'] {
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+/* Without anchor positioning the list goes where the UA puts a popover, the
+   middle of the screen, as the menu does. The field still takes any number. */
+@supports not (anchor-name: --a) {
+  .sizeList {
+    inset: 0;
+    margin: auto;
+    height: max-content;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .size {
+    transition: none;
+  }
+}

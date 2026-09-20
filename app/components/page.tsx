@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/Checkbox';
 import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/Input';
 import { Loader } from '@/components/Loader';
+import { Pagination } from '@/components/Pagination';
 import { Select } from '@/components/Select';
 import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
@@ -189,6 +190,12 @@ export default function Page() {
               <span className="miniMenuDanger">Cancel appointment</span>
             </div>
           }
+        />
+        <Card
+          href="/pagination"
+          title="Pagination"
+          description="Seven places that never move the arrows, and a page size typed or picked inside its own sentence."
+          visual={<Pagination page={8} pageCount={24} onPageChange={() => {}} />}
         />
         <Card
           href="/select"

@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1290 tests across 57 files
+npm test            # 1349 tests across 59 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 163 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 167 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,50 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Pagination** — built 2026-09-20, on main, unreleased. Spec
+  `docs/superpowers/specs/2026-09-20-pagination-design.md`, plan
+  `docs/superpowers/plans/2026-09-20-pagination.md`. **It is drawn**: the
+  published `Pagination Item` (40; Selected with a 2 by 16 bar, round Hover
+  and Focus, Disabled), `Navigation Button` and `Pagination` in four
+  overflow shapes, and two unpublished footer frames with "Show", a 40
+  Select and "1-10 of 72 results". **Fernando asked for the Select to go**:
+  the page size inside the sentence, a number with a chevron that can be
+  typed or picked, and to have it investigated. What came back and he took:
+  it is the APG's **editable combobox with `aria-autocomplete="none"`**
+  (`PageSize.tsx`, private to the Pagination until wave 2's Combobox) — an
+  `input` and a `popover="manual"` listbox on the menu's surface and anchor
+  positioning; `<datalist>` refused (no CSS, no page zoom, not announced by
+  NVDA with Firefox) and `type="number"` refused (spinners, the wheel,
+  "e"); the chevron shows at rest because touch has no hover; the width is
+  `ch` over tabular figures, which is exact, so `field-sizing` (Baseline
+  only since June 2026) is not needed; Enter or blur commits, Esc closes the
+  list and then reverts, junk reverts with no error, `maxPageSize` 100;
+  changing the size keeps the first row in view; `summary` is a function
+  because word order is a language's. **The sentence is "Showing [10] per
+  page · 71–72 of 72"**: "Showing 10 of 72" is false on the last page,
+  which he agreed is a problem. `pages.ts` is a pure function and the four
+  drawn shapes are it at siblings 1 and boundaries 1: seven places always,
+  so the arrows never move, and never a gap for one page. Arrows at an end
+  are `aria-disabled`, never `disabled`, or the focus falls to the body;
+  `hrefFor` renders links; the page arrived at is said in a `status`;
+  unselected numbers are `text/secondary` as the drawn footer has them.
+  Only the browser showed three things: the listbox was a `ul` inside the
+  summary's `p`, which the parser closes early and React fails to hydrate —
+  it is spans with roles now, and the summary a `div` (the Tooltip's and
+  the Alert's lessons again); nine places of 40 do not fit 280, so a place
+  gives way to 24; and with `flex-basis` instead of `width` every place
+  collapsed to 24 on the desktop, because the nav is sized by its content
+  and a basis is not content. From the review, each with a test: typing
+  clears the highlighted option, or Enter took the option highlighted
+  before the typing and threw the typed number away; a modified or middle
+  click on a page link does not page this list; nothing above
+  `maxPageSize` is offered, and with no options it is a plain field with
+  no chevron; a NaN `page` is the first; `announce={false}` for the second
+  of two Paginations on one list. Not checked: Safari and Firefox, a screen
+  reader, rtl by eye. Open: the visually-hidden rule is now written out in the Toast,
+  the Alert and the Pagination and wants one home; a compact size for the
+  dense Table's footer (wave 2); "go to page"; rebinding the Figma frames and drawing the inline
+  field there.
 - **Alert** — built 2026-09-20, on main, unreleased. Spec
   `docs/superpowers/specs/2026-09-20-alert-design.md`, plan
   `docs/superpowers/plans/2026-09-20-alert.md`. **It is drawn**: the

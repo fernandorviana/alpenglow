@@ -636,6 +636,28 @@ describe('an alert reads on its tint, and is found on a card', () => {
   });
 });
 
+describe('pagination: the numbers read under the wash, and the bar is seen', () => {
+  const GROUNDS = ['surface/base', 'surface/raised'] as const;
+
+  for (const mode of MODES) {
+    it(`a page number, current or not, at rest and hovered — ${mode}`, () => {
+      // The wash suite covers these; named so the Pagination's pairs are findable.
+      for (const ground of GROUNDS) {
+        for (const text of ['text/primary', 'text/secondary'] as const) {
+          expect(tokenContrast(text, ground, mode), `${text} on ${ground}`).toBeGreaterThanOrEqual(AA_NORMAL);
+          expect(tokenContrast(text, 'interactive/wash-pressed', mode, ground), `${text} pressed`).toBeGreaterThanOrEqual(AA_NORMAL);
+        }
+      }
+    });
+
+    it(`the bar under the current page is a boundary — ${mode}`, () => {
+      for (const ground of GROUNDS) {
+        expect(tokenContrast('border/accent', ground, mode), ground).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {
