@@ -9,6 +9,7 @@ import type {
   ToggleEvent,
 } from 'react';
 import { useHydrated } from '../useHydrated';
+import floating from '../floating.module.css';
 import styles from './DropdownMenu.module.css';
 import { actionText, isGroup, isSeparator, matchIndex, nextIndex } from './rows';
 import type { DropdownMenuAction, DropdownMenuEntry } from './rows';
@@ -176,8 +177,8 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
         role="menu"
         aria-labelledby={triggerId}
         tabIndex={-1}
-        className={styles.menu}
-        style={{ '--menu-anchor': anchor } as CSSProperties}
+        className={`${floating.floating} ${styles.menu}`}
+        style={{ '--floating-anchor': anchor } as CSSProperties}
         onKeyDown={onMenuKeyDown}
         onToggle={(event: ToggleEvent) => {
           const isOpen = event.newState === 'open';

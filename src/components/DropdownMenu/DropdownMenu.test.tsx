@@ -5,10 +5,15 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { DropdownMenu } from './DropdownMenu';
 import type { DropdownMenuEntry } from './rows';
+import floating from '../floating.module.css';
 import { NATIVE_POPOVER, installPopoverStub } from '../../test/popover';
 import { axeViolations } from '../../test/axe';
 
-const css = readFileSync('src/components/DropdownMenu/DropdownMenu.module.css', 'utf8');
+// The menu's own rules and the floating surface it stands on, read as one:
+// what is asserted is what the menu is painted with, wherever it is written.
+const css =
+  readFileSync('src/components/DropdownMenu/DropdownMenu.module.css', 'utf8') +
+  readFileSync('src/components/floating.module.css', 'utf8');
 
 installPopoverStub();
 
@@ -36,6 +41,9 @@ describe('DropdownMenu', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
     const menu = document.querySelector('[role="menu"]')!;
+    // The stylesheet tests below read the shared surface with the menu's own
+    // rules; this is what says the menu is actually on it.
+    expect(menu).toHaveClass(floating.floating!);
     expect(menu.getAttribute('aria-labelledby')).toBe(trigger.id);
     expect(trigger.id).not.toBe('');
   });
@@ -87,7 +95,7 @@ describe('DropdownMenu', () => {
     });
 
     it('uses the elevation token rather than a literal shadow', () => {
-      expect(css).toContain('box-shadow: var(--ap-elevation-md)');
+      expect(css).toContain('var(--ap-elevation-md)');
       expect(css).not.toMatch(/box-shadow:[^;]*rgb/);
     });
 

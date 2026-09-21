@@ -718,6 +718,26 @@ describe('link: the accent reads on every ground, and does not stand apart from 
   });
 });
 
+describe('popover: a panel on the overlay surface, a level above a menu', () => {
+  for (const mode of MODES) {
+    it(`its title, its words and its links read on surface/overlay — ${mode}`, () => {
+      for (const text of ['text/primary', 'text/secondary', 'text/accent'] as const) {
+        expect(tokenContrast(text, 'surface/overlay', mode), text).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+
+    it(`the focus ring of what it holds is seen on it — ${mode}`, () => {
+      expect(tokenContrast('border/focus', 'surface/overlay', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+    });
+  }
+
+  it('takes its edge from the border in dark, as the menu does, against the canvas and a card', () => {
+    for (const ground of ['surface/base', 'surface/raised'] as const) {
+      expect(tokenContrast('border/default', ground, 'dark'), ground).toBeGreaterThanOrEqual(2.9);
+    }
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

@@ -31,6 +31,7 @@ import {
   RANGE_SEPARATOR,
   type DatePickerInvalidReason,
 } from './mask';
+import floating from '../floating.module.css';
 import styles from './DatePicker.module.css';
 
 export type { DatePickerInvalidReason } from './mask';
@@ -504,8 +505,8 @@ export function DatePicker({
         aria-modal="true"
         aria-label={label}
         ref={panelRef}
-        className={styles.panel}
-        style={{ '--picker-anchor': anchor } as CSSProperties}
+        className={`${floating.floating} ${styles.panel}`}
+        style={{ '--floating-anchor': anchor } as CSSProperties}
         onKeyDown={handlePanelKeyDown}
         // `beforetoggle`, not `toggle`: the platform fires it synchronously,
         // before the panel shows. `toggle` is queued as a task, so the panel

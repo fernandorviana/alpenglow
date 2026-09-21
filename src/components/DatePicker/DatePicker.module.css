@@ -108,43 +108,12 @@
 
    The shadow is the system's `elevation/md` token, the same one the menu
    uses. */
+/* The surface, the placement, the dark border and the path without anchor
+   positioning are ../floating.module.css. */
 .panel {
-  /* The UA sheet gives [popover] `inset: 0; margin: auto`, which centres it.
-     Anchor positioning needs both cleared. The @supports branch at the bottom
-     puts them back where anchor positioning is missing. */
-  position: fixed;
-  inset: auto;
-  margin: 0;
   inline-size: max-content;
   padding: var(--ap-spacing-100);
-  overflow: visible;
-
-  border: var(--ap-border-width-hairline) solid transparent;
   border-radius: var(--ap-radius-xl);
-  background: var(--ap-color-surface-overlay);
-  box-shadow: var(--ap-elevation-md);
-
-  position-anchor: var(--picker-anchor);
-  position-area: block-end span-inline-end;
-  position-try-fallbacks: flip-block, flip-inline;
-  /* Hide rather than float loose when the field scrolls out of view. */
-  position-visibility: anchors-visible;
-  margin-block-start: var(--ap-spacing-050);
-}
-
-/**
- * In dark the surface takes a border, and light does not. See the menu's
- * stylesheet for the measurement behind it — the same panel, the same
- * reasoning.
- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .panel {
-    border-color: var(--ap-color-border-default);
-  }
-}
-
-:root[data-theme='dark'] .panel {
-  border-color: var(--ap-color-border-default);
 }
 
 /* A panel either is or is not on screen. Unlike the Loader's spinner, nothing
@@ -158,13 +127,4 @@
 @keyframes appear {
   from { opacity: 0; transform: translateY(-2px); }
   to { opacity: 1; transform: none; }
-}
-
-/* The degraded path where anchor positioning is missing — see the menu's
-   stylesheet for the browser support and the trade-off. */
-@supports not (anchor-name: --a) {
-  .panel {
-    inset: 0;
-    margin: auto;
-  }
 }

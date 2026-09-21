@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { Pagination } from './Pagination';
 import type { PaginationProps } from './Pagination';
 import styles from './Pagination.module.css';
+import floating from '../floating.module.css';
 import { installPopoverStub } from '../../test/popover';
 import { readCss, block } from '../../test/css';
 import { axeViolations } from '../../test/axe';
@@ -397,10 +398,14 @@ describe('Pagination — the stylesheet', () => {
   });
 
   it('places the list as the menu is placed, and says where it goes without anchors', () => {
-    const list = block(css, '.sizeList {');
-    expect(list).toMatch(/position-anchor:\s*var\(--page-size-anchor\)/);
-    expect(list).toMatch(/inset:\s*auto/);
-    expect(block(css, '@supports not (anchor-name: --a)')).toMatch(/margin:\s*auto/);
+    // The placement is the shared surface's; the list only has to be on it and
+    // keep none of its own, or two copies would drift.
+    render(<Pagination page={1} onPageChange={() => {}} total={72} pageSize={10} onPageSizeChange={() => {}} />);
+    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass(floating.floating!, styles.sizeList!);
+    expect(block(css, '.sizeList {')).not.toMatch(/position|inset|box-shadow|background/);
+    const shared = readCss('src/components/floating.module.css');
+    expect(block(shared, '.floating {')).toMatch(/position-anchor:\s*var\(--floating-anchor\)/);
+    expect(block(shared, '@supports not (anchor-name: --a)')).toMatch(/margin:\s*auto/);
   });
 
   it('never reaches a classed part by descent, but for the theme’s own dark rule', () => {

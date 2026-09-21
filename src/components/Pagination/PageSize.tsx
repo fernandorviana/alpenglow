@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import { ChevronSmallDown } from '../../icons';
+import floating from '../floating.module.css';
 import styles from './Pagination.module.css';
 
 export type PageSizeProps = {
@@ -112,7 +113,7 @@ export function PageSize({ value, options: offered, max, label, onChange }: Page
   return (
     <span
       className={styles.size}
-      style={{ '--page-size-anchor': anchor, '--page-size-digits': Math.max(1, text.length) } as CSSProperties}
+      style={{ '--page-size-anchor': anchor, '--floating-anchor': anchor, '--page-size-digits': Math.max(1, text.length) } as CSSProperties}
     >
       <input
         ref={input}
@@ -156,7 +157,7 @@ export function PageSize({ value, options: offered, max, label, onChange }: Page
           sentence, a caller's sentence may be a `p`, and a `ul` inside a `p`
           is closed early by the parser, so the server's markup would not be
           the markup React hydrates. The roles make it a list. */}
-      <span ref={list} id={listId} role="listbox" aria-label={label} popover="manual" className={styles.sizeList}>
+      <span ref={list} id={listId} role="listbox" aria-label={label} popover="manual" className={`${floating.floating} ${styles.sizeList}`}>
         {options.map((option, index) => (
           <span
             key={option}

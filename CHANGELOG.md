@@ -43,6 +43,13 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Popover** — a panel anchored to the button that opens it, not modal: a
+  `title` (or `aria-label`), `headerActions`, a body and `actions` at the
+  end, any of which may be a function handed `close`; four placements that
+  take the roomier side, `width`, `open` and `onOpenChange`, `initialFocus`.
+  The platform's `popover`, so Esc, a press outside and the focus going back
+  are the browser's. Exports `Popover`, `popoverPlacements`, `PopoverProps`,
+  `PopoverPlacement`, `PopoverTriggerProps`, `PopoverApi`.
 - **Pagination** — a named `nav` of pages in seven places that never move
   the arrows, with `aria-current`, arrows that are `aria-disabled` at the
   ends, `hrefFor` for links, and the page arrived at announced. With `total`
@@ -71,6 +78,10 @@ break: a removed token or prop is named here under **Breaking**.
   lifts inside its own control.
 
 ### Changed, unreleased since 0.2.0
+
+- DropdownMenu, DatePicker and the Pagination's page size stand on one
+  floating surface, `floating.module.css`, where each had its own copy. Their
+  gap from the trigger is now kept on either side, whichever way they open.
 
 - Button gives way by 4% when pressed (colour alone under reduced motion).
 - Dialog's title wraps; the header gap is 24.

@@ -203,38 +203,15 @@
   cursor: pointer;
 }
 
-/* The menu's surface, so every list in the system is one list. */
+/* The menu's surface, so every list in the system is one list: the surface,
+   the placement, the dark border and the path without anchor positioning are
+   ../floating.module.css. */
 .sizeList {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-  margin-block-start: var(--ap-spacing-050);
   min-width: var(--ap-spacing-1000);
   padding: var(--ap-spacing-100);
-  overflow: visible;
-
-  border: var(--ap-border-width-hairline) solid transparent;
   border-radius: var(--ap-radius-xl);
-  background: var(--ap-color-surface-overlay);
-  color: var(--ap-color-text-primary);
-  box-shadow: var(--ap-elevation-md);
   font: inherit;
   font-variant-numeric: tabular-nums;
-
-  position-anchor: var(--page-size-anchor);
-  position-area: block-end span-inline-end;
-  position-try-fallbacks: flip-block, flip-inline;
-  position-visibility: anchors-visible;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .sizeList {
-    border-color: var(--ap-color-border-default);
-  }
-}
-
-:root[data-theme='dark'] .sizeList {
-  border-color: var(--ap-color-border-default);
 }
 
 .sizeOption {
@@ -255,16 +232,6 @@
 
 .sizeOption[aria-selected='true'] {
   font-weight: var(--ap-font-weight-semibold);
-}
-
-/* Without anchor positioning the list goes where the UA puts a popover, the
-   middle of the screen, as the menu does. The field still takes any number. */
-@supports not (anchor-name: --a) {
-  .sizeList {
-    inset: 0;
-    margin: auto;
-    height: max-content;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,88 @@
+/**
+ * The floating surface: what every anchored panel in the top layer shares,
+ * and nothing it could want to change. One copy, where there were four.
+ *
+ * It is a native popover placed by CSS anchor positioning, so there is no
+ * portal, no z-index and no positioning JavaScript to keep right on scroll and
+ * resize. The consumer puts `popover` on the element, names the anchor in
+ * `--floating-anchor`, and owns its padding, radius and width: two classes
+ * from two modules weigh the same, and the one that loads last would win, so
+ * nothing here is a property a consumer also sets. What a consumer may change
+ * travels as a custom property with a default.
+ *
+ * Consumers: DropdownMenu, DatePicker, the Pagination's page size, Popover.
+ * Not the Tooltip: its edge is `border/subtle` in both modes and without
+ * anchor positioning it is not shown at all, where these centre themselves.
+ */
+
+.floating {
+  box-sizing: border-box;
+
+  /* The UA sheet gives [popover] `inset: 0; margin: auto`, which centres it.
+     Anchor positioning needs both cleared. The @supports branch at the bottom
+     puts them back where anchor positioning is missing. */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  overflow: visible;
+
+  /* The width is held at all times so the panel is the same size in both
+     modes; only the colour arrives in dark. */
+  border: var(--ap-border-width-hairline) solid transparent;
+  background: var(--ap-color-surface-overlay);
+  color: var(--ap-color-text-primary);
+  box-shadow: var(--floating-elevation, var(--ap-elevation-md));
+
+  position-anchor: var(--floating-anchor);
+  position-area: var(--floating-area, block-end span-inline-end);
+  position-try-fallbacks: flip-block, flip-inline;
+  /* Hide rather than float loose when the anchor scrolls out of view. */
+  position-visibility: anchors-visible;
+  /* On both sides, so the gap is there whichever way the panel is placed or
+     flipped; the far one only takes 4 from the room it has. */
+  margin-block: var(--floating-gap, var(--ap-spacing-050));
+}
+
+/**
+ * In dark the surface takes a border, and light does not. This is not an
+ * oversight of symmetry — it is invariant 1 measured. Against the ground it
+ * falls on, black at 8% in light reaches 1.19:1 while black at 64% in dark
+ * reaches 1.16:1: the shadow stops carrying elevation. Invariant 4 says what
+ * to do when the ramp runs out — separate with a border. Against the canvas
+ * border/default is 3.55:1 in dark against 1.60:1 in light, so the border is
+ * stronger exactly where it is needed. Adding one in light would draw the
+ * edge twice.
+ *
+ * Written twice, like the generated token file and the theme toggle: once for
+ * viewers following the system preference, once for an explicit choice.
+ * Neither half alone is right for both.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .floating {
+    border-color: var(--ap-color-border-default);
+  }
+}
+
+:root[data-theme='dark'] .floating {
+  border-color: var(--ap-color-border-default);
+}
+
+/**
+ * The degraded path. CSS anchor positioning shipped in Chrome 05/2024, Safari
+ * 09/2025 and Firefox 10/2025. Below those the popover still opens, still
+ * dismisses on Esc and on an outside click, and still takes the keyboard — it
+ * loses its anchor and returns to the UA's centred placement.
+ *
+ * The alternative was to feature-detect in JavaScript and hand-write the old
+ * path: absolute positioning in a relative wrapper, with outside-click and Esc
+ * handlers. That restores fidelity on old browsers by writing exactly the code
+ * the native choice exists to avoid.
+ */
+@supports not (anchor-name: --a) {
+  .floating {
+    inset: 0;
+    margin: auto;
+    /* `inset: 0` would stretch an auto height to the viewport. */
+    height: max-content;
+  }
+}

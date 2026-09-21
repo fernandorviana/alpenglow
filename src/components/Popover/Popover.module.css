@@ -1,0 +1,128 @@
+/**
+ * Popover
+ *
+ * The drawn Popover set: four product panels — Messages, User Menu, New and
+ * Edit Appointment — that share a surface, a header with a title and actions
+ * over an inset divider, a body and a footer of buttons. The component is that
+ * shell; docs/superpowers/specs/2026-09-21-popover-design.md holds what is
+ * left to the caller.
+ *
+ * The surface and the placement are ../floating.module.css. Nothing here is a
+ * property that file sets: what differs travels as `--floating-*`.
+ */
+
+.popover, .header, .header::after, .title, .headerActions, .body, .footer {
+  box-sizing: border-box;
+}
+
+.popover {
+  /* A panel is a level above a menu, as drawn. */
+  --floating-elevation: var(--ap-elevation-lg);
+
+  inline-size: var(--popover-width, max-content);
+  /* Never wider or taller than the screen it opens on, less the 8 it keeps
+     from each edge. */
+  max-inline-size: calc(100vw - 2 * var(--ap-spacing-100));
+  /* Nor taller than the room beside its trigger: 100% is the area it is placed
+     in, less the gap on each side. So it never overflows, and would never flip
+     either — `most-block-size` has it take the side with more room first. A
+     form of five fields below a button low on the screen opens above it, and
+     in a short window its body scrolls with the buttons still in reach. */
+  max-block-size: min(calc(100% - 2 * var(--ap-spacing-050)), calc(100dvh - 2 * var(--ap-spacing-100)));
+  position-try-order: most-block-size;
+  padding: 0;
+  border-radius: var(--ap-radius-xl);
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  text-align: start;
+}
+
+/* It is where the focus goes on the way in, and a ring around a whole panel
+   says nothing the panel's arrival has not said. */
+.popover:focus { outline: none; }
+
+/* The column, only while it is open: an author's `display` outranks the UA's
+   `[popover]:not(:popover-open) { display: none }`, and set on `.popover` alone
+   it would never close. It has to be the popover's own and not a wrapper's: the
+   cap above is a percentage of the area, and a wrapper inside an auto height
+   cannot inherit it, so the body never scrolled and ran out of the panel. */
+.popover:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- header ----------------------------------------------------------------- */
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-300);
+  flex: none;
+  padding: var(--ap-spacing-250) var(--ap-spacing-300) var(--ap-spacing-200);
+}
+
+/* The drawn divider: inset by the padding, not edge to edge. */
+.header::after {
+  content: '';
+  position: absolute;
+  inset-inline: var(--ap-spacing-300);
+  inset-block-end: 0;
+  height: var(--ap-border-width-hairline);
+  background: var(--ap-color-border-subtle);
+}
+
+/* Doubled, so a page's `h2` does not give it a margin or a size. Primary where
+   the drawing has secondary, as the Dialog's title is. */
+.title.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-subheading-md-size);
+  line-height: var(--ap-text-subheading-md-line-height);
+  letter-spacing: var(--ap-text-subheading-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* --- body and footer -------------------------------------------------------- */
+
+/* The body scrolls; the header and the footer stay. */
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--ap-spacing-300);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--ap-spacing-150);
+  flex: none;
+  padding: 0 var(--ap-spacing-300) var(--ap-spacing-300);
+}
+
+/* A panel either is or is not on screen, as the DatePicker's: reduced motion
+   drops the entrance rather than slowing it. */
+@media (prefers-reduced-motion: no-preference) {
+  .popover { animation: appear var(--ap-motion-duration-fade) var(--ap-motion-easing-enter); }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: none; }
+}

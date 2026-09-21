@@ -9,6 +9,7 @@ import { DatePicker, type DatePickerProps } from './DatePicker';
 import { Field } from '../Field';
 import calendarStyles from '../Calendar/Calendar.module.css';
 import styles from './DatePicker.module.css';
+import floating from '../floating.module.css';
 import { installPopoverStub } from '../../test/popover';
 import { axeViolations } from '../../test/axe';
 
@@ -21,7 +22,11 @@ const source = () => readFileSync('src/components/DatePicker/DatePicker.tsx', 'u
 // Comments are prose and measurements, not paint — stripped here so a test
 // counting literals or token names does not also count what a comment cites.
 const stylesheet = () =>
-  readFileSync('src/components/DatePicker/DatePicker.module.css', 'utf8').replace(
+  (
+    readFileSync('src/components/DatePicker/DatePicker.module.css', 'utf8') +
+    // The floating surface the panel stands on, read with it.
+    readFileSync('src/components/floating.module.css', 'utf8')
+  ).replace(
     /\/\*[\s\S]*?\*\//g,
     '',
   );
@@ -260,8 +265,8 @@ describe('DatePicker', () => {
 
     // The top-layer decision: the elevation token, not a hand-rolled shadow,
     // and CSS anchor positioning bound to this instance's own anchor name.
-    expect(css).toContain('box-shadow: var(--ap-elevation-md)');
-    expect(css).toContain('position-anchor: var(--picker-anchor)');
+    expect(css).toContain('var(--ap-elevation-md)');
+    expect(css).toContain('position-anchor: var(--floating-anchor)');
     expect(css).toContain('position-area');
     expect(css).toMatch(/position-try-fallbacks:[^;]*flip-block/);
 
@@ -392,7 +397,10 @@ describe('DatePicker', () => {
 
     const anchorName = trigger.parentElement!.style.getPropertyValue('anchor-name');
     expect(anchorName).not.toBe('');
-    expect((dialog as HTMLElement).style.getPropertyValue('--picker-anchor')).toBe(anchorName);
+    expect((dialog as HTMLElement).style.getPropertyValue('--floating-anchor')).toBe(anchorName);
+    // The stylesheet assertions read the shared surface with the panel's own
+    // rules; this is what says the panel is actually on it.
+    expect(dialog).toHaveClass(floating.floating!);
   });
 
   it('cancels a pending range start on the first Escape and closes on the second', async () => {

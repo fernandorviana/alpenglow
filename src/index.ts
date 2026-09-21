@@ -97,6 +97,9 @@ export type {
 export { Link, linkVariants } from './components/Link/index';
 export type { LinkProps, LinkVariant, LinkRender, LinkRenderProps } from './components/Link/index';
 
+export { Popover, popoverPlacements } from './components/Popover/index';
+export type { PopoverProps, PopoverPlacement, PopoverTriggerProps, PopoverApi } from './components/Popover/index';
+
 export { Pagination, pageItems, PAGE_SIZE_OPTIONS } from './components/Pagination/index';
 export type { PaginationProps, PaginationSummaryParts, PageItem } from './components/Pagination/index';
 

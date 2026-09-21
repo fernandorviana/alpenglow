@@ -225,6 +225,18 @@ export default function Page() {
           visual={<Pagination page={8} pageCount={24} onPageChange={() => {}} />}
         />
         <Card
+          href="/popover"
+          title="Popover"
+          description="A panel anchored to the control that opens it: a title, a few fields or a short list, its buttons at the end."
+          visual={
+            <div className="miniMenu" style={{ display: 'grid', gap: 'var(--ap-spacing-100)', padding: 'var(--ap-spacing-150)' }}>
+              <strong>New appointment</strong>
+              <Input size="sm" placeholder="Patient" aria-label="Patient" />
+              <Button size="sm">Save</Button>
+            </div>
+          }
+        />
+        <Card
           href="/select"
           title="Select"
           description="The native select, styled. It holds a value where the menu runs a command."

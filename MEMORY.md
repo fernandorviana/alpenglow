@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1436 tests across 61 files
+npm test            # 1474 tests across 62 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 181 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 186 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,59 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Select, next** — decided 2026-09-21 while the Popover was being scoped,
+  **not started**. Fernando asked whether the DropdownMenu's surface had been
+  applied to the selects. It had not: `Select` is a native `<select>` by a
+  recorded decision (Conventions, "Prefer the native element"; the roadmap's
+  "Select stays native"). His drawing asks for what a native list cannot
+  show: a Select with an Avatar in it, an option with its code in bold.
+  Offered `appearance: base-select` (Chrome and Edge 135, Safari 27, Firefox
+  behind a flag; the OS list elsewhere), he asked why everyone's select is
+  custom, and whether a button with a list is a select at all. It is, when the
+  choice stays shown: what tells it from a menu is what it does. **`Select`
+  becomes a button with a listbox on the floating surface, the same in every
+  browser, and today's becomes `NativeSelect`** (long forms on a phone, very
+  long lists). A breaking change, made before 0.3.0 on purpose. The old
+  decision is to be revised in that spec, in writing, not erased. The
+  Pagination's `PageSize` is already such a listbox, and wave 2's Combobox
+  wants the same base.
+- **Popover** — built 2026-09-21, on main, unreleased; first of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-popover-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-popover.md`. **It is drawn**: a
+  published `Popover` set of four product panels (Messages, User Menu, New
+  and Edit Appointment). The component is their shell, in the Dialog's shape
+  and not modal; the docs page rebuilds New Appointment and Messages from the
+  system's parts; the User Menu is a DropdownMenu under a profile header,
+  recorded and not built. **Two pieces.** (1)
+  **`src/components/floating.module.css`**: the anchored top-layer surface,
+  written out four times, is written once, for DropdownMenu, DatePicker, the
+  Pagination's page size and the Popover — not the Tooltip, whose edge is
+  `border/subtle` and which is not shown at all without anchors. **Two
+  classes from two modules weigh the same and the later stylesheet wins, so
+  the shared class sets nothing a consumer also sets**: padding, radius and
+  width stay with each, and what differs travels as `--floating-anchor`,
+  `--floating-area`, `--floating-elevation`, `--floating-gap`. Consumers'
+  stylesheet tests read the two files as one and also assert the class is on
+  the element, or a dropped class would pass. The gap is now a margin on both
+  block sides. (2) **`Popover`**: `popover="auto"`, so light dismiss, Esc and
+  focus return are the platform's; `role="dialog"` never `aria-modal`;
+  `popovertarget` only once hydrated; `children`, `actions` and
+  `headerActions` may be functions handed `{ close }`; the panel element is
+  state, not a ref, because `close` goes to the caller's render functions and
+  the Compiler lint refuses a ref read on the way. **`display` only under
+  `:popover-open`**: set on the class alone it outranks the UA's `display:
+  none` and the panel never closes. Only the browser showed: capped at the
+  viewport's height a tall panel ran off the screen with its buttons, so the
+  cap is `100%` of the area it is placed in with `position-try-order:
+  most-block-size`, which takes the roomier side first since a panel that
+  never overflows never flips; and a wrapper could not inherit that
+  percentage inside an auto height, so the body did not scroll and ran out of
+  the panel — the open popover itself is the flex column. A DatePicker inside
+  it opens over it and does not close it. From the review: `togglePopover(open)`
+  for the controlled prop, since `showPopover()` throws on a panel the trigger
+  already opened and `shown` is a task behind the platform. Recorded, not
+  solved: the trigger has to be a `button` and the type does not say so. Not
+  checked: Safari, Firefox, a screen reader, light dismiss by hand.
 - **Link** — built 2026-09-21, on main, unreleased; **the last of wave 1**. Spec
   `docs/superpowers/specs/2026-09-21-link-design.md`, plan
   `docs/superpowers/plans/2026-09-21-link.md`. Not drawn (the published
