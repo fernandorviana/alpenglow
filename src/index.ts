@@ -118,6 +118,9 @@ export type { SkeletonProps, SkeletonVariant } from './components/Skeleton/index
 export { Breadcrumb } from './components/Breadcrumb/index';
 export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/index';
 
+export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
+export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
+
 export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH } from './components/Drawer/index';
 export type { DrawerProps, DrawerMode, DrawerSide, DrawerSize } from './components/Drawer/index';
 

@@ -43,6 +43,13 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **EmptyState** — what stands where content would be when there is none:
+  a `title` that is a heading, a `description`, an `icon` in a circle or
+  `media` in its place, an `action` and, only beside it, a `secondaryAction`.
+  `size` `lg` centred for a table or a page, `sm` at the start for a card or
+  a section; `variant="dashed"` for first use. Exports `EmptyState`,
+  `emptyStateSizes`, `emptyStateVariants`, `EmptyStateProps`,
+  `EmptyStateSize`, `EmptyStateVariant`.
 - **Breadcrumb** — a `nav` with an ordered list: the section as a capsule
   with its `icon`, slashes, and the page in words with `aria-current`, never a
   link. Every link is a capsule under the pointer; only the first has an

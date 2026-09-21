@@ -22,6 +22,7 @@ import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
 import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
+import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
@@ -185,6 +186,12 @@ export default function Page() {
               </SurfaceCard>
             </div>
           }
+        />
+        <Card
+          href="/empty-state"
+          title="Empty state"
+          description="What this is, why it is empty and what to do next, in two sizes, with a dashed frame for first use."
+          visual={<EmptyState size="sm" headingLevel={4} title="No notes yet" description="Notes are kept here." />}
         />
         <Card
           href="/input"

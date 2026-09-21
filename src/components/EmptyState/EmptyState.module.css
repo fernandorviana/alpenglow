@@ -1,0 +1,113 @@
+/**
+ * EmptyState
+ *
+ * Not drawn as a component; docs/superpowers/specs/2026-09-22-empty-state-design.md
+ * holds what the product's drawing has and what was decided from it.
+ */
+
+.empty, .lg, .sm, .bare, .dashed, .icon, .media, .words, .title, .description, .actions {
+  box-sizing: border-box;
+}
+
+.empty {
+  display: grid;
+  font-family: var(--ap-font-sans);
+  color: var(--ap-color-text-primary);
+}
+
+/* Centred, for a table or a page. The room around it is the container's:
+   a Table's empty cell has its own padding, and 40 on top of that made the
+   empty table taller than the rows it stood for. */
+.lg {
+  justify-items: center;
+  gap: var(--ap-spacing-200);
+  padding: var(--empty-inset, var(--ap-spacing-300));
+  text-align: center;
+}
+
+/* At the start, for a card or a section: the icon beside the words. What
+   differs for the parts travels as custom properties; they are not reached by
+   descent. */
+.sm {
+  --empty-span: 1 / -1;
+  --empty-icon-inline: auto;
+  --empty-icon-block: var(--ap-text-body-md-line-height);
+  --empty-icon-fill: none;
+  --empty-title-size: var(--ap-text-body-md-size);
+  --empty-title-line: var(--ap-text-body-md-line-height);
+  --empty-title-tracking: var(--ap-text-body-md-tracking);
+  --empty-actions: flex-start;
+
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--ap-spacing-100);
+  row-gap: var(--ap-spacing-150);
+  justify-items: start;
+  text-align: start;
+}
+
+/* With nothing before the words, they take the row. */
+.sm.bare { grid-template-columns: minmax(0, 1fr); }
+
+/* A frame that says something goes here, as the drawn "+" tiles do. */
+.dashed {
+  border: var(--ap-border-width-hairline) dashed var(--ap-color-border-strong);
+  border-radius: var(--ap-radius-xl);
+}
+
+.sm.dashed { padding: var(--ap-spacing-200); }
+
+/* The circle is the pressed wash and not a surface, for the Skeleton's
+   reason: surface/sunken is surface/base in dark, and one block has to be
+   right on the page, on a card and in a panel. Small, the icon is bare and
+   sits in the title's line. */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--empty-icon-inline, var(--ap-spacing-600));
+  block-size: var(--empty-icon-block, var(--ap-spacing-600));
+  border-radius: var(--ap-radius-full);
+  background: var(--empty-icon-fill, var(--ap-color-interactive-wash-pressed));
+  color: var(--ap-color-text-secondary);
+}
+
+.media {
+  grid-column: var(--empty-span, auto);
+  max-inline-size: 100%;
+}
+
+.words {
+  display: grid;
+  gap: var(--ap-spacing-050);
+  justify-items: inherit;
+  min-width: 0;
+}
+
+/* Doubled, so a page's heading rule gives it no margin and no size. */
+.title.title {
+  margin: 0;
+  color: var(--ap-color-text-primary);
+  font-size: var(--empty-title-size, var(--ap-text-body-lg-size));
+  line-height: var(--empty-title-line, var(--ap-text-body-lg-line-height));
+  letter-spacing: var(--empty-title-tracking, var(--ap-text-body-lg-tracking));
+  font-weight: var(--ap-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+/* Held to a measure: a sentence across a whole table is not read. */
+.description.description {
+  max-inline-size: 40ch;
+  margin: 0;
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.actions {
+  grid-column: var(--empty-span, auto);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: var(--empty-actions, center);
+  gap: var(--ap-spacing-150);
+}

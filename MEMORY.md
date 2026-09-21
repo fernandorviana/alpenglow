@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1723 tests across 69 files
+npm test            # 1749 tests across 70 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 205 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 207 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,33 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **EmptyState** — built 2026-09-22, on main, unreleased; ninth of wave 2. Spec
+  `docs/superpowers/specs/2026-09-22-empty-state-design.md`, plan
+  `docs/superpowers/plans/2026-09-22-empty-state.md`. Not drawn as a
+  component; Fernando asked first what it is and whether it depends on the
+  component (it does in what it says, not in its shape), then gave **the
+  product's page of a location just created**: empty is quiet and in place
+  there — "+ Add description" where the content will be, `--` for a count,
+  a grey placeholder for the picture, "Can't load map" as a white label over
+  a grey area. The drawing covers a record and not a list or a search with
+  nothing. Shown six treatments of the large one, **his set (2026-09-22): A,
+  an icon in a circle centred with a primary action; C, `media` in the
+  icon's place; E, `variant="dashed"` (his own "+" tiles), for first use
+  only; G, two actions at most, one primary; H, no results as a rule of
+  content, not a look.** Left out: concentric halos, ghost rows (the
+  Skeleton). `title` (a heading, `headingLevel` 3), `description` held to
+  40ch, `icon` hidden, `media` not hidden, `action`, `secondaryAction` which
+  **the type refuses without an `action`**, `size` `lg`|`sm`, `variant`.
+  The circle is `interactive/wash-pressed`, not a surface, for the
+  Skeleton's reason. The small size's parts take their differences as custom
+  properties (`--empty-*`), not by descent. **The drawn "+ Add" in place is
+  the ghost Button with an icon and is documented as a pattern, not a
+  component**; "Can't load map" is the small size on a surface over the
+  placeholder, composed on the page. From the review: `.lg`'s padding is
+  `--empty-inset` (24) and not 40, since a Table's empty cell has its own —
+  the empty table measured 264 against 260 with three rows; the docs' "no
+  results" example got the live count the page tells callers to add. Not
+  checked: Safari, Firefox, a screen reader.
 - **Breadcrumb** — built 2026-09-21, on main, unreleased; eighth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-breadcrumb-design.md`, plan
   `docs/superpowers/plans/2026-09-21-breadcrumb.md`. Not published in the

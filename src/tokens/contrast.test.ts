@@ -778,6 +778,19 @@ describe('tag: a capsule on a card, and the same capsule in a field', () => {
   });
 });
 
+describe('empty state: an icon in a circle, a sentence, a dashed frame', () => {
+  for (const mode of MODES) {
+    it(`its sentence reads, and its icon and its frame are seen, on the page, a card and a panel — ${mode}`, () => {
+      for (const surface of ['surface/base', 'surface/raised', 'surface/overlay'] as const) {
+        expect(tokenContrast('text/secondary', surface, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast('text/secondary', 'interactive/wash-pressed', mode, surface)).toBeGreaterThanOrEqual(NON_TEXT);
+        // The dashed frame says "something goes here": it has to be seen.
+        expect(tokenContrast('border/strong', surface, mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+});
+
 describe('breadcrumb: a capsule, a slash and the page', () => {
   for (const mode of MODES) {
     it(`its links read at rest, on the root's fill and under the wash, and the page and the slash read on the bar — ${mode}`, () => {
