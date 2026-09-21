@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1646 tests across 66 files
+npm test            # 1673 tests across 67 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 201 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 203 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,36 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Accordion** — built 2026-09-21, on main, unreleased; sixth of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-accordion-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-accordion.md`. **It is drawn**: a
+  published Accordion set, the sections of the Side Drawer's View and Edit —
+  a row of 64 (16, the drawn 32, 16), a `border/subtle` hairline under every
+  item, a chevron of 20 at the start, a title in 16/24 Semibold, a count in a
+  capsule of 20 on `surface/sunken` or a Badge, an Icon Button at the end in
+  the state "Hover Add New Diagnosis", and several open at once ("Everything
+  Open"). Older frames have the chevron at the end; shown both, **Fernando
+  took the start** (2026-09-21). **`<details>`**, as the roadmap has it, so
+  find-in-page opens the section with the match; several open by default,
+  **`exclusive` shares one `name`** and closing the others is the platform's.
+  The title is a heading in the `<summary>` (`headingLevel`, 3), `text/primary`.
+  **The action is outside the `<summary>`** — a button inside a control is
+  invalid — laid over the row's end with the summary keeping 64 clear
+  (`--accordion-action-room` for a wider one; the package's icon-only Button
+  at sm measured 50, not the drawn 32), and **always shown**, not on hover.
+  The chevron's turn is `--accordion-turn` from `.details[open]`, `-90deg`
+  under `:dir(rtl)`. The opening animates only under
+  `@supports (interpolate-size: allow-keywords)` with `::details-content`
+  and only under no-preference; **`::details-content` has its box-sizing in
+  its own rule**, since a browser that does not know the pseudo-element
+  drops the whole selector list it is in. `toggle` also fires for an item
+  that mounts open and for one the prop moved, so what the caller was last
+  told is kept in a ref; a controlled item is put back to its prop after
+  every render. From the review: a closed item nested in an open one
+  inherited the turn, so every item sets it; `defaultOpen` is read once, so
+  a default that flips does not override the reader; the action's room is a
+  property. The Drawer page's inline panel now has the drawn sections. Not
+  checked: Safari, Firefox, a screen reader, find-in-page by hand, RTL by eye.
 - **Drawer** — built 2026-09-21, on main, unreleased; fifth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-drawer-design.md`, plan
   `docs/superpowers/plans/2026-09-21-drawer.md`. **It is drawn**: the

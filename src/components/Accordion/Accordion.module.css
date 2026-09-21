@@ -1,0 +1,144 @@
+/**
+ * Accordion
+ *
+ * The drawn Accordion set: a row of 64 with the chevron at the start, a title
+ * in 16/24 Semibold, a count or a Badge after it, an action at the end, and a
+ * hairline under every item. docs/superpowers/specs/2026-09-21-accordion-design.md.
+ *
+ * The action is not in the summary — a button inside a control is invalid —
+ * so it is laid over the row's end and the summary keeps that room clear.
+ */
+
+.accordion, .item, .details, .summary, .withAction, .chevron, .title, .count,
+.content, .action {
+  box-sizing: border-box;
+}
+
+.accordion {
+  font-family: var(--ap-font-sans);
+  color: var(--ap-color-text-primary);
+}
+
+/* The action's containing block. */
+.item {
+  position: relative;
+  border-block-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+/* The chevron is told which way to point, and not reached by descent. Every
+   item says so for itself, open or closed: a custom property inherits, and a
+   closed item inside an open one would otherwise point down with it. */
+.details { --accordion-turn: 0deg; }
+.details[open] { --accordion-turn: 90deg; }
+.details[open]:dir(rtl) { --accordion-turn: -90deg; }
+
+/* 64: 16 above and below the drawn 32. The marker is the chevron. */
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  min-block-size: 64px;
+  padding-block: var(--ap-spacing-200);
+  padding-inline-start: var(--ap-spacing-025);
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--ap-radius-sm);
+  color: var(--ap-color-text-secondary);
+}
+
+.summary::-webkit-details-marker { display: none; }
+
+.summary:hover { color: var(--ap-color-text-primary); }
+
+.summary:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(-1 * var(--ap-border-width-ring));
+}
+
+/* The room the action stands in. The drawn button is 32; the package's
+   icon-only Button at sm is 50 across, measured, and that is what stands
+   here, so the room is 64. A wider action says so with
+   `--accordion-action-room` on the item. */
+.withAction { padding-inline-end: var(--accordion-action-room, var(--ap-spacing-800)); }
+
+.chevron {
+  flex: none;
+  margin-inline-end: var(--ap-spacing-050);
+  rotate: var(--accordion-turn, 0deg);
+  transition: rotate var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.chevron:dir(rtl) { scale: -1 1; }
+
+/* Doubled, so a page's heading rule does not give it a margin or a size.
+   Primary where the drawing has secondary, as every title in the system. */
+.title.title {
+  min-width: 0;
+  margin: 0;
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-body-lg-size);
+  line-height: var(--ap-text-body-lg-line-height);
+  letter-spacing: var(--ap-text-body-lg-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+/* A capsule of 20, wider for two figures. */
+.count {
+  flex: none;
+  min-inline-size: var(--ap-spacing-250);
+  padding-inline: var(--ap-spacing-075);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-sunken);
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-spacing-250);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* 24 under the drawn 32: the summary's 16 and these 8. */
+.content {
+  padding-block: var(--ap-spacing-100) var(--ap-spacing-300);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+/* Over the row's end, centred on the 64. */
+.action {
+  position: absolute;
+  inset-block-start: var(--ap-spacing-200);
+  inset-inline-end: 0;
+  display: flex;
+  align-items: center;
+  block-size: var(--ap-spacing-400);
+}
+
+/* Only where the platform can animate to `auto`, and only when motion is
+   welcome; elsewhere a section is open or it is not. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (interpolate-size: allow-keywords) {
+    .details { interpolate-size: allow-keywords; }
+
+    /* Its box-sizing is declared here and not in the list at the top: a
+       browser that does not know the pseudo-element would drop that whole
+       rule with it. */
+    .details::details-content {
+      box-sizing: border-box;
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+        content-visibility var(--ap-motion-duration-fade) allow-discrete;
+    }
+
+    .details[open]::details-content { block-size: auto; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron { transition: none; }
+}

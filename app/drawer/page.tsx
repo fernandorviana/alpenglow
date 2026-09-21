@@ -5,6 +5,7 @@ import { Add } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
+import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
@@ -275,6 +276,14 @@ export default function Page() {
                   Press another appointment: the list is still in use, and the panel follows. Drag its inner edge, or
                   give the edge the focus and use the arrows.
                 </p>
+                <div style={{ justifySelf: 'stretch' }}>
+                  <Accordion>
+                    <AccordionItem title="Forms" count={2}>
+                      Intake form · New patient questionnaire
+                    </AccordionItem>
+                    <AccordionItem title="Notes">No notes yet.</AccordionItem>
+                  </Accordion>
+                </div>
               </div>
             )}
           </Drawer>
@@ -333,7 +342,7 @@ export default function Page() {
         The drawn Side Drawer is the <a href="/popover">Popover</a>&rsquo;s shell at the height of the page: the title
         at the start, icon buttons at the end, the footer&rsquo;s buttons at the end. <code>header</code> takes the
         title&rsquo;s place for the drawn View and Edit, whose header is the appointment&rsquo;s state. The sections
-        that open and close in that drawing are the Accordion, which is next on the roadmap.
+        that open and close in that drawing are the <a href="/accordion">Accordion</a>, as in the panel above.
       </p>
 
       <h2>Accessibility</h2>

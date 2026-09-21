@@ -19,6 +19,7 @@ import { Pagination } from '@/components/Pagination';
 import { Select } from '@/components/Select';
 import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
+import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
 import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
@@ -93,6 +94,21 @@ export default function Page() {
 
       <h2>In this section</h2>
       <Cards>
+        <Card
+          href="/accordion"
+          title="Accordion"
+          description="Sections that open and close on the native details element, several at once or one at a time."
+          visual={
+            <div style={{ width: '100%' }}>
+              <Accordion headingLevel={4}>
+                <AccordionItem title="Forms" count={2}>
+                  Intake form
+                </AccordionItem>
+                <AccordionItem title="Notes">No notes yet</AccordionItem>
+              </Accordion>
+            </div>
+          }
+        />
         <Card
           href="/alert"
           title="Alert"

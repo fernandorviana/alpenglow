@@ -778,6 +778,19 @@ describe('tag: a capsule on a card, and the same capsule in a field', () => {
   });
 });
 
+describe('accordion: a chevron, a title and a count', () => {
+  for (const mode of MODES) {
+    it(`its chevron is seen and its count reads, on a card and in a panel — ${mode}`, () => {
+      for (const surface of ['surface/raised', 'surface/overlay'] as const) {
+        // The chevron is the only mark of open and closed.
+        expect(tokenContrast('text/secondary', surface, mode)).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast('border/focus', surface, mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+      expect(tokenContrast('text/primary', 'surface/sunken', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+});
+
 describe('drawer: a panel over the page, or beside it', () => {
   for (const mode of MODES) {
     it(`its words read on both of its surfaces, and its handle is seen on them — ${mode}`, () => {

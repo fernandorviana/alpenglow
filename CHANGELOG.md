@@ -43,6 +43,14 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Accordion** — sections that open and close on the native `details`, so
+  the browser's find-in-page opens the section that holds the match: a row of
+  64 with the chevron at the start, a `title` that is a heading
+  (`headingLevel`), a `count` or a `meta` Badge after it, and an `action` at
+  the row's end, outside the summary and always shown. Several open at once,
+  or `exclusive` for one. `open`, `defaultOpen`, `onOpenChange`. Exports
+  `Accordion`, `AccordionItem`, `accordionHeadingLevels`, `AccordionProps`,
+  `AccordionItemProps`, `AccordionHeadingLevel`.
 - **Drawer** — a panel at the side of the page, not modal: `overlay` grows
   over the content in the top layer, `inline` is a sibling the content makes
   room for. 480 or 768 wide, the Popover's header, body and footer at the
