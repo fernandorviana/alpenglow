@@ -7,6 +7,7 @@ import { ToastSpecimen } from '@ui/ToastSpecimen';
 import { sectionOf } from '@ui/contents';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { Breadcrumb } from '@/components/Breadcrumb';
 import { Button } from '@/components/Button';
 import { Card as SurfaceCard, CardBody, CardTitle } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
@@ -144,6 +145,17 @@ export default function Page() {
                 Awaiting
               </Badge>
             </div>
+          }
+        />
+        <Card
+          href="/breadcrumb"
+          title="Breadcrumb"
+          description="The section as a capsule with its icon, a slash, and the page in words; every link a capsule under the pointer."
+          visual={
+            <Breadcrumb
+              aria-label="Example path"
+              items={[{ label: 'Clients', href: '/breadcrumb' }, { label: 'Justin Anderson' }]}
+            />
           }
         />
         <Card

@@ -1,0 +1,119 @@
+/**
+ * Breadcrumb
+ *
+ * Drawn in the product's top bar: the section as a capsule with its icon, a
+ * slash, the page in Semibold. docs/superpowers/specs/2026-09-21-breadcrumb-design.md.
+ *
+ * Decided on 2026-09-21: the root is a capsule at rest, every link is one
+ * under the pointer, and only the first has an icon.
+ */
+
+.breadcrumb, .list, .item, .slash, .link, .root, .icon, .label, .page, .words, .fold {
+  box-sizing: border-box;
+}
+
+.breadcrumb {
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+.list:focus { outline: none; }
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  min-width: 0;
+}
+
+/* Decoration: the order is the list's. */
+.slash {
+  color: var(--ap-color-text-tertiary);
+  user-select: none;
+}
+
+/* The capsule: 28 tall. Doubled, so a page's `a` and `a:hover` rules, which
+   weigh the same as one class, give it no colour and no underline. */
+.link.link, .fold {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-075);
+  min-block-size: 28px;
+  min-width: 0;
+  padding: var(--ap-spacing-025) var(--ap-spacing-100);
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-md);
+  background-color: transparent;
+  color: var(--ap-color-text-secondary);
+  font: inherit;
+  font-weight: var(--ap-font-weight-medium);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link.link, .fold { transition: none; }
+}
+
+/* interactive/neutral, not the drawn surface/base: the same primitive in
+   light, and in dark a fill and not a hole, as the Dialog's icon button. */
+.link.root { background-color: var(--ap-color-interactive-neutral); }
+
+/* Every link is a capsule under the pointer: the wash, over the root's fill
+   or over nothing. */
+.link.link:hover, .fold:hover {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+  color: var(--ap-color-text-primary);
+  text-decoration: none;
+}
+
+.link.link:active, .fold:active {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-pressed), var(--ap-color-interactive-wash-pressed));
+}
+
+.link.link:focus-visible, .fold:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+}
+
+/* A patient's name is cut, not wrapped; the words are whole in the DOM. */
+.label {
+  display: block;
+  max-inline-size: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page, .words {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-075);
+  min-width: 0;
+  padding-inline: var(--ap-spacing-050);
+}
+
+.page {
+  color: var(--ap-color-text-primary);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.words { color: var(--ap-color-text-secondary); }

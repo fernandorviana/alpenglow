@@ -60,9 +60,9 @@ describe('Pager', () => {
   it('links to the page before and the page after', () => {
     pathname = '/button';
     render(<Pager />);
-    expect(link(/Previous/)).toHaveAttribute('href', '/badge');
+    expect(link(/Previous/)).toHaveAttribute('href', '/breadcrumb');
     // Two lines, one name, and a space where the line breaks.
-    expect(link(/Previous/)).toHaveAccessibleName('Previous Badge');
+    expect(link(/Previous/)).toHaveAccessibleName('Previous Breadcrumb');
     expect(link(/Next/)).toHaveAttribute('href', '/card');
     expect(link(/Next/)).toHaveTextContent('Card');
   });

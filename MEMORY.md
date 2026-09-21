@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1696 tests across 68 files
+npm test            # 1723 tests across 69 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 203 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 205 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,32 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Breadcrumb** — built 2026-09-21, on main, unreleased; eighth of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-breadcrumb-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-breadcrumb.md`. Not published in the
+  library; **drawn in the product's client record**, in the top bar: the
+  section as a capsule on a grey fill with its icon, **a slash**, the page in
+  Semibold, two levels only. Proposed first with a chevron, before the
+  drawing was seen; the slash it is. Shown three ways to a third level,
+  **Fernando's decisions (2026-09-21): the root is a capsule at rest, every
+  link is a capsule under the pointer, and only the first has an icon.**
+  `nav` > `ol`; ancestors with `href` are links through `Anchor`
+  (`renderLink`), one without is words; the last is the page, a span with
+  `aria-current="page"`, never a link; slashes and icon `aria-hidden`. The
+  capsule is 28, radius md; the root's fill is `interactive/neutral`, not the
+  drawn `surface/base` (a hole in dark); hover is the wash, over the fill or
+  over nothing; no underline; `.link.link` against a page's `a` rules. A long
+  name is cut at 24ch. **`maxItems` folds the middle into a "…" button that
+  unfolds it in place, not a menu**: the DropdownMenu's rows are buttons and
+  a crumb has to stay a link. The drawn "back to Clients" pill in the page
+  is an outline Button at sm with an icon and `href`, which the system has;
+  the page shows it and it is not part of this. From the review: the focus
+  after unfolding goes to the first link after the root, or to the list when
+  there is none; a first item with no `href` keeps the icon. `Pager.test.tsx`
+  names its neighbours, so a new page between Badge and Button moved one.
+  **Seen in the same drawing: Tags in categorical colours** (Anxiety,
+  Depression, CBT) — the palette the Tag's neutral-only decision is waiting
+  for. Not checked: Safari, Firefox, a screen reader, dark by eye.
 - **Skeleton** — built 2026-09-21, on main, unreleased; seventh of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-skeleton-design.md`, plan
   `docs/superpowers/plans/2026-09-21-skeleton.md`. **Not drawn.** One

@@ -43,6 +43,13 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Breadcrumb** — a `nav` with an ordered list: the section as a capsule
+  with its `icon`, slashes, and the page in words with `aria-current`, never a
+  link. Every link is a capsule under the pointer; only the first has an
+  icon. `items` of `label` and `href`, `renderLink` for a router, `maxItems`
+  to fold the middle into a button that unfolds it in place, a long name cut
+  with an ellipsis. Exports `Breadcrumb`, `BreadcrumbProps`,
+  `BreadcrumbItem`.
 - **Skeleton** — the shape of what is on its way: `text` (the height of the
   line it stands in, `lines`, the last one shorter), `circle` and `rect`, with
   `width`, `height` and `size`. `aria-hidden` spans, so one can stand inside

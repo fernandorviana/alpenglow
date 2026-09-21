@@ -778,6 +778,20 @@ describe('tag: a capsule on a card, and the same capsule in a field', () => {
   });
 });
 
+describe('breadcrumb: a capsule, a slash and the page', () => {
+  for (const mode of MODES) {
+    it(`its links read at rest, on the root's fill and under the wash, and the page and the slash read on the bar — ${mode}`, () => {
+      for (const bar of ['surface/raised', 'surface/base'] as const) {
+        expect(tokenContrast('text/secondary', bar, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast('text/primary', bar, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast('text/primary', 'interactive/wash-hover', mode, bar)).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+      expect(tokenContrast('text/secondary', 'interactive/neutral', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/primary', 'interactive/wash-hover', mode, 'interactive/neutral')).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+});
+
 describe('accordion: a chevron, a title and a count', () => {
   for (const mode of MODES) {
     it(`its chevron is seen and its count reads, on a card and in a panel — ${mode}`, () => {

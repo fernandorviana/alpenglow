@@ -115,6 +115,9 @@ export type { AccordionProps, AccordionItemProps, AccordionHeadingLevel } from '
 export { Skeleton, skeletonVariants } from './components/Skeleton/index';
 export type { SkeletonProps, SkeletonVariant } from './components/Skeleton/index';
 
+export { Breadcrumb } from './components/Breadcrumb/index';
+export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/index';
+
 export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH } from './components/Drawer/index';
 export type { DrawerProps, DrawerMode, DrawerSide, DrawerSize } from './components/Drawer/index';
 
