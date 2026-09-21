@@ -108,13 +108,13 @@ describe('Button', () => {
     it('gives way by 0.96, and never further', () => {
       // 0.96 is what the hand reads as a press; below 0.95 it reads as a
       // flinch. The rule is scoped away from disabled, which covers loading.
-      const press = rules.find((r) => r.selector === '.button:active:not(:disabled)');
+      const press = rules.find((r) => r.selector === ".button:active:not(:disabled):not([aria-disabled='true'])");
       expect(press?.body).toMatch(/transform: scale\(0\.96\)/);
     });
 
     it('is a colour change alone under reduced motion', () => {
       const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
-      expect(reduced).toMatch(/\.button:active:not\(:disabled\)\s*\{\s*transform: none;/);
+      expect(reduced).toMatch(/\.button:active:not\(:disabled\):not\(\[aria-disabled='true'\]\)\s*\{\s*transform: none;/);
     });
   });
 
@@ -171,5 +171,127 @@ describe('Button', () => {
   it('passes through arbitrary button attributes', () => {
     render(<Button aria-label="Close dialog" data-testid="x" />);
     expect(screen.getByTestId('x')).toHaveAccessibleName('Close dialog');
+  });
+});
+
+describe('Button — with an href it is a link that looks like a button', () => {
+  it('is an anchor with the button’s classes and no type', () => {
+    render(
+      <Button href="/signup" variant="outline" size="lg">
+        Create account
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'Create account' });
+    expect(link.tagName).toBe('A');
+    expect(link).toHaveAttribute('href', '/signup');
+    expect(link).toHaveClass(styles.button!, styles.outline!, styles.lg!);
+    expect(link).not.toHaveAttribute('type');
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('stays a button without one, as before', () => {
+    render(<Button>Save</Button>);
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('type', 'button');
+  });
+
+  it('passes anchor props and an anchor’s ref', () => {
+    const ref = createRef<HTMLAnchorElement>();
+    render(
+      <Button href="/report.pdf" ref={ref} download target="_blank" rel="noreferrer">
+        Report
+      </Button>,
+    );
+    expect(ref.current).toBe(screen.getByRole('link'));
+    expect(ref.current).toHaveAttribute('target', '_blank');
+    expect(ref.current).toHaveAttribute('download');
+  });
+
+  it.each([
+    ['disabled', { disabled: true }],
+    ['loading', { loading: true }],
+  ])('%s, it has no href, cannot be focused or pressed, and still says it is a link', async (_, props) => {
+    const onClick = vi.fn();
+    render(
+      <Button href="/signup" onClick={onClick} {...props}>
+        Create account
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'Create account' });
+    expect(link).not.toHaveAttribute('href');
+    expect(link).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.tab();
+    expect(link).not.toHaveFocus();
+    await userEvent.click(link);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('drops whatever would make a disabled link answer', async () => {
+    const onKeyDown = vi.fn();
+    render(
+      <Button href="/x" disabled tabIndex={0} onKeyDown={onKeyDown} data-kept="yes">
+        Go
+      </Button>,
+    );
+    const link = screen.getByRole('link');
+    expect(link).not.toHaveAttribute('tabindex');
+    expect(link).toHaveAttribute('data-kept', 'yes');
+    await userEvent.tab();
+    await userEvent.keyboard('{Enter}');
+    expect(onKeyDown).not.toHaveBeenCalled();
+  });
+
+  it('takes an href that may be undefined, and is a button when it is', () => {
+    const maybe = undefined as string | undefined;
+    render(<Button href={maybe}>Row</Button>);
+    expect(screen.getByRole('button', { name: 'Row' })).toBeInTheDocument();
+  });
+
+  it('is busy while loading, and only then', () => {
+    const { rerender } = render(
+      <Button href="/x" loading>
+        Go
+      </Button>,
+    );
+    expect(screen.getByRole('link')).toHaveAttribute('aria-busy', 'true');
+    rerender(
+      <Button href="/x" disabled>
+        Go
+      </Button>,
+    );
+    expect(screen.getByRole('link')).not.toHaveAttribute('aria-busy');
+  });
+
+  it('hands a router’s link everything, and does not call it while disabled', () => {
+    const router = vi.fn(({ children, ...props }) => (
+      <a data-router="yes" {...props}>
+        {children}
+      </a>
+    ));
+    const { rerender } = render(
+      <Button href="/routed" render={router}>
+        Routed
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'Routed' });
+    expect(link).toHaveAttribute('data-router', 'yes');
+    expect(link).toHaveAttribute('href', '/routed');
+    expect(link).toHaveClass(styles.button!);
+
+    router.mockClear();
+    rerender(
+      <Button href="/routed" render={router} disabled>
+        Routed
+      </Button>,
+    );
+    expect(router).not.toHaveBeenCalled();
+    expect(screen.getByRole('link')).not.toHaveAttribute('data-router');
+  });
+
+  it('treats aria-disabled as disabled everywhere the stylesheet asks', () => {
+    const css = readFileSync('src/components/Button/Button.module.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(css).not.toMatch(/:not\(:disabled\)(?!:not\(\[aria-disabled='true'\]\))/);
+    expect(css).toContain(".button:disabled,\n.button[aria-disabled='true'] {");
+    expect(css).toContain(".ghost[aria-disabled='true']:not(.loading)");
+    expect(css).toMatch(/a\.button,\s*a\.button:hover,\s*a\.button:focus-visible \{\s*text-decoration: none;/);
   });
 });

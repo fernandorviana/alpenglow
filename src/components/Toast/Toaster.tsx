@@ -6,6 +6,7 @@ import { serverSnapshot, snapshot, subscribe, toast } from './store';
 import type { ToastRecord } from './store';
 import { SPOKEN_TONE, StatusGlyph } from '../statusGlyphs';
 import styles from './Toast.module.css';
+import hidden from '../visuallyHidden.module.css';
 
 export const toasterPlacements = [
   'top-start',
@@ -68,7 +69,7 @@ function Toast({
         </span>
       )}
       <span className={styles.message}>
-        {item.tone !== 'neutral' && <span className={styles.spoken}>{SPOKEN_TONE[item.tone]}: </span>}
+        {item.tone !== 'neutral' && <span className={hidden.hidden}>{SPOKEN_TONE[item.tone]}: </span>}
         {item.message}
       </span>
       {item.action && (

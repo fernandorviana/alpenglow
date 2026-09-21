@@ -12,6 +12,7 @@ import { Card as SurfaceCard, CardBody, CardTitle } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
 import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/Input';
+import { Link } from '@/components/Link';
 import { Loader } from '@/components/Loader';
 import { Pagination } from '@/components/Pagination';
 import { Select } from '@/components/Select';
@@ -205,6 +206,16 @@ export default function Page() {
               <span className="miniMenuHover">Send reminder</span>
               <span className="miniMenuDanger">Cancel appointment</span>
             </div>
+          }
+        />
+        <Card
+          href="/link"
+          title="Link"
+          description="The accent in Medium, a line only under the pointer and the focus, and a Button that takes an href."
+          visual={
+            <span style={{ color: 'var(--ap-color-text-secondary)' }}>
+              Read the <Link href="/link">specification</Link>
+            </span>
           }
         />
         <Card

@@ -10,7 +10,7 @@
  * sentence writes and cannot class.
  */
 
-.root, .summary, .spoken, .nav, .list, .place, .item, .item::after, .gap,
+.root, .summary, .nav, .list, .place, .item, .item::after, .gap,
 .size, .sizeInput, .sizeChevron, .sizeList, .sizeOption {
   box-sizing: border-box;
 }
@@ -30,14 +30,6 @@
   letter-spacing: var(--ap-text-body-md-tracking);
 }
 
-.spoken {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 
 /* --- the pages ------------------------------------------------------------- */
 

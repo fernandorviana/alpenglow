@@ -645,7 +645,22 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   color: var(--ap-color-text-secondary);
 }
 
+/* The Link's decision, for the links the prose writes as plain `a`: the
+   accent and Medium at rest, a line under the pointer and the focus. */
+/* Only an `a` with no class: a Button with an href is an `a` too, and this
+   rule outranks a single class, so it made that button Medium and underlined
+   it under the pointer. */
 .prose a { color: var(--ap-color-text-accent); }
+
+.prose a:not([class]) {
+  font-weight: var(--ap-font-weight-medium);
+  text-decoration-line: none;
+  text-decoration-thickness: var(--ap-border-width-hairline);
+  text-underline-offset: 0.2em;
+}
+
+.prose a:not([class]):hover,
+.prose a:not([class]):focus-visible { text-decoration-line: underline; }
 
 .prose code {
   font-family: var(--ap-font-mono);

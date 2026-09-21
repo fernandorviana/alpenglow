@@ -1,0 +1,70 @@
+/**
+ * Link
+ *
+ * Not drawn. docs/superpowers/specs/2026-09-21-link-design.md holds the one
+ * decision that runs against the default: no line at rest, in a sentence too.
+ * The accent is 2.73:1 against the words around it in light and 1.64:1 in
+ * dark, so colour does not carry it; the Medium weight is the cue that is not
+ * colour, and the line comes under the pointer and the keyboard's focus.
+ *
+ * Doubled classes, as on the Card's title: a page paints and underlines its
+ * own `a`, and this one is the system's.
+ */
+
+.link, .standalone, .icon {
+  box-sizing: border-box;
+}
+
+.link.link {
+  color: var(--ap-color-text-accent);
+  font-weight: var(--ap-font-weight-medium);
+  text-decoration-line: none;
+  text-decoration-thickness: var(--ap-border-width-hairline);
+  text-underline-offset: 0.2em;
+  border-radius: var(--ap-radius-xs);
+  cursor: pointer;
+}
+
+.link.link:hover,
+.link.link:focus-visible {
+  text-decoration-line: underline;
+}
+
+/* The ring adds geometry: the line alone would be a second state told by the
+   same mark as the first. */
+.link:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+/* In a sentence it is the sentence's size, line height and family. */
+.inline {
+  font-size: inherit;
+  line-height: inherit;
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+/* On its own line it is a target, and WCAG 2.5.8 exempts only a link in a
+   sentence: 22 of line height is given the 24. */
+.standalone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  min-height: var(--ap-spacing-300);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+}
+
+/* The caller sizes the icon: 16 beside `body/md`. In a sentence it has no
+   flex gap to stand in, so the 2 travels as a custom property. */
+.icon {
+  display: inline-flex;
+  flex: none;
+  margin-inline-start: var(--link-icon-gap, 0);
+  vertical-align: -0.15em;
+}
+
+.inline { --link-icon-gap: var(--ap-spacing-025); }

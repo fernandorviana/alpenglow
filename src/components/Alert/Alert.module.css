@@ -10,7 +10,7 @@
  * writes and cannot class.
  */
 
-.root, .alert, .icon, .content, .spoken, .title, .message, .action, .close {
+.root, .alert, .icon, .content, .title, .message, .action, .close {
   box-sizing: border-box;
 }
 
@@ -98,14 +98,6 @@
   overflow-wrap: anywhere;
 }
 
-.spoken {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 
 .title {
   margin: 0;

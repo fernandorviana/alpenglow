@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1390 tests across 60 files
+npm test            # 1434 tests across 61 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 175 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 181 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,46 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Link** — built 2026-09-21, on main, unreleased; **the last of wave 1**. Spec
+  `docs/superpowers/specs/2026-09-21-link-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-link.md`. Not drawn (the published
+  `link` is an icon). **A decision against the default, Fernando's,
+  2026-09-21: no line at rest, in a sentence too; the accent always, the
+  line on hover.** Measured first and shown to him: `text/accent` against
+  `text/primary` is 2.73:1 light and 1.64:1 dark, against `text/secondary`
+  2.06 and 1.03, all under the 3:1 colour alone would need (WCAG 1.4.1,
+  G183). **The cue that is not colour is weight**: a link is Medium in a
+  sentence that is Regular, and the line comes on hover and on
+  focus-visible with the ring. The suite records the four ratios and asserts
+  they are under 3, so a theme that reaches 3:1 reopens the question. It does
+  not hold inside text already Medium or heavier, which the page says.
+  Whoever "fixes" this changes the spec's table first. `inline` inherits its
+  sentence; `standalone` is `body/md`, inline-flex, 24 tall (2.5.8 exempts
+  only a link in a sentence); `iconEnd`; `external` is `_blank` +
+  `noreferrer` + "opens in a new tab" said and not shown (`externalLabel`);
+  no `:visited`, no hover colour (one accent text token). **The
+  Button-as-link question, left to "best practice in code": `Button` takes
+  `href`** and is an `a` with the same classes; a button variant on the Link
+  would have copied every size, tone and state. An `a` has no `disabled`:
+  disabled or loading it has no `href`, `role="link"`, `aria-disabled`, no
+  handlers and no tabIndex, and `render` is not called. The stylesheet's
+  `:not(:disabled)` is now `:not(:disabled):not([aria-disabled='true'])` —
+  two `:not`s and no comma, because the loading test splits selector lists on
+  commas. **`render={(props) => <NextLink {...props} />}`** on both, the
+  DropdownMenu's `trigger` idiom, typed in `src/components/linkRender.tsx`,
+  whose `Anchor` component exists because the Compiler lint refuses a ref
+  handed to a function during render; as a prop to a component it is fine.
+  CardTitle, Pagination's `hrefFor` and the Tabs' link variant still render
+  a plain `a` and want `render` in a later pass. Only the browser showed: the
+  docs' `.prose a` (0,1,1) outranked `.button` and made the Button-link
+  Medium and underlined on hover, so the docs rule is `a:not([class])` and
+  the Button names the element, `a.button:hover`, against a consumer's
+  `a:hover`. **With it, the visually-hidden rule has one home**,
+  `src/components/visuallyHidden.module.css`, used by the Toast, the Alert,
+  the Pagination and the Link. From the review: a caller's `rel` joins
+  `noreferrer`; the new tab is said only if `target` is still `_blank`; a
+  third overload takes `href: string | undefined`; `displayName`. Not
+  checked: Safari, Firefox, a screen reader.
 - **Card** — built 2026-09-21, on main, unreleased. Spec
   `docs/superpowers/specs/2026-09-21-card-design.md`, plan
   `docs/superpowers/plans/2026-09-21-card.md`. **One card is drawn**, the
@@ -664,8 +704,7 @@ Claimed components (add a line before starting; one per session and branch):
   `maxPageSize` is offered, and with no options it is a plain field with
   no chevron; a NaN `page` is the first; `announce={false}` for the second
   of two Paginations on one list. Not checked: Safari and Firefox, a screen
-  reader, rtl by eye. Open: the visually-hidden rule is now written out in the Toast,
-  the Alert and the Pagination and wants one home; a compact size for the
+  reader, rtl by eye. Open: a compact size for the
   dense Table's footer (wave 2); "go to page"; rebinding the Figma frames and drawing the inline
   field there.
 - **Alert** — built 2026-09-20, on main, unreleased. Spec

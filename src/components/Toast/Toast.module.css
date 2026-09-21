@@ -10,7 +10,7 @@
  * Every selector is compound, never reached by descent (the Tabs lesson).
  */
 
-.region, .list, .toast, .icon, .message, .spoken, .action, .close {
+.region, .list, .toast, .icon, .message, .action, .close {
   box-sizing: border-box;
 }
 
@@ -137,15 +137,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Said, not shown: the tone is otherwise only a shape. */
-.spoken {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 
 /* --- the two buttons --------------------------------------------------------
    Transparent on the toast, so the theme's wash composites over the inverse

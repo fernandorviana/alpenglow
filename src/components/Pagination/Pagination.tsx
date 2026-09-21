@@ -4,6 +4,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import { pageItems } from './pages';
 import { PageSize } from './PageSize';
 import styles from './Pagination.module.css';
+import hidden from '../visuallyHidden.module.css';
 
 export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
@@ -172,7 +173,7 @@ export function Pagination({
       {/* A press on Next is answered: the page now in view, said politely. Apart
           from the summary, which holds a field and is the caller's sentence. */}
       {announce && (
-        <span role="status" className={styles.spoken}>
+        <span role="status" className={hidden.hidden}>
           {pageLabel(current)}
         </span>
       )}

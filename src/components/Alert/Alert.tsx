@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { TintTone } from '../vocabulary';
 import { SPOKEN_TONE, StatusGlyph } from '../statusGlyphs';
 import styles from './Alert.module.css';
+import hidden from '../visuallyHidden.module.css';
 
 // Held to the tones the theme can tint. The soft edge is a third token per
 // tone, which the stylesheet's own test asks for by name.
@@ -61,7 +62,7 @@ export function Alert({
         </span>
         <div className={styles.content}>
           {/* The tone is a colour and a shape to the eye, so it is said in words. */}
-          <span className={styles.spoken}>{SPOKEN_TONE[tone]}: </span>
+          <span className={hidden.hidden}>{SPOKEN_TONE[tone]}: </span>
           {title && <div className={styles.title}>{title}</div>}
           <div className={styles.message}>{children}</div>
         </div>

@@ -22,6 +22,8 @@ const PROPS: PropRow[] = [
   { prop: 'iconStart', type: 'ReactNode', default: '—' },
   { prop: 'iconEnd', type: 'ReactNode', default: '—' },
   { prop: 'fullWidth', type: 'boolean', default: 'false' },
+  { prop: 'href', type: 'string — makes it an a', default: '—' },
+  { prop: 'render', type: '(props) => ReactNode, with href', default: '—' },
 ];
 
 /**
@@ -324,6 +326,28 @@ export default function Page() {
           <Button size="lg" loading>Large</Button>
         </div>
       </div>
+
+      <h2>A button that navigates</h2>
+      <div className="specimen">
+        <div className="specimenRow">
+          <Button href="/link">Read about Link</Button>
+          <Button href="/link" variant="outline" tone="neutral">
+            Outline
+          </Button>
+          <Button href="/link" disabled>
+            Disabled
+          </Button>
+        </div>
+      </div>
+      <p>
+        What goes to another page is a link, whatever it looks like: it can be opened in a
+        new tab, copied, and is announced as a link. So with <code>href</code> the Button is
+        an <code>a</code> with the same look, and the <a href="/link">Link</a> stays text. An{' '}
+        <code>a</code> has no <code>disabled</code>: disabled or loading, it is rendered with
+        no <code>href</code> and <code>aria-disabled</code>, which takes it out of the tab
+        order and leaves nothing to follow. <code>render</code> hands the props to a
+        router&rsquo;s link.
+      </p>
 
       <h2>Accessibility</h2>
       <p>

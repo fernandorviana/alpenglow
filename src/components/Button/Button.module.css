@@ -47,18 +47,27 @@
    hand reads as a press; below 0.95 it reads as a flinch — on top of the
    pressed colour each tone already has, so colour is never the only channel.
    Not while disabled or loading: neither is a button that can be pressed. */
-.button:active:not(:disabled) {
+.button:active:not(:disabled):not([aria-disabled='true']) {
   transform: scale(0.96);
 }
 
 /* The ring adds geometry rather than recolouring the border: colour is never
    the only channel carrying a state. */
+/* As an `a`. A page's `a:hover { text-decoration: underline }` outranks one
+   class, so the element is named: the button is never underlined. */
+a.button,
+a.button:hover,
+a.button:focus-visible {
+  text-decoration: none;
+}
+
 .button:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
   outline-offset: var(--ap-focus-ring-offset);
 }
 
-.button:disabled {
+.button:disabled,
+.button[aria-disabled='true'] {
   cursor: not-allowed;
 }
 
@@ -74,7 +83,7 @@
   .button {
     transition: none;
   }
-  .button:active:not(:disabled) {
+  .button:active:not(:disabled):not([aria-disabled='true']) {
     transform: none;
   }
 }
@@ -115,8 +124,8 @@
   background: var(--ap-color-interactive-accent);
   color: var(--ap-color-interactive-on-accent);
 }
-.solid.accent:hover:not(:disabled) { background: var(--ap-color-interactive-accent-hover); }
-.solid.accent:active:not(:disabled) { background: var(--ap-color-interactive-accent-pressed); }
+.solid.accent:hover:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-accent-hover); }
+.solid.accent:active:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-accent-pressed); }
 
 /* The neutral fill is ~1.1:1 against the surfaces it sits on — in light it is
    identical to the canvas. The outline is what describes the button's shape,
@@ -132,10 +141,10 @@
   border-color: var(--ap-color-border-default);
   color: var(--ap-color-interactive-on-neutral);
 }
-.solid.neutral:hover:not(:disabled) {
+.solid.neutral:hover:not(:disabled):not([aria-disabled='true']) {
   background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
 }
-.solid.neutral:active:not(:disabled) {
+.solid.neutral:active:not(:disabled):not([aria-disabled='true']) {
   background-image: linear-gradient(var(--ap-color-interactive-wash-pressed), var(--ap-color-interactive-wash-pressed));
 }
 
@@ -143,22 +152,22 @@
   background: var(--ap-color-interactive-tertiary);
   color: var(--ap-color-interactive-on-tertiary);
 }
-.solid.tertiary:hover:not(:disabled) { background: var(--ap-color-interactive-tertiary-hover); }
-.solid.tertiary:active:not(:disabled) { background: var(--ap-color-interactive-tertiary-pressed); }
+.solid.tertiary:hover:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-tertiary-hover); }
+.solid.tertiary:active:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-tertiary-pressed); }
 
 .solid.danger {
   background: var(--ap-color-interactive-danger);
   color: var(--ap-color-interactive-on-danger);
 }
-.solid.danger:hover:not(:disabled) { background: var(--ap-color-interactive-danger-hover); }
-.solid.danger:active:not(:disabled) { background: var(--ap-color-interactive-danger-pressed); }
+.solid.danger:hover:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-danger-hover); }
+.solid.danger:active:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-danger-pressed); }
 
 .solid.success {
   background: var(--ap-color-interactive-success);
   color: var(--ap-color-interactive-on-success);
 }
-.solid.success:hover:not(:disabled) { background: var(--ap-color-interactive-success-hover); }
-.solid.success:active:not(:disabled) { background: var(--ap-color-interactive-success-pressed); }
+.solid.success:hover:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-success-hover); }
+.solid.success:active:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-success-pressed); }
 
 /* --- outline -------------------------------------------------------------- */
 
@@ -167,8 +176,8 @@
 .outline {
   background: transparent;
 }
-.outline:hover:not(:disabled) { background: var(--ap-color-interactive-wash-hover); }
-.outline:active:not(:disabled) { background: var(--ap-color-interactive-wash-pressed); }
+.outline:hover:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-wash-hover); }
+.outline:active:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-wash-pressed); }
 
 .outline.accent  { border-color: var(--ap-color-border-accent);  color: var(--ap-color-text-accent); }
 .outline.neutral { border-color: var(--ap-color-border-default); color: var(--ap-color-text-primary); }
@@ -179,8 +188,8 @@
 .ghost {
   background: transparent;
 }
-.ghost:hover:not(:disabled) { background: var(--ap-color-interactive-wash-hover); }
-.ghost:active:not(:disabled) { background: var(--ap-color-interactive-wash-pressed); }
+.ghost:hover:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-wash-hover); }
+.ghost:active:not(:disabled):not([aria-disabled='true']) { background: var(--ap-color-interactive-wash-pressed); }
 
 .ghost.accent  { color: var(--ap-color-text-accent); }
 .ghost.neutral { color: var(--ap-color-text-primary); }
@@ -204,7 +213,8 @@
   color: var(--ap-color-interactive-on-disabled);
 }
 
-.ghost:disabled:not(.loading) {
+.ghost:disabled:not(.loading),
+.ghost[aria-disabled='true']:not(.loading) {
   background: transparent;
   border-color: transparent;
 }

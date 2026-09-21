@@ -693,6 +693,31 @@ describe('card: a filled step under a raised ground', () => {
   });
 });
 
+describe('link: the accent reads on every ground, and does not stand apart from the words by colour', () => {
+  for (const mode of MODES) {
+    it(`text/accent clears AA on the three grounds a sentence stands on — ${mode}`, () => {
+      for (const ground of ['surface/base', 'surface/raised', 'surface/sunken'] as const) {
+        expect(tokenContrast('text/accent', ground, mode), ground).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+  }
+
+  // Decided 2026-09-21 (docs/superpowers/specs/2026-09-21-link-design.md): no
+  // line at rest. These four are why colour cannot be the cue, and the Medium
+  // weight is. Recorded so that a theme that reaches 3:1 is noticed, and the
+  // decision looked at again.
+  it.each([
+    ['text/primary', 'light', 2.73],
+    ['text/primary', 'dark', 1.64],
+    ['text/secondary', 'light', 2.06],
+    ['text/secondary', 'dark', 1.03],
+  ] as const)('text/accent against %s in %s is %s:1, under the 3:1 colour alone would need', (text, mode, ratio) => {
+    const measured = contrast(resolve('text/accent', mode), resolve(text, mode));
+    expect(measured).toBeCloseTo(ratio, 1);
+    expect(measured).toBeLessThan(NON_TEXT);
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

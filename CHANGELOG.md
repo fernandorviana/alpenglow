@@ -32,6 +32,15 @@ break: a removed token or prop is named here under **Breaking**.
   pointer: the theme's wash, and the picture rises a level. Exports `Card`,
   `CardMedia`, `CardBody`, `CardTitle`, `CardActions`, `cardElements`,
   `cardTitleElements` and their prop types.
+- **Link** — the accent in Medium, with a line only under the pointer and
+  the keyboard's focus: `inline` (the default, the size of its sentence) or
+  `standalone` (24 tall, with `iconEnd`). `external` opens a new tab with
+  `noreferrer` and says so to a screen reader; `render` hands the props to a
+  router's link. Exports `Link`, `linkVariants`, `LinkProps`, `LinkVariant`,
+  `LinkRender`, `LinkRenderProps`.
+- **Button** takes `href` and is then an `a` with the same look, and
+  `render` for a router's link. Disabled or loading, the link has no `href`
+  and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
 - **Pagination** — a named `nav` of pages in seven places that never move
   the arrows, with `aria-current`, arrows that are `aria-disabled` at the
   ends, `hrefFor` for links, and the page arrived at announced. With `total`

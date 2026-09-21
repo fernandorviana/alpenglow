@@ -1,0 +1,17 @@
+/**
+ * Off screen, not hidden: read by a screen reader, seen by nobody. The one
+ * copy, for the tone a Toast and an Alert say in words, the page a Pagination
+ * arrives at, and the "opens in a new tab" of a Link.
+ *
+ * Not `display: none` and not `visibility: hidden`, which take it from the
+ * accessibility tree too. `clip-path` and not the retired `clip`.
+ */
+.hidden {
+  box-sizing: border-box;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

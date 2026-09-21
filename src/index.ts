@@ -4,7 +4,7 @@
 import './styles/tokens.css';
 
 export { Button } from './components/Button/index';
-export type { ButtonProps } from './components/Button/index';
+export type { ButtonProps, ButtonAsButtonProps, ButtonAsLinkProps } from './components/Button/index';
 export type { ControlSize, Tone } from './components/vocabulary';
 
 export * from './icons/index';
@@ -93,6 +93,9 @@ export type {
   CardElement,
   CardTitleElement,
 } from './components/Card/index';
+
+export { Link, linkVariants } from './components/Link/index';
+export type { LinkProps, LinkVariant, LinkRender, LinkRenderProps } from './components/Link/index';
 
 export { Pagination, pageItems, PAGE_SIZE_OPTIONS } from './components/Pagination/index';
 export type { PaginationProps, PaginationSummaryParts, PageItem } from './components/Pagination/index';
