@@ -1,0 +1,86 @@
+/**
+ * Skeleton
+ *
+ * Not drawn. docs/superpowers/specs/2026-09-21-skeleton-design.md.
+ *
+ * The fill is the pressed wash and not a surface: surface/sunken is
+ * surface/base in dark, nothing on the page and a hole on a card, where a
+ * state layer composites over whatever is under it in both modes. The band is
+ * the same wash again, a denser passage, so it needs no colour of its own.
+ */
+
+.skeleton, .skeleton::after, .text, .circle, .rect, .lines, .last {
+  box-sizing: border-box;
+}
+
+/* The transparent hairline is what forced colours paint: the fill is the
+   shape's only edge. */
+.skeleton {
+  position: relative;
+  display: block;
+  inline-size: var(--skeleton-width, 100%);
+  block-size: var(--skeleton-height, auto);
+  overflow: hidden;
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-color-interactive-wash-pressed);
+}
+
+/* One sweep for each shape, 1.8s, decided on 2026-09-21. The loop keeps its
+   own timing and is not a motion token, as the Loader's. */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ap-color-interactive-wash-pressed),
+    transparent
+  );
+  animation: sweep 1.8s linear infinite;
+}
+
+.skeleton:dir(rtl)::after { animation-direction: reverse; }
+
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* A still grey bar is content, not loading, so reduced motion does not
+   freeze it (invariant 6). What is dropped is the travel: the band stays
+   where it is and breathes, at half the pace. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: breathe 3.6s ease-in-out infinite; }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* The glyphs' share of the line it stands in. An inline-block, so the line
+   box around it is the line's own height and a paragraph of these is as tall
+   as the paragraph that replaces it. Not a block with margins of
+   (1lh - ink) / 2: those collapse through the heading or the paragraph it is
+   in, and the card measured 30 shorter while it loaded. */
+.text {
+  display: inline-block;
+  vertical-align: middle;
+  block-size: var(--skeleton-height, 0.7em);
+  border-radius: var(--ap-radius-sm);
+}
+
+.circle {
+  inline-size: var(--skeleton-width, var(--ap-spacing-500));
+  block-size: var(--skeleton-height, var(--ap-spacing-500));
+  flex: none;
+  border-radius: var(--ap-radius-full);
+}
+
+.rect { block-size: var(--skeleton-height, var(--ap-spacing-500)); }
+
+.lines { display: block; }
+
+.last { inline-size: 60%; }

@@ -21,6 +21,7 @@ import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
 import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
+import { Skeleton } from '@/components/Skeleton';
 import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
 import { Tooltip } from '@/components/Tooltip';
@@ -301,6 +302,19 @@ export default function Page() {
                 { value: 'follow-up', label: 'Follow-up' },
               ]}
             />
+          }
+        />
+        <Card
+          href="/skeleton"
+          title="Skeleton"
+          description="Three shapes put where the content will be, with a sweep that reduced motion slows to a breath."
+          visual={
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Skeleton variant="circle" />
+              <div style={{ flex: 1 }}>
+                <Skeleton lines={2} />
+              </div>
+            </div>
           }
         />
         <Card

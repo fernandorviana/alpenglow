@@ -43,6 +43,14 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Skeleton** — the shape of what is on its way: `text` (the height of the
+  line it stands in, `lines`, the last one shorter), `circle` and `rect`, with
+  `width`, `height` and `size`. `aria-hidden` spans, so one can stand inside
+  the heading or paragraph it replaces; the region that is loading says
+  `aria-busy`. A sweep for each shape, 1.8s; reduced motion drops the travel
+  and keeps a slow breath. Filled with the pressed wash, so one shape is right
+  on the page, on a card and in a panel, in both modes. Exports `Skeleton`,
+  `skeletonVariants`, `SkeletonProps`, `SkeletonVariant`.
 - **Accordion** — sections that open and close on the native `details`, so
   the browser's find-in-page opens the section that holds the match: a row of
   64 with the chevron at the start, a `title` that is a heading

@@ -112,6 +112,9 @@ export type { PopoverProps, PopoverPlacement, PopoverTriggerProps, PopoverApi } 
 export { Accordion, AccordionItem, accordionHeadingLevels } from './components/Accordion/index';
 export type { AccordionProps, AccordionItemProps, AccordionHeadingLevel } from './components/Accordion/index';
 
+export { Skeleton, skeletonVariants } from './components/Skeleton/index';
+export type { SkeletonProps, SkeletonVariant } from './components/Skeleton/index';
+
 export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH } from './components/Drawer/index';
 export type { DrawerProps, DrawerMode, DrawerSide, DrawerSize } from './components/Drawer/index';
 

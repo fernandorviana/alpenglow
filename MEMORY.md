@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1673 tests across 67 files
+npm test            # 1696 tests across 68 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -592,6 +592,32 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Skeleton** — built 2026-09-21, on main, unreleased; seventh of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-skeleton-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-skeleton.md`. **Not drawn.** One
+  `Skeleton`, `variant` `text` | `circle` | `rect`, `lines`, `width`,
+  `height`, `size`; **primitives and no moulds** (no SkeletonCard, no
+  SkeletonTable: a mould is a second drawing to keep in step). **A sweep per
+  shape at 1.8s** (Fernando, 2026-09-21): shown a pulse and a sweep he asked
+  the speed and whether one band could cross every shape at once; shown that
+  too (a viewport-wide gradient, `background-attachment: fixed`) with a
+  control for the pace, he took a sweep for each shape at 1.8s. The single
+  band is not built. The loop keeps its own timing, not a motion token.
+  **Reduced motion does not freeze it** (invariant 6): the travel is dropped
+  and the band breathes in place at 3.6s. **The fill is
+  `interactive/wash-pressed`, not a surface**: `surface/sunken` is
+  `surface/base` in dark, nothing on the page and a hole on a card; the band
+  is the same wash again. Not held to a contrast ratio, and no contrast
+  cases: it is not information, `aria-busy` on the caller's region is. Spans,
+  `aria-hidden`; a transparent hairline for forced colours; reversed under
+  `:dir(rtl)`. Only the browser showed: **a text shape as a block with
+  margins of (1lh − ink)/2 collapsed out of its heading**, and the docs' card
+  was 30 shorter while loading; it is an inline-block, `vertical-align:
+  middle`, so the line box is the line's own height, and the card measured
+  224 before and after. From the review: `className` and `style` go to the
+  group of lines, once. Recorded, not measured: one compositor layer per
+  shape. Not checked: Safari, Firefox, forced colours and reduced motion by
+  eye.
 - **Accordion** — built 2026-09-21, on main, unreleased; sixth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-accordion-design.md`, plan
   `docs/superpowers/plans/2026-09-21-accordion.md`. **It is drawn**: a
