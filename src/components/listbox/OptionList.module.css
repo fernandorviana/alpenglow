@@ -1,0 +1,122 @@
+/**
+ * The rows of a list of options, shared by the Select and the Combobox: the
+ * menu's row — 40, radius md, 8 inline — with what may stand before the words,
+ * a second line, and the mark of what is chosen.
+ *
+ * Chosen and active are never the same mark. Active, by the pointer or the
+ * arrows, is the wash; there is no `:hover` rule, since the pointer makes an
+ * option active and two rows cannot be lit at once. Chosen is a check in the
+ * accent and nothing else (Fernando, 2026-09-21), or, where many can be
+ * chosen, the Checkbox's own box before the option, as drawn.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson).
+ */
+
+.group, .groupLabel, .option, .start, .words, .label, .description, .check, .check svg, .box, .box svg, .status {
+  box-sizing: border-box;
+}
+
+.start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: var(--ap-spacing-250);
+  color: var(--ap-color-text-tertiary);
+}
+
+.groupLabel {
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+/* The menu's row: 40, radius md, 8 inline. Taller with a description. */
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  min-height: var(--ap-spacing-500);
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-md);
+  cursor: pointer;
+}
+
+/* Active, by the pointer or the arrows: the wash, and only the wash. There is
+   no `:hover` rule — the pointer makes an option active, so the two cannot show
+   two rows at once. */
+.option.active { background-color: var(--ap-color-interactive-wash-hover); }
+
+.option.optionDisabled {
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.words {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.label { overflow-wrap: anywhere; }
+
+.description {
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-regular);
+}
+
+.option.optionDisabled .description { color: inherit; }
+
+.check {
+  display: inline-flex;
+  flex: none;
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+  color: var(--ap-color-text-accent);
+}
+
+.check svg { width: 100%; height: 100%; }
+
+/* The Checkbox's box (../choice.module.css), drawn again as a picture: 20,
+   radius sm, the sunken fill inside a strong border, and the accent with its
+   on-accent mark when it is on. It cannot be the Checkbox itself — an input
+   inside an option is a control inside a control — so the two are held
+   together by the tokens they share and by OptionList.test.tsx. */
+.box {
+  display: inline-flex;
+  flex: none;
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-sunken);
+  color: var(--ap-color-interactive-on-accent);
+}
+
+.box.boxOn {
+  border-color: var(--ap-color-interactive-accent);
+  background: var(--ap-color-interactive-accent);
+}
+
+.box.boxDisabled {
+  border-color: var(--ap-color-border-subtle);
+  background: var(--ap-color-interactive-disabled);
+  color: var(--ap-color-interactive-on-disabled);
+}
+
+.box svg { width: 100%; height: 100%; }
+
+/* What was typed, where the label holds it. Weight, not colour: the accent is
+   the check's. */
+.found { font-weight: var(--ap-font-weight-bold); }
+
+/* Nothing found, or still loading: a line where the options would be. */
+.status {
+  padding: var(--ap-spacing-100);
+  color: var(--ap-color-text-secondary);
+}

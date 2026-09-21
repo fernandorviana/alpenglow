@@ -43,3 +43,23 @@ export function match(options: readonly SelectOption[], from: number, char: stri
   }
   return -1;
 }
+
+/** Case and accents folded, one character for one, so an index in the folded text is an index in the text. */
+export const fold = (text: string) =>
+  // Character by character, and not the whole string lowercased first: 'İ'
+  // lowercases to two code points, and every index after it would be one off.
+  Array.from(text)
+    .map((char) => Array.from(char.toLowerCase().normalize('NFD'))[0] ?? char)
+    .join('');
+
+/** Whether a label holds what was typed, anywhere in it, whatever the case or the accents. */
+export const contains = (option: SelectOption, query: string) => fold(option.label).includes(fold(query.trim()));
+
+/** The entries whose options pass, groups kept in place and dropped when empty. */
+export function filterEntries(entries: readonly SelectEntry[], keep: (option: SelectOption) => boolean): SelectEntry[] {
+  return entries.flatMap((entry): SelectEntry[] => {
+    if (!isGroup(entry)) return keep(entry) ? [entry] : [];
+    const options = entry.options.filter(keep);
+    return options.length ? [{ ...entry, options }] : [];
+  });
+}

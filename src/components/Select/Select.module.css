@@ -3,9 +3,9 @@
  *
  * The field is the shared control box (../control.module.css) on a button, as
  * drawn: 40 tall at md, radius 12, an Avatar or an icon before the value, the
- * chevron after it. The open list is not drawn; it is the menu's rows on the
- * floating surface (../floating.module.css), so every list in the system is
- * one list. docs/superpowers/specs/2026-09-21-select-design.md.
+ * chevron after it. The open list is not drawn; it is the menu's rows
+ * (../listbox/OptionList.module.css) on the floating surface
+ * (../floating.module.css), so every list in the system is one list. docs/superpowers/specs/2026-09-21-select-design.md.
  *
  * The chosen option is told by a check in the accent and by nothing else
  * (Fernando, 2026-09-21): the wash is kept for the active option, the one
@@ -15,8 +15,7 @@
  * Every class is compound, never reached by descent (the Tabs lesson).
  */
 
-.trigger, .start, .value, .chevron, .chevron svg, .list, .group, .groupLabel,
-.option, .words, .label, .description, .check, .check svg {
+.list, .trigger, .start, .value, .chevron, .chevron svg {
   box-sizing: border-box;
 }
 
@@ -92,60 +91,3 @@
 }
 
 .list:focus { outline: none; }
-
-.groupLabel {
-  padding: var(--ap-spacing-050) var(--ap-spacing-100);
-  color: var(--ap-color-text-tertiary);
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
-  letter-spacing: var(--ap-text-caption-md-tracking);
-}
-
-/* The menu's row: 40, radius md, 8 inline. Taller with a description. */
-.option {
-  display: flex;
-  align-items: center;
-  gap: var(--ap-spacing-100);
-  min-height: var(--ap-spacing-500);
-  padding: var(--ap-spacing-050) var(--ap-spacing-100);
-  border-radius: var(--ap-radius-md);
-  cursor: pointer;
-}
-
-/* Active, by the pointer or the arrows: the wash, and only the wash. There is
-   no `:hover` rule — the pointer makes an option active, so the two cannot show
-   two rows at once. */
-.option.active { background-color: var(--ap-color-interactive-wash-hover); }
-
-.option.optionDisabled {
-  color: var(--ap-color-text-disabled);
-  cursor: not-allowed;
-}
-
-.words {
-  display: grid;
-  flex: 1;
-  min-width: 0;
-}
-
-.label { overflow-wrap: anywhere; }
-
-.description {
-  color: var(--ap-color-text-secondary);
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
-  letter-spacing: var(--ap-text-caption-md-tracking);
-  font-weight: var(--ap-font-weight-regular);
-}
-
-.option.optionDisabled .description { color: inherit; }
-
-.check {
-  display: inline-flex;
-  flex: none;
-  width: var(--ap-spacing-200);
-  height: var(--ap-spacing-200);
-  color: var(--ap-color-text-accent);
-}
-
-.check svg { width: 100%; height: 100%; }

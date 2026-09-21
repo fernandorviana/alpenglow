@@ -7,8 +7,9 @@ import { useHydrated } from '../useHydrated';
 import type { ControlSize } from '../vocabulary';
 import control from '../control.module.css';
 import floating from '../floating.module.css';
-import { first, flatten, isGroup, last, match, step } from './options';
-import type { SelectEntry, SelectOption } from './options';
+import { OptionList } from '../listbox/OptionList';
+import { first, flatten, last, match, step } from '../listbox/options';
+import type { SelectEntry } from '../listbox/options';
 import styles from './Select.module.css';
 
 export type SelectProps = {
@@ -33,9 +34,8 @@ export type SelectProps = {
   className?: string;
 };
 
-/** Carbon's chevron and checkmark, on their 32 grid. Apache-2.0, © IBM. */
+/** Carbon's chevron, on its 32 grid. Apache-2.0, © IBM. */
 const CHEVRON = 'M16 22 6 12 7.4 10.6 16 19.2 24.6 10.6 26 12z';
-const CHECK = 'M13 24 4 15 5.414 13.586 13 21.171 26.586 7.586 28 9 13 24z';
 const Glyph = ({ d }: { d: string }) => (
   <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true" focusable="false">
     <path d={d} />
@@ -186,45 +186,6 @@ export function Select({
   const isInvalid = invalid ?? field?.invalid ?? false;
   const start = selected?.start ?? iconStart;
 
-  const row = (option: SelectOption) => {
-    const at = options.indexOf(option);
-    const isChosen = at === chosen;
-    return (
-      <div
-        key={option.value}
-        id={`${listId}-${at}`}
-        role="option"
-        aria-selected={isChosen}
-        aria-disabled={option.disabled || undefined}
-        data-index={at}
-        className={[styles.option, at === active && styles.active, option.disabled && styles.optionDisabled]
-          .filter(Boolean)
-          .join(' ')}
-        onPointerMove={() => {
-          if (option.disabled) return;
-          setFollow(false);
-          setActive(at);
-        }}
-        onClick={() => choose(at)}
-      >
-        {option.start && (
-          <span className={styles.start} aria-hidden="true">
-            {option.start}
-          </span>
-        )}
-        <span className={styles.words}>
-          <span className={styles.label}>{option.content ?? option.label}</span>
-          {option.description && <span className={styles.description}>{option.description}</span>}
-        </span>
-        {isChosen && (
-          <span className={styles.check}>
-            <Glyph d={CHECK} />
-          </span>
-        )}
-      </div>
-    );
-  };
-
   return (
     <>
       <button
@@ -284,18 +245,18 @@ export function Select({
           else setActive(-1);
         }}
       >
-        {entries.map((entry, i) =>
-          isGroup(entry) ? (
-            <div key={`group-${i}`} role="group" aria-labelledby={`${listId}-group-${i}`} className={styles.group}>
-              <div id={`${listId}-group-${i}`} className={styles.groupLabel}>
-                {entry.label}
-              </div>
-              {entry.options.map(row)}
-            </div>
-          ) : (
-            row(entry)
-          ),
-        )}
+        <OptionList
+          listId={listId}
+          entries={entries}
+          active={active}
+          marks="check"
+          marked={(option) => option.value === value}
+          onActive={(at) => {
+            setFollow(false);
+            setActive(at);
+          }}
+          onChoose={choose}
+        />
       </div>
     </>
   );

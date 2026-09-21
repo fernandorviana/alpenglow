@@ -1,0 +1,178 @@
+/**
+ * Combobox
+ *
+ * The drawn "Multiple Select With Search" (a work in progress on the Figma
+ * file's Combobox page) and the single form it implies.
+ * docs/superpowers/specs/2026-09-21-combobox-design.md.
+ *
+ * The box is the shared control (../control.module.css), the list is the
+ * shared rows (../listbox/OptionList.module.css) on the floating surface
+ * (../floating.module.css). What is this file's own is the tag, the two
+ * buttons at the end, and a box that grows with its tags.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson).
+ */
+
+.list, .box, .start, .input, .tag, .tagStart, .tagLabel, .remove, .remove svg,
+.clear, .clear svg, .chevron, .chevron svg, .pinned {
+  box-sizing: border-box;
+}
+
+/* --- the field --------------------------------------------------------------- */
+
+.box {
+  position: relative;
+  cursor: text;
+}
+
+/* Tags wrap and the box grows with them, as drawn: two rows of tags are 88. */
+.box.many {
+  flex-wrap: wrap;
+  gap: var(--ap-spacing-050) var(--ap-spacing-100);
+}
+
+.start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: var(--ap-spacing-250);
+  /* A 24 Avatar in the 22 of a line: taken back, as in the Select. */
+  margin-block: calc(var(--ap-spacing-025) * -1);
+  color: var(--ap-color-text-tertiary);
+}
+
+/* Room for a few characters after the last tag before it wraps to a line of
+   its own. */
+.input {
+  min-width: var(--ap-spacing-800);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* The box shows the focus, with the border that arrives on it. Doubled: a
+   page's `:focus-visible { outline }` weighs the same as one class, and where
+   its stylesheet loaded later the field had a second ring inside the box. */
+.input.input:focus-visible { outline: none; }
+
+/* --- a tag -------------------------------------------------------------------
+   Private to the Combobox until the system's Tag is drawn; then this is that. */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  max-width: 100%;
+  min-height: var(--ap-spacing-300);
+  /* Taken back, so one row of tags leaves the md box at its 40. */
+  margin-block: calc(var(--ap-spacing-025) * -1);
+  padding-inline: var(--ap-spacing-025) var(--ap-spacing-050);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
+  cursor: default;
+}
+
+/* A tag with nothing before its words starts where its words do. */
+.tag:not(:has(.tagStart)) { padding-inline-start: var(--ap-spacing-100); }
+
+.tagStart {
+  display: inline-flex;
+  flex: none;
+}
+
+.tagLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- the buttons -------------------------------------------------------------- */
+
+.remove, .clear {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: transparent;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+}
+
+.remove {
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+  padding: var(--ap-spacing-025);
+}
+
+/* 24, the least a target may be (WCAG 2.5.8), around the drawn 20. */
+.clear {
+  width: var(--ap-spacing-300);
+  height: var(--ap-spacing-300);
+  margin-block: calc(var(--ap-spacing-025) * -1);
+  padding: var(--ap-spacing-025);
+}
+
+.remove:hover, .clear:hover { background: var(--ap-color-interactive-wash-hover); }
+
+.clear:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.remove svg, .clear svg, .chevron svg { width: 100%; height: 100%; }
+
+/* The accent, as on the Select. It says the field opens. */
+.chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+  color: var(--ap-color-text-accent);
+  cursor: pointer;
+}
+
+/* With tags the two buttons keep to the end of the first row, as drawn, and
+   do not wrap to the last one with the field: they are taken out of the flow
+   and the box keeps their room. `--combobox-inset` is the box's own block
+   padding at its size, handed down by the component. */
+.box.many { padding-inline-end: calc(var(--ap-spacing-150) + var(--ap-spacing-250) + var(--ap-spacing-050) + var(--ap-spacing-300)); }
+
+.pinned {
+  position: absolute;
+  inset-block-start: var(--combobox-inset);
+  inset-inline-end: var(--ap-spacing-150);
+}
+
+.clear.pinned { inset-inline-end: calc(var(--ap-spacing-150) + var(--ap-spacing-250) + var(--ap-spacing-050)); }
+.chevron.pinned { margin-block-start: var(--ap-spacing-025); }
+
+/* --- the list ------------------------------------------------------------------ */
+
+.list {
+  /* Never narrower than the field it belongs to. */
+  min-inline-size: anchor-size(width);
+  max-inline-size: calc(100vw - 2 * var(--ap-spacing-100));
+  /* Eight rows, and no cap to the room beside the field: capped to that it
+     would never overflow, and what never overflows never flips. */
+  max-block-size: calc(8 * var(--ap-spacing-500) + 2 * var(--ap-spacing-100));
+  padding: var(--ap-spacing-100);
+  border-radius: var(--ap-radius-xl);
+  --floating-overflow: hidden auto;
+  overscroll-behavior: contain;
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
+}

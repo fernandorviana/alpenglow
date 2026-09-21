@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1520 tests across 63 files
+npm test            # 1571 tests across 64 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 192 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 196 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,46 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Combobox** — built 2026-09-21, on main, unreleased; third of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-combobox-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-combobox.md`. **It is drawn, as a work
+  in progress**: "Multiple Select With Search" on the Figma file's Combobox
+  page — a search of published components finds nothing, and it was first
+  proposed as not drawn until Fernando gave the page. Tags in a field that
+  grows (32 tall, Avatar 28, a close), a close that clears them all at the
+  first row's end, the menu's rows with a checkbox before every option and an
+  "All" row that is a dash while some are chosen. **One component, two
+  forms**: single is not drawn and is the Select with a field to type in;
+  `multiple` is the drawn one. Set down without asking: what was typed is
+  shown in the label by weight (Bold in a Medium list), since the filter
+  finds it anywhere and the eye asks why a row is there; `clearable`, on with
+  `multiple`; **the checkbox is the package's, the accent, not the drawn
+  inverse fill**, and it is a picture (`.box` in `OptionList.module.css`)
+  because an input in an option is `nested-interactive` to axe; **the tag is
+  private until the roadmap's Tag is drawn**, 24 tall so a row of tags leaves
+  md at 40. **`src/components/listbox/`** is shared with the Select, which
+  was moved onto it first: `options.ts` (`fold`, `contains`,
+  `filterEntries` added) and `OptionList`. Not exported. The list is
+  `popover="manual"` — an `auto` one would close on every press in the field
+  — and closes when the focus leaves the box and the list. **The value is
+  always from the list**: typed and chose nothing, the choice is put back;
+  emptied, a single choice is taken away. Typing makes the first option that
+  can be chosen active (`best`), so Enter takes the best match. From
+  invariant 22: suggests and never completes, the IME's Enter is the
+  composition's, Home and End are the caret's until an option is active, Esc
+  closes then reverts and goes no further. Many: the list stays open and
+  what was typed is cleared; Backspace takes the last tag; a tag's button is
+  out of the tab order (six tags, six stops; the keyboard has Backspace and
+  the list); the "All" row hides while something is typed. Only the browser
+  showed: the clear and the chevron wrapped to the last row with the field,
+  so with tags they are pinned out of the flow; and a page's
+  `:focus-visible` outline weighs the same as one class and drew a second
+  ring in the box where it loaded later. From the review: the active option
+  is kept by value, since a fetch changes the rows under an index; `fold` is
+  character by character ('İ' lowercases to two code points); a form's
+  reset. The site's search stays its own: a palette with sections, recents
+  and a router. Not checked: Safari, Firefox, a screen reader, an IME by
+  hand, dark by eye.
 - **Select** — built 2026-09-21, on main, unreleased; second of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-select-design.md`, plan
   `docs/superpowers/plans/2026-09-21-select.md`. **A decision revised, not

@@ -759,6 +759,21 @@ describe('select: the field, and the list on the overlay surface', () => {
   }
 });
 
+describe('combobox: tags on the field, and a checkbox before an option', () => {
+  for (const mode of MODES) {
+    it(`a tag's words read on the raised surface it is cut from — ${mode}`, () => {
+      expect(tokenContrast('text/primary', 'surface/raised', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/secondary', 'surface/raised', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+
+    it(`the box is seen on the list, empty and checked — ${mode}`, () => {
+      expect(tokenContrast('border/strong', 'surface/overlay', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('interactive/accent', 'surface/overlay', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('interactive/on-accent', 'interactive/accent', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+    });
+  }
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

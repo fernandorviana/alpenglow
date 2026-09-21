@@ -43,6 +43,15 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Combobox** — a field that is typed in to narrow a list, the value always
+  from the list: the Select's `options`, the part that matched shown by
+  weight, the best match taken by Enter, `filter` (or `null` with
+  `onInputChange` and `loading` for a caller that fetches), `emptyText`,
+  `clearable`. With `multiple`, the drawn one: tags in a field that grows, a
+  checkbox before every option, `selectAllLabel` for a first row that is
+  mixed, Backspace for the last tag, a count said on change, one hidden input
+  for each value. Exports `Combobox`, `ComboboxProps`, `ComboboxSingleProps`,
+  `ComboboxMultipleProps`.
 - **Select** — one value from a list, in Input's box: options with an
   Avatar or an icon before them, a second line, or content in place of the
   label; groups; a check in the accent on the choice; the whole keyboard of a

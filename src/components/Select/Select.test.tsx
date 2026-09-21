@@ -5,8 +5,9 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { Select } from './Select';
 import type { SelectProps } from './Select';
-import { first, flatten, last, match, step } from './options';
-import type { SelectEntry } from './options';
+import { first, flatten, last, match, step } from '../listbox/options';
+import type { SelectEntry } from '../listbox/options';
+import rows from '../listbox/OptionList.module.css';
 import { Field } from '../Field/Field';
 import styles from './Select.module.css';
 import control from '../control.module.css';
@@ -18,6 +19,7 @@ import { axeViolations } from '../../test/axe';
 installPopoverStub();
 
 const css = readCss('src/components/Select/Select.module.css');
+const rowCss = readCss('src/components/listbox/OptionList.module.css');
 
 const STAFF: SelectEntry[] = [
   {
@@ -118,8 +120,8 @@ describe('Select — structure', () => {
     render(<Staff value="jonathan" />);
     expect(option(/Jonathan Young/)).toHaveAttribute('aria-selected', 'true');
     expect(option('Amanda Hall')).toHaveAttribute('aria-selected', 'false');
-    expect(listbox().querySelectorAll(`.${styles.check}`)).toHaveLength(1);
-    expect(option(/Jonathan Young/).querySelector(`.${styles.check}`)).not.toBeNull();
+    expect(listbox().querySelectorAll(`.${rows.check}`)).toHaveLength(1);
+    expect(option(/Jonathan Young/).querySelector(`.${rows.check}`)).not.toBeNull();
   });
 
   it('submits its value through a hidden input, only when named', () => {
@@ -165,7 +167,7 @@ describe('Select — the pointer', () => {
     await opened();
     await userEvent.hover(option('Ashley Brooks'));
     expect(active()).toBe(option('Ashley Brooks'));
-    expect(option('Ashley Brooks')).toHaveClass(styles.active!);
+    expect(option('Ashley Brooks')).toHaveClass(rows.active!);
     await userEvent.click(option('Ashley Brooks'));
     await closed();
     expect(onChange).toHaveBeenCalledWith('ashley');
@@ -353,10 +355,10 @@ describe('Select — controlled', () => {
 
 describe('Select — stylesheet', () => {
   it('tells the chosen option by a check in the accent, and the active one by the wash', () => {
-    expect(block(css, '.check {')).toContain('color: var(--ap-color-text-accent)');
-    expect(block(css, '.option.active {')).toContain('var(--ap-color-interactive-wash-hover)');
-    expect(css).not.toMatch(/aria-selected[^{]*\{/);
-    expect(css).not.toContain(':hover');
+    expect(block(rowCss, '.check {')).toContain('color: var(--ap-color-text-accent)');
+    expect(block(rowCss, '.option.active {')).toContain('var(--ap-color-interactive-wash-hover)');
+    expect(rowCss).not.toMatch(/aria-selected[^{]*\{/);
+    expect(rowCss + css).not.toContain(':hover');
   });
 
   it('is never narrower than its field, scrolls when it is long, and sets nothing the floating surface sets', () => {

@@ -10,6 +10,7 @@ import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Card as SurfaceCard, CardBody, CardTitle } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
+import { Combobox } from '@/components/Combobox';
 import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/Input';
 import { Link } from '@/components/Link';
@@ -170,6 +171,23 @@ export default function Page() {
               <Checkbox defaultChecked>Send a reminder</Checkbox>
               <Switch defaultChecked>Allow online booking</Switch>
             </div>
+          }
+        />
+        <Card
+          href="/combobox"
+          title="Combobox"
+          description="Typed in to narrow a list: one value, or many as tags with a checkbox before every option."
+          visual={
+            <Combobox
+              multiple
+              size="sm"
+              aria-label="My team"
+              defaultValue={['laura']}
+              options={[
+                { value: 'laura', label: 'Laura Lee' },
+                { value: 'brian', label: 'Brian Stewart' },
+              ]}
+            />
           }
         />
         <Card

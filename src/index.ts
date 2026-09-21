@@ -27,6 +27,9 @@ export type { InputProps } from './components/Input/index';
 export { Textarea } from './components/Textarea/index';
 export type { TextareaProps } from './components/Textarea/index';
 
+export { Combobox } from './components/Combobox/index';
+export type { ComboboxProps, ComboboxSingleProps, ComboboxMultipleProps } from './components/Combobox/index';
+
 export { Select } from './components/Select/index';
 export type { SelectProps, SelectOption, SelectGroup, SelectEntry } from './components/Select/index';
 
