@@ -97,7 +97,7 @@ Ships as **`0.3.0`**, with the first `CHANGELOG.md`.
 | **Accordion** | `<details name>` | Exclusive groups are the platform's. |
 | **Breadcrumb** | `nav` > `ol` | `aria-current="page"` on the last item. |
 | **Skeleton**, **EmptyState**, **Progress** | `<progress>` for the last | Skeleton's shimmer is an `infinite` loop and keeps its own timing; reduced motion slows, never freezes (invariant 6). |
-| **Tag** | Badge's tones, removable | Decide whether it is a Badge variant or a sibling. |
+| **Tag** | ~~Badge's tones~~, removable | Decided 2026-09-21 (`2026-09-21-tag-design.md`): a sibling of the Badge and not a variant, and neutral only until the theme has colours for categories. |
 | **Table, dense** | the existing Table | Sorting (`aria-sort`), sticky header, a bulk-actions bar over a selection, column filters, Pagination as footer. Invariants 7 and 8 stand. |
 
 Ships as **`0.4.0`**.

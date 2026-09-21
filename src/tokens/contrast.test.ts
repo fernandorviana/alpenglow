@@ -759,6 +759,25 @@ describe('select: the field, and the list on the overlay surface', () => {
   }
 });
 
+describe('tag: a capsule on a card, and the same capsule in a field', () => {
+  for (const mode of MODES) {
+    it(`its words, its button and the button's ring read on the sunken fill — ${mode}`, () => {
+      expect(tokenContrast('text/primary', 'surface/sunken', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/secondary', 'surface/sunken', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/secondary', 'interactive/wash-hover', mode, 'surface/sunken')).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('border/focus', 'surface/sunken', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+    });
+  }
+
+  // The fill alone is a faint edge, and in dark on a card it is the step the
+  // Card has. It is not a boundary: the capsule's words are what is read.
+  // Recorded so a change to the ramp is seen here.
+  it('is a surface step from a card in dark, and says so', () => {
+    const step = lightness(resolve('surface/raised', 'dark')) - lightness(resolve('surface/sunken', 'dark'));
+    expect(step).toBeGreaterThanOrEqual(SURFACE_STEP);
+  });
+});
+
 describe('combobox: tags on the field, and a checkbox before an option', () => {
   for (const mode of MODES) {
     it(`a tag's words read on the raised surface it is cut from — ${mode}`, () => {

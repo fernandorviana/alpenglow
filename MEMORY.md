@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1571 tests across 64 files
+npm test            # 1599 tests across 65 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 196 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 199 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,31 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Tag** — built 2026-09-21, on main, unreleased; fourth of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-tag-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-tag.md`. The published `tag` is an icon;
+  **the Tag is drawn once, inside the Combobox's frame**: a capsule 32 tall,
+  an Avatar of 28, a name in `caption/md`, a close. **A sibling of the Badge
+  and not a variant**, the question the roadmap left open: a Badge is a
+  rectangle that says a state and is never touched, a Tag stands for a thing
+  and has a button. **Neutral only** (Fernando, shown the Badge's tones on
+  it): the theme's tones are meanings and a tag is painted by category, for
+  which the theme has no colours; the roadmap's line is struck through.
+  `children`, `start`, `size` (`md` 32, `sm` 24), `onRemove`, `removeLabel`,
+  `removeProps`, `disabled`. It does not remove itself. On a card it is
+  `surface/sunken`; **a field hands it `--tag-fill`**, and the Combobox gives
+  `surface/raised` and, through `removeProps`, `tabIndex={-1}` and a
+  `mousedown` that keeps the focus in the field — **the Combobox's private
+  tag is gone**. The Avatar's scale has 24 and 30 and no 28, so the Avatar is
+  24: four in all round in the 32 tag, flush in the 24 one. From the review:
+  a transparent hairline for forced colours, with `.start` laid over it so a
+  24 Avatar does not make the 24 tag 26; the docs' example dropped the focus
+  to the body on a removal and now gives it to the list (`tabIndex={-1}`),
+  and the page says the focus is the caller's to place; `.sm .remove` was a
+  descent and is `.remove.removeSm`; a test holds the Combobox to
+  `--tag-fill`. Not here: a pressed tag (a filter that toggles is a button
+  with `aria-pressed`), a group. Not checked: Safari, Firefox, a screen
+  reader, forced colours by eye.
 - **Combobox** — built 2026-09-21, on main, unreleased; third of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-combobox-design.md`, plan
   `docs/superpowers/plans/2026-09-21-combobox.md`. **It is drawn, as a work

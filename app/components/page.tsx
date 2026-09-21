@@ -21,6 +21,7 @@ import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
 import { Alert } from '@/components/Alert';
 import { Tabs } from '@/components/Tabs';
+import { Tag } from '@/components/Tag';
 import { Tooltip } from '@/components/Tooltip';
 import * as lib from '@/index';
 import * as icons from '@/icons/index';
@@ -316,6 +317,17 @@ export default function Page() {
                 { id: 'chat', label: 'Chat', content: null },
               ]}
             />
+          }
+        />
+        <Card
+          href="/tag"
+          title="Tag"
+          description="A capsule for something the reader added and can take away: a person, a filter, a label."
+          visual={
+            <div className="specimenRow">
+              <Tag onRemove={() => {}}>Laura Lee</Tag>
+              <Tag size="sm">Pediatrics</Tag>
+            </div>
           }
         />
         <Card

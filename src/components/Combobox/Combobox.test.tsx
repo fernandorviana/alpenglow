@@ -8,6 +8,7 @@ import { contains, filterEntries, fold } from '../listbox/options';
 import type { SelectEntry } from '../listbox/options';
 import { Field } from '../Field/Field';
 import styles from './Combobox.module.css';
+import tag from '../Tag/Tag.module.css';
 import rows from '../listbox/OptionList.module.css';
 import control from '../control.module.css';
 import floating from '../floating.module.css';
@@ -300,8 +301,8 @@ describe('Combobox — the pointer', () => {
 describe('Combobox — many', () => {
   it('shows each choice as a tag, a checkbox before every option, and says the listbox takes many', () => {
     render(<Many defaultValue={['anthony', 'lea']} />);
-    expect(screen.getByText('Anthony Jackson', { selector: `.${styles.tagLabel}` })).toBeInTheDocument();
-    expect(screen.getByText('Léa Martin', { selector: `.${styles.tagLabel}` })).toBeInTheDocument();
+    expect(screen.getByText('Anthony Jackson', { selector: `.${tag.label}` })).toBeInTheDocument();
+    expect(screen.getByText('Léa Martin', { selector: `.${tag.label}` })).toBeInTheDocument();
     expect(listbox()).toHaveAttribute('aria-multiselectable', 'true');
     expect(listbox().querySelectorAll(`.${rows.box}`)).toHaveLength(TEAM.length);
     expect(option('Anthony Jackson')).toHaveAttribute('aria-selected', 'true');
@@ -386,7 +387,7 @@ describe('Combobox — many', () => {
     render(<Controlled />);
     await userEvent.click(field());
     await userEvent.click(option('Elizabeth Hall'));
-    expect(screen.getByText('Elizabeth Hall', { selector: `.${styles.tagLabel}` })).toBeInTheDocument();
+    expect(screen.getByText('Elizabeth Hall', { selector: `.${tag.label}` })).toBeInTheDocument();
   });
 });
 
@@ -398,6 +399,10 @@ describe('Combobox — stylesheet', () => {
     expect(list).toContain('--floating-overflow: hidden auto');
     expect(list).not.toMatch(/max-block-size:[^;]*100%/);
     expect(list).not.toMatch(/(^|\s)(position|inset|background|box-shadow|border|margin|overflow)\s*:/);
+  });
+
+  it('hands its tags the raised surface, since on the field a tag’s own fill is the field’s', () => {
+    expect(block(css, '\n.tag {')).toContain('--tag-fill: var(--ap-color-surface-raised)');
   });
 
   it('gives the clear button the least a target may be, and a ring', () => {

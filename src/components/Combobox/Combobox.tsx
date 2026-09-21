@@ -8,6 +8,7 @@ import control from '../control.module.css';
 import floating from '../floating.module.css';
 import hiddenStyles from '../visuallyHidden.module.css';
 import { OptionList } from '../listbox/OptionList';
+import { Tag } from '../Tag/Tag';
 import { contains, filterEntries, first, flatten, last, step } from '../listbox/options';
 import type { SelectEntry, SelectOption } from '../listbox/options';
 import styles from './Combobox.module.css';
@@ -352,29 +353,21 @@ export function Combobox(props: ComboboxProps) {
 
       {multiple &&
         chosen.map((option) => (
-          <span key={option.value} className={styles.tag}>
-            {option.start && (
-              <span className={styles.tagStart} aria-hidden="true">
-                {option.start}
-              </span>
-            )}
-            <span className={styles.tagLabel}>{option.label}</span>
-            {!disabled && (
-              // Out of the tab order: Backspace takes the last away and the
-              // list unchecks any of them. As tab stops, six tags would be six
-              // stops before the field.
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label={removeLabel(option.label)}
-                className={styles.remove}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => commit(values.filter((v) => v !== option.value))}
-              >
-                <Glyph d={CLOSE} />
-              </button>
-            )}
-          </span>
+          // Its button is out of the tab order: Backspace takes the last away and
+          // the list unchecks any of them. As tab stops, six tags would be six
+          // stops before the field. The press does not take the focus from it.
+          <Tag
+            key={option.value}
+            size="sm"
+            start={option.start}
+            disabled={disabled}
+            className={styles.tag}
+            onRemove={() => commit(values.filter((v) => v !== option.value))}
+            removeLabel={removeLabel(option.label)}
+            removeProps={{ tabIndex: -1, onMouseDown: (event) => event.preventDefault() }}
+          >
+            {option.label}
+          </Tag>
         ))}
 
       <input

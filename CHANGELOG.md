@@ -43,6 +43,12 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Tag** — a capsule for something the reader added and can take away: the
+  words, `start` for an Avatar or an icon, `md` (32) or `sm` (24), and
+  `onRemove` for a button named after the words. Neutral only. A field that
+  holds tags hands them `--tag-fill` and, through `removeProps`, takes the
+  button out of the tab order. Exports `Tag`, `tagSizes`, `TagProps`,
+  `TagSize`.
 - **Combobox** — a field that is typed in to narrow a list, the value always
   from the list: the Select's `options`, the part that matched shown by
   weight, the best match taken by Enter, `filter` (or `null` with

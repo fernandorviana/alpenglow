@@ -1,0 +1,121 @@
+/**
+ * Tag
+ *
+ * Drawn once, inside the Combobox's "Multiple Select With Search": a capsule
+ * 32 tall with an Avatar of 28, a name in caption/md and a close in a 20
+ * holder. docs/superpowers/specs/2026-09-21-tag-design.md.
+ *
+ * The fill is `surface/sunken` on a card. In a field it would be the field's
+ * own grey and vanish, so a field hands `--tag-fill` down — the Combobox
+ * gives `surface/raised`, the drawn white.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson).
+ */
+
+.tag, .sm, .md, .start, .label, .remove, .remove svg {
+  box-sizing: border-box;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  max-width: 100%;
+  /* The fill is the tag's only edge, and forced colours take fills away. A
+     transparent border is painted there and nowhere else; the paddings give
+     its width back (the Card's review). */
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-full);
+  background: var(--tag-fill, var(--ap-color-surface-sunken));
+  color: var(--ap-color-text-primary);
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
+  cursor: default;
+}
+
+/* The words start 12 or 8 in. What stands before them sits in the capsule's
+   own curve, the same distance from the edge all round: the drawn 28 Avatar in
+   32 is 2, and the 24 the Avatar's scale has is 4 in the 32 tag and 0 in the
+   24 one. With a button the end is the button's. */
+.md {
+  min-height: var(--ap-spacing-400);
+  padding-inline: calc(var(--ap-spacing-150) - var(--ap-border-width-hairline));
+}
+
+.sm {
+  min-height: var(--ap-spacing-300);
+  padding-inline: calc(var(--ap-spacing-100) - var(--ap-border-width-hairline));
+}
+
+.md.withStart { padding-inline-start: var(--ap-spacing-050); }
+.sm.withStart { padding-inline-start: 0; }
+
+.md:has(.remove) { padding-inline-end: calc(var(--ap-spacing-050) - var(--ap-border-width-hairline)); }
+.sm:has(.remove) { padding-inline-end: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline)); }
+
+.disabled { color: var(--ap-color-text-disabled); }
+
+.start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  /* Over the transparent border, on the three sides it meets: measured from the
+     tag's outer edge, so a 24 Avatar fills the 24 tag and does not make it 26. */
+  margin-block: calc(var(--ap-border-width-hairline) * -1);
+  margin-inline-start: calc(var(--ap-border-width-hairline) * -1);
+  color: var(--ap-color-text-tertiary);
+}
+
+/* An icon before the words is not in the curve as an Avatar is: it is given
+   the words' own inset back. */
+.start:has(> svg) { margin-inline-start: var(--ap-spacing-075); }
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- the button ---------------------------------------------------------------
+   24 in a 32 tag, the least a target may be (WCAG 2.5.8); 20 in a 24 tag,
+   where the tag is the room there is, and a field that holds them gives the
+   keyboard another way. */
+
+.remove {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--ap-spacing-300);
+  height: var(--ap-spacing-300);
+  margin: 0;
+  padding: var(--ap-spacing-050);
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: transparent;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+}
+
+.remove.removeSm {
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+  padding: var(--ap-spacing-025);
+}
+
+.remove:hover { background: var(--ap-color-interactive-wash-hover); }
+.remove:active { background: var(--ap-color-interactive-wash-pressed); }
+
+.remove:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.remove svg { width: 100%; height: 100%; }
