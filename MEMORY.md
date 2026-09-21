@@ -400,9 +400,12 @@ have all been mistaken for errors at least once.
   dependency, not a peer. Fifteen icons were drawn for this system because Carbon has no
   equivalent; eight more exist in Carbon under a different name, and that
   mapping is on the Icons page.
-- **Prefer the native element.** `Select` wraps `<select>` rather than building
-  a listbox, and `DropdownMenu` is a `popover` placed with CSS anchor
-  positioning rather than a portal and a positioning library.
+- **Prefer the native element.** `NativeSelect` wraps `<select>`, and
+  `DropdownMenu` is a `popover` placed with CSS anchor positioning rather
+  than a portal and a positioning library. **One exception, decided
+  2026-09-21 with its reasons in the Select's spec:** `Select` is a listbox
+  of the system's own, because the drawn options hold what a native list
+  cannot show. It still stands on the native `popover` and anchors.
 - **"Menu" alone is reserved for navigation.** The command list is
   `DropdownMenu` (renamed from `Menu` before it merged): navigation menus are
   planned, and they are a different pattern for which `role="menu"` is wrong.
@@ -526,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1474 tests across 62 files
+npm test            # 1520 tests across 63 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 186 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 192 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,22 +592,48 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
-- **Select, next** — decided 2026-09-21 while the Popover was being scoped,
-  **not started**. Fernando asked whether the DropdownMenu's surface had been
-  applied to the selects. It had not: `Select` is a native `<select>` by a
-  recorded decision (Conventions, "Prefer the native element"; the roadmap's
-  "Select stays native"). His drawing asks for what a native list cannot
-  show: a Select with an Avatar in it, an option with its code in bold.
-  Offered `appearance: base-select` (Chrome and Edge 135, Safari 27, Firefox
-  behind a flag; the OS list elsewhere), he asked why everyone's select is
-  custom, and whether a button with a list is a select at all. It is, when the
-  choice stays shown: what tells it from a menu is what it does. **`Select`
-  becomes a button with a listbox on the floating surface, the same in every
-  browser, and today's becomes `NativeSelect`** (long forms on a phone, very
-  long lists). A breaking change, made before 0.3.0 on purpose. The old
-  decision is to be revised in that spec, in writing, not erased. The
-  Pagination's `PageSize` is already such a listbox, and wave 2's Combobox
-  wants the same base.
+- **Select** — built 2026-09-21, on main, unreleased; second of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-select-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-select.md`. **A decision revised, not
+  erased.** `Select` was the native `<select>` (Conventions, "Prefer the
+  native element"; the roadmap's "Select stays native"). Fernando asked
+  whether the menu's surface had been applied to the selects; it had not, and
+  his drawing asks for what a native list cannot show — an Avatar in the
+  Staff field, a code in bold in a Service option — in a list that is the
+  OS's and so differs by browser. Offered `appearance: base-select` (Chrome
+  and Edge 135, Safari 27, Firefox behind a flag; the OS list elsewhere), he
+  asked why everyone's select is custom and whether a button with a list is
+  a select at all. It is, when the choice stays shown. **`Select` is now the
+  system's own list on `floating.module.css`, the same in every browser, and
+  the native one is `NativeSelect`, unchanged** (a long form on a phone, a
+  very long list). Breaking, before 0.3.0 on purpose. When `base-select` is
+  everywhere, look again; the two components' props were kept apart for it.
+  **The open list is not drawn**: it is the menu's rows. Shown a check with
+  Semibold against a filled row, he chose **the check alone, in the accent,
+  no Semibold**; the wash is the active option's, so chosen and active are
+  never one mark, and there is no `:hover` rule since the pointer makes an
+  option active. `options` is an array (`value`, `label`, `start`,
+  `description`, `content`, `disabled`; groups), `label` always words and
+  `content` shown in its place. The APG's select-only combobox: a `button`
+  with `role="combobox"`, **the focus never leaves it**,
+  `aria-activedescendant`, a press in the list kept from taking the focus;
+  Tab chooses and moves on; Esc is stopped so a Dialog around it stays.
+  `popover="auto"` with `popovertarget` once hydrated, because the invoker
+  is the one press outside that must not close and reopen it. `name` goes
+  through a hidden input, so `required` is said and not enforced. The
+  floating surface gained **`--floating-overflow`** so a list can scroll
+  without setting a property the surface sets. Only the browser showed: a 24
+  Avatar in a 22 line made the md field 42. From the review: the list
+  follows the keyboard into view and not the pointer, or a half-visible
+  option under the pointer ran the list to its end; `togglePopover(force)`
+  again; eight rows is the only cap, since a list capped to its room never
+  flips; an uncontrolled Select listens for its form's reset. Recorded, not
+  solved: a press on the Field's label while the list is open closes and
+  reopens it. **The Popover's `position-try-order: most-block-size` has a
+  cost seen while reviewing this: a panel opens above whenever there is more
+  room above, even if it fits below.** Left, since a tall form cut off is
+  worse; look again if it reads wrong. Not checked: Safari, Firefox, a screen
+  reader, touch.
 - **Popover** — built 2026-09-21, on main, unreleased; first of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-popover-design.md`, plan
   `docs/superpowers/plans/2026-09-21-popover.md`. **It is drawn**: a

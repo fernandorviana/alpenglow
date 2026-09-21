@@ -738,6 +738,27 @@ describe('popover: a panel on the overlay surface, a level above a menu', () => 
   });
 });
 
+describe('select: the field, and the list on the overlay surface', () => {
+  for (const mode of MODES) {
+    it(`the value and the placeholder read on the field's fill — ${mode}`, () => {
+      expect(tokenContrast('text/primary', 'interactive/neutral', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/placeholder', 'interactive/neutral', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+
+    it(`an option, its second line and what cannot be chosen — ${mode}`, () => {
+      expect(tokenContrast('text/primary', 'surface/overlay', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/secondary', 'surface/overlay', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/primary', 'interactive/wash-hover', mode, 'surface/overlay')).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+
+    it(`the check and the chevron, which are shapes, are seen — ${mode}`, () => {
+      expect(tokenContrast('text/accent', 'surface/overlay', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('text/accent', 'interactive/wash-hover', mode, 'surface/overlay')).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('text/accent', 'interactive/neutral', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+    });
+  }
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

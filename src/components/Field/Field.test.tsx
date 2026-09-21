@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { Field } from './Field';
 import { Input } from '../Input/Input';
 import { Textarea } from '../Textarea/Textarea';
-import { Select } from '../Select/Select';
+import { NativeSelect } from '../NativeSelect/NativeSelect';
 import { DatePicker } from '../DatePicker/DatePicker';
 import { axeViolations } from '../../test/axe';
 
@@ -141,9 +141,9 @@ describe('Field, to axe', () => {
           <Textarea />
         </Field>
         <Field label="Clinic" error="Choose a clinic.">
-          <Select placeholder="Choose one">
+          <NativeSelect placeholder="Choose one">
             <option value="north">North</option>
-          </Select>
+          </NativeSelect>
         </Field>
         <Field label="Date" error="Choose a weekday.">
           <DatePicker label="Date" />

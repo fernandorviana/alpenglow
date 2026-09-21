@@ -24,7 +24,9 @@
   position: fixed;
   inset: auto;
   margin: 0;
-  overflow: visible;
+  /* The UA's is `auto`. Visible, so a ring or a shadow inside is not clipped;
+     a list long enough to scroll says so. */
+  overflow: var(--floating-overflow, visible);
 
   /* The width is held at all times so the panel is the same size in both
      modes; only the colour arrives in dark. */

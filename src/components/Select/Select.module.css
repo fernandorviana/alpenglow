@@ -1,57 +1,151 @@
 /**
- * Select adds two things to the shared control box: a chevron, and a way to
- * show a placeholder.
+ * Select
  *
- * The element underneath is a native <select>. That gives keyboard behaviour,
- * the platform picker on phones, form participation and screen-reader support
- * without a line of code. The trade is that the option list cannot be styled —
- * it belongs to the operating system. That is a good trade for a system that
- * has to work in a clinic on whatever device is to hand.
+ * The field is the shared control box (../control.module.css) on a button, as
+ * drawn: 40 tall at md, radius 12, an Avatar or an icon before the value, the
+ * chevron after it. The open list is not drawn; it is the menu's rows on the
+ * floating surface (../floating.module.css), so every list in the system is
+ * one list. docs/superpowers/specs/2026-09-21-select-design.md.
+ *
+ * The chosen option is told by a check in the accent and by nothing else
+ * (Fernando, 2026-09-21): the wash is kept for the active option, the one
+ * under the pointer or the arrows, so "chosen" and "active" are never the same
+ * mark. The check is a shape, so it does not rest on colour.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson).
  */
 
-/* Every size here includes padding and border. Declared, not left to the
-   app's CSS reset, which a consumer of the package may not have. */
-.select, .chevron, .chevron svg {
+.trigger, .start, .value, .chevron, .chevron svg, .list, .group, .groupLabel,
+.option, .words, .label, .description, .check, .check svg {
   box-sizing: border-box;
 }
 
-.select {
+/* --- the field --------------------------------------------------------------- */
+
+/* A button where the control box expects a wrapper: what the UA gives a button
+   is taken back. The box, its sizes and its states are the control's. */
+.trigger {
   appearance: none;
+  margin: 0;
+  text-align: start;
   cursor: pointer;
-  /* Leaves room for the chevron, which sits over the box. */
-  padding-right: var(--ap-spacing-300);
 }
 
-.select:disabled { cursor: not-allowed; }
+.trigger:disabled { cursor: not-allowed; }
 
-/* Native option lists render in the OS palette, so an option cannot inherit the
-   field's colour. Setting it explicitly stops a dark-theme field opening a list
-   of invisible text in browsers that do respect it. */
-.select option {
-  color: var(--ap-color-text-primary);
-  background: var(--ap-color-surface-overlay);
-}
-
-/* Shown while the empty option is chosen. The select's own colour has to change
-   rather than the option's, because the closed field paints the selected
-   option's text with the select's colour. */
-.placeholder {
-  color: var(--ap-color-text-placeholder);
-}
-
-.chevron {
+.start {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  margin-left: calc(var(--ap-spacing-300) * -1);
+  flex: none;
+  /* An Avatar is its own size; an icon is given the control's 20. */
+  min-width: var(--ap-spacing-250);
+  /* A 24 Avatar in the 22 of a line: taken back, or md would be 42 and not the
+     drawn 40. */
+  margin-block: calc(var(--ap-spacing-025) * -1);
   color: var(--ap-color-text-tertiary);
-  /* The chevron sits over the select; clicks have to reach the control. */
-  pointer-events: none;
+}
+
+.value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder { color: var(--ap-color-text-placeholder); }
+
+/* The accent, as drawn. It says the field opens; it is not the focus. */
+.chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--ap-spacing-250);
+  height: var(--ap-spacing-250);
+  color: var(--ap-color-text-accent);
 }
 
 .chevron svg { width: 100%; height: 100%; }
 
-.disabled .chevron { color: var(--ap-color-text-disabled); }
+.trigger:disabled .chevron { color: inherit; }
+
+/* --- the list ---------------------------------------------------------------- */
+
+.list {
+  /* Never narrower than the field it belongs to. */
+  min-inline-size: anchor-size(width);
+  max-inline-size: calc(100vw - 2 * var(--ap-spacing-100));
+  /* Eight rows. Not also "the room beside the field": capped to that it would
+     never overflow, and what never overflows never flips — a Select near the
+     foot of the window opened a list 50 tall with the screen free above it. */
+  max-block-size: calc(8 * var(--ap-spacing-500) + 2 * var(--ap-spacing-100));
+  padding: var(--ap-spacing-100);
+  border-radius: var(--ap-radius-xl);
+  --floating-overflow: hidden auto;
+  overscroll-behavior: contain;
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+.list:focus { outline: none; }
+
+.groupLabel {
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+/* The menu's row: 40, radius md, 8 inline. Taller with a description. */
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  min-height: var(--ap-spacing-500);
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-md);
+  cursor: pointer;
+}
+
+/* Active, by the pointer or the arrows: the wash, and only the wash. There is
+   no `:hover` rule — the pointer makes an option active, so the two cannot show
+   two rows at once. */
+.option.active { background-color: var(--ap-color-interactive-wash-hover); }
+
+.option.optionDisabled {
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.words {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.label { overflow-wrap: anywhere; }
+
+.description {
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-regular);
+}
+
+.option.optionDisabled .description { color: inherit; }
+
+.check {
+  display: inline-flex;
+  flex: none;
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+  color: var(--ap-color-text-accent);
+}
+
+.check svg { width: 100%; height: 100%; }

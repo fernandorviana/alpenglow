@@ -142,10 +142,14 @@ function FormDemo() {
             <Input ref={name} name="name" autoComplete="name" />
           </Field>
           <Field label="Role">
-            <Select name="role" placeholder="Choose a role" defaultValue="">
-              <option value="clinician">Clinician</option>
-              <option value="reception">Reception</option>
-            </Select>
+            <Select
+              name="role"
+              placeholder="Choose a role"
+              options={[
+                { value: 'clinician', label: 'Clinician' },
+                { value: 'reception', label: 'Reception' },
+              ]}
+            />
           </Field>
         </form>
       </Dialog>

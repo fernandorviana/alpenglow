@@ -28,7 +28,10 @@ export { Textarea } from './components/Textarea/index';
 export type { TextareaProps } from './components/Textarea/index';
 
 export { Select } from './components/Select/index';
-export type { SelectProps } from './components/Select/index';
+export type { SelectProps, SelectOption, SelectGroup, SelectEntry } from './components/Select/index';
+
+export { NativeSelect } from './components/NativeSelect/index';
+export type { NativeSelectProps } from './components/NativeSelect/index';
 
 export { Checkbox } from './components/Checkbox/index';
 export type { CheckboxProps } from './components/Checkbox/index';

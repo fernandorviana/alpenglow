@@ -43,6 +43,12 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Select** — one value from a list, in Input's box: options with an
+  Avatar or an icon before them, a second line, or content in place of the
+  label; groups; a check in the accent on the choice; the whole keyboard of a
+  select, with letters; a hidden input for forms, and a Field's label,
+  description and error. Exports `Select`, `SelectProps`, `SelectOption`,
+  `SelectGroup`, `SelectEntry`.
 - **Popover** — a panel anchored to the button that opens it, not modal: a
   `title` (or `aria-label`), `headerActions`, a body and `actions` at the
   end, any of which may be a function handed `close`; four placements that
@@ -78,6 +84,12 @@ break: a removed token or prop is named here under **Breaking**.
   lifts inside its own control.
 
 ### Changed, unreleased since 0.2.0
+
+- **Breaking: `Select` is no longer the native `<select>`.** It is a button
+  that opens the system's own list, the same in every browser, and takes
+  `options` (an array) and `onChange(value)` in place of `<option>` children
+  and a change event. The native one is unchanged and is now `NativeSelect`
+  (`NativeSelectProps`): to keep today's behaviour, rename the import.
 
 - DropdownMenu, DatePicker and the Pagination's page size stand on one
   floating surface, `floating.module.css`, where each had its own copy. Their

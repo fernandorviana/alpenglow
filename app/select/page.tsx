@@ -1,113 +1,183 @@
 'use client';
 
 import { useState } from 'react';
+import { Location as LocationIcon } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
+import { CodeBlock } from '@ui/CodeBlock';
+import { Avatar } from '@/components/Avatar';
 import { Field } from '@/components/Field/index';
+import { NativeSelect } from '@/components/NativeSelect/index';
 import { Select } from '@/components/Select/index';
+import type { SelectEntry } from '@/components/Select/index';
 import { Table } from '@/components/Table/index';
 import { resolve } from '@/tokens/contrast';
-import { spacing } from '@/tokens/scale';
+import { radius, spacing } from '@/tokens/scale';
+import { textStyle } from '@/tokens/typography';
+import type { Mode, ThemeTokenName } from '@/tokens/theme';
 
-const SERVICES = [
-  ['consult', 'Consultation'],
-  ['follow-up', 'Follow-up'],
-  ['assessment', 'Assessment'],
-] as const;
+const MODES: Mode[] = ['light', 'dark'];
 
-type PropRow = { prop: string; type: string; default: string };
-
-const PROPS: PropRow[] = [
-  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-  { prop: 'placeholder', type: 'string', default: '—' },
-  { prop: 'invalid', type: 'boolean', default: 'from Field, else false' },
-  { prop: 'iconStart', type: 'ReactNode', default: '—' },
+const PAIRS: ReadonlyArray<{ name: string; fg: ThemeTokenName; bg: ThemeTokenName; threshold?: number }> = [
+  { name: 'value', fg: 'text/primary', bg: 'interactive/neutral' },
+  { name: 'placeholder', fg: 'text/placeholder', bg: 'interactive/neutral' },
+  { name: 'an option', fg: 'text/primary', bg: 'surface/overlay' },
+  { name: 'the check', fg: 'text/accent', bg: 'surface/overlay', threshold: 3 },
 ];
 
-const propColumns = [
-  { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
+const SERVICES: SelectEntry[] = [
+  { value: 'consult', label: 'Consultation', description: '30 minutes' },
+  { value: 'follow-up', label: 'Follow-up', description: '15 minutes' },
+  { value: 'assessment', label: 'Assessment', description: '60 minutes' },
+];
+
+const person = (value: string, label: string, disabled = false) => ({
+  value,
+  label,
+  disabled,
+  start: <Avatar name={label} size="xxs" />,
+});
+
+const STAFF: SelectEntry[] = [
+  { label: 'On shift', options: [person('amanda', 'Amanda Hall'), person('jonathan', 'Jonathan Young'), person('ashley', 'Ashley Brooks')] },
+  { label: 'Away', options: [person('sandra', 'Sandra Brown', true)] },
+];
+
+const CODES: SelectEntry[] = [
+  ['90791', 'Diagnostic evaluation'],
+  ['90792', 'Therapeutic exercises'],
+  ['90834', 'Psychotherapy, 45 minutes'],
+].map(([code, name]) => ({
+  value: code!,
+  label: `${code} - ${name}`,
+  content: (
+    <>
+      <strong>{code}</strong> - {name}
+    </>
+  ),
+}));
+
+const USAGE = `import { Select, Avatar, Field } from 'alpenglow';
+
+<Field label="Staff">
+  <Select
+    name="staff"
+    placeholder="Choose someone"
+    value={staff}
+    onChange={setStaff}
+    options={[
+      { label: 'On shift', options: people.map((p) => ({
+        value: p.id,
+        label: p.name,
+        start: <Avatar name={p.name} size="xxs" />,
+      })) },
+    ]}
+  />
+</Field>`;
+
+type Key = { key: string; does: string };
+const KEYS: Key[] = [
+  { key: 'Down, Up, Enter, Space', does: 'Open the list at the option that is chosen.' },
+  { key: 'Down, Up', does: 'Move over the options, past what cannot be chosen, and stop at the ends.' },
+  { key: 'Home, End', does: 'The first and the last.' },
+  { key: 'A letter', does: 'The next option that starts with it, open or closed.' },
+  { key: 'Enter, Space', does: 'Choose and close.' },
+  { key: 'Tab', does: 'Chooses the active option and moves on.' },
+  { key: 'Esc', does: 'Closes with nothing chosen, and goes no further: a Dialog around it stays.' },
+];
+
+type Measure = { part: string; value: string };
+/** Read from the scale and the text styles, so the page cannot quote a number the stylesheet does not use. */
+const MEASURES: Measure[] = [
+  { part: 'Field', value: `Input’s box: 32, 40 or 48 tall, radius ${radius.xl}` },
+  { part: 'Chevron', value: `${spacing[250]}, in the accent` },
+  { part: 'List', value: `the menu’s surface, radius ${radius.xl}, ${spacing[100]} of padding, never narrower than the field` },
+  { part: 'Option', value: `${spacing[500]} tall, radius ${radius.md}; taller with a description` },
+  { part: 'Description', value: `${textStyle['caption/md'].size} / ${textStyle['caption/md'].lineHeight}` },
+  { part: 'Check', value: `${spacing[200]}, in the accent` },
+  { part: 'Most', value: 'eight options, then it scrolls' },
+];
+
+type PropRow = { prop: string; type: string; default: string };
+const PROPS: PropRow[] = [
+  { prop: 'options', type: 'SelectEntry[] — options, or groups of them', default: 'required' },
+  { prop: 'value', type: 'string', default: '—' },
+  { prop: 'defaultValue', type: 'string', default: "''" },
+  { prop: 'onChange', type: '(value: string) => void', default: '—' },
+  { prop: 'placeholder', type: 'string', default: '—' },
+  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  { prop: 'invalid', type: 'boolean', default: 'from Field, else false' },
+  { prop: 'disabled', type: 'boolean', default: 'false' },
+  { prop: 'required', type: 'boolean', default: 'from Field' },
+  { prop: 'name', type: 'string', default: '—' },
+  { prop: 'iconStart', type: 'ReactNode', default: '—' },
+  { prop: 'id, aria-label, aria-labelledby, aria-describedby', type: 'string', default: 'from Field' },
+  { prop: 'className', type: 'string', default: '—' },
+];
+const OPTION: PropRow[] = [
+  { prop: 'value', type: 'string', default: 'required' },
+  { prop: 'label', type: 'string — what typing finds and a screen reader says', default: 'required' },
+  { prop: 'start', type: 'ReactNode — an Avatar, an icon', default: '—' },
+  { prop: 'description', type: 'string', default: '—' },
+  { prop: 'content', type: 'ReactNode, shown in place of the label', default: '—' },
+  { prop: 'disabled', type: 'boolean', default: 'false' },
+];
+
+const propColumns = (first: string) => [
+  { key: 'prop', header: first, primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
   { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
   { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
 ];
 
-/** The chevron's slot, as drawn: a 20px icon holding a 12.5 by 7.125 shape. */
-const CHEVRON = 20;
-
-function Options() {
-  return (
-    <>
-      {SERVICES.map(([v, l]) => (
-        <option key={v} value={v}>
-          {l}
-        </option>
-      ))}
-    </>
-  );
-}
-
 export default function Page() {
+  const [staff, setStaff] = useState('amanda');
+  const [code, setCode] = useState('90792');
   const [service, setService] = useState('');
-  const [tried, setTried] = useState('follow-up');
+  const [native, setNative] = useState('follow-up');
 
   return (
     <DocPage
       evidence={
         <>
-          <p>native select</p>
-          <p>1 element</p>
-          <p>0 key handlers</p>
-          <p>against the fill</p>
-          <p>value</p>
-          <p>
-            light{' '}
-            <Ratio fg={resolve('text/primary', 'light')} bg={resolve('interactive/neutral', 'light')} />
-          </p>
-          <p>
-            dark <Ratio fg={resolve('text/primary', 'dark')} bg={resolve('interactive/neutral', 'dark')} />
-          </p>
-          <p>placeholder</p>
-          <p>
-            light{' '}
-            <Ratio fg={resolve('text/placeholder', 'light')} bg={resolve('interactive/neutral', 'light')} />
-          </p>
-          <p>
-            dark{' '}
-            <Ratio fg={resolve('text/placeholder', 'dark')} bg={resolve('interactive/neutral', 'dark')} />
-          </p>
-          <p>chevron</p>
-          <p>
-            light{' '}
-            <Ratio
-              fg={resolve('text/tertiary', 'light')}
-              bg={resolve('interactive/neutral', 'light')}
-              threshold={3}
-            />
-          </p>
-          <p>
-            dark{' '}
-            <Ratio fg={resolve('text/tertiary', 'dark')} bg={resolve('interactive/neutral', 'dark')} threshold={3} />
-          </p>
+          {PAIRS.map((pair) => (
+            <div key={pair.name}>
+              <p>{pair.name}</p>
+              {MODES.map((mode) => (
+                <p key={mode}>
+                  {mode} <Ratio fg={resolve(pair.fg, mode)} bg={resolve(pair.bg, mode)} threshold={pair.threshold} />
+                </p>
+              ))}
+            </div>
+          ))}
         </>
       }
     >
       <h1>Select</h1>
       <p className="lead">
-        One value from a fixed list, in the same box as Input, at the measurements it is actually
-        drawn at.
+        One value from a list, shown in the field once it is chosen: a button in Input&rsquo;s
+        box that opens the system&rsquo;s own list.
       </p>
 
       <h2>Try it</h2>
       <div className="specimen">
-        <div style={{ maxWidth: 360 }}>
-          <Field label="Service" description="Determines the length of the appointment.">
-            <Select value={tried} onChange={(event) => setTried(event.target.value)}>
-              <Options />
-            </Select>
+        <div style={{ display: 'grid', gap: spacing[200], maxWidth: 360 }}>
+          <Field label="Staff">
+            <Select options={STAFF} value={staff} onChange={setStaff} placeholder="Choose someone" />
+          </Field>
+          <Field label="Service code">
+            <Select options={CODES} value={code} onChange={setCode} />
+          </Field>
+          <Field label="Location">
+            <Select
+              iconStart={<LocationIcon />}
+              placeholder="Location"
+              options={['Phoenix Clinic Hospital', 'Scottsdale Clinic Building', 'Video office'].map((l) => ({ value: l, label: l }))}
+            />
           </Field>
         </div>
         <p className="alias" style={{ margin: `${spacing[150]}px 0 0` }}>
-          Open it with Space or the arrows; the list is the platform&rsquo;s. Type the first
-          letter of an option to jump to it.
+          An Avatar before the name, a code in bold, a plain list with an icon: the three drawn
+          fields. Type a letter, open or closed, to go to an option.
         </p>
       </div>
 
@@ -122,61 +192,65 @@ export default function Page() {
         Put the options in the order the reader expects — alphabetical for names and places,
         by size or by time where the list has one, and the common answer first when there is
         one — and choose it for them when the form usually wants it. A placeholder is a prompt
-        for the field&rsquo;s answer, <em>Choose a service</em>, offered in the list but never
-        chosen: it is not an option, so it cannot be the value a required field submits.
+        for the field&rsquo;s answer, <em>Choose a service</em>: it is not an option, and it
+        cannot be the value a required field submits.
       </p>
 
       <h3>Select or dropdown menu</h3>
       <p>
-        Both open a list under a control, and in a drawing they look the same. They answer
-        different questions. A select holds a <strong>value</strong>: the choice stays visible in
-        the field afterwards, belongs to a form, and is submitted with it. A{' '}
-        <a href="/dropdown-menu">dropdown menu</a> runs a <strong>command</strong>: nothing is
-        kept, the list closes, and something happens — reschedule, export, cancel.
+        Both are a button that opens a list on the same surface, and in a drawing they are the
+        same thing. They answer different questions. A select holds a <strong>value</strong>:
+        the choice stays visible in the field afterwards, belongs to a form, and is submitted
+        with it. A <a href="/dropdown-menu">dropdown menu</a> runs a <strong>command</strong>:
+        nothing is kept, the list closes, and something happens — reschedule, export, cancel.
       </p>
       <p>
         The test is what the control shows once the list has closed. If it shows the choice, it
-        is a Select. If choosing was the end of it, it is a dropdown menu.
+        is a Select. If choosing was the end of it, it is a dropdown menu. A screen reader is
+        told the difference: a select says its name, its value and &ldquo;3 of 12&rdquo;; a menu
+        says how many commands it has.
+      </p>
+
+      <h2>Chosen, and active</h2>
+      <p>
+        The chosen option carries a check in the accent and nothing else. The wash belongs to
+        the active option, the one under the pointer or the arrows, so the two are never the
+        same mark, and when they are the same option both show. The check is a shape, so the
+        choice does not rest on colour.
       </p>
 
       <h2>Anatomy and sizes</h2>
-      <p>
-        The element underneath is a native <code>&lt;select&gt;</code>. That gives keyboard
-        behaviour, the platform picker on a phone, form participation and screen-reader
-        support without a line of code — the chevron and the box are the only things added.
-        The box is <a href="/input">Input</a>&rsquo;s, at its three heights, with the same fill
-        and the same border that arrives on focus; the chevron sits in a {CHEVRON}px slot at
-        the end, in the tertiary colour, and an <code>iconStart</code> can take the slot at the
-        start.
-      </p>
-      <p>
-        The trade is that the option list cannot be styled: it belongs to the operating
-        system. For a system that has to work in a clinic on whatever device is to hand,
-        that is the right way round.
-      </p>
+      <div className="specimen">
+        <Table
+          caption="Select geometry, in pixels"
+          density="compact"
+          columns={[
+            { key: 'part', header: 'Part', primary: true, cell: (r: Measure) => r.part },
+            { key: 'value', header: 'Value', cell: (r: Measure) => <span className="alias">{r.value}</span> },
+          ]}
+          rows={MEASURES}
+          getRowId={(r) => r.part}
+        />
+      </div>
       <div className="specimen">
         <div style={{ display: 'grid', gap: spacing[200], maxWidth: 360 }}>
-          <Select aria-label="Service, small" size="sm" placeholder="Small">
-            <Options />
-          </Select>
-          <Select aria-label="Service, medium" size="md" placeholder="Medium">
-            <Options />
-          </Select>
-          <Select aria-label="Service, large" size="lg" placeholder="Large">
-            <Options />
-          </Select>
+          <Select aria-label="Service, small" size="sm" placeholder="Small" options={SERVICES} />
+          <Select aria-label="Service, medium" size="md" placeholder="Medium" options={SERVICES} />
+          <Select aria-label="Service, large" size="lg" placeholder="Large" options={SERVICES} />
         </div>
       </div>
+      <p>
+        The field is <a href="/input">Input</a>&rsquo;s box, at its three heights, with the same
+        fill and the same border that arrives on focus. The open list is not drawn anywhere; it
+        is the <a href="/dropdown-menu">menu</a>&rsquo;s rows on the one floating surface the
+        menu, the date picker and the <a href="/popover">popover</a> stand on.
+      </p>
 
       <h2>States</h2>
       <div className="specimen">
         <div style={{ display: 'grid', gap: spacing[200], maxWidth: 360 }}>
-          <Select aria-label="Disabled" disabled placeholder="Disabled">
-            <Options />
-          </Select>
-          <Select aria-label="Invalid" invalid placeholder="In error">
-            <Options />
-          </Select>
+          <Select aria-label="Disabled" disabled placeholder="Disabled" options={SERVICES} />
+          <Select aria-label="Invalid" invalid placeholder="In error" options={SERVICES} />
         </div>
       </div>
       <p>
@@ -186,11 +260,6 @@ export default function Page() {
       </p>
 
       <h2>In a Field</h2>
-      <p>
-        Choose nothing and the message stays. The placeholder is offered but cannot be
-        chosen — it is a prompt, not an answer — and the message says what to do, beside the
-        field it is about.
-      </p>
       <div className="specimen">
         <div style={{ maxWidth: 360 }}>
           <Field
@@ -199,46 +268,82 @@ export default function Page() {
             error={!service && 'Choose a service before continuing.'}
             required
           >
-            <Select
-              placeholder="Choose a service"
-              value={service}
-              onChange={(event) => setService(event.target.value)}
-            >
-              <Options />
-            </Select>
+            <Select name="service" placeholder="Choose a service" options={SERVICES} value={service} onChange={setService} />
+          </Field>
+        </div>
+      </div>
+      <p>
+        The Field&rsquo;s label names the button, and its description and error are read with
+        it. With a <code>name</code> the value goes with the form through a hidden input. A
+        hidden input cannot stop a form, so <code>required</code> is said to a screen reader
+        and enforced by the caller, as the error above is.
+      </p>
+
+      <h2>The platform&rsquo;s select</h2>
+      <p>
+        Until 2026-09-21 this component was the native <code>&lt;select&gt;</code>, by a rule
+        the system still holds: prefer the native element. It was set aside here for one
+        reason. The drawn fields hold what a native list cannot show — an Avatar, a code in
+        bold, a second line — and the list belongs to the operating system, so it is a
+        different list in every browser. <code>appearance: base-select</code> will end that
+        trade; it is in Chrome, Edge and Safari 27, and not yet in Firefox.
+      </p>
+      <p>
+        The native one is <code>NativeSelect</code>, unchanged. It is the better choice on a
+        phone in a long form, where the platform&rsquo;s picker is better than any list of
+        ours, and for a very long list such as countries.
+      </p>
+      <div className="specimen">
+        <div style={{ maxWidth: 360 }}>
+          <Field label="Service" description="The platform’s list.">
+            <NativeSelect value={native} onChange={(event) => setNative(event.target.value)}>
+              <option value="consult">Consultation</option>
+              <option value="follow-up">Follow-up</option>
+              <option value="assessment">Assessment</option>
+            </NativeSelect>
           </Field>
         </div>
       </div>
 
       <h2>Accessibility</h2>
       <p>
-        The chevron is hidden from assistive technology. It repeats what the select role
-        already announces, and a decoration that says the same thing twice is noise.
+        It is the select-only combobox of the ARIA practices: a button with{' '}
+        <code>role=&quot;combobox&quot;</code> that owns a <code>listbox</code>. The keyboard&rsquo;s
+        focus never leaves the button; the active option is named to it, so there is one tab
+        stop and nothing to give the focus back to. The list is the platform&rsquo;s{' '}
+        <code>popover</code>, so a press outside closes it.
       </p>
-      <p>
-        The placeholder option is disabled, so it can be read but never submitted as an
-        answer. Required selects need a real choice.
-      </p>
-      <p>
-        Options are given an explicit colour. Native option lists render in the operating
-        system&rsquo;s palette, and a dark-theme field can otherwise open a list of
-        invisible text in browsers that do respect the setting.
-      </p>
+      <div className="specimen">
+        <Table
+          caption="Select, by keyboard"
+          density="compact"
+          columns={[
+            { key: 'key', header: 'Key', primary: true, cell: (r: Key) => r.key },
+            { key: 'does', header: 'Does', cell: (r: Key) => r.does },
+          ]}
+          rows={KEYS}
+          getRowId={(r) => r.key}
+        />
+      </div>
       <p>
         The select never renders its own label. Wrap it in a <code>Field</code> or give it an{' '}
-        <code>aria-label</code>, as the sizes above do; a select with neither is announced as
-        its current value and nothing else.
+        <code>aria-label</code>, as the sizes above do. An option&rsquo;s <code>label</code> is
+        always words, even where <code>content</code> is shown in its place: it is what typing
+        finds.
       </p>
 
       <h2>Props</h2>
+      <CodeBlock code={USAGE} lang="tsx" />
       <div className="specimen">
-        <Table caption="Select props" captionVisible density="compact" columns={propColumns} rows={PROPS} getRowId={(r) => r.prop} />
+        <Table caption="Select props" captionVisible density="compact" columns={propColumns('Prop')} rows={PROPS} getRowId={(r) => r.prop} />
+      </div>
+      <div className="specimen">
+        <Table caption="An option" captionVisible density="compact" columns={propColumns('Field')} rows={OPTION} getRowId={(r) => r.prop} />
       </div>
       <p className="alias" style={{ marginTop: 8 }}>
-        The options are the children. All remaining select attributes are passed through —{' '}
-        <code>name</code>, <code>value</code>, <code>disabled</code>, <code>required</code>,{' '}
-        <code>onChange</code>; inside a Field, the id, the description and the invalid flag come
-        from it unless you pass your own.
+        A group is <code>{'{ label, options }'}</code>. <code>NativeSelect</code> takes{' '}
+        <code>size</code>, <code>placeholder</code>, <code>invalid</code>, <code>iconStart</code>,
+        its options as children, and every attribute of a <code>select</code>.
       </p>
     </DocPage>
   );

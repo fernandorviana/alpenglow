@@ -239,12 +239,17 @@ export default function Page() {
         <Card
           href="/select"
           title="Select"
-          description="The native select, styled. It holds a value where the menu runs a command."
+          description="A button in Input’s box that opens the system’s own list: an Avatar, a code in bold, a check on the choice."
           visual={
-            <Select size="sm" aria-label="Service" defaultValue="consultation">
-              <option value="consultation">Consultation</option>
-              <option value="follow-up">Follow-up</option>
-            </Select>
+            <Select
+              size="sm"
+              aria-label="Service"
+              defaultValue="consultation"
+              options={[
+                { value: 'consultation', label: 'Consultation' },
+                { value: 'follow-up', label: 'Follow-up' },
+              ]}
+            />
           }
         />
         <Card

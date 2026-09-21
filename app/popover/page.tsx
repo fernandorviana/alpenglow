@@ -82,6 +82,25 @@ function Inbox({ messages }: { messages: Message[] }) {
   );
 }
 
+const LOCATIONS = ['Phoenix Clinic Hospital', 'Scottsdale Clinic Building', 'Video office'].map((l) => ({ value: l, label: l }));
+const STAFF = ['Amanda Hall', 'Jonathan Young', 'Ashley Brooks'].map((name) => ({
+  value: name.split(' ')[0]!.toLowerCase(),
+  label: name,
+  start: <Avatar name={name} size="xxs" />,
+}));
+const SERVICES = [
+  ['90791', 'Diagnostic evaluation'],
+  ['90792', 'Therapeutic exercises'],
+].map(([code, name]) => ({
+  value: code!,
+  label: `${code} - ${name}`,
+  content: (
+    <>
+      <strong>{code}</strong> - {name}
+    </>
+  ),
+}));
+
 type Choice = { when: string; use: string };
 const CHOICES: Choice[] = [
   { when: 'A few fields or a short list, about the control that opens it, and the page stays in use', use: 'Popover' },
@@ -187,17 +206,13 @@ export default function Page() {
                 <DatePicker label="Date" value={date} onSelect={(next) => setDate(next as ISODate | null)} />
               </Field>
               <Field label="Location">
-                <Select placeholder="Location" defaultValue="">
-                  <option>Phoenix Clinic Hospital</option>
-                  <option>Scottsdale Clinic Building</option>
-                  <option>Video office</option>
-                </Select>
+                <Select placeholder="Location" options={LOCATIONS} />
+              </Field>
+              <Field label="Staff">
+                <Select defaultValue="amanda" options={STAFF} />
               </Field>
               <Field label="Service">
-                <Select placeholder="Service" defaultValue="">
-                  <option>90791 - Diagnostic evaluation</option>
-                  <option>90792 - Therapeutic exercises</option>
-                </Select>
+                <Select placeholder="Service" options={SERVICES} />
               </Field>
             </div>
           </Popover>

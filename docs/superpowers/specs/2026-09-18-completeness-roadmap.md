@@ -92,7 +92,7 @@ Ships as **`0.3.0`**, with the first `CHANGELOG.md`.
 | Component | Built on | Notes |
 |---|---|---|
 | **Popover** | extracted from DatePicker and DropdownMenu | One placement stylesheet, two existing consumers moved onto it; `src/test/popover.ts` already serves both. |
-| **Combobox** | graduated from `app/ui/search/Search.tsx` (Input + listbox) | The IME, Esc and `isComposing` rules of invariant 22 come with it. Select stays native; the Select page's test for telling them apart gains a third case. |
+| **Combobox** | graduated from `app/ui/search/Search.tsx` (Input + listbox) | The IME, Esc and `isComposing` rules of invariant 22 come with it. ~~Select stays native~~ (revised 2026-09-21: `Select` is a listbox of the system's own and the native one is `NativeSelect`; see `2026-09-21-select-design.md`, whose `options.ts` is this Combobox's base); the Select page's test for telling them apart gains a third case. |
 | **Drawer** | `<dialog>`, side-anchored | Shares `src/test/dialog.ts`; invariant 20's close rules apply unchanged. |
 | **Accordion** | `<details name>` | Exclusive groups are the platform's. |
 | **Breadcrumb** | `nav` > `ol` | `aria-current="page"` on the last item. |
