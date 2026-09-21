@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1434 tests across 61 files
+npm test            # 1436 tests across 61 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -618,8 +618,10 @@ Claimed components (add a line before starting; one per session and branch):
   DropdownMenu's `trigger` idiom, typed in `src/components/linkRender.tsx`,
   whose `Anchor` component exists because the Compiler lint refuses a ref
   handed to a function during render; as a prop to a component it is fine.
-  CardTitle, Pagination's `hrefFor` and the Tabs' link variant still render
-  a plain `a` and want `render` in a later pass. Only the browser showed: the
+  **The later pass, same day:** `CardTitle` takes `render` and the
+  Pagination `renderLink` (with `hrefFor`), both through `Anchor`. The Tabs
+  have no link variant yet — the roadmap names one and the code never had
+  it — so there was nothing to move; it takes `render` when it is built. Only the browser showed: the
   docs' `.prose a` (0,1,1) outranked `.button` and made the Button-link
   Medium and underlined on hover, so the docs rule is `a:not([class])` and
   the Button names the element, `a.button:hover`, against a consumer's

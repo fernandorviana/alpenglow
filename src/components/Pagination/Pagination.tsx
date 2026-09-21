@@ -5,6 +5,8 @@ import { pageItems } from './pages';
 import { PageSize } from './PageSize';
 import styles from './Pagination.module.css';
 import hidden from '../visuallyHidden.module.css';
+import { Anchor } from '../linkRender';
+import type { LinkRender } from '../linkRender';
 
 export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
@@ -38,6 +40,8 @@ export type PaginationProps = {
   summary?: (parts: PaginationSummaryParts) => ReactNode;
   /** Links instead of buttons, for paging that lives in the URL. */
   hrefFor?: (page: number) => string;
+  /** With `hrefFor`, for a router's link: `(props) => <NextLink {...props} />`. */
+  renderLink?: LinkRender;
   siblings?: number;
   boundaries?: number;
   label?: string;
@@ -81,6 +85,7 @@ export function Pagination({
   maxPageSize = 100,
   summary = defaultSummary,
   hrefFor,
+  renderLink,
   siblings = 1,
   boundaries = 1,
   label = 'Pagination',
@@ -123,7 +128,8 @@ export function Pagination({
     if (hrefFor && !inert) {
       // The link navigates on its own; the caller is told as well.
       return (
-        <a
+        <Anchor
+          render={renderLink}
           {...shared}
           href={hrefFor(to)}
           onClick={(event: MouseEvent) => {
@@ -132,7 +138,7 @@ export function Pagination({
           }}
         >
           {content}
-        </a>
+        </Anchor>
       );
     }
     return (

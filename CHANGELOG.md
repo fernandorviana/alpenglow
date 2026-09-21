@@ -38,6 +38,8 @@ break: a removed token or prop is named here under **Breaking**.
   `noreferrer` and says so to a screen reader; `render` hands the props to a
   router's link. Exports `Link`, `linkVariants`, `LinkProps`, `LinkVariant`,
   `LinkRender`, `LinkRenderProps`.
+- `CardTitle` takes `render` and `Pagination` takes `renderLink`, the same
+  hand-over to a router's link.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.

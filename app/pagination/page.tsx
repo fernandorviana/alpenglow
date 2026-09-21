@@ -64,6 +64,7 @@ const PROPS: PropRow[] = [
   { prop: 'maxPageSize', type: 'number', default: '100' },
   { prop: 'summary', type: '({ size, from, to, total }) => ReactNode', default: 'the English sentence' },
   { prop: 'hrefFor', type: '(page: number) => string', default: '—' },
+  { prop: 'renderLink', type: '(props: LinkRenderProps) => ReactNode, with hrefFor', default: '—' },
   { prop: 'siblings, boundaries', type: 'number', default: '1, 1' },
   { prop: 'label', type: 'string', default: "'Pagination'" },
   { prop: 'previousLabel, nextLabel', type: 'string', default: "'Previous page', 'Next page'" },

@@ -94,6 +94,31 @@ describe('Pagination — the pages', () => {
     expect(screen.getByRole('button', { name: 'Previous page' })).toHaveAttribute('aria-disabled', 'true');
   });
 
+  it('hands each page to a router’s link, with its name, its href and its click', () => {
+    const onPageChange = vi.fn();
+    render(
+      <Pagination
+        page={1}
+        pageCount={3}
+        onPageChange={onPageChange}
+        hrefFor={(n) => `?page=${n}`}
+        renderLink={({ children, ...props }) => (
+          <a data-router="yes" {...props}>
+            {children}
+          </a>
+        )}
+      />,
+    );
+    const link = within(nav()).getByRole('link', { name: 'Page 2' });
+    expect(link).toHaveAttribute('data-router', 'yes');
+    expect(link).toHaveAttribute('href', '?page=2');
+    link.addEventListener('click', (event) => event.preventDefault());
+    fireEvent.click(link);
+    expect(onPageChange).toHaveBeenCalledWith(2);
+    // The ends are buttons, and the router is not asked for them.
+    expect(screen.getByRole('button', { name: 'Previous page' })).not.toHaveAttribute('data-router');
+  });
+
   it('leaves a new tab out of it: a modified click on a link does not page this list', () => {
     const onPageChange = vi.fn();
     render(<Pagination page={1} pageCount={3} onPageChange={onPageChange} hrefFor={(n) => `?page=${n}`} />);

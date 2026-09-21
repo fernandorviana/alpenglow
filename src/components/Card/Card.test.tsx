@@ -100,6 +100,20 @@ describe('Card — the title', () => {
     expect(screen.getByRole('link')).not.toHaveAttribute('id');
   });
 
+  it('hands a router’s link the href, the class that stretches it and the words', () => {
+    render(
+      <Card>
+        <CardTitle href="/routed" render={({ children, ...props }) => <a data-router="yes" {...props}>{children}</a>}>
+          Routed
+        </CardTitle>
+      </Card>,
+    );
+    const link = screen.getByRole('link', { name: 'Routed' });
+    expect(link).toHaveAttribute('data-router', 'yes');
+    expect(link).toHaveAttribute('href', '/routed');
+    expect(link).toHaveClass(styles.link!);
+  });
+
   it('keeps a control beside the link, never inside it', () => {
     render(<Location href="/locations/phoenix" />);
     expect(screen.getByRole('button', { name: 'Options' }).closest('a')).toBeNull();

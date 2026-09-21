@@ -1,4 +1,6 @@
 import type { AnchorHTMLAttributes, CSSProperties, ReactNode } from 'react';
+import { Anchor } from '../linkRender';
+import type { LinkRender } from '../linkRender';
 import styles from './Card.module.css';
 
 const join = (...names: Array<string | undefined>) => names.filter(Boolean).join(' ');
@@ -69,19 +71,21 @@ export type CardTitleProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'clas
    * the card's link is pressed in its place.
    */
   href?: string;
+  /** With `href`, for a router's link: `(props) => <NextLink {...props} />`. */
+  render?: LinkRender;
   children: ReactNode;
   className?: string;
 };
 
-export function CardTitle({ as: Element = 'h3', id, href, children, className, ...anchor }: CardTitleProps) {
+export function CardTitle({ as: Element = 'h3', id, href, render, children, className, ...anchor }: CardTitleProps) {
   return (
     <Element id={id} className={join(styles.title, className)}>
       {href === undefined ? (
         children
       ) : (
-        <a {...anchor} href={href} className={styles.link}>
+        <Anchor render={render} {...anchor} href={href} className={styles.link}>
           {children}
-        </a>
+        </Anchor>
       )}
     </Element>
   );

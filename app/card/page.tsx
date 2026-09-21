@@ -124,6 +124,7 @@ const PROPS: PropRow[] = [
   { prop: 'CardTitle · as', type: "'h2' | 'h3' | 'h4' | 'div'", default: "'h3'" },
   { prop: 'CardTitle · id', type: 'string, on the title’s element', default: '—' },
   { prop: 'CardTitle · href', type: 'string', default: '—' },
+  { prop: 'CardTitle · render', type: '(props: LinkRenderProps) => ReactNode, with href', default: '—' },
   { prop: 'CardTitle · …anchor', type: 'target, rel, onClick and the rest of an anchor’s', default: '—' },
   { prop: 'every part · children', type: 'ReactNode', default: 'required' },
   { prop: 'every part · className', type: 'string', default: '—' },
