@@ -1,0 +1,232 @@
+/**
+ * Drawer
+ *
+ * The drawn Side Drawer's shell: 480 or 768 wide, the whole height, square,
+ * with the Popover's header, body and footer. What the drawn panels hold is
+ * the product's; docs/superpowers/specs/2026-09-21-drawer-design.md.
+ *
+ * Two kinds. `.layered` is over the content, in the top layer; `.flow` is a
+ * sibling of the content. A rule that sets `display` is never on a class that
+ * can stand on a closed [popover]: an author's `display` outranks the UA's
+ * `[popover]:not(:popover-open) { display: none }`.
+ */
+
+.drawer, .layered, .flow, .expanded, .end, .start, .header, .header::after, .lead, .title,
+.headerActions, .body, .footer, .handle, .handle::after {
+  box-sizing: border-box;
+}
+
+.drawer {
+  --drawer-edge: transparent;
+
+  position: relative;
+  flex-direction: column;
+  inline-size: var(--drawer-width, var(--drawer-size));
+  padding: 0;
+  border: 0 solid var(--drawer-edge);
+  overflow: visible;
+  color: var(--ap-color-text-primary);
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  text-align: start;
+}
+
+.md { --drawer-size: 480px; }
+.lg { --drawer-size: 768px; }
+
+/* The inner edge is the one with the border and the handle, which is told
+   where that is and not reached by descent. */
+.end {
+  --drawer-handle-start: calc(var(--ap-spacing-150) / -2);
+  border-inline-start-width: var(--ap-border-width-hairline);
+}
+
+.start {
+  --drawer-handle-end: calc(var(--ap-spacing-150) / -2);
+  border-inline-end-width: var(--ap-border-width-hairline);
+}
+
+/* It is where the focus goes on the way in, and a ring around a whole panel
+   says nothing the panel's arrival has not said. */
+.drawer:focus { outline: none; }
+
+/* --- over the content ------------------------------------------------------- */
+
+/* The UA centres a popover and sizes it to its content; all of that is
+   cleared. surface/overlay: the drawn white in light, the step above a card in
+   dark. */
+.layered {
+  position: fixed;
+  inset: 0 auto;
+  margin: 0;
+  block-size: 100dvh;
+  max-block-size: none;
+  /* Narrower than the panel, the screen is the panel. */
+  max-inline-size: 100vw;
+  background: var(--ap-color-surface-overlay);
+  box-shadow: var(--ap-elevation-lg);
+}
+
+.layered.end { inset-inline-end: 0; }
+.layered.start { inset-inline-start: 0; }
+
+.layered:popover-open { display: flex; }
+
+/* In dark the surface takes a border and light does not — the measurement is
+   in DropdownMenu.module.css. Written twice, as there. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .layered {
+    --drawer-edge: var(--ap-color-border-default);
+  }
+}
+
+:root[data-theme='dark'] .layered {
+  --drawer-edge: var(--ap-color-border-default);
+}
+
+/* Covers the page, either kind. */
+.layered.expanded {
+  inline-size: 100vw;
+  border-width: 0;
+}
+
+/* From its own side. A panel either is or is not on screen: reduced motion
+   drops the entrance. Expanded keeps the same animation and does not turn it
+   off: back from `none` it would play again on a panel that never left. */
+@media (prefers-reduced-motion: no-preference) {
+  .layered { animation: arrive var(--ap-motion-duration-fade) var(--ap-motion-easing-enter); }
+  .layered.end { --drawer-from: 24px; }
+  .layered.start { --drawer-from: -24px; }
+  .layered.end:dir(rtl) { --drawer-from: -24px; }
+  .layered.start:dir(rtl) { --drawer-from: 24px; }
+}
+
+@keyframes arrive {
+  from { opacity: 0; transform: translateX(var(--drawer-from, 0)); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- beside the content ----------------------------------------------------- */
+
+/* Part of the page: a card's surface, a line where it meets the content, no
+   shadow. It never grows, and gives way only when the content beside it has
+   a least width of its own and the row has no more to give. */
+.flow {
+  --drawer-edge: var(--ap-color-border-subtle);
+
+  display: flex;
+  flex: 0 1 auto;
+  align-self: stretch;
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-inline-size: 100%;
+  background: var(--ap-color-surface-raised);
+}
+
+/* --- header ----------------------------------------------------------------- */
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-300);
+  flex: none;
+  min-block-size: 64px;
+  padding: var(--ap-spacing-200) var(--ap-spacing-300);
+}
+
+/* The drawn divider: inset by the padding, not edge to edge. */
+.header::after {
+  content: '';
+  position: absolute;
+  inset-inline: var(--ap-spacing-300);
+  inset-block-end: 0;
+  height: var(--ap-border-width-hairline);
+  background: var(--ap-color-border-subtle);
+}
+
+.lead {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Doubled, so a page's `h2` does not give it a margin or a size. Primary where
+   the drawing has secondary, as the Dialog's title is. */
+.title.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-subheading-md-size);
+  line-height: var(--ap-text-subheading-md-line-height);
+  letter-spacing: var(--ap-text-subheading-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* --- body and footer -------------------------------------------------------- */
+
+/* The body scrolls; the header and the footer stay. */
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--ap-spacing-300);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--ap-spacing-150);
+  flex: none;
+  padding: var(--ap-spacing-300);
+}
+
+/* --- the handle ------------------------------------------------------------- */
+
+/* 12 across, astride the inner edge, the whole height: wide enough to catch,
+   and nothing until it is wanted. */
+.handle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--drawer-handle-start, auto);
+  inset-inline-end: var(--drawer-handle-end, auto);
+  inline-size: var(--ap-spacing-150);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+
+.handle::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc(50% - var(--ap-border-width-ring) / 2);
+  background: transparent;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handle::after { transition: none; }
+}
+
+.handle:hover::after { background: var(--ap-color-border-strong); }
+
+.handle:focus { outline: none; }
+
+.handle:focus-visible::after,
+.handle:active::after {
+  background: var(--ap-color-border-focus);
+}

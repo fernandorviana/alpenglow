@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1599 tests across 65 files
+npm test            # 1646 tests across 66 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 199 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 201 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,45 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Drawer** — built 2026-09-21, on main, unreleased; fifth of wave 2. Spec
+  `docs/superpowers/specs/2026-09-21-drawer-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-drawer.md`. **It is drawn**: the
+  published Side Drawer set (Create, View and Edit; md 480, lg 768), the
+  whole height, square, white on the lg shadow, and **the Popover's shell,
+  not the Dialog's**. Fernando's decisions, all 2026-09-21: **the end side**
+  (the start is the navigation's; `side="start"` exists, top and bottom do
+  not); **not modal** — the roadmap said `<dialog>`, side-anchored, but in the
+  product the calendar stays live beside it and a form left half-way is asked
+  about with a modal, so **the panel never closes itself**: Esc from inside
+  and the close call `onClose`, a press outside does nothing, and the docs'
+  example opens a Dialog `xs` over it; **expand is full screen**, as Asana's
+  task pane, and is not md to lg; **two kinds**, `mode="overlay"` over the
+  content and `mode="inline"` a sibling the content makes room for (the
+  calendar); **resizable, both kinds**, off unless asked. One element,
+  rendered only while open: overlay and anything expanded is
+  `popover="manual"` (`role="dialog"`, the top layer with no z-index, no
+  light dismiss, nothing inert), inline is in the flow (`role="region"`,
+  `surface/raised`, `border/subtle` on the inner edge, no shadow). `display`
+  only under `:popover-open` and on `.flow`. The handle is a focusable
+  vertical `separator` with the width as its value: drag with capture, Left
+  and Right by 16 in the direction the edge moves (RTL read from the panel),
+  Home, End, double click back; a resize leaves the panel 320 and the content
+  320, read again at every resize; no handle where there is nothing to give.
+  Esc is left to anything inside with a popover open (`:popover-open`, in a
+  try). Only the browser showed: **the focus did not come back after the
+  "leave without saving?" Dialog** — a closed dialog's button is still
+  `document.activeElement` until the next frame, so the return waits a task
+  and takes a not-rendered active element (`checkVisibility`) as lost; and it
+  is not taken back from a reader who has gone elsewhere. From the review:
+  the limit read at every resize, `aria-valuenow` never past its most,
+  expanded keeps the entrance animation rather than `none` (back from `none`
+  it replayed on collapse), the inline panel gives way (`flex: 0 1 auto`)
+  when the content has a least width. Recorded, not solved: `header` without
+  `aria-label` leaves the panel unnamed and the type does not say so; the
+  footer is pinned to the foot where the drawing has it after the fields;
+  the drawn View and Edit's sections are the Accordion, next. The product's
+  file was only reachable as thumbnails. Not checked: Safari, Firefox, a
+  screen reader, touch drag, RTL by eye.
 - **Tag** — built 2026-09-21, on main, unreleased; fourth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-tag-design.md`, plan
   `docs/superpowers/plans/2026-09-21-tag.md`. The published `tag` is an icon;

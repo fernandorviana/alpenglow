@@ -216,6 +216,22 @@ export default function Page() {
           }
         />
         <Card
+          href="/drawer"
+          title="Drawer"
+          description="A panel at the side, over the content or beside it, that can be resized and never closes itself."
+          visual={
+            <div className="miniDialog">
+              <p className="miniDialogTitle">New appointment</p>
+              <div className="miniRow">
+                <Button size="sm" variant="outline" tone="neutral">
+                  Cancel
+                </Button>
+                <Button size="sm">Save</Button>
+              </div>
+            </div>
+          }
+        />
+        <Card
           href="/dropdown-menu"
           title="Dropdown menu"
           description="A command list on a popover, placed with CSS anchors, with a border only in dark."

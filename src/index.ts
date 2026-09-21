@@ -109,6 +109,9 @@ export type { LinkProps, LinkVariant, LinkRender, LinkRenderProps } from './comp
 export { Popover, popoverPlacements } from './components/Popover/index';
 export type { PopoverProps, PopoverPlacement, PopoverTriggerProps, PopoverApi } from './components/Popover/index';
 
+export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH } from './components/Drawer/index';
+export type { DrawerProps, DrawerMode, DrawerSide, DrawerSize } from './components/Drawer/index';
+
 export { Pagination, pageItems, PAGE_SIZE_OPTIONS } from './components/Pagination/index';
 export type { PaginationProps, PaginationSummaryParts, PageItem } from './components/Pagination/index';
 

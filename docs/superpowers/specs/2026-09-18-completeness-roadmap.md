@@ -93,7 +93,7 @@ Ships as **`0.3.0`**, with the first `CHANGELOG.md`.
 |---|---|---|
 | **Popover** | extracted from DatePicker and DropdownMenu | One placement stylesheet, two existing consumers moved onto it; `src/test/popover.ts` already serves both. |
 | **Combobox** | graduated from `app/ui/search/Search.tsx` (Input + listbox) | The IME, Esc and `isComposing` rules of invariant 22 come with it. ~~Select stays native~~ (revised 2026-09-21: `Select` is a listbox of the system's own and the native one is `NativeSelect`; see `2026-09-21-select-design.md`, whose `options.ts` is this Combobox's base); the Select page's test for telling them apart gains a third case. |
-| **Drawer** | `<dialog>`, side-anchored | Shares `src/test/dialog.ts`; invariant 20's close rules apply unchanged. |
+| **Drawer** | ~~`<dialog>`, side-anchored~~ `popover="manual"` over the content, or in the flow beside it | ~~Shares `src/test/dialog.ts`~~ Revised 2026-09-21 (Fernando): not modal, since the calendar beside it stays live and a form left half-way is asked about by a Dialog. Invariant 20's close rules apply unchanged: it never closes itself. Drawn as the Side Drawer set. |
 | **Accordion** | `<details name>` | Exclusive groups are the platform's. |
 | **Breadcrumb** | `nav` > `ol` | `aria-current="page"` on the last item. |
 | **Skeleton**, **EmptyState**, **Progress** | `<progress>` for the last | Skeleton's shimmer is an `infinite` loop and keeps its own timing; reduced motion slows, never freezes (invariant 6). |

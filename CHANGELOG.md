@@ -43,6 +43,16 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Drawer** — a panel at the side of the page, not modal: `overlay` grows
+  over the content in the top layer, `inline` is a sibling the content makes
+  room for. 480 or 768 wide, the Popover's header, body and footer at the
+  height of the page; `expanded` with `onExpandedChange` covers the page;
+  `resizable` adds a separator on the inner edge that is dragged or moved with
+  the arrows, Home and End, with `width`, `defaultWidth`, `onWidthChange`,
+  `minWidth` and `maxWidth`. It never closes itself: Esc from inside and the
+  close button call `onClose`, so a page can ask before a form is lost.
+  Exports `Drawer`, `drawerModes`, `drawerSides`, `drawerSizes`,
+  `DRAWER_WIDTH`, `DrawerProps`, `DrawerMode`, `DrawerSide`, `DrawerSize`.
 - **Tag** — a capsule for something the reader added and can take away: the
   words, `start` for an Avatar or an icon, `md` (32) or `sm` (24), and
   `onRemove` for a button named after the words. Neutral only. A field that

@@ -778,6 +778,21 @@ describe('tag: a capsule on a card, and the same capsule in a field', () => {
   });
 });
 
+describe('drawer: a panel over the page, or beside it', () => {
+  for (const mode of MODES) {
+    it(`its words read on both of its surfaces, and its handle is seen on them — ${mode}`, () => {
+      for (const surface of ['surface/overlay', 'surface/raised'] as const) {
+        expect(tokenContrast('text/primary', surface, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast('text/secondary', surface, mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+        // The handle is nothing at rest; under the pointer and with the focus
+        // it is a line that has to be seen.
+        expect(tokenContrast('border/strong', surface, mode)).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast('border/focus', surface, mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+});
+
 describe('combobox: tags on the field, and a checkbox before an option', () => {
   for (const mode of MODES) {
     it(`a tag's words read on the raised surface it is cut from — ${mode}`, () => {
