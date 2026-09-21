@@ -8,6 +8,7 @@ import { sectionOf } from '@ui/contents';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
+import { Card as SurfaceCard, CardBody, CardTitle } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
 import { DatePicker } from '@/components/DatePicker';
 import { Input } from '@/components/Input';
@@ -135,6 +136,21 @@ export default function Page() {
               <Button size="sm" variant="outline" tone="neutral">
                 Go back
               </Button>
+            </div>
+          }
+        />
+        <Card
+          href="/card"
+          title="Card"
+          description="A filled surface and five parts: a picture, a title that makes the card a link, controls that stay pressable."
+          visual={
+            <div style={{ padding: 'var(--ap-spacing-150)', borderRadius: 'var(--ap-radius-xl)', background: 'var(--ap-color-surface-raised)' }}>
+              <SurfaceCard>
+                <CardBody>
+                  <CardTitle as="div">Phoenix Clinic</CardTitle>
+                  <span style={{ color: 'var(--ap-color-text-secondary)' }}>Rochester, MN</span>
+                </CardBody>
+              </SurfaceCard>
             </div>
           }
         />

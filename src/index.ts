@@ -83,6 +83,17 @@ export type { TabsProps, TabItem, TabsVariant } from './components/Tabs/index';
 export { Alert, alertTones, ALERT_NARROW } from './components/Alert/index';
 export type { AlertProps, AlertTone, AlertAction } from './components/Alert/index';
 
+export { Card, CardMedia, CardBody, CardTitle, CardActions, cardElements, cardTitleElements } from './components/Card/index';
+export type {
+  CardProps,
+  CardMediaProps,
+  CardBodyProps,
+  CardTitleProps,
+  CardActionsProps,
+  CardElement,
+  CardTitleElement,
+} from './components/Card/index';
+
 export { Pagination, pageItems, PAGE_SIZE_OPTIONS } from './components/Pagination/index';
 export type { PaginationProps, PaginationSummaryParts, PageItem } from './components/Pagination/index';
 

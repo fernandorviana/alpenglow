@@ -658,6 +658,41 @@ describe('pagination: the numbers read under the wash, and the bar is seen', () 
   }
 });
 
+describe('card: a filled step under a raised ground', () => {
+  const FILL = 'surface/sunken';
+
+  for (const mode of MODES) {
+    it(`is a surface step under surface/raised — ${mode}`, () => {
+      const step = lightness(resolve('surface/raised', mode)) - lightness(resolve(FILL, mode));
+      expect(step).toBeGreaterThanOrEqual(SURFACE_STEP);
+    });
+
+    it(`its title and its captions read, at rest and under the wash — ${mode}`, () => {
+      for (const text of ['text/primary', 'text/secondary'] as const) {
+        expect(tokenContrast(text, FILL, mode), text).toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast(text, 'interactive/wash-hover', mode, FILL), `${text} hovered`).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+      expect(tokenContrast('text/tertiary', FILL, mode), 'text/tertiary').toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+
+    it(`the focus ring is seen against the ground the card stands on — ${mode}`, () => {
+      expect(tokenContrast('border/focus', 'surface/raised', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+    });
+  }
+
+  // The drawn captions are tertiary. On this fill, under the wash, light falls
+  // short of 4.5, so the captions of a linked card are secondary. Recorded so
+  // that a change to the wash or to stone/600 is seen here.
+  it('text/tertiary does not hold under the wash in light: a linked card’s captions are secondary', () => {
+    expect(tokenContrast('text/tertiary', 'interactive/wash-hover', 'light', FILL)).toBeCloseTo(4.27, 1);
+    expect(tokenContrast('text/tertiary', 'interactive/wash-hover', 'dark', FILL)).toBeGreaterThanOrEqual(AA_NORMAL);
+  });
+
+  it('is the canvas in dark, which is why it does not stand on it', () => {
+    expect(resolve(FILL, 'dark')).toBe(resolve('surface/base', 'dark'));
+  });
+});
+
 describe('structural invariants', () => {
   it('every token defines both modes', () => {
     for (const [name, entry] of Object.entries(theme)) {

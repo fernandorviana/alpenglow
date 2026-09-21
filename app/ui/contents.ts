@@ -59,12 +59,13 @@ export const NAV: readonly NavGroup[] = [
   {
     title: 'Components',
     href: '/components',
-    blurb: 'Fifteen components, each with its states measured in both modes.',
+    blurb: 'Sixteen components, each with its states measured in both modes.',
     items: [
       { href: '/alert', label: 'Alert' },
       { href: '/avatar', label: 'Avatar and Loader' },
       { href: '/badge', label: 'Badge' },
       { href: '/button', label: 'Button' },
+      { href: '/card', label: 'Card' },
       { href: '/input', label: 'Input and Textarea' },
       { href: '/choice', label: 'Checkbox, Radio, Switch' },
       { href: '/date-picker', label: 'Date picker' },

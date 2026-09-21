@@ -63,8 +63,8 @@ describe('Pager', () => {
     expect(link(/Previous/)).toHaveAttribute('href', '/badge');
     // Two lines, one name, and a space where the line breaks.
     expect(link(/Previous/)).toHaveAccessibleName('Previous Badge');
-    expect(link(/Next/)).toHaveAttribute('href', '/input');
-    expect(link(/Next/)).toHaveTextContent('Input and Textarea');
+    expect(link(/Next/)).toHaveAttribute('href', '/card');
+    expect(link(/Next/)).toHaveTextContent('Card');
   });
 
   it('offers only next on the first page', () => {

@@ -24,6 +24,14 @@ break: a removed token or prop is named here under **Breaking**.
 - **`border/info-subtle`, `border/success-subtle`, `border/warning-subtle`,
   `border/danger-subtle`** (`--ap-color-border-*-subtle`) — the soft edge of
   a tinted status surface.
+- **Card** — a filled surface a step under `surface/raised`, with no border,
+  and five parts: `CardMedia` (a picture set into it, 16 / 9 unless told),
+  `CardBody`, `CardTitle`, which with `href` makes the whole card its link
+  while the link's name stays the title, and `CardActions`, which keeps
+  controls pressable inside a linked card. Only a linked card answers the
+  pointer: the theme's wash, and the picture rises a level. Exports `Card`,
+  `CardMedia`, `CardBody`, `CardTitle`, `CardActions`, `cardElements`,
+  `cardTitleElements` and their prop types.
 - **Pagination** — a named `nav` of pages in seven places that never move
   the arrows, with `aria-current`, arrows that are `aria-disabled` at the
   ends, `hrefFor` for links, and the page arrived at announced. With `total`

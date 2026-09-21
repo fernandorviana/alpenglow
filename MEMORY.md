@@ -526,7 +526,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1349 tests across 59 files
+npm test            # 1390 tests across 60 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -537,7 +537,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 167 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 175 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -589,6 +589,41 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Card** — built 2026-09-21, on main, unreleased. Spec
+  `docs/superpowers/specs/2026-09-21-card-design.md`, plan
+  `docs/superpowers/plans/2026-09-21-card.md`. **One card is drawn**, the
+  published `Card - Locations` (Default and Hover); Fernando: the product
+  has more, it is a complex tool, ignore the calendar's. He chose: **a
+  surface and parts, the rest the caller's** over a bare surface or closed
+  props; **the drawn fill with no border, "for now"**, over the site's raised
+  card with a hairline; **the wash for hover**, not the drawn
+  `surface/accent-subtle`, which is kept for a selected card. The fill is
+  `surface/sunken`, so **a Card stands on `surface/raised`**: in dark sunken
+  is the canvas (invariant 4) and on the canvas it is not seen. The site's
+  navigation cards (`app/ui/Card.tsx`, on the canvas) were therefore **not**
+  moved onto it, which the roadmap had planned; an `outline` variant is what
+  they would move to. Set down without asking, to be corrected on sight:
+  nothing is behind the hover (the drawn counts are always shown as Badges
+  on the picture, "See details" is gone since the card is the link), the
+  picture's hover is the wash and not 8% black (no token), and `CardBody`
+  and `CardActions` beside the three parts agreed. `CardTitle` with `href`
+  is a plain `a` whose `::after` covers the card; the ring is on the card
+  through `:has()`, inside `@supports selector(:has(*))`. `CardActions` is
+  **the package's one z-index**, held in by `isolation: isolate` on the
+  card, because a positioned part before the link in the DOM would be under
+  its `::after`. **Measured:** `text/tertiary`, the drawn captions' token,
+  is 4.27:1 on the fill under the wash in light, so a linked card's captions
+  are `text/secondary`; the suite records the number. `.title.title` and
+  `.link.link` are doubled so a page's `h3` margin and link colour do not
+  win. From the review: `.media > img`, not any `img` inside (an avatar laid
+  over the picture was stretched to cover it); a card that holds cards does
+  not hover and does not hand its two custom properties down; a transparent
+  hairline, given back by the padding, because forced colours remove the
+  fill that is its only edge; `id` goes on the title's element, linked or
+  not; the dead `background-color` transition is gone, the wash snaps as on
+  the Button and only the shadow travels. No photograph ships with the
+  site, so the docs picture is drawn from tokens. Not checked: Safari,
+  Firefox, a screen reader, forced colours by eye.
 - **Pagination** — built 2026-09-20, on main, unreleased. Spec
   `docs/superpowers/specs/2026-09-20-pagination-design.md`, plan
   `docs/superpowers/plans/2026-09-20-pagination.md`. **It is drawn**: the

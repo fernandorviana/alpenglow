@@ -1,0 +1,159 @@
+/**
+ * Card
+ *
+ * The drawn `Card - Locations`. docs/superpowers/specs/2026-09-21-card-design.md
+ * holds where it leaves the drawing: the fill is `surface/sunken`, the hover
+ * is the theme's wash on the card and on the picture, and nothing is kept
+ * behind the hover.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson). The
+ * card speaks to its picture through two custom properties, which inherit,
+ * and the one reach is to an element: the `img` or `video` the caller puts
+ * straight into the picture and cannot class. Its child only: an avatar or a
+ * logo laid over the picture is not the picture.
+ */
+
+.card, .media, .media > img, .media > video, .media::after, .title, .link, .link::after, .actions, .body {
+  box-sizing: border-box;
+}
+
+.card {
+  /* The link's hit area is placed against the card. */
+  position: relative;
+  /* The one z-index below stays inside the card. */
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-100);
+  min-width: 0;
+  /* The fill is the card's only edge, and forced colours take fills away. A
+     transparent border is painted there and nowhere else; the padding gives
+     its width back. */
+  padding: calc(var(--ap-spacing-200) - var(--ap-border-width-hairline));
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-2xl);
+  background-color: var(--ap-color-surface-sunken);
+  /* A card inside a card does not take the outer one's hover. */
+  --card-media-wash: initial;
+  --card-media-elevation: initial;
+  color: var(--ap-color-text-primary);
+
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  text-align: start;
+}
+
+/* A list of cards is a `ul` of `li`, and the marker is not the card's. */
+li.card { list-style: none; }
+
+/* Only a card whose title is a link answers the pointer. The wash over the
+   card's own fill, as on every filled control, and the same wash over the
+   picture, which rises a level. The wash is a background-image and does not
+   fade, as on the Button; the picture's is kept in step and only the shadow
+   travels. A card that holds cards is a container, whatever they link to. */
+.card:has(.link):not(:has(.card)):hover {
+  background-image: linear-gradient(var(--ap-color-interactive-wash-hover), var(--ap-color-interactive-wash-hover));
+  --card-media-wash: var(--ap-color-interactive-wash-hover);
+  --card-media-elevation: var(--ap-elevation-lg);
+}
+
+/* --- the picture ------------------------------------------------------------ */
+
+.media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: var(--card-media-ratio);
+  /* Concentric would be 0: the picture is 16 inside a 16 corner. The drawn 12
+     is kept, a softer corner than the card's and not a sharper one. */
+  border-radius: var(--ap-radius-xl);
+  background-color: var(--ap-color-surface-raised);
+  box-shadow: var(--card-media-elevation, var(--ap-elevation-md));
+  transition: box-shadow var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.media > img,
+.media > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--card-media-wash, transparent);
+  pointer-events: none;
+}
+
+/* --- the words -------------------------------------------------------------- */
+
+/* With the card's gap of 8: the drawn 12 under the picture, and 20 at the foot. */
+.body {
+  min-width: 0;
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+}
+
+/* Doubled, so a page's `article h3` does not give the title its margin. */
+.title.title {
+  margin: 0;
+  color: inherit;
+  font-size: var(--ap-text-body-lg-size);
+  line-height: var(--ap-text-body-lg-line-height);
+  letter-spacing: var(--ap-text-body-lg-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+/* Doubled for the same reason: a page paints its links, and this is a title. */
+.link.link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--ap-radius-xs);
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--ap-radius-2xl);
+}
+
+.link:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+/* The hit area is over everything in the card that is not in `.actions`:
+   words under it cannot be selected, and a second link under it cannot be
+   pressed. That is the price of one link and no nesting. */
+
+/* The ring on the card, which is the hit area, where the browser can ask the
+   card about its link. Elsewhere it stays on the title. */
+@supports selector(:has(*)) {
+  .link:focus-visible { outline: none; }
+
+  .card:has(.link:focus-visible) {
+    outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+    outline-offset: var(--ap-focus-ring-offset);
+  }
+}
+
+/* --- controls inside a linked card ------------------------------------------ */
+
+/* The link's `::after` is positioned, so it paints over anything that is not,
+   and over a positioned part that comes before it in the DOM. The package's
+   one z-index, held in by the card's `isolation`. */
+.actions {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media { transition: none; }
+}
