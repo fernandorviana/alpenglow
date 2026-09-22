@@ -43,6 +43,21 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Table, dense** — `stickyHeader` pins the header inside a region bounded
+  by `maxHeight`; `bulkActions` floats a bar over the selection with the
+  count (`bulkLabel`), the caller's actions and "Clear selection"
+  (`clearSelectionLabel`), which follows the page and never leaves the
+  table; `footer` is a slot under the frame for the Pagination; a selected
+  row takes the drawn stripe at its start. The root is now a wrapper around
+  the region: the density class, `aria-busy`, `className` and the rest go
+  to the root, and the region keeps its role and name. Exports
+  `BulkActionsApi`.
+- **Filters** — the filters on a list, read as words: a Tag for each field
+  with a value, its words a button that opens the field's values as
+  checkboxes, a "+" that opens the fields and then a field's values, and
+  Clear. Controlled: `fields`, `value`, `onChange`; `label`, `addLabel`,
+  `clearLabel`, `describe`. Exports `Filters`, `FiltersProps`,
+  `FilterField`, `FilterOption`, `FilterValue`.
 - **Progress** — a native `progress` painted on the element itself, so every
   browser draws the same bar: `label` (required, visible unless `hideLabel`),
   `value` and `max`, `showValue` with a floored percentage or `valueText`

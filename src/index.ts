@@ -48,6 +48,7 @@ export type { RadioProps } from './components/Radio/index';
 export { Table } from './components/Table/index';
 export type {
   TableProps,
+  BulkActionsApi,
   Column,
   ColumnAlign,
   TableDensity,
@@ -120,6 +121,9 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/in
 
 export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
+
+export { Filters } from './components/Filters/index';
+export type { FiltersProps, FilterField, FilterOption, FilterValue } from './components/Filters/index';
 
 export { Progress, progressSizes, progressTones } from './components/Progress/index';
 export type { ProgressProps, ProgressSize, ProgressTone } from './components/Progress/index';

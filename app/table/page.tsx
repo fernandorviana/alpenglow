@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { Table } from '@/components/Table';
 import type { Column, Sort } from '@/components/Table';
 import { resolve } from '@/tokens/contrast';
+import { Dense } from './Dense';
 
 type PropRow = { prop: string; type: string; default: string };
 
@@ -27,6 +28,12 @@ const PROPS: PropRow[] = [
   { prop: 'rowAction', type: '(row: Row) => ReactNode', default: '—' },
   { prop: 'empty', type: 'ReactNode', default: "'No rows'" },
   { prop: 'loading', type: 'boolean', default: 'false' },
+  { prop: 'stickyHeader', type: 'boolean', default: 'false' },
+  { prop: 'maxHeight', type: 'number | string', default: '—' },
+  { prop: 'bulkActions', type: 'ReactNode | ({ selected, clear }) => ReactNode', default: '—' },
+  { prop: 'bulkLabel', type: '(count: number) => string', default: '{n} selected' },
+  { prop: 'clearSelectionLabel', type: 'string', default: "'Clear selection'" },
+  { prop: 'footer', type: 'ReactNode', default: '—' },
 ];
 
 const COLUMN_PROPS: PropRow[] = [
@@ -210,6 +217,36 @@ export default function Page() {
           getRowId={(c) => c.id}
         />
       </div>
+
+      <h2>Dense</h2>
+      <p>
+        The screen the system was made for, composed: a search, the <a href="/filters">Filters</a> read as words,
+        the table with its header pinned inside a bounded region, a bar that floats over the selection, and the{' '}
+        <a href="/pagination">Pagination</a> as the footer. Seventy-two rows; pick a few, scroll the page, change
+        the page size.
+      </p>
+      <div className="specimen">
+        <Dense />
+      </div>
+      <p>
+        <code>stickyHeader</code> pins the header while the region scrolls, and the region scrolls vertically only
+        with <code>maxHeight</code>: sticky is held by the nearest scrolling ancestor, and the frame already scrolls
+        sideways, so a header cannot stick to the page while the table keeps its own horizontal scroll. The line
+        under the pinned header is a shadow, since a collapsed border scrolls away under a sticky cell in Chromium.
+      </p>
+      <p>
+        With <code>bulkActions</code> and a selection, a bar floats at the foot of the window and follows the page,
+        never leaving the table: the count, what the caller puts there, and &ldquo;Clear selection&rdquo;, which the
+        bar owns because the table owns the selection. It is drawn as an accent bar; here it is the Popover&rsquo;s
+        shell, because what a caller puts in it &mdash; icon buttons, a Switch &mdash; reads the theme&rsquo;s text
+        tokens, which on accent are illegible, and the theme has no tokens yet for controls on an inverse surface.
+        Decided 2026-09-22, recorded as waiting on those tokens. The drawn stripe at the start of a selected row is
+        kept.
+      </p>
+      <p>
+        <code>footer</code> is a slot under the frame: the Pagination with <code>total</code> and{' '}
+        <code>pageSize</code> says &ldquo;1&ndash;10 of 72&rdquo; and lets the size be picked, as drawn.
+      </p>
 
       <h2>Cell content is not the table's business</h2>
       <p>

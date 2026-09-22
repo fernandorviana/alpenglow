@@ -1,4 +1,5 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Loader } from '../Loader/Loader';
 import styles from './Table.module.css';
@@ -73,7 +74,28 @@ export type TableProps<Row> = {
   /** The trailing action column from the drawing. */
   rowAction?: (row: Row) => ReactNode;
   loading?: boolean;
+  /**
+   * Pins the header while the region scrolls. The region scrolls vertically
+   * only with `maxHeight`: sticky is held by the nearest scrolling ancestor,
+   * and the frame already scrolls sideways, so a header cannot stick to the
+   * page.
+   */
+  stickyHeader?: boolean;
+  /** A length; the region scrolls vertically past it. */
+  maxHeight?: number | string;
+  /**
+   * With a selection, a bar floats at the foot with the count, this, and
+   * "Clear selection". Only with `onSelectionChange`.
+   */
+  bulkActions?: ReactNode | ((api: BulkActionsApi) => ReactNode);
+  /** The count in words. */
+  bulkLabel?: (count: number) => string;
+  clearSelectionLabel?: string;
+  /** Under the frame: a Pagination. */
+  footer?: ReactNode;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
+
+export type BulkActionsApi = { selected: ReadonlySet<string>; clear: () => void };
 
 /**
  * A real table, named, with scoped headers and a column group, plus
@@ -102,6 +124,12 @@ export function Table<Row>({
   selectionLabel,
   rowAction,
   loading,
+  stickyHeader = false,
+  maxHeight,
+  bulkActions,
+  bulkLabel = (count) => `${count} selected`,
+  clearSelectionLabel = 'Clear selection',
+  footer,
   className,
   ...rest
 }: TableProps<Row>) {
@@ -147,15 +175,30 @@ export function Table<Row>({
       }
     : undefined;
 
+  // The bar only with a selection and someone to act on it. Clear is the
+  // bar's own: the Table owns the selection, so emptying it is not a thing
+  // every caller should write.
+  const clear = onSelect ? () => onSelect(new Set()) : undefined;
+  const bar = clear && bulkActions !== undefined && selectedIds.size > 0 ? bulkLabel(selectedIds.size) : undefined;
+
   return (
     <div
       {...rest}
-      className={[styles.wrap, styles[density], className].filter(Boolean).join(' ')}
-      role="region"
-      aria-label={caption}
-      tabIndex={0}
+      className={[styles.root, styles[density], bar && styles.withBar, className].filter(Boolean).join(' ')}
       aria-busy={loading || undefined}
     >
+      <div className={styles.frame}>
+      <div
+        className={[styles.region, maxHeight !== undefined && styles.bounded].filter(Boolean).join(' ')}
+        role="region"
+        aria-label={caption}
+        tabIndex={0}
+        style={
+          maxHeight === undefined
+            ? undefined
+            : ({ '--table-max-height': typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight } as CSSProperties)
+        }
+      >
       <table className={styles.table}>
         <caption className={captionVisible ? styles.caption : 'ap-sr-only'}>
           {caption}
@@ -168,7 +211,7 @@ export function Table<Row>({
           ))}
         </colgroup>
 
-        <thead className={styles.thead}>
+        <thead className={[styles.thead, stickyHeader && styles.sticky].filter(Boolean).join(' ')}>
           <tr>
             {toggleAll && (
               <th scope="col" className={`${styles.th} ${styles.selectCell}`}>
@@ -284,6 +327,26 @@ export function Table<Row>({
           )}
         </tbody>
       </table>
+      </div>
+      </div>
+      {bar && clear && (
+        <div className={styles.dock}>
+          <div className={styles.bar} role="group" aria-label={bar}>
+            <span className={styles.count} role="status">
+              {bar}
+            </span>
+            <span className={styles.divider} aria-hidden="true" />
+            <div className={styles.bulk}>
+              {typeof bulkActions === 'function' ? bulkActions({ selected: selectedIds, clear }) : bulkActions}
+            </div>
+            <span className={styles.divider} aria-hidden="true" />
+            <Button variant="outline" tone="neutral" size="sm" onClick={clear}>
+              {clearSelectionLabel}
+            </Button>
+          </div>
+        </div>
+      )}
+      {footer !== undefined && <div className={styles.footer}>{footer}</div>}
     </div>
   );
 }

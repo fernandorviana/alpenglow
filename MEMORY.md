@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1790 tests across 71 files
+npm test            # 1825 tests across 72 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 215 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 217 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,47 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Table, dense, and Filters** — built 2026-09-22, on main, unreleased; the last
+  of wave 2. Spec `docs/superpowers/specs/2026-09-22-dense-table-design.md`,
+  plan `docs/superpowers/plans/2026-09-22-dense-table.md`. Fernando gave two
+  product pages: **Filters, "future proof"** (a bar above the table: chips
+  "**Status** is **Active** and **Invite Pending** ×", a "+" that opens the
+  fields and then a field's checkboxes, a chip that reopens its values,
+  Clear) and **bulk actions** (an accent bar floating at the foot with
+  "2 SELECTED", icon actions, a Switch "Show only selected" and "Clear
+  Selection"; a stripe of accent at the start of a selected row; a footer
+  "Show [10] · 1-10 of 72" with the Pagination). Asked what goes into the
+  Table and what stays apart, he said **"faz e depois avaliamos"**: the
+  recommended split was built. **Into the Table**: `stickyHeader` inside a
+  `maxHeight` region (sticky is held by the nearest scrolling ancestor and
+  the frame scrolls sideways, so a header cannot stick to the page; the line
+  under it is a shadow, a collapsed border scrolling away in Chromium), the
+  selection bar rendered by the Table with `bulkActions`, `footer`, the
+  stripe; the root became a wrapper (root > frame > region > table, then the
+  dock and the footer). **Beside it, `Filters`**, controlled, chips as the
+  Tag, values in a Popover of Checkboxes, the "+" a Popover with the fields
+  on one side and the picked field's values on the other. **The bar is a
+  neutral floating panel, not the drawn accent** (decided 2026-09-22): what
+  the caller puts in it reads the theme's text tokens, illegible on accent,
+  and there are no tokens for controls on an inverse surface yet — the same
+  open item as status-on-inverse; the accent bar waits for them or for a
+  scoped inverse island, to test if Fernando prefers it after using this.
+  The chip says "is A **or** B" where the drawing says "and": asked whether
+  the filters were good, told yes, and that "and" reads as both; `describe`
+  changes the words. The toolbar's filter icon is not composed: it repeated
+  the "+". From the browser and the review: the dock stretched the bar to
+  its zero height (18px) — `align-items: flex-start`; the bar ran past a
+  phone's viewport — it wraps; the last rows lay under the bar with no way
+  out — `--table-foot-room` pads the region while the bar is shown, measured
+  clear; Filters dropped a value it did not know — kept after the known
+  ones; the docs' "show only selected" survived Clear selection with its
+  Switch gone — it follows the selection. Recorded, not solved: the count is
+  a `role="status"` inserted with the bar, so the first selection is not
+  announced. Two contrast cases (the stripe on the selected row; the count
+  on the overlay; the chip's words on sunken). The Table page's "Dense"
+  section is the composed screen (search, Filters, bounded table, bar,
+  Pagination) over 72 rows; `/filters` page; nav entry; section card. Not
+  checked: Safari, Firefox, a screen reader, RTL.
 - **Progress** — built 2026-09-22, on main, unreleased; tenth of wave 2. Spec
   `docs/superpowers/specs/2026-09-22-progress-design.md`, plan
   `docs/superpowers/plans/2026-09-22-progress.md`. Not published as a

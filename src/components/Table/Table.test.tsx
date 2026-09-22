@@ -547,3 +547,120 @@ describe('Table collapse', () => {
     expect(hide).toContain(':not(.loadingCell)');
   });
 });
+
+describe('Table dense: a bounded region, the selection bar and the footer', () => {
+  const css = () => readFileSync('src/components/Table/Table.module.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('keeps the density class and aria-busy on the root, and the role and name on the region inside it', () => {
+    const { container } = render(<Table {...base} density="compact" loading className="mine" />);
+    const root = container.firstElementChild!;
+    expect(root).toHaveClass(styles.root!, styles.compact!, 'mine');
+    expect(root).toHaveAttribute('aria-busy', 'true');
+    const region = screen.getByRole('region', { name: 'Clients' });
+    expect(root.contains(region)).toBe(true);
+    expect(region).not.toBe(root);
+  });
+
+  it('bounds the region and pins the header when asked', () => {
+    render(<Table {...base} stickyHeader maxHeight={320} />);
+    const region = screen.getByRole('region') as HTMLElement;
+    expect(region).toHaveClass(styles.bounded!);
+    expect(region.style.getPropertyValue('--table-max-height')).toBe('320px');
+    expect(region.querySelector('thead')).toHaveClass(styles.sticky!);
+  });
+
+  it('takes a CSS length for the height and pins nothing unless asked', () => {
+    render(<Table {...base} maxHeight="50vh" />);
+    const region = screen.getByRole('region') as HTMLElement;
+    expect(region.style.getPropertyValue('--table-max-height')).toBe('50vh');
+    expect(region.querySelector('thead')).not.toHaveClass(styles.sticky!);
+  });
+
+  it('shows the selection bar only with bulkActions and a selection', () => {
+    const { rerender } = render(<Table {...base} selected={new Set(['a'])} onSelectionChange={() => {}} />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    rerender(<Table {...base} selected={new Set()} onSelectionChange={() => {}} bulkActions={<button type="button">Export</button>} />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    rerender(<Table {...base} selected={new Set(['a', 'b'])} onSelectionChange={() => {}} bulkActions={<button type="button">Export</button>} />);
+    expect(screen.getByRole('status')).toHaveTextContent('2 selected');
+    expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+  });
+
+  it('hands the slot the selection and a way to clear it, and clears from its own button', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <Table
+        {...base}
+        selected={new Set(['a'])}
+        onSelectionChange={onChange}
+        bulkActions={({ selected, clear }) => (
+          <button type="button" onClick={clear}>
+            Archive {selected.size}
+          </button>
+        )}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Archive 1' }));
+    expect(onChange).toHaveBeenLastCalledWith(new Set());
+    await user.click(screen.getByRole('button', { name: 'Clear selection' }));
+    expect(onChange).toHaveBeenCalledTimes(2);
+    expect(onChange).toHaveBeenLastCalledWith(new Set());
+  });
+
+  it('names the bar and its count in the caller’s words', () => {
+    render(
+      <Table
+        {...base}
+        selected={new Set(['a'])}
+        onSelectionChange={() => {}}
+        bulkActions={<span>x</span>}
+        bulkLabel={(n) => `${n} selecionados`}
+        clearSelectionLabel="Limpar"
+      />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('1 selecionados');
+    expect(screen.getByRole('button', { name: 'Limpar' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: '1 selecionados' })).toBeInTheDocument();
+  });
+
+  it('gives the region room at its foot while the bar is shown, so the last row can scroll out from under it', () => {
+    const { container, rerender } = render(<Table {...base} selected={new Set(['a'])} onSelectionChange={() => {}} bulkActions={<span>x</span>} />);
+    expect(container.firstElementChild).toHaveClass(styles.withBar!);
+    rerender(<Table {...base} selected={new Set()} onSelectionChange={() => {}} bulkActions={<span>x</span>} />);
+    expect(container.firstElementChild).not.toHaveClass(styles.withBar!);
+    const sheet = css();
+    expect(sheet).toMatch(/\.withBar \{[^}]*--table-foot-room:/);
+    expect(sheet).toMatch(/\.region \{[^}]*padding-block-end: var\(--table-foot-room, 0\)/);
+  });
+
+  it('renders the footer under the frame, outside the region', () => {
+    render(<Table {...base} footer={<nav aria-label="Pages">pages</nav>} />);
+    const footer = screen.getByRole('navigation', { name: 'Pages' });
+    expect(screen.getByRole('region').contains(footer)).toBe(false);
+    expect(footer.parentElement).toHaveClass(styles.footer!);
+  });
+
+  it('pins the header with a shadow for its line, since a collapsed border scrolls away', () => {
+    const sheet = css();
+    const sticky = sheet.slice(sheet.indexOf('.sticky .th {'));
+    expect(sticky).toContain('position: sticky');
+    expect(sticky).toContain('box-shadow: inset 0 calc(var(--ap-border-width-hairline) * -1)');
+    expect(sheet).toMatch(/\.bounded \{[^}]*max-block-size: var\(--table-max-height\)/);
+  });
+
+  it('docks the bar to the foot of the viewport inside the root, and floats it as a panel', () => {
+    const sheet = css();
+    expect(sheet).toMatch(/\.dock \{[^}]*position: sticky/);
+    expect(sheet).toMatch(/\.dock \{[^}]*bottom:/);
+    expect(sheet).toMatch(/\.bar \{[^}]*var\(--ap-color-surface-overlay\)/);
+    expect(sheet).toMatch(/\.bar \{[^}]*var\(--ap-elevation-lg\)/);
+  });
+
+  it('stripes a selected row at its start, and the other way in RTL', () => {
+    const sheet = css();
+    expect(sheet).toMatch(/\.tr\[data-selected='true'\] \.td:first-child \{[^}]*inset 3px 0 0 var\(--ap-color-interactive-accent\)/);
+    expect(sheet).toMatch(/\.tr\[data-selected='true'\]:dir\(rtl\) \.td:first-child \{[^}]*inset -3px 0 0/);
+  });
+});

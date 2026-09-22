@@ -23,6 +23,7 @@ import { Table } from '@/components/Table';
 import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
 import { EmptyState } from '@/components/EmptyState';
+import { Filters } from '@/components/Filters';
 import { Progress } from '@/components/Progress';
 import { Skeleton } from '@/components/Skeleton';
 import { Tabs } from '@/components/Tabs';
@@ -277,6 +278,20 @@ export default function Page() {
               <span>Reschedule</span>
               <span className="miniMenuHover">Send reminder</span>
               <span className="miniMenuDanger">Cancel appointment</span>
+            </div>
+          }
+        />
+        <Card
+          href="/filters"
+          title="Filters"
+          description="The filters on a list, read as words: a chip a field, its values a click away, a plus, and Clear."
+          visual={
+            <div style={{ width: '100%' }}>
+              <Filters
+                fields={[{ key: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] }]}
+                value={[{ key: 'status', values: ['active'] }]}
+                onChange={() => {}}
+              />
             </div>
           }
         />

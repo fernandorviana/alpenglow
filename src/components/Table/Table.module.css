@@ -22,23 +22,43 @@
 
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
-.wrap, .table, .caption, .th, .td, .sortButton, .sortMark, .selectCell {
+.root, .frame, .region, .bounded, .table, .caption, .th, .td, .sortButton, .sortMark, .selectCell,
+.dock, .bar, .count, .divider, .bulk, .footer {
   box-sizing: border-box;
 }
 
-.wrap {
-  /* The region is focusable so a keyboard can scroll it; its role and label
-     are set in the component. */
-  overflow-x: auto;
-  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
-  border-radius: var(--ap-radius-lg);
-  background: var(--ap-color-surface-raised);
+/* The root holds the frame, the selection bar's dock and the footer, and is
+   the container the collapse query measures. Nothing here scrolls: the dock
+   is sticky to the viewport, which an overflowing ancestor would hold. */
+.root {
+  display: grid;
   container-type: inline-size;
 }
 
-.wrap:focus-visible {
+.frame {
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-raised);
+  overflow: hidden;
+}
+
+/* The region is focusable so a keyboard can scroll it; its role and label
+   are set in the component. The focus ring is drawn inside, where the frame's
+   overflow cannot cut it. */
+.region {
+  overflow: auto;
+  /* Room at the foot for the selection bar, so the last row can scroll out
+     from under it; set by the root while the bar is shown. */
+  padding-block-end: var(--table-foot-room, 0);
+}
+
+.region:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
-  outline-offset: var(--ap-focus-ring-offset);
+  outline-offset: calc(var(--ap-border-width-ring) * -1);
+}
+
+.bounded {
+  max-block-size: var(--table-max-height);
 }
 
 .table {
@@ -74,6 +94,17 @@
   text-transform: uppercase;
   border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   white-space: nowrap;
+}
+
+/* Pinned inside the bounded region. The line under it is a shadow and not
+   the border above: with border-collapse a sticky cell's border stays where
+   the row was and scrolls away under the header in Chromium. */
+.sticky .th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: none;
+  box-shadow: inset 0 calc(var(--ap-border-width-hairline) * -1) var(--ap-color-border-subtle);
 }
 
 /* Separators group rows that position already separates, so they are
@@ -255,6 +286,16 @@
   background: var(--ap-color-interactive-selected);
 }
 
+/* The drawn stripe at the row's start: 3px of accent, an inset shadow on the
+   first cell so it adds no width and survives the collapse. */
+.tr[data-selected='true'] .td:first-child {
+  box-shadow: inset 3px 0 0 var(--ap-color-interactive-accent);
+}
+
+.tr[data-selected='true']:dir(rtl) .td:first-child {
+  box-shadow: inset -3px 0 0 var(--ap-color-interactive-accent);
+}
+
 /* Not the empty state or the loading cell: both are placeholders, not rows to
    scan. The wash rather than a fill: it composites over the body, so the row
    lifts by the same amount wherever the table sits. */
@@ -312,3 +353,80 @@
   }
 }
 
+/* --- selection bar ---------------------------------------------------------
+ *
+ * Drawn as an accent bar floating at the foot, centred over the table. It is
+ * the Popover's shell instead: what the caller puts in it reads the theme's
+ * text tokens, which on accent are illegible, and the theme has no tokens
+ * yet for controls on an inverse surface. Recorded in the spec.
+ *
+ * The dock is sticky to the viewport's foot and has no height, so the bar
+ * lies over the last rows when the table's foot is in view and follows the
+ * page while it is not; being inside the root, it never leaves the table.
+ */
+
+/* flex-start, not the stretch a flex row gives: stretched to the dock's
+   zero height the bar measured 18px. */
+.withBar { --table-foot-room: calc(var(--ap-spacing-700) + var(--ap-spacing-200)); }
+
+.dock {
+  position: sticky;
+  bottom: var(--ap-spacing-200);
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 0;
+  pointer-events: none;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-100) var(--ap-spacing-200);
+  max-width: calc(100% - var(--ap-spacing-400));
+  padding: var(--ap-spacing-100) var(--ap-spacing-200);
+  transform: translateY(calc(-100% - var(--ap-spacing-200)));
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-color-surface-overlay);
+  box-shadow: var(--ap-elevation-lg);
+  pointer-events: auto;
+}
+
+/* In dark the shadow says little, so the edge is a hairline, as the menu's
+   and the popover's. */
+:root[data-theme='dark'] .bar {
+  border-color: var(--ap-color-border-default);
+}
+
+.count {
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-sm-size);
+  line-height: var(--ap-text-caption-sm-line-height);
+  letter-spacing: var(--ap-text-caption-sm-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.divider {
+  align-self: stretch;
+  width: var(--ap-border-width-hairline);
+  background: var(--ap-color-border-subtle);
+}
+
+.bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  min-width: 0;
+}
+
+/* --- footer -------------------------------------------------------------- */
+
+.footer {
+  padding-block-start: var(--ap-spacing-150);
+}

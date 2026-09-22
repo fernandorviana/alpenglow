@@ -813,6 +813,17 @@ describe('progress: the fill against every surface it can stand on', () => {
   }
 });
 
+describe('dense table: the stripe, the bar and the chip', () => {
+  for (const mode of MODES) {
+    it(`the stripe is seen on the selected row, the count reads on the bar, the chip's words read on the tag — ${mode}`, () => {
+      expect(tokenContrast('interactive/accent', 'interactive/selected', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('text/secondary', 'surface/overlay', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/primary', 'surface/sunken', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/secondary', 'surface/sunken', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+});
+
 describe('breadcrumb: a capsule, a slash and the page', () => {
   for (const mode of MODES) {
     it(`its links read at rest, on the root's fill and under the wash, and the page and the slash read on the bar — ${mode}`, () => {

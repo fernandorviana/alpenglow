@@ -1,0 +1,129 @@
+/**
+ * Filters
+ *
+ * Drawn on the product's staff list as a bar above the table; the spec is
+ * docs/superpowers/specs/2026-09-22-dense-table-design.md. The chips are the
+ * Tag, "a filter on a list" being what the Tag was written for; the drawn
+ * chip is a rectangle at radius 8 in body/md, and the Tag's capsule in
+ * caption/md is kept, one chip in the system and not two.
+ */
+
+.filters, .label, .chips, .words, .add, .fields, .field, .options, .legend {
+  box-sizing: border-box;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+  padding: var(--ap-spacing-150) var(--ap-spacing-150) var(--ap-spacing-150) var(--ap-spacing-250);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-xl);
+  background: var(--ap-color-surface-raised);
+  font-family: var(--ap-font-sans);
+}
+
+.label {
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+.chips {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  min-width: 0;
+}
+
+/* The chip's words are the button that opens its values: it looks like
+   words, and the ring is what says it is a control. */
+.words {
+  appearance: none;
+  margin: 0;
+  padding: 0 var(--ap-spacing-025);
+  border: 0;
+  border-radius: var(--ap-radius-xs);
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+}
+
+.words:hover { text-decoration: underline; }
+
+.words:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.strong {
+  color: var(--ap-color-text-primary);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+/* The "+" panel: the fields, and beside them the picked field's values, as
+   the drawn menu and its submenu. */
+.add {
+  display: flex;
+  gap: var(--ap-spacing-100);
+}
+
+.fields {
+  display: grid;
+  gap: var(--ap-spacing-025);
+  min-width: 10rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.field {
+  appearance: none;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border: 0;
+  border-radius: var(--ap-radius-md);
+  background: none;
+  font: inherit;
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  color: var(--ap-color-text-primary);
+  text-align: start;
+  cursor: pointer;
+}
+
+.field:hover { background: var(--ap-color-interactive-wash-hover); }
+.field[aria-pressed='true'] { background: var(--ap-color-interactive-selected); }
+
+.field:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(var(--ap-border-width-ring) * -1);
+}
+
+.options {
+  display: grid;
+  gap: var(--ap-spacing-100);
+  min-width: 10rem;
+  margin: 0;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border: 0;
+}
+
+/* Grouped under the field's name for a reader; the eye has the chip or the
+   pressed field beside it. */
+.legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
