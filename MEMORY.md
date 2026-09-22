@@ -615,8 +615,9 @@ Claimed components (add a line before starting; one per session and branch):
   neutral floating panel, not the drawn accent** (decided 2026-09-22): what
   the caller puts in it reads the theme's text tokens, illegible on accent,
   and there are no tokens for controls on an inverse surface yet — the same
-  open item as status-on-inverse; the accent bar waits for them or for a
-  scoped inverse island, to test if Fernando prefers it after using this.
+  open item as status-on-inverse. **Confirmed by Fernando after using it
+  (2026-09-22): the bar keeps the less accented colours**; the accent
+  drawing is not waited for.
   The chip says "is A **or** B" where the drawing says "and": asked whether
   the filters were good, told yes, and that "and" reads as both; `describe`
   changes the words. The toolbar's filter icon is not composed: it repeated
