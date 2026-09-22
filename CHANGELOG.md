@@ -5,6 +5,25 @@ the completeness roadmap (2026-09-18); `0.1.0` and `0.2.0` are summarised from
 the record in `MEMORY.md`. While the version is `0.x`, a minor version may
 break: a removed token or prop is named here under **Breaking**.
 
+## Unreleased
+
+### Added
+
+- **SideNav** — the primary navigation, drawn 200 wide and 80 with icons
+  only: `items` of `{ href, label, icon, current }`, a `footer` group,
+  `renderLink` for a router, `collapsed` (every item keeps its name in a
+  Tooltip), and below `narrow` (a media query, 760px unless told) a modal
+  `dialog` from the start side with `open` and `onClose`. Exports `SideNav`,
+  `SIDE_NAV_NARROW`, `SideNavProps`, `SideNavItem`.
+- **SideNavSecondary** — the second level: `sections` of `{ label, items,
+  defaultOpen }` under captions that fold on the platform's `details`; 240
+  wide, or a 24 strip with the drawn collapse button (`collapsed`,
+  `onCollapsedChange`). Exports `SideNavSecondary`, `SideNavSecondaryProps`,
+  `SideNavSection`.
+- **TopBar** — the bar along the top, 64 tall: the menu button (`onMenu`,
+  `menuLabel`, `menuExpanded`) and `brand` at the start, `children` in the
+  middle, `actions` at the end. Exports `TopBar`, `TopBarProps`.
+
 ## 0.4.0 — 2026-09-22
 
 Waves 1 and 2 of the completeness roadmap together: `0.3.0`, which was to

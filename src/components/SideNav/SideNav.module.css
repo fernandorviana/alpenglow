@@ -1,0 +1,165 @@
+/**
+ * SideNav
+ *
+ * Drawn as the Side Navigation set, 200 open and 80 closed;
+ * docs/superpowers/specs/2026-09-22-navigation-design.md. On a narrow screen
+ * it stands in a dialog and takes the Dialog's shell.
+ *
+ * The collapsed label is hidden through --sidenav-label, set on the root and
+ * read by the label: no part is reached by descent.
+ */
+
+.sidenav, .collapsed, .list, .foot, .item, .icon, .icon > svg, .label, .sheet, .close, .close svg, .inSheet {
+  box-sizing: border-box;
+}
+
+.sidenav {
+  --sidenav-label: inline;
+  --sidenav-justify: flex-start;
+  --sidenav-inset-start: var(--ap-spacing-200);
+  --sidenav-inset-end: var(--ap-spacing-250);
+
+  display: flex;
+  flex-direction: column;
+  inline-size: var(--sidenav-width, 200px);
+  min-block-size: 100%;
+  padding: var(--ap-spacing-150);
+  border-inline-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+  transition: inline-size var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+/* Icons only: the item is a 48 circle around its 24 icon, the label gone and
+   the name in a tooltip. */
+.collapsed {
+  --sidenav-width: 80px;
+  --sidenav-label: none;
+  --sidenav-justify: center;
+  --sidenav-inset-start: 0;
+  --sidenav-inset-end: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-100);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The drawn 40 above Settings, and the list takes the rest. */
+.foot {
+  margin-block-start: auto;
+  padding-block-start: var(--ap-spacing-500);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: var(--sidenav-justify);
+  gap: var(--ap-spacing-200);
+  min-block-size: var(--ap-spacing-500);
+  padding-block: var(--ap-spacing-100);
+  padding-inline: var(--sidenav-inset-start) var(--sidenav-inset-end);
+  border-radius: var(--ap-radius-full);
+  color: inherit;
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.item:hover { background: var(--ap-color-interactive-wash-hover); }
+
+/* Drawn: the current item on surface/base in the accent. */
+.item[aria-current='page'] {
+  background: var(--ap-color-surface-base);
+  color: var(--ap-color-text-accent);
+}
+
+.item:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(var(--ap-border-width-ring) * -1);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  inline-size: var(--ap-spacing-300);
+  block-size: var(--ap-spacing-300);
+}
+
+.icon > svg { inline-size: 100%; block-size: 100%; }
+
+.label { display: var(--sidenav-label); }
+
+/* --- narrow: a modal drawer from the start side ---------------------------- */
+
+.sheet {
+  inset: 0 auto 0 0;
+  max-inline-size: calc(100vw - var(--ap-spacing-700));
+  block-size: 100dvh;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+  box-shadow: var(--ap-elevation-lg);
+}
+
+.sheet:dir(rtl) { inset: 0 0 0 auto; }
+
+.sheet[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet::backdrop { background: var(--ap-color-surface-scrim); }
+
+.inSheet {
+  flex: 1 1 auto;
+  inline-size: 280px;
+  border-inline-end: 0;
+}
+
+.close {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  inline-size: var(--ap-spacing-500);
+  block-size: var(--ap-spacing-500);
+  margin: var(--ap-spacing-100) var(--ap-spacing-100) 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: none;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+}
+
+.close:hover { background: var(--ap-color-interactive-wash-hover); }
+
+.close:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.close svg { inline-size: var(--ap-spacing-250); block-size: var(--ap-spacing-250); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sheet[open] { animation: slide var(--ap-motion-duration-fade) var(--ap-motion-easing-enter); }
+}
+
+@keyframes slide {
+  from { transform: translateX(-16px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+html:has(.sheet:modal) { overflow: hidden; }

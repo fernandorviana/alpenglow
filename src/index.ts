@@ -122,6 +122,15 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/in
 export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
 
+export { SideNav, SIDE_NAV_NARROW } from './components/SideNav/index';
+export type { SideNavProps, SideNavItem } from './components/SideNav/index';
+
+export { SideNavSecondary } from './components/SideNavSecondary/index';
+export type { SideNavSecondaryProps, SideNavSection } from './components/SideNavSecondary/index';
+
+export { TopBar } from './components/TopBar/index';
+export type { TopBarProps } from './components/TopBar/index';
+
 export { Filters } from './components/Filters/index';
 export type { FiltersProps, FilterField, FilterOption, FilterValue } from './components/Filters/index';
 

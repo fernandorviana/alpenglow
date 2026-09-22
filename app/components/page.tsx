@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkmark, CheckmarkOutline, Copy, Search as SearchIcon } from '@carbon/icons-react';
+import { Calendar as CalendarIcon, Checkmark, CheckmarkOutline, Copy, Home as HomeIcon, Search as SearchIcon } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Card, Cards } from '@ui/Card';
 import { ToastSpecimen } from '@ui/ToastSpecimen';
@@ -24,6 +24,7 @@ import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
 import { EmptyState } from '@/components/EmptyState';
 import { Filters } from '@/components/Filters';
+import { SideNav } from '@/components/SideNav';
 import { Progress } from '@/components/Progress';
 import { Skeleton } from '@/components/Skeleton';
 import { Tabs } from '@/components/Tabs';
@@ -303,6 +304,23 @@ export default function Page() {
             <span style={{ color: 'var(--ap-color-text-secondary)' }}>
               Read the <Link href="/link">specification</Link>
             </span>
+          }
+        />
+        <Card
+          href="/navigation"
+          title="Navigation"
+          description="The top bar, the side nav that collapses to icons or opens as a drawer, and the second level under captions."
+          visual={
+            <div style={{ display: 'flex', height: 132, width: '100%', maxWidth: 200 }}>
+              <SideNav
+                aria-label="Example"
+                items={[
+                  { href: '#', label: 'Home', icon: <HomeIcon size={24} /> },
+                  { href: '#', label: 'Calendar', icon: <CalendarIcon size={24} />, current: true },
+                ]}
+                renderLink={(props) => <a {...props} onClick={(e) => e.preventDefault()} />}
+              />
+            </div>
           }
         />
         <Card

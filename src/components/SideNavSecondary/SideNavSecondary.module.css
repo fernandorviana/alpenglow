@@ -1,0 +1,169 @@
+/**
+ * SideNavSecondary
+ *
+ * Drawn as the Second Level Navigation set, 240 open and 24 closed;
+ * docs/superpowers/specs/2026-09-22-navigation-design.md. A section is a
+ * details, as the Accordion's item: folding is the platform's. What
+ * collapsing hides travels as custom properties from the root.
+ */
+
+.secondary, .collapsed, .fold, .fold svg, .section, .caption, .chevron, .list, .item, .icon, .icon > svg, .label {
+  box-sizing: border-box;
+}
+
+.secondary {
+  --sidenav-sections: block;
+  --sidenav-turn: 0deg;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-200);
+  inline-size: var(--sidenav-width, 240px);
+  min-block-size: 100%;
+  padding: var(--ap-spacing-300) var(--ap-spacing-100) var(--ap-spacing-200);
+  border-inline-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-base);
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+  transition: inline-size var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+/* The strip: the button alone, its chevron turned to point the other way. */
+.collapsed {
+  --sidenav-width: 24px;
+  --sidenav-sections: none;
+  --sidenav-turn: 180deg;
+
+  padding-inline: 0;
+}
+
+/* The drawn collapse button: a 32 circle over the inner edge at the head. */
+.fold {
+  appearance: none;
+  position: absolute;
+  inset-block-start: var(--ap-spacing-200);
+  inset-inline-end: calc(var(--ap-spacing-200) * -1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--ap-spacing-400);
+  block-size: var(--ap-spacing-400);
+  margin: 0;
+  padding: 0;
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+}
+
+.fold:hover { color: var(--ap-color-text-primary); }
+
+.fold:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.fold svg {
+  inline-size: var(--ap-spacing-200);
+  block-size: var(--ap-spacing-200);
+  transform: rotate(var(--sidenav-turn));
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.fold:dir(rtl) svg { transform: rotate(calc(180deg - var(--sidenav-turn))); }
+
+.section {
+  display: var(--sidenav-sections);
+  --sidenav-chevron: -90deg;
+}
+
+.section[open] { --sidenav-chevron: 0deg; }
+
+.caption {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-200);
+  min-block-size: var(--ap-spacing-300);
+  margin-block-end: var(--ap-spacing-050);
+  padding-inline: var(--ap-spacing-250) var(--ap-spacing-100);
+  border-radius: var(--ap-radius-sm);
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-sm-size);
+  line-height: var(--ap-text-caption-sm-line-height);
+  letter-spacing: var(--ap-text-caption-sm-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.caption::-webkit-details-marker { display: none; }
+
+.caption:hover { color: var(--ap-color-text-primary); }
+
+.caption:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.chevron {
+  flex: none;
+  inline-size: var(--ap-spacing-200);
+  block-size: var(--ap-spacing-200);
+  transform: rotate(var(--sidenav-chevron));
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+  min-block-size: var(--ap-spacing-500);
+  padding: var(--ap-spacing-100) var(--ap-spacing-200);
+  border-radius: var(--ap-radius-lg);
+  color: inherit;
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  text-decoration: none;
+}
+
+.item:hover { background: var(--ap-color-interactive-wash-hover); }
+
+/* Drawn: the current item lifted to surface/raised, in the accent. */
+.item[aria-current='page'] {
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-accent);
+}
+
+.item:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(var(--ap-border-width-ring) * -1);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  inline-size: var(--ap-spacing-300);
+  block-size: var(--ap-spacing-300);
+}
+
+.icon > svg { inline-size: 100%; block-size: 100%; }
+
+.label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

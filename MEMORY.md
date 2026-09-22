@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1825 tests across 72 files
+npm test            # 1875 tests across 75 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 217 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 219 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,35 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **SideNav, SideNavSecondary and TopBar** — built 2026-09-22, on main, unreleased;
+  first of wave 3. Spec `docs/superpowers/specs/2026-09-22-navigation-design.md`,
+  plan `docs/superpowers/plans/2026-09-22-navigation.md`. **Drawn**: the Side
+  Navigation set (200 open, 80 closed with icons, items 40 in a capsule, the
+  current one on `surface/base` in `text/accent`, Settings at the foot), the
+  Second Level Navigation set (240 open, 24 closed as a strip with the
+  collapse button, sections under caption/sm captions with a chevron, items
+  40 at radius md, the current one on `surface/raised`), and the Top Bar (64
+  on `surface/raised`, menu and logo at the start, Create, three icon
+  buttons and the Avatar at the end). Fernando took **A, two levels as two
+  components**, and the design as proposed: the collapse control is the
+  TopBar's menu button and the caller holds `collapsed` and `open`; on a
+  narrow screen (`narrow`, a media query, 760px until breakpoints are
+  tokens) the SideNav is a **modal `<dialog>`** with the Dialog's mechanics;
+  collapsed items keep their names in Tooltips; a section is a `<details>`;
+  the caption is `text/tertiary`, not the drawn `text/disabled`. What is
+  graduated from the site's nav is the pattern, not the M3 rail, which the
+  site keeps. From the review: a section's `open` was written every render
+  and a folded section reopened on a re-render (the Accordion's lesson) —
+  each section reads its default once, with a test; sections keyed by index
+  and caption; a press on a link in the drawer does not close it, the caller
+  closes on navigation, said in the type and on the page; no phone version
+  of the top bar's actions or the second level is drawn or built, the page
+  says what a caller does. Seen in Chromium: 80 and 24 collapsed, the drawer
+  with its scrim over the page, light and dark, a phone width. Two contrast
+  cases. `/navigation` page with the composed shell and controls; nav entry;
+  section card; `useMediaQuery` hook (`src/components/useMediaQuery.ts`,
+  false on the server). Not checked: Safari, Firefox, a screen reader, the
+  collapsed tooltip by eye, RTL.
 - **Table, dense, and Filters** — built 2026-09-22, on main, in 0.4.0; the last
   of wave 2. Spec `docs/superpowers/specs/2026-09-22-dense-table-design.md`,
   plan `docs/superpowers/plans/2026-09-22-dense-table.md`. Fernando gave two

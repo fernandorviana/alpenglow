@@ -813,6 +813,18 @@ describe('progress: the fill against every surface it can stand on', () => {
   }
 });
 
+describe('navigation: the current item in the accent on both bars, and the caption', () => {
+  // The drawn caption is text/disabled; it is text/tertiary here so it reads.
+  for (const mode of MODES) {
+    it(`the current item reads on surface/base and on surface/raised, the caption on the base — ${mode}`, () => {
+      expect(tokenContrast('text/accent', 'surface/base', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/accent', 'surface/raised', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/tertiary', 'surface/base', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/disabled', 'surface/base', mode)).toBeLessThan(AA_NORMAL);
+    });
+  }
+});
+
 describe('dense table: the stripe, the bar and the chip', () => {
   for (const mode of MODES) {
     it(`the stripe is seen on the selected row, the count reads on the bar, the chip's words read on the tag — ${mode}`, () => {

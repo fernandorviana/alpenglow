@@ -1,0 +1,77 @@
+/**
+ * TopBar
+ *
+ * Drawn as the Top Bar set: 64 tall on surface/raised, a hairline under, the
+ * menu and the logo at the start, the actions at the end;
+ * docs/superpowers/specs/2026-09-22-navigation-design.md.
+ */
+
+.topbar, .start, .menu, .menu svg, .brand, .middle, .end {
+  box-sizing: border-box;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-500);
+  min-block-size: var(--ap-spacing-800);
+  padding: var(--ap-spacing-150) var(--ap-spacing-300);
+  border-block-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+}
+
+.start {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ap-spacing-300);
+}
+
+/* The drawn 24 icon, on a 40 target with the ghost's wash. */
+.menu {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--ap-spacing-500);
+  block-size: var(--ap-spacing-500);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: none;
+  color: var(--ap-color-text-primary);
+  cursor: pointer;
+}
+
+.menu:hover { background: var(--ap-color-interactive-wash-hover); }
+.menu:active { background: var(--ap-color-interactive-wash-pressed); }
+
+.menu:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.menu svg { inline-size: var(--ap-spacing-300); block-size: var(--ap-spacing-300); }
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--ap-spacing-400);
+}
+
+.middle {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ap-spacing-200);
+}
