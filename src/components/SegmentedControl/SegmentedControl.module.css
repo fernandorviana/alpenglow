@@ -1,0 +1,23 @@
+/**
+ * SegmentedControl
+ *
+ * The track, the segment, the ghost and the thumb are segmented.module.css,
+ * shared with the Tabs' segmented variant. What is here is what a fieldset
+ * needs that a div did not, and the label's overflow.
+ */
+
+.root, .label {
+  box-sizing: border-box;
+}
+
+/* A fieldset's minimum inline size is its content, which would stop a
+   fullWidth track from shrinking with a narrow parent. */
+.root {
+  min-inline-size: 0;
+  font-family: var(--ap-font-sans);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

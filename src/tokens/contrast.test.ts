@@ -1052,3 +1052,19 @@ describe('surface/scrim', () => {
     expect(contrast(resolve('border/default', 'dark'), scrim)).toBeGreaterThanOrEqual(NON_TEXT);
   });
 });
+
+describe('slider: the line, the fill, the thumb and the balloon', () => {
+  // The drawn grey track is border/default-like and fails 3:1; the empty
+  // line is border/strong, the Switch's off track. The thumb's edge is the
+  // accent on the surfaces a form sits on, and on the thumb's own fill.
+  for (const mode of MODES) {
+    it(`the fill and the thumb's edge are seen on both surfaces and on the thumb, the balloon reads — ${mode}`, () => {
+      for (const surface of ['surface/base', 'surface/raised'] as const) {
+        expect(tokenContrast('interactive/accent', surface, mode), `accent on ${surface}`).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast('border/strong', surface, mode), `line on ${surface}`).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+      expect(tokenContrast('interactive/accent', 'surface/raised', mode), 'edge on the thumb').toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('interactive/on-accent', 'interactive/accent', mode), 'the balloon').toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+});

@@ -122,6 +122,12 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/in
 export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
 
+export { SegmentedControl } from './components/SegmentedControl/index';
+export type { SegmentedControlProps, SegmentedOption } from './components/SegmentedControl/index';
+
+export { Slider } from './components/Slider/index';
+export type { SliderProps, SliderPair } from './components/Slider/index';
+
 export { SideNav, SIDE_NAV_NARROW } from './components/SideNav/index';
 export type { SideNavProps, SideNavItem } from './components/SideNav/index';
 

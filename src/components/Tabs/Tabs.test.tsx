@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Tabs, tabsVariants, type TabItem } from './Tabs';
 import styles from './Tabs.module.css';
+import segmented from '../segmented.module.css';
 import { readCss, block } from '../../test/css';
 import { axeViolations } from '../../test/axe';
 
@@ -82,11 +83,18 @@ describe('Tabs — structure', () => {
   it('tells the segmented thumb where to be, and draws none elsewhere', () => {
     const { container, rerender } = render(<Tabs label="A" items={ITEMS} variant="segmented" defaultValue="chat" />);
     const list = screen.getByRole('tablist');
-    expect(list.style.getPropertyValue('--tabs-index')).toBe('2');
-    expect(list.style.getPropertyValue('--tabs-count')).toBe('3');
-    expect(container.querySelector(`.${styles.thumb}`)).toHaveAttribute('aria-hidden', 'true');
+    expect(list.style.getPropertyValue('--segmented-index')).toBe('2');
+    expect(list.style.getPropertyValue('--segmented-count')).toBe('3');
+    expect(container.querySelector(`.${segmented.thumb}`)).toHaveAttribute('aria-hidden', 'true');
+    // The shared classes go on beside the Tabs' own, the selected one marked
+    // for rules that cannot read aria-selected (the SegmentedControl's radio
+    // has none).
+    expect(list).toHaveClass(segmented.track!);
+    expect(tab('Chat')).toHaveClass(segmented.segment!, segmented.selected!);
+    expect(tab('Details')).not.toHaveClass(segmented.selected!);
     rerender(<Tabs label="A" items={ITEMS} variant="pill" />);
-    expect(container.querySelector(`.${styles.thumb}`)).toBeNull();
+    expect(container.querySelector(`.${segmented.thumb}`)).toBeNull();
+    expect(screen.getByRole('tablist')).not.toHaveClass(segmented.track!);
   });
 });
 
@@ -241,8 +249,10 @@ describe('Tabs — stylesheet', () => {
   });
 
   it('slides the thumb in the travel duration and lets it jump under reduced motion', () => {
-    expect(block(css, '.thumb {')).toMatch(/transition:\s*transform var\(--ap-motion-duration-travel\)/);
-    const reduced = block(css, '@media (prefers-reduced-motion: reduce)');
+    // The thumb is the shared segmented stylesheet's since 2026-09-22.
+    const shared = readCss('src/components/segmented.module.css');
+    expect(block(shared, '\n.thumb {')).toMatch(/transition:\s*transform var\(--ap-motion-duration-travel\)/);
+    const reduced = block(shared, '@media (prefers-reduced-motion: reduce)');
     expect(block(reduced, '.thumb')).toMatch(/transition:\s*none/);
   });
 

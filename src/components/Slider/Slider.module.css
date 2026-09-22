@@ -1,0 +1,342 @@
+/**
+ * Slider
+ *
+ * Drawn as the Slider set; docs/superpowers/specs/2026-09-22-slider-design.md.
+ *
+ * The native range input, painted by the component: the input's own track
+ * is transparent and the line, the fill, the ticks and the balloon are the
+ * component's, moved by --slider-from and --slider-to. The thumb stays the
+ * input's pseudo-element, styled in each browser family's own rule, since a
+ * rule that names a pseudo-element the browser does not know is dropped
+ * whole (the Progress' lesson).
+ *
+ * The thumb travels the input's width less its own size, so the line, the
+ * fill, the ticks and the balloons are inset by half a thumb and share the
+ * thumb's geometry exactly; a fill in percent of the whole width would miss
+ * the thumb by up to half of it at the ends.
+ *
+ * Colours are the tokens that clear 3:1, the Switch's precedent: the empty
+ * line border/strong, the fill and the thumb's edge interactive/accent, the
+ * thumb surface/raised. The drawn grey track is border/default-like and
+ * fails.
+ */
+
+.slider, .head, .label, .info, .info > svg, .row, .edge, .edge > svg, .track, .line, .fill, .ticks, .tick, .balloon, .balloon::after, .input, .field, .caption, .error {
+  box-sizing: border-box;
+}
+
+.slider {
+  --slider-thumb: var(--ap-spacing-200);
+  --slider-line: var(--ap-spacing-050);
+  --slider-box: var(--ap-spacing-300);
+  --slider-field-width: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-075);
+  min-width: 0;
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+}
+
+/* Room for the balloon above the track. */
+.withValue .row {
+  padding-block-start: var(--ap-spacing-300);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+}
+
+.label {
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+.unit {
+  color: var(--ap-color-text-tertiary);
+  font-weight: var(--ap-font-weight-regular);
+}
+
+.info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ap-spacing-300);
+  height: var(--ap-spacing-300);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: none;
+  color: var(--ap-color-text-tertiary);
+  cursor: pointer;
+}
+
+.info > svg {
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+}
+
+.info:hover:not(:disabled) {
+  color: var(--ap-color-text-secondary);
+}
+
+.info:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+}
+
+/* Text or an icon at the ends: "0%", a moon. */
+.edge {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.edge > svg {
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+}
+
+.track {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: var(--slider-box);
+}
+
+.line {
+  position: absolute;
+  inset-inline: calc(var(--slider-thumb) / 2);
+  top: 50%;
+  height: var(--slider-line);
+  transform: translateY(-50%);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-border-strong);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--slider-from, 0%);
+  inline-size: calc(var(--slider-to, 0%) - var(--slider-from, 0%));
+  background: var(--ap-color-interactive-accent);
+}
+
+.disabled .fill {
+  background: var(--ap-color-interactive-disabled);
+}
+
+/* One mark per step, spread by the flex box so the positions are exact. */
+.ticks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tick {
+  width: var(--ap-border-width-ring);
+  height: 100%;
+  background: var(--ap-color-surface-raised);
+}
+
+/* The value over the thumb, at the thumb's own share of the line. */
+.balloon {
+  position: absolute;
+  bottom: calc(var(--slider-box) - var(--ap-spacing-025));
+  inset-inline-start: calc(var(--slider-thumb) / 2 + (100% - var(--slider-thumb)) * var(--slider-at, 0) / 100%);
+  transform: translateX(-50%);
+  padding: 0 var(--ap-spacing-100);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-interactive-accent);
+  color: var(--ap-color-interactive-on-accent);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: 20px;
+  font-weight: var(--ap-font-weight-semibold);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.balloon:dir(rtl) {
+  transform: translateX(50%);
+}
+
+.balloon::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: var(--ap-spacing-100);
+  height: var(--ap-spacing-050);
+  transform: translateX(-50%);
+  background: var(--ap-color-interactive-accent);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.disabled .balloon,
+.disabled .balloon::after {
+  background: var(--ap-color-interactive-disabled);
+}
+
+.disabled .balloon {
+  color: var(--ap-color-interactive-on-disabled);
+}
+
+/* The input, over the line, its own track transparent. In a range two of
+   them overlap: neither takes the pointer, their thumbs do (each family's
+   rule below), and .top is the one that can still move when both stand on
+   the same spot. */
+.input {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.range .input {
+  pointer-events: none;
+}
+
+.range .input.top {
+  z-index: 1;
+}
+
+.range .input::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+.range .input::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+/* --- the thumb, each family in its own rule ------------------------------- */
+
+.input::-webkit-slider-runnable-track {
+  box-sizing: border-box;
+  height: 100%;
+  background: transparent;
+}
+
+.input::-webkit-slider-thumb {
+  box-sizing: border-box;
+  appearance: none;
+  width: var(--slider-thumb);
+  height: var(--slider-thumb);
+  margin-top: calc((var(--slider-box) - var(--slider-thumb)) / 2);
+  border: var(--ap-border-width-ring) solid var(--ap-color-interactive-accent);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-raised);
+  box-shadow: var(--ap-elevation-sm);
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.input:hover:not(:disabled)::-webkit-slider-thumb {
+  transform: scale(1.125);
+}
+
+.input:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 var(--ap-focus-ring-offset) var(--ap-color-surface-raised),
+    0 0 0 calc(var(--ap-focus-ring-offset) + var(--ap-border-width-ring)) var(--ap-color-border-focus);
+}
+
+.input:disabled::-webkit-slider-thumb {
+  border-color: var(--ap-color-interactive-disabled);
+  box-shadow: none;
+}
+
+.input::-moz-range-track {
+  box-sizing: border-box;
+  height: 100%;
+  background: transparent;
+}
+
+.input::-moz-range-progress {
+  background: transparent;
+}
+
+.input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--slider-thumb);
+  height: var(--slider-thumb);
+  border: var(--ap-border-width-ring) solid var(--ap-color-interactive-accent);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-raised);
+  box-shadow: var(--ap-elevation-sm);
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.input:hover:not(:disabled)::-moz-range-thumb {
+  transform: scale(1.125);
+}
+
+.input:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 var(--ap-focus-ring-offset) var(--ap-color-surface-raised),
+    0 0 0 calc(var(--ap-focus-ring-offset) + var(--ap-border-width-ring)) var(--ap-color-border-focus);
+}
+
+.input:disabled::-moz-range-thumb {
+  border-color: var(--ap-color-interactive-disabled);
+  box-shadow: none;
+}
+
+/* --- the field ------------------------------------------------------------ */
+
+.field {
+  flex: none;
+  width: var(--slider-field-width);
+}
+
+.caption {
+  margin: 0;
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+.error {
+  margin: 0;
+  color: var(--ap-color-text-danger);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input::-webkit-slider-thumb {
+    transition: none;
+  }
+  .input::-moz-range-thumb {
+    transition: none;
+  }
+}

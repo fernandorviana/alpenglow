@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import { nextTab } from './keys';
+import segmented from '../segmented.module.css';
 import styles from './Tabs.module.css';
 
 /**
@@ -126,16 +127,19 @@ export function Tabs({
   const panelId = (id: string) => `${uid}-panel-${at(id)}`;
   const mounted = (item: TabItem) => keepMounted || item.id === selected;
 
-  const classes = [styles.root, styles[variant], fullWidth && styles.fullWidth, className]
-    .filter(Boolean)
-    .join(' ');
+  const classes = [styles.root, styles[variant], className].filter(Boolean).join(' ');
 
-  // The segmented thumb is one element moved by index over equal columns, so
-  // it slides without anything being measured.
-  const track =
-    variant === 'segmented'
-      ? ({ '--tabs-index': String(Math.max(selectedIndex, 0)), '--tabs-count': String(items.length) } as CSSProperties)
-      : undefined;
+  // The segmented track, segment, ghost and thumb are the SegmentedControl's
+  // too, in segmented.module.css; the Tabs put its classes on beside their
+  // own. The thumb is one element moved by index over equal columns, so it
+  // slides without anything being measured.
+  const isSegmented = variant === 'segmented';
+  const track = isSegmented
+    ? ({
+        '--segmented-index': String(Math.max(selectedIndex, 0)),
+        '--segmented-count': String(items.length),
+      } as CSSProperties)
+    : undefined;
 
   return (
     <div className={classes}>
@@ -144,11 +148,18 @@ export function Tabs({
           ref={listRef}
           role="tablist"
           aria-label={label}
-          className={[styles.list, styles[variant], fullWidth && styles.fullWidth].filter(Boolean).join(' ')}
+          className={[
+            styles.list,
+            styles[variant],
+            isSegmented && segmented.track,
+            isSegmented && fullWidth && segmented.fullWidth,
+          ]
+            .filter(Boolean)
+            .join(' ')}
           style={track}
           onKeyDown={onKeyDown}
         >
-          {variant === 'segmented' && selectedIndex >= 0 && <span className={styles.thumb} aria-hidden="true" />}
+          {isSegmented && selectedIndex >= 0 && <span className={segmented.thumb} aria-hidden="true" />}
           {items.map((item, index) => {
             const isSelected = item.id === selected;
             return (
@@ -157,7 +168,15 @@ export function Tabs({
                 type="button"
                 role="tab"
                 id={tabId(item.id)}
-                className={`${styles.tab} ${styles[variant]}`}
+                className={[
+                  styles.tab,
+                  styles[variant],
+                  isSegmented && segmented.segment,
+                  isSegmented && isSelected && segmented.selected,
+                  isSegmented && item.disabled && segmented.disabled,
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 aria-selected={isSelected}
                 aria-controls={mounted(item) ? panelId(item.id) : undefined}
                 aria-disabled={item.disabled || undefined}
@@ -166,7 +185,7 @@ export function Tabs({
                 tabIndex={isSelected || (selected === undefined && index === 0) ? 0 : -1}
                 onClick={() => select(item)}
               >
-                <span className={styles.ghost}>
+                <span className={[styles.ghost, isSegmented && segmented.ghost].filter(Boolean).join(' ')}>
                   <span className={styles.label}>{item.label}</span>
                   {/* A real space: two adjacent spans give the name
                       "Participants12", and a screen reader says it that way.

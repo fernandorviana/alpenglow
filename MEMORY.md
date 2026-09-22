@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1875 tests across 75 files
+npm test            # 1937 tests across 77 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -592,6 +592,72 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Slider** — built 2026-09-22, on main, unreleased; third of wave 3. Spec
+  `docs/superpowers/specs/2026-09-22-slider-design.md`, plan
+  `docs/superpowers/plans/2026-09-22-slider.md`. **Drawn** as the Slider
+  set (node 1127:19816; the MCP's metadata for it breaks mid-response, so
+  the drawing was read from the render and the measures from the scale):
+  a thin track, a round thumb with an accent edge, label with unit and
+  info, caption, values or icons at the ends, a balloon "always visible",
+  a field beside to type the value with "Value can't be more than 100%",
+  a range with two thumbs and two fields, a rating with a mark per step,
+  and a bare slider. Fernando: **"Faz o que conseguires … sugere tu as
+  melhores práticas e alternativas"** — everything drawn is one
+  component, `Slider` with `range`, on real `input type="range"`s painted
+  by the component (the input's track transparent; line, fill, ticks and
+  balloon the component's, inset by half a thumb so they share the thumb's
+  travel exactly). Colours are the Switch's precedent: `border/strong`
+  empty, `interactive/accent` fill and thumb edge, `surface/raised` thumb,
+  the drawn grey track failing 3:1. A range is two inputs with
+  `pointer-events: none` and their thumbs `auto` (each family's rule), so
+  either thumb is grabbed with a mouse or a finger; a press on the line
+  reaches the track and moves the nearer thumb; when both stand on one
+  spot the one that can move is on top. The field is the Input: inside
+  the range it moves the thumb, outside it stays as typed, invalid, with
+  the bound in its own message. From the review, each with a test: a
+  typed value is snapped to the step grid as the input snaps it; a value
+  refused for crossing the other thumb is applied when that thumb moves
+  past it; each field has its own error; ticks only when the step divides
+  the range. Seen in Chromium: fill, thumb centre and balloon at one x;
+  both thumbs of a range dragged, a press on the line, 101 refused, arrows
+  with the field following, the ring on the thumb, light and dark, no
+  overflow at 375. Two contrast cases (221). `/slider` page with every
+  drawn usage and "Best practice, and the alternatives"; nav entry
+  (thirty); section card. Not built, recorded: the tag-like balloon; a
+  decimal comma in the field; balloons overlap when values meet. Not
+  checked: Safari (thumb pointer-events, fieldset), Firefox, touch, a
+  screen reader, RTL. **Open (Fernando, 2026-09-22): the Slider's drawing
+  is weak and is to be redesigned later**; the code is built so that a
+  new drawing lands in one stylesheet (thumb, line, balloon, field width
+  are custom properties and one family rule each) and the API stays.
+- **SegmentedControl** — built 2026-09-22, on main, unreleased; second of wave 3.
+  Spec `docs/superpowers/specs/2026-09-22-segmented-control-design.md`, plan
+  `docs/superpowers/plans/2026-09-22-segmented-control.md`. Not drawn on its
+  own: the product's `Tabs` set is the drawing, already the Tabs' segmented
+  variant. Fernando took **A**: the Tabs keep the variant and the two share
+  `src/components/segmented.module.css` (`.track`, `.segment`, `.ghost`,
+  `.thumb`, `.selected` and `.disabled` as classes each component puts on),
+  the way `choice.module.css` serves Checkbox and Radio. A `fieldset` with
+  `role="radiogroup"`, the legend off screen, a `label` per option around a
+  radio off screen, so keyboard, submission and state are the platform's;
+  the component writes no keyboard handling. A value that names nothing, or
+  a disabled option, checks nothing and draws no thumb — not the Tabs'
+  fallback to the first. The roadmap's "shares `choice.module.css`'s
+  unmarked boundary" was **not** taken and is recorded on the page: the
+  segments are text, the chosen one has a shape and a colour, and the radio
+  says the state; the track keeps the Tabs' hairline of 2026-09-18. From the
+  review, with a test: the shared `.segment` and the Tabs' `.tab { font:
+  inherit }` were one class each and the bundler's order let the Tabs win —
+  a segmented tab measured 14/22 instead of 12/16 in Chromium — so every
+  segment rule is `.track > .segment`, a child, two classes to one. Seen in
+  Chromium: the thumb on the chosen segment, arrows choosing, the ring on
+  the label for a radio focused off screen, a form submitting `period=month`,
+  the Tabs' specimen unchanged, light and dark, a phone width. No new
+  contrast case: the segment's pairs were measured for the Tabs.
+  `/segmented-control` page; nav entry (twenty-nine); section card; the Tabs
+  page links here. Not built, recorded: a count, an icon-only segment, a
+  second size. Not checked: Safari (a `fieldset` as a grid), Firefox, a
+  screen reader, RTL.
 - **SideNav, SideNavSecondary and TopBar** — built 2026-09-22, on main, unreleased;
   first of wave 3. Spec `docs/superpowers/specs/2026-09-22-navigation-design.md`,
   plan `docs/superpowers/plans/2026-09-22-navigation.md`. **Drawn**: the Side

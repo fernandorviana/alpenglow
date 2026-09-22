@@ -23,6 +23,29 @@ break: a removed token or prop is named here under **Breaking**.
 - **TopBar** — the bar along the top, 64 tall: the menu button (`onMenu`,
   `menuLabel`, `menuExpanded`) and `brand` at the start, `children` in the
   middle, `actions` at the end. Exports `TopBar`, `TopBarProps`.
+- **SegmentedControl** — the Tabs' segmented track over a value: a radio
+  group on real radios in a `fieldset`, so arrows, Space, a skipped disabled
+  option, the submitted value and the announced state are the platform's.
+  `options` of `{ value, label, disabled }`, `label` (read, not seen),
+  `value` / `defaultValue` / `onChange`, `name` for a form, `disabled` for
+  the group, `fullWidth`. A value that names nothing checks nothing. Exports
+  `SegmentedControl`, `SegmentedControlProps`, `SegmentedOption`.
+- **Slider** — a value along a line on the platform's `input type="range"`,
+  painted by the component so every browser draws the same track; `range`
+  for two thumbs with the fill between them, the two never crossing.
+  `label`, `unit`, `info`, `caption`, `min` / `max` / `step`, `showValue`
+  (the balloon) with `formatValue`, `ticks`, `start` and `end` for the
+  ends, `showInput` for a field to type the value (a typed value outside
+  the range is kept, marked and explained; inside, it moves the thumb),
+  `disabled`, `name` (a range submits `name-min` and `name-max`). Exports
+  `Slider`, `SliderProps`, `SliderPair`.
+
+### Changed
+
+- **Tabs** — the segmented variant's track, segment, ghost and thumb are now
+  drawn by a stylesheet shared with SegmentedControl. Nothing drawn changes;
+  the custom properties the list sets inline are `--segmented-index` and
+  `--segmented-count`, no longer `--tabs-index` and `--tabs-count`.
 
 ## 0.4.0 — 2026-09-22
 

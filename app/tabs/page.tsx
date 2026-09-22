@@ -158,7 +158,8 @@ export default function Page() {
         more than a handful of views that do not fit a row, a <a href="/select">Select</a>{' '}
         over a single panel reads better. For steps in an order, tabs promise a freedom the
         flow does not have. And a control that holds a value and shows no panel is a radio
-        group, however much it looks like the segmented track.
+        group, however much it looks like the segmented track: that is the{' '}
+        <a href="/segmented-control">SegmentedControl</a>, which shares this track&rsquo;s stylesheet.
       </p>
 
       <h2>The three variants</h2>

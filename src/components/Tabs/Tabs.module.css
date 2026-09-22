@@ -9,14 +9,16 @@
  * on the docs page and jsdom could not. Tabs.test.tsx refuses the shape.
  *
  * Three looks over one structure: root > bar > list > tab > ghost > label,
- * count. Every value is a token; the literals are the control heights the
- * scale implies (32, 40) and the 28 and 24 that follow from them.
+ * count. The segmented track, segment, ghost and thumb are drawn by
+ * segmented.module.css, shared with the SegmentedControl. Every value is a
+ * token; the literals are the control heights the scale implies (32, 40) and
+ * the 28 and 24 that follow from them.
  *
  * docs/superpowers/specs/2026-09-18-tabs-design.md holds the drawing, the
  * seven deviations from it, and why the underline variant exists at all.
  */
 
-.root, .bar, .list, .tab, .tab::after, .ghost, .count, .thumb, .panel {
+.root, .bar, .list, .tab, .tab::after, .ghost, .count, .panel {
   box-sizing: border-box;
 }
 
@@ -198,91 +200,16 @@
 }
 
 /* --- segmented ------------------------------------------------------------
-   Drawn as `Tabs`. The track is surface/sunken with a hairline, not the drawn
-   surface/base with none: base is the canvas, where the drawn track vanishes.
-   In dark, sunken *is* the canvas and the hairline alone carries the track.
-   Radii 8 outside and 6 inside, concentric over 2 of padding; the drawn 10 is
-   not on the scale. */
-
-.list.segmented {
-  display: inline-grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: var(--ap-spacing-025);
-  height: 32px;
-  padding: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
-  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
-  border-radius: var(--ap-radius-lg);
-  background: var(--ap-color-surface-sunken);
-  vertical-align: top;
-}
-
-.list.segmented.fullWidth {
-  display: grid;
-}
-
-.tab.segmented {
-  min-width: 0;
-  border-radius: var(--ap-radius-md);
-  color: var(--ap-color-text-secondary);
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
-  letter-spacing: var(--ap-text-caption-md-tracking);
-}
-
-.tab.segmented[aria-selected='true'] {
-  color: var(--ap-color-text-accent);
-}
-
-.tab.segmented > .ghost {
-  width: 100%;
-  height: 100%;
-  gap: var(--ap-spacing-050);
-  padding-inline: var(--ap-spacing-150);
-  border-radius: var(--ap-radius-md);
-}
+   The track, the segment, the ghost and the thumb are segmented.module.css,
+   shared with the SegmentedControl since 2026-09-22; the Tabs put its
+   classes on beside their own. What stays here is the count, which no
+   SegmentedControl has. */
 
 /* Not drawn with a count; when a caller gives one it takes the label's own
    colour a weight lighter. Tertiary would fail under the wash on a well. */
 .tab.segmented .count {
   font-weight: var(--ap-font-weight-medium);
   font-variant-numeric: tabular-nums;
-}
-
-/* The selected segment keeps its thumb; a wash over it would grey the one
-   surface that is meant to read as lifted. */
-.tab.segmented:hover:not([aria-disabled='true'], [aria-selected='true']) > .ghost {
-  background: var(--ap-color-interactive-wash-hover);
-}
-
-.tab.segmented:active:not([aria-disabled='true'], [aria-selected='true']) > .ghost {
-  background: var(--ap-color-interactive-wash-pressed);
-}
-
-/* One element, moved by index. The columns are equal, so a step is the
-   thumb's own width plus the gap and nothing is measured in script. */
-.thumb {
-  position: absolute;
-  inset-block: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
-  inset-inline-start: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
-  width: calc(
-    (100% - 2 * (var(--ap-spacing-025) - var(--ap-border-width-hairline)) - (var(--tabs-count) - 1) * var(--ap-spacing-025)) /
-      var(--tabs-count)
-  );
-  border-radius: var(--ap-radius-md);
-  /* overlay, not raised. In light both are white and the shadow lifts the
-     thumb. In dark a segmented control usually sits on a card, which is
-     raised: a raised thumb is the card's own colour and reads as a hole in
-     the track. overlay is a step above the card (ΔL .04) and two above the
-     track (.085). Seen in the browser on 2026-09-18. */
-  background: var(--ap-color-surface-overlay);
-  box-shadow: var(--ap-elevation-sm);
-  transform: translateX(calc(var(--tabs-index) * (100% + var(--ap-spacing-025))));
-  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
-}
-
-.thumb:dir(rtl) {
-  transform: translateX(calc(var(--tabs-index) * (-100% - var(--ap-spacing-025))));
 }
 
 /* --- pill -----------------------------------------------------------------
@@ -366,10 +293,9 @@
   color: var(--ap-color-text-accent);
 }
 
-/* --- disabled, underline and segmented ------------------------------------ */
+/* --- disabled, underline ---------------------------------------------------- */
 
 .tab.underline[aria-disabled='true'],
-.tab.segmented[aria-disabled='true'],
 .tab.underline[aria-disabled='true'] .count {
   color: var(--ap-color-text-disabled);
 }
@@ -397,14 +323,9 @@
   border-color: transparent;
 }
 
-/* --- reduced motion -------------------------------------------------------
-   The thumb jumps; the selected segment is still the lifted one, so nothing
-   is lost but the slide. */
+/* --- reduced motion ------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .thumb {
-    transition: none;
-  }
   .tab, .ghost, .tab.underline::after {
     transition: none;
   }

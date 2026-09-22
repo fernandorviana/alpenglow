@@ -17,6 +17,7 @@ import { Input } from '@/components/Input';
 import { Link } from '@/components/Link';
 import { Loader } from '@/components/Loader';
 import { Pagination } from '@/components/Pagination';
+import { SegmentedControl } from '@/components/SegmentedControl';
 import { Select } from '@/components/Select';
 import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
@@ -27,6 +28,7 @@ import { Filters } from '@/components/Filters';
 import { SideNav } from '@/components/SideNav';
 import { Progress } from '@/components/Progress';
 import { Skeleton } from '@/components/Skeleton';
+import { Slider } from '@/components/Slider';
 import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
 import { Tooltip } from '@/components/Tooltip';
@@ -408,6 +410,32 @@ export default function Page() {
                 rows={PEOPLE}
                 getRowId={(p) => p.id}
               />
+            </div>
+          }
+        />
+        <Card
+          href="/segmented-control"
+          title="Segmented control"
+          description="The segmented track over a value: a radio group, where the Tabs are views."
+          visual={
+            <SegmentedControl
+              label="Period"
+              defaultValue="week"
+              options={[
+                { value: 'day', label: 'Day' },
+                { value: 'week', label: 'Week' },
+                { value: 'month', label: 'Month' },
+              ]}
+            />
+          }
+        />
+        <Card
+          href="/slider"
+          title="Slider"
+          description="A value along a line, or a range between two thumbs, with a field to type it."
+          visual={
+            <div style={{ width: '100%' }}>
+              <Slider label="Brightness" defaultValue={70} showValue formatValue={(v) => `${v}%`} />
             </div>
           }
         />

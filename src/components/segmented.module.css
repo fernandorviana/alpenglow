@@ -1,0 +1,149 @@
+/**
+ * The segmented track: a well with a lifted thumb that slides to the chosen
+ * segment. Shared by the Tabs' `segmented` variant, where a segment is a tab
+ * with a panel, and by the SegmentedControl, where a segment is a radio and
+ * the track holds a value — the way choice.module.css serves Checkbox and
+ * Radio. Decided 2026-09-22 (docs/superpowers/specs/2026-09-22-segmented-control-design.md).
+ *
+ * Drawn as `Tabs`. The track is surface/sunken with a hairline, not the drawn
+ * surface/base with none: base is the canvas, where the drawn track vanishes.
+ * In dark, sunken *is* the canvas and the hairline alone carries the track.
+ * Radii 8 outside and 6 inside, concentric over 2 of padding; the drawn 10 is
+ * not on the scale. 32 tall, the sm of ControlSize.
+ *
+ * `.selected` and `.disabled` are classes the component puts on: the Tabs
+ * mark a tab with aria-selected on a button, the SegmentedControl with
+ * checked on a radio, and a rule here cannot know which. Every selector is
+ * compound or a child, never a descendant from the track: a segmented Tabs
+ * inside a panel of another must keep its own look (Tabs.module.css).
+ */
+
+.track, .segment, .ghost, .thumb {
+  box-sizing: border-box;
+}
+
+.track {
+  position: relative;
+  /* The thumb sits under the labels without a z-index escaping the track. */
+  isolation: isolate;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--ap-spacing-025);
+  height: 32px;
+  margin: 0;
+  padding: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-sunken);
+  vertical-align: top;
+}
+
+/* Fills its container instead of fitting its labels. */
+.track.fullWidth {
+  display: grid;
+}
+
+/* What a button had from the Tabs' own rule and a label has from nowhere:
+   the flex box, the weight, the cursor. Where both declare, the values are
+   the same — except the type: the Tabs' `.tab` resets `font` to inherit, and
+   which of two single-class rules wins is the order of the stylesheets,
+   which the bundler decides. Seen in Chromium on 2026-09-22, a segmented
+   tab at 14/22 instead of 12/16. So every segment rule is a child of the
+   track, two classes to the Tabs' one, and wins by specificity. A child,
+   not a descendant: a segmented Tabs in a panel of another is no child of
+   the outer track. */
+.track > .segment {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border-radius: var(--ap-radius-md);
+  color: var(--ap-color-text-secondary);
+  font-weight: var(--ap-font-weight-semibold);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.track > .segment.selected {
+  color: var(--ap-color-text-accent);
+}
+
+.track > .segment.disabled {
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.track > .segment > .ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  gap: var(--ap-spacing-050);
+  padding-inline: var(--ap-spacing-150);
+  border-radius: var(--ap-radius-md);
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+/* The selected segment keeps its thumb; a wash over it would grey the one
+   surface that is meant to read as lifted. */
+.track > .segment:hover:not(.disabled, .selected) > .ghost {
+  background: var(--ap-color-interactive-wash-hover);
+}
+
+.track > .segment:active:not(.disabled, .selected) > .ghost {
+  background: var(--ap-color-interactive-wash-pressed);
+}
+
+/* The ring adds geometry rather than recolouring anything. On a button the
+   segment itself is focused; on a label the focused thing is the radio off
+   screen inside it, and the segment draws the ring for it. */
+.track > .segment:focus-visible,
+.track > .segment:has(:focus-visible) {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+  z-index: 2;
+}
+
+/* One element, moved by index. The columns are equal, so a step is the
+   thumb's own width plus the gap and nothing is measured in script. */
+.thumb {
+  position: absolute;
+  inset-block: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
+  inset-inline-start: calc(var(--ap-spacing-025) - var(--ap-border-width-hairline));
+  width: calc(
+    (100% - 2 * (var(--ap-spacing-025) - var(--ap-border-width-hairline)) - (var(--segmented-count) - 1) * var(--ap-spacing-025)) /
+      var(--segmented-count)
+  );
+  border-radius: var(--ap-radius-md);
+  /* overlay, not raised. In light both are white and the shadow lifts the
+     thumb. In dark a segmented control usually sits on a card, which is
+     raised: a raised thumb is the card's own colour and reads as a hole in
+     the track. overlay is a step above the card (ΔL .04) and two above the
+     track (.085). Seen in the browser on 2026-09-18. */
+  background: var(--ap-color-surface-overlay);
+  box-shadow: var(--ap-elevation-sm);
+  transform: translateX(calc(var(--segmented-index) * (100% + var(--ap-spacing-025))));
+  transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.thumb:dir(rtl) {
+  transform: translateX(calc(var(--segmented-index) * (-100% - var(--ap-spacing-025))));
+}
+
+/* The thumb jumps; the selected segment is still the lifted one, so nothing
+   is lost but the slide. */
+@media (prefers-reduced-motion: reduce) {
+  .thumb, .segment, .ghost {
+    transition: none;
+  }
+}
