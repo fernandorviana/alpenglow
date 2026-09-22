@@ -5,7 +5,22 @@ the completeness roadmap (2026-09-18); `0.1.0` and `0.2.0` are summarised from
 the record in `MEMORY.md`. While the version is `0.x`, a minor version may
 break: a removed token or prop is named here under **Breaking**.
 
-## Unreleased
+## 0.4.0 — 2026-09-22
+
+Waves 1 and 2 of the completeness roadmap together: `0.3.0`, which was to
+carry wave 1 alone, was never cut.
+
+### Breaking
+
+- **`Select` is no longer the native `<select>`.** It is a button that opens
+  the system's own list, the same in every browser, and takes `options` (an
+  array) and `onChange(value)` in place of `<option>` children and a change
+  event. The native one is unchanged and is now `NativeSelect`
+  (`NativeSelectProps`): to keep today's behaviour, rename the import.
+- **Table's root is a wrapper around the region.** The density class,
+  `aria-busy`, `className` and the rest go to the root; the region keeps its
+  role and its name. A selector that reached the region as the first element
+  now finds the root.
 
 ### Added
 
@@ -163,13 +178,7 @@ break: a removed token or prop is named here under **Breaking**.
 - **`elevation/sm`** (`--ap-elevation-sm`) — one short layer, for a part that
   lifts inside its own control.
 
-### Changed, unreleased since 0.2.0
-
-- **Breaking: `Select` is no longer the native `<select>`.** It is a button
-  that opens the system's own list, the same in every browser, and takes
-  `options` (an array) and `onChange(value)` in place of `<option>` children
-  and a change event. The native one is unchanged and is now `NativeSelect`
-  (`NativeSelectProps`): to keep today's behaviour, rename the import.
+### Changed
 
 - DropdownMenu, DatePicker and the Pagination's page size stand on one
   floating surface, `floating.module.css`, where each had its own copy. Their

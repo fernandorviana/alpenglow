@@ -592,7 +592,7 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
-- **Table, dense, and Filters** — built 2026-09-22, on main, unreleased; the last
+- **Table, dense, and Filters** — built 2026-09-22, on main, in 0.4.0; the last
   of wave 2. Spec `docs/superpowers/specs/2026-09-22-dense-table-design.md`,
   plan `docs/superpowers/plans/2026-09-22-dense-table.md`. Fernando gave two
   product pages: **Filters, "future proof"** (a bar above the table: chips
@@ -634,7 +634,7 @@ Claimed components (add a line before starting; one per session and branch):
   section is the composed screen (search, Filters, bounded table, bar,
   Pagination) over 72 rows; `/filters` page; nav entry; section card. Not
   checked: Safari, Firefox, a screen reader, RTL.
-- **Progress** — built 2026-09-22, on main, unreleased; tenth of wave 2. Spec
+- **Progress** — built 2026-09-22, on main, in 0.4.0; tenth of wave 2. Spec
   `docs/superpowers/specs/2026-09-22-progress-design.md`, plan
   `docs/superpowers/plans/2026-09-22-progress.md`. Not published as a
   component; drawn twice: **along the top edge of the onboarding** (4 tall,
@@ -668,7 +668,7 @@ Claimed components (add a line before starting; one per session and branch):
   round track, invisible at 4 and faint at 8; not fixed. Not checked: Safari,
   Firefox (whether `::-moz-progress-bar` of an indeterminate bar stays
   transparent), a screen reader, reduced motion by eye.
-- **EmptyState** — built 2026-09-22, on main, unreleased; ninth of wave 2. Spec
+- **EmptyState** — built 2026-09-22, on main, in 0.4.0; ninth of wave 2. Spec
   `docs/superpowers/specs/2026-09-22-empty-state-design.md`, plan
   `docs/superpowers/plans/2026-09-22-empty-state.md`. Not drawn as a
   component; Fernando asked first what it is and whether it depends on the
@@ -695,7 +695,7 @@ Claimed components (add a line before starting; one per session and branch):
   the empty table measured 264 against 260 with three rows; the docs' "no
   results" example got the live count the page tells callers to add. Not
   checked: Safari, Firefox, a screen reader.
-- **Breadcrumb** — built 2026-09-21, on main, unreleased; eighth of wave 2. Spec
+- **Breadcrumb** — built 2026-09-21, on main, in 0.4.0; eighth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-breadcrumb-design.md`, plan
   `docs/superpowers/plans/2026-09-21-breadcrumb.md`. Not published in the
   library; **drawn in the product's client record**, in the top bar: the
@@ -721,7 +721,7 @@ Claimed components (add a line before starting; one per session and branch):
   **Seen in the same drawing: Tags in categorical colours** (Anxiety,
   Depression, CBT) — the palette the Tag's neutral-only decision is waiting
   for. Not checked: Safari, Firefox, a screen reader, dark by eye.
-- **Skeleton** — built 2026-09-21, on main, unreleased; seventh of wave 2. Spec
+- **Skeleton** — built 2026-09-21, on main, in 0.4.0; seventh of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-skeleton-design.md`, plan
   `docs/superpowers/plans/2026-09-21-skeleton.md`. **Not drawn.** One
   `Skeleton`, `variant` `text` | `circle` | `rect`, `lines`, `width`,
@@ -747,7 +747,7 @@ Claimed components (add a line before starting; one per session and branch):
   group of lines, once. Recorded, not measured: one compositor layer per
   shape. Not checked: Safari, Firefox, forced colours and reduced motion by
   eye.
-- **Accordion** — built 2026-09-21, on main, unreleased; sixth of wave 2. Spec
+- **Accordion** — built 2026-09-21, on main, in 0.4.0; sixth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-accordion-design.md`, plan
   `docs/superpowers/plans/2026-09-21-accordion.md`. **It is drawn**: a
   published Accordion set, the sections of the Side Drawer's View and Edit —
@@ -777,7 +777,7 @@ Claimed components (add a line before starting; one per session and branch):
   a default that flips does not override the reader; the action's room is a
   property. The Drawer page's inline panel now has the drawn sections. Not
   checked: Safari, Firefox, a screen reader, find-in-page by hand, RTL by eye.
-- **Drawer** — built 2026-09-21, on main, unreleased; fifth of wave 2. Spec
+- **Drawer** — built 2026-09-21, on main, in 0.4.0; fifth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-drawer-design.md`, plan
   `docs/superpowers/plans/2026-09-21-drawer.md`. **It is drawn**: the
   published Side Drawer set (Create, View and Edit; md 480, lg 768), the
@@ -816,7 +816,7 @@ Claimed components (add a line before starting; one per session and branch):
   the drawn View and Edit's sections are the Accordion, next. The product's
   file was only reachable as thumbnails. Not checked: Safari, Firefox, a
   screen reader, touch drag, RTL by eye.
-- **Tag** — built 2026-09-21, on main, unreleased; fourth of wave 2. Spec
+- **Tag** — built 2026-09-21, on main, in 0.4.0; fourth of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-tag-design.md`, plan
   `docs/superpowers/plans/2026-09-21-tag.md`. The published `tag` is an icon;
   **the Tag is drawn once, inside the Combobox's frame**: a capsule 32 tall,
@@ -841,7 +841,7 @@ Claimed components (add a line before starting; one per session and branch):
   `--tag-fill`. Not here: a pressed tag (a filter that toggles is a button
   with `aria-pressed`), a group. Not checked: Safari, Firefox, a screen
   reader, forced colours by eye.
-- **Combobox** — built 2026-09-21, on main, unreleased; third of wave 2. Spec
+- **Combobox** — built 2026-09-21, on main, in 0.4.0; third of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-combobox-design.md`, plan
   `docs/superpowers/plans/2026-09-21-combobox.md`. **It is drawn, as a work
   in progress**: "Multiple Select With Search" on the Figma file's Combobox
@@ -881,7 +881,7 @@ Claimed components (add a line before starting; one per session and branch):
   reset. The site's search stays its own: a palette with sections, recents
   and a router. Not checked: Safari, Firefox, a screen reader, an IME by
   hand, dark by eye.
-- **Select** — built 2026-09-21, on main, unreleased; second of wave 2. Spec
+- **Select** — built 2026-09-21, on main, in 0.4.0; second of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-select-design.md`, plan
   `docs/superpowers/plans/2026-09-21-select.md`. **A decision revised, not
   erased.** `Select` was the native `<select>` (Conventions, "Prefer the
@@ -923,7 +923,7 @@ Claimed components (add a line before starting; one per session and branch):
   room above, even if it fits below.** Left, since a tall form cut off is
   worse; look again if it reads wrong. Not checked: Safari, Firefox, a screen
   reader, touch.
-- **Popover** — built 2026-09-21, on main, unreleased; first of wave 2. Spec
+- **Popover** — built 2026-09-21, on main, in 0.4.0; first of wave 2. Spec
   `docs/superpowers/specs/2026-09-21-popover-design.md`, plan
   `docs/superpowers/plans/2026-09-21-popover.md`. **It is drawn**: a
   published `Popover` set of four product panels (Messages, User Menu, New
@@ -960,7 +960,7 @@ Claimed components (add a line before starting; one per session and branch):
   already opened and `shown` is a task behind the platform. Recorded, not
   solved: the trigger has to be a `button` and the type does not say so. Not
   checked: Safari, Firefox, a screen reader, light dismiss by hand.
-- **Link** — built 2026-09-21, on main, unreleased; **the last of wave 1**. Spec
+- **Link** — built 2026-09-21, on main, in 0.4.0; **the last of wave 1**. Spec
   `docs/superpowers/specs/2026-09-21-link-design.md`, plan
   `docs/superpowers/plans/2026-09-21-link.md`. Not drawn (the published
   `link` is an icon). **A decision against the default, Fernando's,
@@ -1002,7 +1002,7 @@ Claimed components (add a line before starting; one per session and branch):
   `noreferrer`; the new tab is said only if `target` is still `_blank`; a
   third overload takes `href: string | undefined`; `displayName`. Not
   checked: Safari, Firefox, a screen reader.
-- **Card** — built 2026-09-21, on main, unreleased. Spec
+- **Card** — built 2026-09-21, on main, in 0.4.0. Spec
   `docs/superpowers/specs/2026-09-21-card-design.md`, plan
   `docs/superpowers/plans/2026-09-21-card.md`. **One card is drawn**, the
   published `Card - Locations` (Default and Hover); Fernando: the product
@@ -1037,7 +1037,7 @@ Claimed components (add a line before starting; one per session and branch):
   the Button and only the shadow travels. No photograph ships with the
   site, so the docs picture is drawn from tokens. Not checked: Safari,
   Firefox, a screen reader, forced colours by eye.
-- **Pagination** — built 2026-09-20, on main, unreleased. Spec
+- **Pagination** — built 2026-09-20, on main, in 0.4.0. Spec
   `docs/superpowers/specs/2026-09-20-pagination-design.md`, plan
   `docs/superpowers/plans/2026-09-20-pagination.md`. **It is drawn**: the
   published `Pagination Item` (40; Selected with a 2 by 16 bar, round Hover
@@ -1080,7 +1080,7 @@ Claimed components (add a line before starting; one per session and branch):
   reader, rtl by eye. Open: a compact size for the
   dense Table's footer (wave 2); "go to page"; rebinding the Figma frames and drawing the inline
   field there.
-- **Alert** — built 2026-09-20, on main, unreleased. Spec
+- **Alert** — built 2026-09-20, on main, in 0.4.0. Spec
   `docs/superpowers/specs/2026-09-20-alert-design.md`, plan
   `docs/superpowers/plans/2026-09-20-alert.md`. **It is drawn**: the
   published `Notification status` set (880 by 56, radius 12, icon 20, 14/22
@@ -1122,7 +1122,7 @@ Claimed components (add a line before starting; one per session and branch):
   word in the Alert and the Toast, with no prop; the four variables in Figma (only when asked); the filled
   action; a neutral tone; the banners and trial bars, which Fernando will
   draw.
-- **Toast** — built 2026-09-20, on main, unreleased. Spec
+- **Toast** — built 2026-09-20, on main, in 0.4.0. Spec
   `docs/superpowers/specs/2026-09-20-toast-design.md`, plan
   `docs/superpowers/plans/2026-09-20-toast.md`. **It is not drawn.** The
   published `Notification status` set on the Figma file's *Notifications*
@@ -1171,7 +1171,7 @@ Claimed components (add a line before starting; one per session and branch):
   colour on the icon; an exit animation; an error is `role="alert"` inside
   a polite list and may be said twice; `ToastSpecimen` restates the
   stylesheet by hand.
-- **Tooltip** — built 2026-09-19, on main, unreleased. Spec
+- **Tooltip** — built 2026-09-19, on main, in 0.4.0. Spec
   `docs/superpowers/specs/2026-09-19-tooltip-design.md`, plan
   `docs/superpowers/plans/2026-09-19-tooltip.md`. **It is drawn** — on the
   *Tooltip* page of the Figma file, as two frames, `Tootltip` and `Popover`,
