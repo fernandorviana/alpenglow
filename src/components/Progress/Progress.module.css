@@ -1,0 +1,116 @@
+/**
+ * Progress
+ *
+ * Drawn twice, under a file being uploaded and along the top of the
+ * onboarding; docs/superpowers/specs/2026-09-22-progress-design.md.
+ *
+ * A native progress element, painted on the element itself: the track is its
+ * background colour and the fill a background image sized by
+ * --progress-value, so a change of value can transition and every browser
+ * draws the same bar. The pseudo-elements each family of browser paints are
+ * made transparent, each in a rule of its own, because a rule that names a
+ * pseudo-element a browser does not know is dropped whole.
+ *
+ * The track is the pressed wash and not surface/sunken, for the Skeleton's
+ * reason: surface/sunken is surface/base in dark, nothing on the page and a
+ * hole on a card, where the wash composites over any surface in both modes.
+ */
+
+.progress, .head, .label, .value, .bar, .sm, .md {
+  box-sizing: border-box;
+}
+
+.progress {
+  display: grid;
+  gap: var(--ap-spacing-075);
+  font-family: var(--ap-font-sans);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ap-spacing-150);
+}
+
+.label {
+  color: var(--ap-color-text-primary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+.value {
+  margin-inline-start: auto;
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The fill is the tone's colour unless the caller gives --progress-fill, an
+   image — the onboarding's gradient, composed on the page from two tokens;
+   --progress-radius is 0 for a bar along the page's edge. A transparent
+   hairline is what forced colours paint. */
+.bar {
+  appearance: none;
+  display: block;
+  inline-size: 100%;
+  block-size: var(--progress-height);
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--progress-radius, var(--ap-radius-full));
+  overflow: hidden;
+  background-color: var(--ap-color-interactive-wash-pressed);
+  background-image: var(--progress-fill, linear-gradient(var(--progress-tone), var(--progress-tone)));
+  background-repeat: no-repeat;
+  background-size: var(--progress-value, 0%) 100%;
+  transition: background-size var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+.bar:dir(rtl) { background-position-x: 100%; }
+
+.bar::-webkit-progress-bar { background: transparent; }
+.bar::-webkit-progress-value { background: transparent; }
+.bar::-moz-progress-bar { background: transparent; }
+
+/* No value: a band that crosses. Its own loop and not a motion token, as the
+   Loader's. */
+.bar:indeterminate {
+  background-size: 40% 100%;
+  animation: cross 1.5s ease-in-out infinite;
+}
+
+.bar:indeterminate:dir(rtl) { animation-direction: reverse; }
+
+@keyframes cross {
+  from { background-position-x: -70%; }
+  to { background-position-x: 170%; }
+}
+
+/* A change of value jumps, and the band is held at the centre and breathes:
+   the travel is the movement the preference is about, and a bar that does not
+   move at all says nothing is happening (invariant 6). */
+@media (prefers-reduced-motion: reduce) {
+  .bar { transition: none; }
+
+  .bar:indeterminate {
+    background-position-x: 50%;
+    animation: breathe 3s ease-in-out infinite;
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { background-size: 40% 100%; }
+  50% { background-size: 70% 100%; }
+}
+
+/* --- sizes ---------------------------------------------------------------- */
+
+.sm { --progress-height: var(--ap-spacing-050); }
+.md { --progress-height: var(--ap-spacing-100); }
+
+/* --- tones ---------------------------------------------------------------- */
+
+.accent  { --progress-tone: var(--ap-color-interactive-accent); }
+.neutral { --progress-tone: var(--ap-color-text-secondary); }
+.success { --progress-tone: var(--ap-color-text-success); }
+.danger  { --progress-tone: var(--ap-color-text-danger); }

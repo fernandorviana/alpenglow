@@ -121,6 +121,9 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/in
 export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
 
+export { Progress, progressSizes, progressTones } from './components/Progress/index';
+export type { ProgressProps, ProgressSize, ProgressTone } from './components/Progress/index';
+
 export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH } from './components/Drawer/index';
 export type { DrawerProps, DrawerMode, DrawerSide, DrawerSize } from './components/Drawer/index';
 

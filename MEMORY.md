@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1749 tests across 70 files
+npm test            # 1790 tests across 71 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -540,7 +540,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 207 cases) derives its
+The contrast suite (`src/tokens/contrast.test.ts`, 215 cases) derives its
 assertions from the theme keys rather than listing pairs, so a new token is
 covered the moment it exists. It caught five real defects on its first run,
 including a divider that resolved to the same colour as the surface beneath it.
@@ -592,6 +592,40 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Progress** — built 2026-09-22, on main, unreleased; tenth of wave 2. Spec
+  `docs/superpowers/specs/2026-09-22-progress-design.md`, plan
+  `docs/superpowers/plans/2026-09-22-progress.md`. Not published as a
+  component; drawn twice: **along the top edge of the onboarding** (4 tall,
+  the page's width, square, track `border/default`, the fill a gradient of
+  cyan into the accent) and **under a file being uploaded** (4 tall, radius
+  sm, track `surface/sunken`, fill `glacier/400`). Fernando asked for a
+  proposal from best practice: **only the linear bar**, determinate and
+  indeterminate; the ring is the Loader, and a segmented bar has no drawing.
+  **The onboarding gradient is meaning, not decoration (Fernando,
+  2026-09-22)**: the proposal called it decoration and he corrected it — the
+  colour shifting as the bar grows says how close to the end you are. The
+  theme has no gradient token, so the fill is `--progress-fill` (an image)
+  and the page composes it from `text/info` into `interactive/accent`; the
+  component ships no gradient. Recorded, not built: the drawn gradient
+  stretches within the fill; a gradient fixed to the track, so the accent is
+  reached only at the end, would need the fill clipped from the track and is
+  not possible with one background. **A native `progress` painted on the
+  element itself**: `appearance: none`, the track its background colour (the
+  pressed wash, for the Skeleton's reason), the fill a background image sized
+  by `--progress-value`, the three browser pseudo-elements transparent each
+  in a rule of its own; so a change of value transitions on `travel` and
+  every browser draws the same bar. Seen in Chromium: the element's own
+  background paints and `background-size` transitions. Sizes `sm` 4 and `md`
+  8; the Loader's tones; `label` required, `hideLabel`, `showValue`,
+  `valueText` (also `aria-valuetext`); no `value` is a band crossing in 1.5s,
+  reduced motion holds it centred and breathes it at 3s. From the review: the
+  share is held within 0 and 100 (a negative `background-size` is invalid and
+  painted a full bar; `max` 0 said `NaN%`), the percentage is floored, the
+  usage snippet shows the `CSSProperties` cast. Eight contrast cases, the
+  fill's tones on every surface. The fill's leading edge is square inside the
+  round track, invisible at 4 and faint at 8; not fixed. Not checked: Safari,
+  Firefox (whether `::-moz-progress-bar` of an indeterminate bar stays
+  transparent), a screen reader, reduced motion by eye.
 - **EmptyState** — built 2026-09-22, on main, unreleased; ninth of wave 2. Spec
   `docs/superpowers/specs/2026-09-22-empty-state-design.md`, plan
   `docs/superpowers/plans/2026-09-22-empty-state.md`. Not drawn as a

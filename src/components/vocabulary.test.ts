@@ -5,6 +5,7 @@ import { buttonFillTones, buttonTextTones } from './Button/Button';
 import { alertTones } from './Alert/Alert';
 import { badgeTones } from './Badge/Badge';
 import { loaderTones } from './Loader/Loader';
+import { progressTones } from './Progress/Progress';
 import { menuItemTones } from './DropdownMenu/rows';
 
 /** The pixel value of `property` in the rule that starts a line with `selector {`. */
@@ -44,6 +45,7 @@ describe('every tone a component lists is painted', () => {
     ['Alert', 'src/components/Alert/Alert.module.css', alertTones.map((t) => `.alert.${t}`)],
     ['Badge', 'src/components/Badge/Badge.module.css', badgeTones.map((t) => `.${t}`)],
     ['Loader', 'src/components/Loader/Loader.module.css', loaderTones.map((t) => `.${t}`)],
+    ['Progress', 'src/components/Progress/Progress.module.css', progressTones.map((t) => `.${t}`)],
     // A neutral row is the row's own style and carries no tone class.
     [
       'DropdownMenu row',

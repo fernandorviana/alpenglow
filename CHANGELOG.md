@@ -43,6 +43,16 @@ break: a removed token or prop is named here under **Breaking**.
 - **Button** takes `href` and is then an `a` with the same look, and
   `render` for a router's link. Disabled or loading, the link has no `href`
   and is `aria-disabled`. Exports `ButtonAsButtonProps`, `ButtonAsLinkProps`.
+- **Progress** — a native `progress` painted on the element itself, so every
+  browser draws the same bar: `label` (required, visible unless `hideLabel`),
+  `value` and `max`, `showValue` with a floored percentage or `valueText`
+  ("3 of 5", also what a reader is told), `size` `sm` (4) or `md` (8), and
+  the Loader's tones, `success` for done and `danger` for failed. No `value`
+  is a band that crosses; reduced motion holds it in place and lets it
+  breathe. A change of value travels on the motion token. `--progress-fill`
+  (an image) and `--progress-radius` for a bar along the page's edge.
+  Exports `Progress`, `progressSizes`, `progressTones`, `ProgressProps`,
+  `ProgressSize`, `ProgressTone`.
 - **EmptyState** — what stands where content would be when there is none:
   a `title` that is a heading, a `description`, an `icon` in a circle or
   `media` in its place, an `action` and, only beside it, a `secondaryAction`.

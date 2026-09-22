@@ -791,6 +791,28 @@ describe('empty state: an icon in a circle, a sentence, a dashed frame', () => {
   }
 });
 
+describe('progress: the fill against every surface it can stand on', () => {
+  // The fill's length is the information, so it is a graphical object held to
+  // 3:1 against the surface under the bar, in each tone. The track is the
+  // Loader's track: decoration, not held.
+  const FILLS = [
+    ['accent', 'interactive/accent'],
+    ['neutral', 'text/secondary'],
+    ['success', 'text/success'],
+    ['danger', 'text/danger'],
+  ] as const satisfies readonly (readonly [string, ThemeTokenName])[];
+
+  for (const mode of MODES) {
+    for (const [tone, fill] of FILLS) {
+      it(`${tone} — ${mode}`, () => {
+        for (const surface of SURFACES) {
+          expect(tokenContrast(fill, surface, mode), `${fill} on ${surface}`).toBeGreaterThanOrEqual(NON_TEXT);
+        }
+      });
+    }
+  }
+});
+
 describe('breadcrumb: a capsule, a slash and the page', () => {
   for (const mode of MODES) {
     it(`its links read at rest, on the root's fill and under the wash, and the page and the slash read on the bar — ${mode}`, () => {

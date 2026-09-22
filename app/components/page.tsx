@@ -23,6 +23,7 @@ import { Table } from '@/components/Table';
 import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
 import { EmptyState } from '@/components/EmptyState';
+import { Progress } from '@/components/Progress';
 import { Skeleton } from '@/components/Skeleton';
 import { Tabs } from '@/components/Tabs';
 import { Tag } from '@/components/Tag';
@@ -304,6 +305,16 @@ export default function Page() {
               <strong>New appointment</strong>
               <Input size="sm" placeholder="Patient" aria-label="Patient" />
               <Button size="sm">Save</Button>
+            </div>
+          }
+        />
+        <Card
+          href="/progress"
+          title="Progress"
+          description="A native bar painted once for every browser: a value that travels, a band when how far is not known."
+          visual={
+            <div style={{ width: '100%', maxWidth: 240 }}>
+              <Progress label="Uploading" value={62} showValue />
             </div>
           }
         />
