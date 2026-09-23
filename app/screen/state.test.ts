@@ -77,4 +77,43 @@ describe('the screen’s state', () => {
     expect(s.filters).toEqual(f);
     expect(s.currentId).toBeNull();
   });
+
+  it('drops a stale move patch when its Undo is applied after going to another day', () => {
+    const a = first();
+    const patches = move(s0, a.id, { start: `${DAY}T16:00`, end: `${DAY}T16:30` });
+    const moved = reducer(s0, { type: 'apply', patches });
+    const onOtherDay = reducer(moved, { type: 'go', date: '2026-09-18' });
+    const afterStaleUndo = reducer(onOtherDay, { type: 'apply', patches: invert(patches) });
+    expect(afterStaleUndo.byId).toEqual(onOtherDay.byId);
+    expect(afterStaleUndo.order).toEqual(onOtherDay.order);
+  });
+
+  it('drops a stale create patch when its Undo is applied after going to another day', () => {
+    let s = reducer(s0, { type: 'dialog', draft: { start: `${DAY}T17:00`, end: `${DAY}T17:30`, practitionerId: 'ana' } });
+    const patches = create(s, { client: 'Maya Costa', practitionerId: 'ana', typeId: 'follow-up', start: `${DAY}T17:00`, end: `${DAY}T17:30`, status: 'pending', kind: 'appointment' });
+    const created = reducer(s, { type: 'apply', patches });
+    const onOtherDay = reducer(created, { type: 'go', date: '2026-09-18' });
+    const afterStaleUndo = reducer(onOtherDay, { type: 'apply', patches: invert(patches) });
+    expect(afterStaleUndo.byId).toEqual(onOtherDay.byId);
+    expect(afterStaleUndo.order).toEqual(onOtherDay.order);
+  });
+
+  it('drops a stale setStatus patch when its Undo is applied after going to another day', () => {
+    const pending = visible(s0).filter((x) => x.status === 'pending');
+    const patches = setStatus(s0, pending.map((x) => x.id), 'confirmed');
+    const s = reducer(s0, { type: 'apply', patches });
+    const onOtherDay = reducer(s, { type: 'go', date: '2026-09-18' });
+    const afterStaleUndo = reducer(onOtherDay, { type: 'apply', patches: invert(patches) });
+    expect(afterStaleUndo.byId).toEqual(onOtherDay.byId);
+    expect(afterStaleUndo.order).toEqual(onOtherDay.order);
+  });
+
+  it('never splices another day’s creation into the current day', () => {
+    let s = reducer(s0, { type: 'dialog', draft: { start: `${DAY}T17:00`, end: `${DAY}T17:30`, practitionerId: 'ana' } });
+    const patches = create(s, { client: 'Maya Costa', practitionerId: 'ana', typeId: 'follow-up', start: `${DAY}T17:00`, end: `${DAY}T17:30`, status: 'pending', kind: 'appointment' });
+    const onOtherDay = reducer(s0, { type: 'go', date: '2026-09-18' });
+    const afterStaleCreate = reducer(onOtherDay, { type: 'apply', patches });
+    expect(afterStaleCreate.byId).toEqual(onOtherDay.byId);
+    expect(afterStaleCreate.order).toEqual(onOtherDay.order);
+  });
 });

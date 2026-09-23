@@ -85,15 +85,21 @@ export function reducer(state: ScreenState, action: Action): ScreenState {
       const byId = { ...state.byId };
       let order = state.order;
       let created = false;
+      // An Undo can outlive the day it was raised on: the Toast keeps its
+      // patches after `go` swaps in another day's byId/order, and applying
+      // them then must be inert rather than write a partial record under a
+      // stale id or splice another day's appointment into this one.
       for (const p of action.patches) {
         if (p.after === null) {
           delete byId[p.id];
           order = order.filter((id) => id !== p.id);
         } else if (p.before === null) {
-          byId[p.id] = p.after as Appointment;
+          const after = p.after as Appointment;
+          if (after.start.slice(0, 10) !== state.date) continue;
+          byId[p.id] = after;
           if (!order.includes(p.id)) order = [...order, p.id];
           created = true;
-        } else {
+        } else if (p.id in byId) {
           byId[p.id] = { ...byId[p.id]!, ...p.after };
         }
       }
