@@ -526,11 +526,12 @@
 
 /* ---------------------------------------------------------------------------
    Layer 3 — density. Comfortable by default; compact on any element that
-   asks, so a region can be dense while the page is not. Touch keeps
-   comfortable: density is for the pointer and the keyboard.
+   asks, so a region can be dense while the page is not. Comfortable is also
+   an attribute, so a region inside a compact one can ask for the room back.
+   Touch keeps comfortable: density is for the pointer and the keyboard.
    --------------------------------------------------------------------------- */
 
-:root {
+:root, [data-density="comfortable"] {
   --ap-density-control: 40px;
   --ap-density-row: 72px;
   --ap-density-row-header: 44px;

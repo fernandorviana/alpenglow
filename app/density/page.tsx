@@ -123,7 +123,8 @@ export default function Page() {
         Five tokens, only the ones the dense screen proves. Comfortable is the default; compact
         is chosen with <code>data-density=&quot;compact&quot;</code> on any element, not only{' '}
         <code>:root</code> — the custom properties inherit, so a part of a page can be compact
-        while the rest stays comfortable.
+        while the rest stays comfortable. A region inside a compact one returns to comfortable
+        with <code>data-density=&quot;comfortable&quot;</code>.
       </p>
       <div className="specimen">
         <Table
@@ -181,8 +182,8 @@ export default function Page() {
   {/* Button, Input, Select, Table and Scheduler inside read the compact values. */}
 </div>
 
-// Tailwind, through the theme's variables:
-<div className="h-(--density-row)">…</div>`}
+// Tailwind: the density utilities read the token where they are used.
+<div className="h-density-row">…</div>`}
       />
 
       <h2>In Figma</h2>

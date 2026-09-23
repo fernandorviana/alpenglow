@@ -191,9 +191,42 @@ describe('tokens.css carries density', () => {
     }
   });
 
-  it('is in the Tailwind theme', () => {
-    for (const name of Object.keys(density)) {
-      expect(tailwindCss, name).toContain(`--density-${name}: var(--ap-density-${name});`);
+  it('lets a region inside a compact one return to comfortable', () => {
+    // Comfortable only on :root would leave data-density="comfortable" doing
+    // nothing: below a compact ancestor, the compact values would inherit.
+    const comfortable = block(tokensCss, ':root, [data-density="comfortable"] {');
+    for (const [name, v] of Object.entries(density)) {
+      expect(comfortable, name).toContain(`--ap-density-${name}: ${v.comfortable}px;`);
     }
+  });
+});
+
+describe('the Tailwind theme carries density where it is used', () => {
+  it('declares density in an inline theme block, under the spacing namespace', () => {
+    // A plain @theme puts the variable on :root and the utility reads it, so
+    // var(--ap-density-row) resolves once, on :root, to the comfortable value.
+    // Inline writes var(--ap-density-row) into the utility itself.
+    const inline = block(tailwindCss, '@theme inline {');
+    for (const name of Object.keys(density)) {
+      expect(inline, name).toContain(`--spacing-density-${name}: var(--ap-density-${name});`);
+    }
+    expect(block(tailwindCss, '@theme {')).not.toContain('density');
+  });
+
+  it('compiles h-density-row to a height that reads the token where it is used', async () => {
+    // The compiler Tailwind itself runs, on the file a consumer imports. What
+    // matters is the declaration in the utility, not the variable's name.
+    const { compile } = await import('tailwindcss');
+    const compiler = await compile(`@import "tailwindcss/theme.css";\n@import "tailwindcss/utilities.css";\n${tailwindCss}`, {
+      base: process.cwd(),
+      loadStylesheet: async (id: string) => {
+        const path = `${process.cwd()}/node_modules/${id}`;
+        return { path, base: process.cwd(), content: readFileSync(path, 'utf8') };
+      },
+    });
+    const out = compiler.build(['h-density-row', 'min-h-density-control']);
+    expect(block(out, '.h-density-row')).toContain('height: var(--ap-density-row);');
+    expect(block(out, '.min-h-density-control')).toContain('min-height: var(--ap-density-control);');
+    expect(out).not.toMatch(/--(spacing-)?density-row:\s*var\(--ap-density-row\)/);
   });
 });

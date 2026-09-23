@@ -59,12 +59,6 @@ for (const [name, px] of Object.entries(borderWidth)) {
 }
 
 lines.push('');
-lines.push('  /* Density — resolves through tokens.css, so these follow data-density. */');
-for (const name of Object.keys(density)) {
-  lines.push(`  --density-${name}: var(--ap-density-${name});`);
-}
-
-lines.push('');
 lines.push('  /* Type */');
 for (const [name, value] of Object.entries(fontFamily)) {
   lines.push(`  --font-${name}: ${value};`);
@@ -78,6 +72,22 @@ for (const [name, style] of Object.entries(textStyle)) {
   lines.push(`  --text-${flat(name)}--letter-spacing: ${style.tracking}px;`);
 }
 
+lines.push('}');
+lines.push('');
+
+// Density sits in its own block, and `inline` is the reason. A plain @theme
+// writes each variable onto :root and has utilities read the variable, so
+// `--density-row: var(--ap-density-row)` resolves once, on :root, to the
+// comfortable value, and a compact region below it never sees 48. `inline`
+// writes the value itself into the utility, so `h-density-row` reads
+// --ap-density-row where it is used and follows data-density there. The
+// spacing namespace is what gives these names height, min-height, padding and
+// gap utilities.
+lines.push('@theme inline {');
+lines.push('  /* Density — resolves through tokens.css where it is used, so these follow data-density. */');
+for (const name of Object.keys(density)) {
+  lines.push(`  --spacing-density-${name}: var(--ap-density-${name});`);
+}
 lines.push('}');
 lines.push('');
 
@@ -102,5 +112,5 @@ writeFileSync(new URL('../src/styles/tailwind-theme.css', import.meta.url), line
 console.log(
   `tailwind-theme.css written — ${Object.keys(theme).length} colours, ` +
     `${Object.keys(spacing).length} spacing, ${Object.keys(radius).length} radii, ` +
-    `${Object.keys(textStyle).length} text styles`,
+    `${Object.keys(textStyle).length} text styles, ${Object.keys(density).length} density`,
 );
