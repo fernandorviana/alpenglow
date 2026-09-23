@@ -16,49 +16,17 @@ import type { DensityTokenName } from '@/tokens/density';
  * a Table and a Scheduler slice through both.
  */
 
-/**
- * One row per token, except `row` and `row-header`: `row` is a literal
- * prefix of `row-header`, so an accessible-name lookup for `density/row`
- * matches `density/row-header`'s row too the moment both exist as separate
- * table rows — no markup trick changes that, since the longer name contains
- * the shorter one as a substring by construction. Keeping the pair in one
- * row makes every lookup — `density/row` and `density/row-header` alike —
- * resolve to that single row, so `page.test.tsx` can find each unambiguously.
- */
-type Row = { key: string; tokens: readonly DensityTokenName[] };
-const ROWS: Row[] = [
-  { key: 'control', tokens: ['control'] },
-  { key: 'row', tokens: ['row', 'row-header'] },
-  { key: 'hour', tokens: ['hour'] },
-  { key: 'nav-item', tokens: ['nav-item'] },
-];
-
-const stack = (tokens: readonly DensityTokenName[], render: (t: DensityTokenName) => string) => (
-  <>
-    {tokens.map((t) => (
-      <div key={t}>{render(t)}</div>
-    ))}
-  </>
+/** One row per token, generated straight from `density` — the reference table's whole point. */
+type Row = { name: DensityTokenName; entry: (typeof density)[DensityTokenName] };
+const ROWS: Row[] = (Object.entries(density) as [DensityTokenName, (typeof density)[DensityTokenName]][]).map(
+  ([name, entry]) => ({ name, entry }),
 );
 
 const COLUMNS: Column<Row>[] = [
-  {
-    key: 'token',
-    header: 'Token',
-    primary: true,
-    cell: (r) => (
-      <>
-        {r.tokens.map((t) => (
-          <div className="tokenName" key={t}>
-            density/{t}
-          </div>
-        ))}
-      </>
-    ),
-  },
-  { key: 'comfortable', header: 'Comfortable', align: 'end', cell: (r) => stack(r.tokens, (t) => `${density[t].comfortable}px`) },
-  { key: 'compact', header: 'Compact', align: 'end', cell: (r) => stack(r.tokens, (t) => `${density[t].compact}px`) },
-  { key: 'use', header: 'Read by', cell: (r) => stack(r.tokens, (t) => density[t].use) },
+  { key: 'token', header: 'Token', primary: true, cell: (r) => <span className="tokenName">density/{r.name}</span> },
+  { key: 'comfortable', header: 'Comfortable', align: 'end', cell: (r) => `${r.entry.comfortable}px` },
+  { key: 'compact', header: 'Compact', align: 'end', cell: (r) => `${r.entry.compact}px` },
+  { key: 'use', header: 'Read by', cell: (r) => r.entry.use },
 ];
 
 // A three-row slice of Ridge Physio's client list, for the Try it Table — no
@@ -88,7 +56,14 @@ const SELECT_OPTIONS = [
   { value: 'sports', label: 'Sports massage' },
 ];
 
-/** One panel of the Try it: a Button, an Input, a Select, a Table and a Scheduler slice, none passed a `size` or `density`. */
+/**
+ * One panel of the Try it: a Button, an Input and a Select, none passed a
+ * `size`, and a two-hour Scheduler slice. Narrow enough to sit two up that
+ * the Table can't join them without collapsing to its own list below the
+ * Table's 40rem container threshold — decision 18's row-height comparison
+ * needs the Table full width, so the two client Tables are stacked below
+ * instead, each still following the `data-density` it sits under.
+ */
 function Panel({ mode }: { mode: (typeof densityModes)[number] }) {
   const suffix = mode === 'compact' ? ' (compact)' : ' (comfortable)';
   return (
@@ -99,7 +74,6 @@ function Panel({ mode }: { mode: (typeof densityModes)[number] }) {
         <Input aria-label={`Client name${suffix}`} placeholder="Client name" />
         <Select aria-label={`Appointment type${suffix}`} options={SELECT_OPTIONS} placeholder="Appointment type" />
       </div>
-      <Table caption={`Ridge Physio’s clients${suffix}`} columns={CLIENT_COLUMNS} rows={CLIENTS} getRowId={(r) => r.id} />
       <Scheduler
         label={`Appointments${suffix}`}
         view="day"
@@ -112,18 +86,29 @@ function Panel({ mode }: { mode: (typeof densityModes)[number] }) {
   );
 }
 
+/** One of the two full-width Table specimens below the panels, captioned with its mode. */
+function TableSpecimen({ mode }: { mode: (typeof densityModes)[number] }) {
+  const suffix = mode === 'compact' ? ' (compact)' : ' (comfortable)';
+  return (
+    <div className="specimen" data-density={mode === 'compact' ? 'compact' : undefined}>
+      <p className="densityPanelCaption">{mode === 'compact' ? 'Compact' : 'Comfortable'}</p>
+      <Table caption={`Ridge Physio’s clients${suffix}`} columns={CLIENT_COLUMNS} rows={CLIENTS} getRowId={(r) => r.id} />
+    </div>
+  );
+}
+
 export default function Page() {
   return (
     <DocPage
       evidence={
         <>
           <p>{Object.keys(density).length} tokens</p>
-          <p>density/control 40 / 32</p>
-          <p>density/row 72 / 48</p>
-          <p>density/row-header 44 / 36</p>
-          <p>density/hour 80 / 64</p>
-          <p>density/nav-item 40 / 32</p>
-          <p>touch floor 24, compact 32</p>
+          {Object.entries(density).map(([name, v]) => (
+            <p key={name}>
+              density/{name} {v.comfortable} / {v.compact}
+            </p>
+          ))}
+          <p>touch floor 24, compact {density.control.compact}</p>
         </>
       }
     >
@@ -147,7 +132,7 @@ export default function Page() {
           density="compact"
           columns={COLUMNS}
           rows={ROWS}
-          getRowId={(r) => r.key}
+          getRowId={(r) => r.name}
         />
       </div>
 
@@ -171,15 +156,23 @@ export default function Page() {
 
       <h2>Try it</h2>
       <p>
-        The same Button, Input, Select, Table and Scheduler slice, drawn twice: once at rest, and
-        once inside <code>data-density=&quot;compact&quot;</code>. None of the controls take a{' '}
-        <code>size</code>, and the Table takes no <code>density</code> prop — every measurement
-        below comes from the attribute alone.
+        The same Button, Input, Select and Scheduler slice, drawn twice: once at rest, and once
+        inside <code>data-density=&quot;compact&quot;</code>. None of the controls take a{' '}
+        <code>size</code> — every measurement below comes from the attribute alone.
       </p>
       <div className="densityCompare">
         <Panel mode="comfortable" />
         <Panel mode="compact" />
       </div>
+      <p>
+        The client Table takes no <code>density</code> prop either, but it needs its own full
+        width to prove it: below the Table&rsquo;s own 40rem container threshold it collapses to
+        a list, which is correct — and which is exactly what the panels above would force on it.
+        Stacked instead, its row is {density.row.comfortable}px in the first and{' '}
+        {density.row.compact}px in the second.
+      </p>
+      <TableSpecimen mode="comfortable" />
+      <TableSpecimen mode="compact" />
 
       <h2>In code</h2>
       <CodeBlock
