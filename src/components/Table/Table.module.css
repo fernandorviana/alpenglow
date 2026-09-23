@@ -324,38 +324,55 @@
 /* --- the current row -------------------------------------------------------
  *
  * The one being looked at, not the ones chosen: those are the fill and the
- * start stripe above, and a row can be both. The ring is the Scheduler's for
- * its selected card, inset so it adds no width. */
-.tr[data-current='true'] .td {
-  box-shadow:
-    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
-    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
-}
-
-.tr[data-current='true'] .td:first-child {
-  box-shadow:
-    inset var(--ap-border-width-ring) 0 0 var(--ap-color-border-accent),
-    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
-    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
-}
-
-.tr[data-current='true'] .td:last-child {
-  box-shadow:
-    inset calc(-1 * var(--ap-border-width-ring)) 0 0 var(--ap-color-border-accent),
-    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
-    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
-}
-
-/* A row that is both selected and current: the stripe still has to show
-   alongside the ring, so it is added back as the first shadow, ahead of the
-   ring's own sides, only for this combination — the plain current rule above
-   does not carry it. */
-.tr[data-selected='true'][data-current='true'] .td:first-child {
-  box-shadow:
-    inset 3px 0 0 var(--ap-color-interactive-accent),
-    inset var(--ap-border-width-ring) 0 0 var(--ap-color-border-accent),
-    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
-    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
+ * start stripe above, and a row can be both.
+ *
+ * DRAWN AS A ROW-LEVEL OUTLINE, not a per-cell inset box-shadow — an earlier
+ * version of this rule drew the ring as inset shadows on `.td`,
+ * `.td:first-child` and `.td:last-child`, and both of those per-cell tricks
+ * broke: a physical `left`/`right` inset on `:first-child`/`:last-child`
+ * lands on the wrong edge under `:dir(rtl)` (the stripe above has an
+ * explicit rtl rule for exactly this; a plain rectangle needs none, so the
+ * bug had no fix to mirror). And `:first-child`/`:last-child` match by DOM
+ * position, not by what is actually visible: the container collapse below
+ * hides every non-primary `.td` except the selection and action cells, so a
+ * table with neither of those and a primary column that is not literally
+ * the first one in `columns` collapses to a row whose one visible cell is
+ * neither the DOM first nor last child — the two rules that were supposed
+ * to draw the ring's sides never matched it, and the ring lost them.
+ * `outline` sidesteps both: it wraps whatever box the row actually lays
+ * out, which is always the full row regardless of which cells are hidden
+ * or which direction the text runs, and it has no left/right asymmetry to
+ * invert.
+ *
+ * The offset is negative by the outline's own width, the same trick as
+ * `.region:focus-visible` above, so the ring sits inside the row rather
+ * than outside it, where `.frame`'s `overflow: hidden` would clip it at the
+ * table's own top/bottom/side edges. An outline paints after the element's
+ * own descendants — it is defined to sit on top of a box's content, which
+ * is the entire reason it is the standard tool for a focus ring that must
+ * stay visible over whatever the box contains — so it is not hidden
+ * beneath a selected row's fill either, and this rule needs no combined
+ * `[data-selected='true'][data-current='true']` variant to bring the start
+ * stripe back the way the old box-shadow version did: the stripe is a
+ * separate declaration on `.td`, untouched by anything here, so the
+ * cascade can no longer make one replace the other.
+ *
+ * Confirmed in a real (Chromium) browser, not reasoned only: rendered the
+ * Try It table with a row both selected and current, and the compact and
+ * collapsed (sub-40rem container, list view) specimens with a current row,
+ * in both `dir="ltr"` and `dir="rtl"`. The ring wraps the full row in every
+ * case, including the collapsed list where only the primary cell is
+ * visible. Where a row is both selected and current, the ring and the
+ * stripe visibly overlap near the row's start — but `border/accent` and
+ * `interactive/accent` are the same `twilight` step in both themes
+ * (confirmed against the live custom properties: `#b091ff` for both, in the
+ * rendered dark theme), so the overlap is invisible: it reads as one
+ * continuous accent edge, not one indicator hiding the other. Playwright is
+ * not installed and this session did not install it; verification used the
+ * Browser pane against the project's own dev server instead. */
+.tr[data-current='true'] {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-accent);
+  outline-offset: calc(-1 * var(--ap-border-width-ring));
 }
 
 /* The primary cell as a button: the cell's own words, nothing drawn. */

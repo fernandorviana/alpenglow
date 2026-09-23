@@ -726,9 +726,21 @@ describe('current row', () => {
 
   it('draws current as a ring, not the selection fill, so a row can be both', () => {
     const css = readCss('src/components/Table/Table.module.css');
-    const rule = block(css, ".tr[data-current='true'] .td {");
+    const rule = block(css, ".tr[data-current='true'] {");
+    expect(rule).toContain('outline');
+    expect(rule).toContain('var(--ap-border-width-ring)');
     expect(rule).toContain('var(--ap-color-border-accent)');
     expect(rule).not.toContain('interactive-selected');
+  });
+
+  it('draws the ring on the row, not a per-cell first/last-child shadow, so RTL and the collapse cannot lose a side', () => {
+    // Physical left/right insets on :first-child/:last-child broke two ways:
+    // wrong edge under :dir(rtl), and no match at all once the collapse (below)
+    // hides the true first or last cell. An outline on the row itself has
+    // neither failure mode, so no rule naming these selectors for the current
+    // row should come back.
+    const css = readCss('src/components/Table/Table.module.css');
+    expect(css).not.toMatch(/\.tr\[data-current='true'\]\s*\.td/);
   });
 
   it('passes axe with a current and a selected row', async () => {
