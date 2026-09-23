@@ -1,14 +1,31 @@
+import { useInsertionEffect } from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { Frame } from './FrameView';
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/screen/', useRouter: () => ({ push: () => {}, prefetch: () => {} }) }));
+/** The router's query, as Next hands it to the page being rendered. */
+const router = vi.hoisted(() => ({ search: '' }));
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/screen/',
+  useRouter: () => ({ push: () => {}, prefetch: () => {} }),
+  useSearchParams: () => new URLSearchParams(router.search),
+}));
 
 const frameOf = () => screen.getByTitle(/Ridge Physio/) as HTMLIFrameElement;
 
-beforeEach(() => window.history.replaceState(null, '', '/screen/'));
-afterEach(() => vi.unstubAllGlobals());
+/** Arrive at `url` by a full load: the window and the router agree. */
+const at = (url: string) => {
+  window.history.replaceState(null, '', url);
+  router.search = new URL(url, window.location.origin).search;
+};
+
+beforeEach(() => at('/screen/'));
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
 
 describe('Frame', () => {
   it('draws the three switches and an iframe at the chosen width', () => {
@@ -29,7 +46,7 @@ describe('Frame', () => {
   });
 
   it('keeps the combination in its own query, and a section’s anchor with it', async () => {
-    window.history.replaceState(null, '', '/screen/#composition');
+    at('/screen/#composition');
     render(<Frame count={11} />);
     await userEvent.click(screen.getByRole('radio', { name: '768' }));
     expect(window.location.search).toBe('?width=768');
@@ -38,7 +55,7 @@ describe('Frame', () => {
   });
 
   it('loads the frame once, from the combination it was opened with', async () => {
-    window.history.replaceState(null, '', '/screen/?density=compact&width=375');
+    at('/screen/?density=compact&width=375');
     render(<Frame count={11} />);
     expect(screen.getByRole('radio', { name: 'Compact' })).toBeChecked();
     // Width is the iframe's own size, never in its src.
@@ -49,9 +66,41 @@ describe('Frame', () => {
   });
 
   it('builds the frame’s src under the site’s base path', () => {
-    window.history.replaceState(null, '', '/alpenglow/screen/?theme=dark');
+    vi.stubEnv('NEXT_PUBLIC_DOCS_BASE', '/alpenglow');
+    at('/alpenglow/screen/?theme=dark');
     render(<Frame count={11} />);
     expect(frameOf().getAttribute('src')).toBe('/alpenglow/screen/full/?theme=dark');
+  });
+
+  it('reads the page it is arriving at, not the one being left, after a client-side navigation', () => {
+    // Next renders the new page while the window still shows the old one,
+    // and writes the new URL in an insertion effect at commit.
+    vi.stubEnv('NEXT_PUBLIC_DOCS_BASE', '/alpenglow');
+    window.history.replaceState(null, '', '/alpenglow/why/');
+    router.search = '?density=compact';
+    function HistoryUpdater() {
+      useInsertionEffect(() => window.history.replaceState(null, '', '/alpenglow/screen/?density=compact'));
+      return null;
+    }
+    render(
+      <>
+        <HistoryUpdater />
+        <Frame count={11} />
+      </>,
+    );
+    expect(frameOf().getAttribute('src')).toBe('/alpenglow/screen/full/?density=compact');
+    expect(screen.getByRole('radio', { name: 'Compact' })).toBeChecked();
+    expect(window.location.pathname).toBe('/alpenglow/screen/');
+    expect(window.location.search).toBe('?density=compact');
+  });
+
+  it('rewrites its query in Next’s documented form, with no state of its own', async () => {
+    window.history.replaceState({ __NA: true }, '', '/screen/');
+    const replace = vi.spyOn(window.history, 'replaceState');
+    render(<Frame count={11} />);
+    await userEvent.click(screen.getByRole('radio', { name: 'Dark' }));
+    expect(replace).toHaveBeenLastCalledWith(null, '', '/screen/?theme=dark');
+    replace.mockRestore();
   });
 
   it('sends mode and density to the frame, to its own origin only', async () => {

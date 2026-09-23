@@ -19,7 +19,11 @@ import { Ratio } from './Ratio';
 const css = readCss('app/docs.css');
 
 // The Command palette page asks for the router, which only Next mounts.
-vi.mock('next/navigation', () => ({ usePathname: () => '/', useRouter: () => ({ push: () => {} }) }));
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useRouter: () => ({ push: () => {} }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 /** The declarations of every rule whose selector list names `selector`. */
 const rules = (selector: string) =>

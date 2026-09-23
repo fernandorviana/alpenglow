@@ -15,7 +15,11 @@ import { Nav } from '@ui/Nav';
  * open date picker — are checked beside those components.
  */
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/', useRouter: () => ({ push: () => {} }) }));
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+  useRouter: () => ({ push: () => {} }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 // jsdom has no matchMedia; the navigation and the theme toggle ask it.
 window.matchMedia = (query: string) =>

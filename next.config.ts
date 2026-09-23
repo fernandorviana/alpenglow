@@ -10,6 +10,9 @@ const basePath = process.env.DOCS_BASE ?? '';
 const config: NextConfig = {
   output: 'export',
   basePath,
+  // For what `basePath` does not reach: /screen's iframe src is a raw
+  // attribute, which Next's link never sees.
+  env: { NEXT_PUBLIC_DOCS_BASE: basePath },
   images: { unoptimized: true },
   trailingSlash: true,
 };

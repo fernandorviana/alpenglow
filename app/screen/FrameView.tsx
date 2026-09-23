@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { Link } from '@/components/Link';
-import { useHydrated } from '@/components/useHydrated';
 import { DEFAULT_FRAME, frameQuery, parseFrame, widths } from './frame';
 import type { FrameMessage, FrameState, FrameWidth } from './frame';
 import styles from './frame.module.css';
@@ -12,40 +12,46 @@ import styles from './frame.module.css';
 const HEIGHT = 900;
 
 /**
- * The site's base path, read from where this page is served: `/screen/` on
- * its own, `/alpenglow/screen/` under `DOCS_BASE`. The Link's href goes
- * through Next's link, which adds the base itself; the iframe's src is a raw
- * attribute and needs it written in.
+ * The site's base path, `DOCS_BASE` at build time, inlined by `env` in
+ * next.config.ts. The Link's href goes through Next's link, which adds the
+ * base itself; the iframe's src is a raw attribute and needs it written in.
+ * Read when called rather than at module scope, so a test can set it.
  */
-const baseOf = (pathname: string) => pathname.replace(/\/$/, '').replace(/\/screen$/, '');
+const base = () => process.env.NEXT_PUBLIC_DOCS_BASE ?? '';
 
 /**
  * `/screen/full` in an iframe, with the system's own controls over it. The
  * width is the iframe's viewport, so the screen's media queries answer it as
  * a product's would; mode and density reach the frame by message.
  *
- * The combination is in the page's query, so it can be linked. The query is
- * read in the first render after hydration, not in an effect: the static
- * HTML and the hydration pass draw the default bar with no frame, and the
- * live bar replaces it, starting from the query, with the frame in it.
+ * The combination is in the page's query, so it can be linked. It is read
+ * from the router, not from `window.location`: after a client-side
+ * navigation Next writes the new URL at commit, after this renders, so the
+ * window would still show the page being left. A static page that asks for
+ * the query is drawn on the client below its Suspense boundary; the static
+ * HTML has the fallback, the default bar with no frame.
  */
 export function Frame({ count }: { count: number }) {
-  const hydrated = useHydrated();
-  return hydrated ? (
-    <Live key="live" count={count} initial={parseFrame(window.location.search)} base={baseOf(window.location.pathname)} />
-  ) : (
-    <Live key="static" count={count} initial={DEFAULT_FRAME} base={null} />
+  return (
+    <Suspense fallback={<Live count={count} initial={DEFAULT_FRAME} live={false} />}>
+      <FromQuery count={count} />
+    </Suspense>
   );
 }
 
-function Live({ count, initial, base }: { count: number; initial: FrameState; base: string | null }) {
+function FromQuery({ count }: { count: number }) {
+  const query = useSearchParams();
+  return <Live count={count} initial={parseFrame(`?${query.toString()}`)} live />;
+}
+
+function Live({ count, initial, live }: { count: number; initial: FrameState; live: boolean }) {
   const [state, setState] = useState<FrameState>(initial);
-  // The combination the iframe was loaded with, and the base it was loaded
-  // under. Its src is built from these alone, so a change of mode or density
-  // travels by message and never reloads it; the width is the iframe's own
-  // size and is not in its src at all. Held once: later renders hand in the
-  // query as it has since been rewritten, and are not read.
-  const [first] = useState(() => (base === null ? null : { state: initial, base }));
+  // The combination the iframe was loaded with. Its src is built from this
+  // alone, so a change of mode or density travels by message and never
+  // reloads it; the width is the iframe's own size and is not in its src at
+  // all. Held once: later renders hand in the query as it has since been
+  // rewritten, and are not read.
+  const [first] = useState(() => (live ? initial : null));
   const [room, setRoom] = useState<number | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -58,7 +64,9 @@ function Live({ count, initial, base }: { count: number; initial: FrameState; ba
   useEffect(() => {
     if (!first) return;
     const { pathname, hash } = window.location;
-    window.history.replaceState(window.history.state, '', `${pathname}${frameQuery(state)}${hash}`);
+    // `null`, Next's documented form: its own state object here would stop
+    // the router syncing, and a later update of it would wipe the query.
+    window.history.replaceState(null, '', `${pathname}${frameQuery(state)}${hash}`);
     send(state);
   }, [state, first]);
 
@@ -87,7 +95,7 @@ function Live({ count, initial, base }: { count: number; initial: FrameState; ba
 
   const scale = room === null ? 1 : Math.min(1, room / state.width);
   const open = `/screen/full/${frameQuery(state)}`;
-  const src = first && `${first.base}/screen/full/${frameQuery({ ...first.state, width: DEFAULT_FRAME.width })}`;
+  const src = first && `${base()}/screen/full/${frameQuery({ ...first, width: DEFAULT_FRAME.width })}`;
 
   return (
     <section aria-label="The screen" className={styles.frame}>
