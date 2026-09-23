@@ -116,4 +116,46 @@ describe('the screen’s state', () => {
     expect(afterStaleCreate.byId).toEqual(onOtherDay.byId);
     expect(afterStaleCreate.order).toEqual(onOtherDay.order);
   });
+
+  describe('a visited day keeps its edits for the session', () => {
+    const OTHER = '2026-09-18';
+
+    it('keeps an edit through a visit to another day', () => {
+      const a = first();
+      const patches = move(s0, a.id, { start: `${DAY}T16:00`, end: `${DAY}T16:30` });
+      let s = reducer(s0, { type: 'apply', patches });
+      s = reducer(s, { type: 'go', date: OTHER });
+      expect(s.byId[a.id]).toBeUndefined();
+      s = reducer(s, { type: 'go', date: DAY });
+      expect(s.byId[a.id]).toMatchObject({ start: `${DAY}T16:00`, end: `${DAY}T16:30` });
+    });
+
+    it('keeps the other day’s edits too', () => {
+      let s = reducer(s0, { type: 'go', date: OTHER });
+      const b = visible(s).find((x) => x.kind === 'appointment')!;
+      s = reducer(s, { type: 'apply', patches: setStatus(s, [b.id], 'cancelled') });
+      s = reducer(s, { type: 'go', date: DAY });
+      s = reducer(s, { type: 'go', date: OTHER });
+      expect(s.byId[b.id]!.status).toBe('cancelled');
+    });
+
+    it('treats a go to the date already shown as nothing', () => {
+      const moved = reducer(s0, { type: 'apply', patches: move(s0, first().id, { start: `${DAY}T16:00`, end: `${DAY}T16:30` }) });
+      expect(reducer(moved, { type: 'go', date: DAY })).toBe(moved);
+    });
+
+    it('undoes the second of two moves after a visit elsewhere, back to the first move’s place', () => {
+      const a = first();
+      const p1 = move(s0, a.id, { start: `${DAY}T16:00`, end: `${DAY}T16:30` });
+      let s = reducer(s0, { type: 'apply', patches: p1 });
+      const p2 = move(s, a.id, { start: `${DAY}T17:00`, end: `${DAY}T17:30`, practitionerId: 'kwame' });
+      s = reducer(s, { type: 'apply', patches: p2 });
+      s = reducer(s, { type: 'go', date: OTHER });
+      s = reducer(s, { type: 'go', date: DAY });
+      expect(s.byId[a.id]).toMatchObject({ start: `${DAY}T17:00`, practitionerId: 'kwame' });
+      s = reducer(s, { type: 'apply', patches: invert(p2) });
+      expect(s.byId[a.id]).toMatchObject({ start: `${DAY}T16:00`, end: `${DAY}T16:30`, practitionerId: a.practitionerId });
+    });
+  });
 });
+

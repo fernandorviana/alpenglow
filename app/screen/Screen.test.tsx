@@ -146,4 +146,23 @@ describe('the dense screen', () => {
     expect(within(scheduler()).getByText('Ana')).toBeInTheDocument();
     expect(within(scheduler()).queryByText('Kwame')).not.toBeInTheDocument();
   });
+
+  it('keeps a change through Today, and through a day away and back', async () => {
+    render(<Screen />);
+    const row = () => within(table()).getAllByRole('row').find((r) => within(r).queryAllByText('Leila Okafor').length > 0 && within(r).queryAllByText(/09:00 – 09:45/).length > 0)!;
+    expect(within(row()).queryAllByText('Pending')).not.toHaveLength(0);
+    await userEvent.click(within(row()).getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(within(row()).queryAllByText('Pending')).toHaveLength(0);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Today' }));
+    expect(within(row()).queryAllByText('Pending')).toHaveLength(0);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Previous day' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Next day' }));
+    expect(screen.getByRole('heading', { name: /Thursday 17 September/ })).toBeInTheDocument();
+    expect(within(row()).getAllByText('Confirmed')).not.toHaveLength(0);
+    expect(within(row()).queryAllByText('Pending')).toHaveLength(0);
+  });
 });
+

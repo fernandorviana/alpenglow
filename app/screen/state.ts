@@ -13,10 +13,18 @@ import type { Appointment, Status } from './data';
 
 export type Patch = { id: string; before: Partial<Appointment> | null; after: Partial<Appointment> | null };
 
+type Day = { byId: Record<string, Appointment>; order: string[] };
+
 export type ScreenState = {
   date: ISODate;
+  /** The day shown: a view of `days[date]`, written back on `go`. */
   byId: Record<string, Appointment>;
   order: string[];
+  /**
+   * Every day visited this session, as it was left. A day is seeded from its
+   * date the first time and kept after: only a reload starts it over.
+   */
+  days: Record<ISODate, Day>;
   filters: FilterValue[];
   currentId: string | null;
   selected: Set<string>;
@@ -33,13 +41,14 @@ export type Action =
   | { type: 'dialog'; draft: ScreenState['dialog'] }
   | { type: 'apply'; patches: Patch[] };
 
-function load(date: ISODate) {
+function seed(date: ISODate): Day {
   const list = appointmentsFor(date);
   return { byId: Object.fromEntries(list.map((a) => [a.id, a])), order: list.map((a) => a.id) };
 }
 
 export function initialState(date: ISODate = DAY): ScreenState {
-  return { date, ...load(date), filters: [], currentId: null, selected: new Set(), drawerOpen: false, dialog: null };
+  const day = seed(date);
+  return { date, ...day, days: {}, filters: [], currentId: null, selected: new Set(), drawerOpen: false, dialog: null };
 }
 
 const FIELD: Record<string, (a: Appointment) => string> = {
@@ -69,8 +78,16 @@ function prune(state: ScreenState): ScreenState {
 
 export function reducer(state: ScreenState, action: Action): ScreenState {
   switch (action.type) {
-    case 'go':
-      return { ...state, date: action.date, ...load(action.date), currentId: null, selected: new Set(), drawerOpen: false, dialog: null };
+    case 'go': {
+      if (action.date === state.date) return state;
+      // The day left is kept as it stands, and the day reached is the one
+      // kept for it, or its seed the first time: pressing Today, or ‹ then
+      // ›, must not wipe what was changed, nor leave an Undo writing into a
+      // reseeded record.
+      const days = { ...state.days, [state.date]: { byId: state.byId, order: state.order } };
+      const day = days[action.date] ?? seed(action.date);
+      return { ...state, date: action.date, ...day, days, currentId: null, selected: new Set(), drawerOpen: false, dialog: null };
+    }
     case 'filter':
       return prune({ ...state, filters: action.filters });
     case 'current':
