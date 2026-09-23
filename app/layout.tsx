@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { Chrome } from '@ui/Chrome';
 import { Footer } from '@ui/Footer';
 import { Nav } from '@ui/Nav';
 import { SkipLink } from '@ui/SkipLink';
@@ -42,22 +43,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <InlineScript html={NO_FLASH} />
       </head>
       <body>
-        <SkipLink />
-        <div className="shell">
-          <Nav />
-          {/* The page and the footer share a column beside the sidebar, so the
-              footer runs to the width of the page rather than under the
-              sidebar, and the nav's narrow-screen overlay covers both: it makes
-              every sibling of its own inert, and this column is the sibling.
-              The footer is outside `main` because `contentinfo` is a landmark
-              only there. */}
-          <div className="column">
-            <main className="main" id="content" tabIndex={-1}>
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </div>
+        <Chrome skip={<SkipLink />} nav={<Nav />} footer={<Footer />}>
+          {children}
+        </Chrome>
         {/* Once, for the whole site: /toast raises them and so does the Components page. */}
         <Toaster />
         <Analytics />
