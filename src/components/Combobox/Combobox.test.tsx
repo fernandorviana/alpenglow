@@ -71,7 +71,7 @@ describe('Combobox — structure', () => {
     expect(field()).toHaveAttribute('aria-expanded', 'false');
     expect(field()).toHaveAttribute('aria-controls', listbox().id);
     expect(field()).toHaveAttribute('autocomplete', 'off');
-    expect(field().parentElement).toHaveClass(control.control!, control.md!, styles.box!);
+    expect(field().parentElement).toHaveClass(control.control!, control.auto!, styles.box!);
     expect(listbox()).toHaveAttribute('popover', 'manual');
     expect(listbox()).toHaveClass(floating.floating!, styles.list!);
   });

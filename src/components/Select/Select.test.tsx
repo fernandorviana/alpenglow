@@ -80,7 +80,7 @@ describe('Select — structure', () => {
     expect(field()).toHaveAttribute('aria-haspopup', 'listbox');
     expect(field()).toHaveAttribute('aria-expanded', 'false');
     expect(field()).toHaveAttribute('aria-controls', listbox().id);
-    expect(field()).toHaveClass(control.control!, control.md!);
+    expect(field()).toHaveClass(control.control!, control.auto!);
     expect(listbox()).toHaveAttribute('popover', 'auto');
     expect(listbox()).toHaveClass(floating.floating!, styles.list!);
   });

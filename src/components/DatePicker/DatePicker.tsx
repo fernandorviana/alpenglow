@@ -90,7 +90,7 @@ export type DatePickerProps = CalendarProps & {
 
 export function DatePicker({
   label,
-  size = 'md',
+  size,
   invalid,
   disabled,
   readOnly,
@@ -362,7 +362,7 @@ export function DatePicker({
       <div
         className={[
           control.control,
-          control[size],
+          control[size ?? 'auto'],
           isInvalid && control.invalid,
           disabled && control.disabled,
           readOnly && control.readOnly,

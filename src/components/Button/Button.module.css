@@ -7,7 +7,7 @@
 
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
-.button, .sm, .md, .lg, .fullWidth, .icon, .icon svg {
+.button, .auto, .sm, .md, .lg, .fullWidth, .icon, .icon svg {
   box-sizing: border-box;
 }
 
@@ -89,6 +89,17 @@ a.button:focus-visible {
 }
 
 /* --- sizes ---------------------------------------------------------------- */
+
+/* No size passed: density's height. Everything else — padding, type — is
+   md's, letter-spacing included, so an auto button at 40px is pixel-identical
+   to an explicit md; a compact button keeps its breadth and loses only height. */
+.auto {
+  height: var(--ap-density-control);
+  padding-inline: var(--ap-spacing-250);
+  font-size: var(--ap-text-button-md-size);
+  line-height: var(--ap-text-button-md-line-height);
+  letter-spacing: var(--ap-text-button-md-tracking);
+}
 
 .sm {
   height: 32px;

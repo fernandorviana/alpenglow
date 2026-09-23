@@ -79,10 +79,11 @@ const Glyph = ({ d }: { d: string }) => (
 );
 
 /** The control box's block padding at each size, where the pinned buttons of a box with tags start. */
-const INSET: Record<ControlSize, string> = {
+const INSET: Record<ControlSize | 'auto', string> = {
   sm: 'var(--ap-spacing-050)',
   md: 'var(--ap-spacing-100)',
   lg: 'var(--ap-spacing-150)',
+  auto: 'calc((var(--ap-density-control) - var(--ap-text-body-md-line-height) - 2 * var(--ap-border-width-hairline)) / 2)',
 };
 
 /** The value of the row that stands for every option. Not one a caller's option can have by accident. */
@@ -103,7 +104,7 @@ export function Combobox(props: ComboboxProps) {
   const {
     options: entries,
     placeholder,
-    size = 'md',
+    size,
     invalid,
     disabled = false,
     required,
@@ -326,7 +327,7 @@ export function Combobox(props: ComboboxProps) {
     <div
       className={[
         control.control,
-        control[size],
+        control[size ?? 'auto'],
         isInvalid && control.invalid,
         disabled && control.disabled,
         styles.box,
@@ -335,7 +336,7 @@ export function Combobox(props: ComboboxProps) {
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ anchorName: anchor, '--floating-anchor': anchor, '--combobox-inset': INSET[size] } as CSSProperties}
+      style={{ anchorName: anchor, '--floating-anchor': anchor, '--combobox-inset': INSET[size ?? 'auto'] } as CSSProperties}
       onBlur={onBlur}
       onMouseDown={(event) => {
         // A press on the box that is on none of its controls is a press on the field.

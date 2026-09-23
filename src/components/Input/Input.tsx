@@ -16,7 +16,7 @@ export type InputProps = {
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { size = 'md', invalid, iconStart, iconEnd, disabled, readOnly, className, ...rest },
+  { size, invalid, iconStart, iconEnd, disabled, readOnly, className, ...rest },
   ref,
 ) {
   // A surrounding Field supplies the id and the wiring. Explicit props still
@@ -28,7 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const required = rest.required ?? field?.required;
   const wrapper = [
     styles.control,
-    styles[size],
+    styles[size ?? 'auto'],
     isInvalid && styles.invalid,
     disabled && styles.disabled,
     readOnly && styles.readOnly,

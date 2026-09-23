@@ -29,7 +29,7 @@ export type NativeSelectProps = {
 } & Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'children' | 'placeholder'>;
 
 export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(function NativeSelect(
-  { size = 'md', invalid, placeholder, iconStart, children, disabled, className, onChange, ...rest },
+  { size, invalid, placeholder, iconStart, children, disabled, className, onChange, ...rest },
   ref,
 ) {
   const field = useField();
@@ -51,7 +51,7 @@ export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(fun
 
   const box = [
     control.control,
-    control[size],
+    control[size ?? 'auto'],
     isInvalid && control.invalid,
     disabled && control.disabled,
     className,

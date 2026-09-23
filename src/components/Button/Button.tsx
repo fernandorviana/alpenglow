@@ -75,7 +75,7 @@ function ButtonImpl(
   {
     variant = 'solid',
     tone = 'accent',
-    size = 'md',
+    size,
     loading = false,
     iconStart,
     iconEnd,
@@ -94,7 +94,7 @@ function ButtonImpl(
     styles.button,
     styles[variant],
     styles[tone],
-    styles[size],
+    styles[size ?? 'auto'],
     fullWidth && styles.fullWidth,
     loading && styles.loading,
     className,

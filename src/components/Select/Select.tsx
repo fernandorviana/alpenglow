@@ -59,7 +59,7 @@ export function Select({
   defaultValue = '',
   onChange,
   placeholder,
-  size = 'md',
+  size,
   invalid,
   disabled = false,
   required,
@@ -205,7 +205,7 @@ export function Select({
         // Only once hydrated, for the menu's reason: a native open before React
         // listens would leave `aria-expanded` denying a list on screen.
         popoverTarget={hydrated ? listId : undefined}
-        className={[control.control, control[size], isInvalid && control.invalid, disabled && control.disabled, styles.trigger, className]
+        className={[control.control, control[size ?? 'auto'], isInvalid && control.invalid, disabled && control.disabled, styles.trigger, className]
           .filter(Boolean)
           .join(' ')}
         style={{ anchorName: anchor } as CSSProperties}

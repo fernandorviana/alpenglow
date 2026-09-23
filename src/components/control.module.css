@@ -17,7 +17,7 @@
 
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
-.control, .sm, .md, .lg, .field, .icon, .icon svg, .fullWidth {
+.control, .auto, .sm, .md, .lg, .field, .icon, .icon svg, .fullWidth {
   box-sizing: border-box;
 }
 
@@ -89,6 +89,19 @@
 }
 
 /* --- sizes ---------------------------------------------------------------- */
+
+/* No size passed: the height is density's. The block padding is what is left
+   of the token after the line and the border, so 40 is exactly md and 32 is
+   exactly sm, and a third density would need no new rule. */
+.auto {
+  min-height: var(--ap-density-control);
+  padding-block: calc((var(--ap-density-control) - var(--ap-text-body-md-line-height) - 2 * var(--ap-border-width-hairline)) / 2);
+  /* sm/md/lg all put spacing-200 on the start and spacing-150 on the end —
+     the four-value `padding` shorthand above reads right, left as 150, 200 —
+     so auto copies that split rather than the reverse, or it would not equal
+     md at 40px. */
+  padding-inline: var(--ap-spacing-200) var(--ap-spacing-150);
+}
 
 /* Heights are shared with Button: 32, 40, 48. A button and a field of the same
    size sit at the same height, which the drawn numbering did not give — there
