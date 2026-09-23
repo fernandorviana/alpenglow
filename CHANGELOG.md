@@ -5,7 +5,13 @@ the completeness roadmap (2026-09-18); `0.1.0` and `0.2.0` are summarised from
 the record in `MEMORY.md`. While the version is `0.x`, a minor version may
 break: a removed token or prop is named here under **Breaking**.
 
-## Unreleased
+## 0.5.0 — 2026-09-23
+
+Wave 3 of the completeness roadmap: navigation, the remaining inputs, the
+Scheduler, the CommandPalette, and two foundations, the category palette and
+the chart palette. Nothing is removed; the one rename is under **Changed**.
+The whole wave was reviewed over `v0.4.0..HEAD` before the tag: one export
+missing from the root (`accepts`), one dead rule in the site's stylesheet.
 
 ### Added
 
@@ -47,7 +53,7 @@ break: a removed token or prop is named here under **Breaking**.
   the accepted files to `onAdd`, the refused shown as failed cards with the
   reason and said to `onReject`; `onRemove`, `onRetry`; `variant` `zone`
   (drawn; alone, the upload inside the zone), `compact` and `tile`. Exports
-  `FileUpload`, `fileUploadVariants`, `formatSize`, `FileUploadProps`,
+  `FileUpload`, `fileUploadVariants`, `formatSize`, `accepts`, `FileUploadProps`,
   `FileUploadVariant`, `UploadFile`, `UploadStatus`, `UploadRejection`.
 - **Scheduler** — the grid of hours with the appointments on it, phase 1 of
   two: `view` `week` (one column per day from `date`, `weekStartsOn`,

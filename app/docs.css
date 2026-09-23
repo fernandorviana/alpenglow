@@ -1700,7 +1700,6 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   fill: var(--ap-color-text-secondary);
 }
 
-.chart .chartTitle { fill: var(--ap-color-text-primary); font-weight: var(--ap-font-weight-semibold); }
 .chart .chartGrid { stroke: var(--ap-color-border-subtle); }
 .chart .chartAxis { stroke: var(--ap-color-border-default); }
 .chart .chartZero { stroke: var(--ap-color-border-strong); }

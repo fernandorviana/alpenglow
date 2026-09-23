@@ -578,7 +578,7 @@ Alert, Card, Pagination, Link; **wave 2 (`0.4.0`)** Popover (extracted from
 DatePicker and DropdownMenu), Combobox (graduated from the site's Search),
 Drawer, Accordion, Breadcrumb, Skeleton, EmptyState, Progress, Tag, and the
 dense Table (sort, sticky header, bulk actions, filters, pagination);
-**wave 3 (`0.5.0`)** SideNav and TopBar (graduated from the site's Nav),
+**wave 3 (`0.5.0`, cut 2026-09-23)** SideNav and TopBar (graduated from the site's Nav),
 SegmentedControl, Slider, FileUpload, Scheduler, CommandPalette. "Crest
 feeds Terrain": a site piece that is the general pattern is graduated into
 the package, not rewritten beside it. Foundations to add: breakpoints as
@@ -593,8 +593,8 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
-- **CommandPalette** — built 2026-09-23, not committed; sixth and last of
-  wave 3, "the site's ⌘K graduated". Spec
+- **CommandPalette** — built 2026-09-23, on main (48bffcf), released in
+  0.5.0; sixth and last of wave 3, "the site's ⌘K graduated". Spec
   `docs/superpowers/specs/2026-09-23-command-palette-design.md`, plan
   `docs/superpowers/plans/2026-09-23-command-palette.md`. Controlled Dialog
   + Input as one combobox over a listbox of grouped `CommandItem`s (data,
@@ -624,7 +624,7 @@ Claimed components (add a line before starting; one per session and branch):
   fill, Enter switching the theme, the site's ⌘K on the component listing
   tokens in mono, light and dark. Not checked: Safari, Firefox, a screen
   reader, a real phone.
-- **Chart palette** (foundation) — built 2026-09-23, on main, unreleased;
+- **Chart palette** (foundation) — built 2026-09-23, on main (43dca92), released in 0.5.0;
   the roadmap's data-vis palette, closing wave 3's foundations beside the
   category palette. Spec
   `docs/superpowers/specs/2026-09-23-chart-palette-design.md`, plan
@@ -649,8 +649,8 @@ Claimed components (add a line before starting; one per session and branch):
   375 with no overflow. Not built: a Chart component, pattern fills,
   colour-vision simulation.
 
-- **Scheduler** — phase 1 built 2026-09-23, on main (b3738b9), unreleased;
-  **phase 2 built 2026-09-23, on main, unreleased**; fifth of wave 3. Specs
+- **Scheduler** — phase 1 built 2026-09-23, on main (b3738b9); phase 2
+  built 2026-09-23, on main (f6ab769); both released in 0.5.0; fifth of wave 3. Specs
   `docs/superpowers/specs/2026-09-23-scheduler-design.md` and
   `2026-09-23-scheduler-interaction-design.md`, plans
   `docs/superpowers/plans/2026-09-23-scheduler.md` and
@@ -725,7 +725,7 @@ Claimed components (add a line before starting; one per session and branch):
   no overflow; the pane's Enter did not activate the button (a tool
   artefact; user-event holds it). Not checked: Safari, Firefox, touch, a
   screen reader, RTL.
-- **FileUpload** — built 2026-09-22, on main, unreleased; fourth of wave 3. Spec
+- **FileUpload** — built 2026-09-22, on main, released in 0.5.0; fourth of wave 3. Spec
   `docs/superpowers/specs/2026-09-22-file-upload-design.md`, plan
   `docs/superpowers/plans/2026-09-22-file-upload.md`. **Drawn**: the
   product's "Upload image" dialog in three states (rest, dragged over,
@@ -757,7 +757,7 @@ Claimed components (add a line before starting; one per session and branch):
   (thirty-one); section card. Recorded, not built: a drop of several files
   on a single zone keeps the first silently; a real drag with a mouse and
   Safari, Firefox, a screen reader, RTL not checked.
-- **Slider** — built 2026-09-22, on main, unreleased; third of wave 3. Spec
+- **Slider** — built 2026-09-22, on main, released in 0.5.0; third of wave 3. Spec
   `docs/superpowers/specs/2026-09-22-slider-design.md`, plan
   `docs/superpowers/plans/2026-09-22-slider.md`. **Drawn** as the Slider
   set (node 1127:19816; the MCP's metadata for it breaks mid-response, so
@@ -795,7 +795,7 @@ Claimed components (add a line before starting; one per session and branch):
   is weak and is to be redesigned later**; the code is built so that a
   new drawing lands in one stylesheet (thumb, line, balloon, field width
   are custom properties and one family rule each) and the API stays.
-- **SegmentedControl** — built 2026-09-22, on main, unreleased; second of wave 3.
+- **SegmentedControl** — built 2026-09-22, on main, released in 0.5.0; second of wave 3.
   Spec `docs/superpowers/specs/2026-09-22-segmented-control-design.md`, plan
   `docs/superpowers/plans/2026-09-22-segmented-control.md`. Not drawn on its
   own: the product's `Tabs` set is the drawing, already the Tabs' segmented
@@ -823,7 +823,7 @@ Claimed components (add a line before starting; one per session and branch):
   page links here. Not built, recorded: a count, an icon-only segment, a
   second size. Not checked: Safari (a `fieldset` as a grid), Firefox, a
   screen reader, RTL.
-- **SideNav, SideNavSecondary and TopBar** — built 2026-09-22, on main, unreleased;
+- **SideNav, SideNavSecondary and TopBar** — built 2026-09-22, on main, released in 0.5.0;
   first of wave 3. Spec `docs/superpowers/specs/2026-09-22-navigation-design.md`,
   plan `docs/superpowers/plans/2026-09-22-navigation.md`. **Drawn**: the Side
   Navigation set (200 open, 80 closed with icons, items 40 in a capsule, the

@@ -124,7 +124,7 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/in
 export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
 
-export { FileUpload, fileUploadVariants, formatSize } from './components/FileUpload/index';
+export { FileUpload, fileUploadVariants, formatSize, accepts } from './components/FileUpload/index';
 export type { FileUploadProps, FileUploadVariant, UploadFile, UploadStatus, UploadRejection } from './components/FileUpload/index';
 
 export { SegmentedControl } from './components/SegmentedControl/index';
