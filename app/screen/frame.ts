@@ -4,8 +4,10 @@ import type { Density } from '@/tokens/density';
 /**
  * How /screen talks to /screen/full: the query carries a combination so it
  * can be linked and opened in a tab, and a message changes mode and density
- * in place so the frame does not reload. Width is never sent: it is the
- * iframe's own size, a real viewport.
+ * in place so the frame does not reload. The frame says ready once it
+ * listens, and the page answers with what it shows, because the iframe's
+ * load can come before the frame has hydrated. Width is never sent: it is
+ * the iframe's own size, a real viewport.
  */
 
 export const widths = [1440, 1024, 768, 375] as const;

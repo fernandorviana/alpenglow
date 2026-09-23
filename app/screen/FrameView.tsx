@@ -55,11 +55,18 @@ function Live({ count, initial, live }: { count: number; initial: FrameState; li
   const [room, setRoom] = useState<number | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  // The combination shown now, for the frame's ready: its listener is
+  // attached once, and a closure over `state` would answer with the first.
+  const shown = useRef(state);
 
   const send = (s: FrameState) => {
     const message: FrameMessage = { type: 'alpenglow:frame', density: s.density, theme: s.theme };
     frame.current?.contentWindow?.postMessage(message, window.location.origin);
   };
+
+  useEffect(() => {
+    shown.current = state;
+  }, [state]);
 
   useEffect(() => {
     if (!first) return;
@@ -70,11 +77,14 @@ function Live({ count, initial, live }: { count: number; initial: FrameState; li
     send(state);
   }, [state, first]);
 
-  // The screen's own "Switch to dark" tells the page, so the bar says what is shown.
+  // The screen's own "Switch to dark" tells the page, so the bar says what is
+  // shown. The frame's ready is answered with what is shown: onLoad alone can
+  // arrive before the frame listens.
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin || !e.source || e.source !== frame.current?.contentWindow) return;
       const d = e.data as { type?: unknown; theme?: unknown } | null;
+      if (d?.type === 'alpenglow:frame-ready') return send(shown.current);
       if (d?.type !== 'alpenglow:frame-theme' || (d.theme !== 'light' && d.theme !== 'dark')) return;
       const theme = d.theme;
       setState((s) => (s.theme === theme ? s : { ...s, theme }));

@@ -14,6 +14,11 @@ export default function FullScreen() {
       if (m) applyFrame(document.documentElement, m);
     };
     window.addEventListener('message', onMessage);
+    // The parent's onLoad can fire before this has hydrated and is listening,
+    // and a switch made while the frame loaded would then be lost. Saying
+    // ready once the listener is attached lets the parent answer with the
+    // combination it shows now.
+    if (window.parent !== window) window.parent.postMessage({ type: 'alpenglow:frame-ready' }, window.location.origin);
     return () => window.removeEventListener('message', onMessage);
   }, []);
 

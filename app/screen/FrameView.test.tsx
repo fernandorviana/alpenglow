@@ -128,6 +128,34 @@ describe('Frame', () => {
     expect(screen.getByRole('radio', { name: 'Dark' })).toBeChecked();
   });
 
+  it('answers the frame’s ready with the combination shown now', async () => {
+    // The frame's onLoad can fire before it has hydrated and is listening, so
+    // a switch made while it loads would leave it on the old combination.
+    render(<Frame count={11} />);
+    await userEvent.click(screen.getByRole('radio', { name: 'Compact' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'Dark' }));
+    const post = vi.spyOn(frameOf().contentWindow!, 'postMessage');
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', { origin: window.location.origin, source: frameOf().contentWindow, data: { type: 'alpenglow:frame-ready' } }),
+      );
+    });
+    expect(post).toHaveBeenCalledOnce();
+    expect(post).toHaveBeenCalledWith({ type: 'alpenglow:frame', density: 'compact', theme: 'dark' }, window.location.origin);
+  });
+
+  it('ignores a ready from anything but its own frame, or from another origin', () => {
+    render(<Frame count={11} />);
+    const post = vi.spyOn(frameOf().contentWindow!, 'postMessage');
+    act(() => {
+      window.dispatchEvent(new MessageEvent('message', { origin: window.location.origin, data: { type: 'alpenglow:frame-ready' } }));
+      window.dispatchEvent(
+        new MessageEvent('message', { origin: 'https://example.com', source: frameOf().contentWindow, data: { type: 'alpenglow:frame-ready' } }),
+      );
+    });
+    expect(post).not.toHaveBeenCalled();
+  });
+
   it('scales a width that does not fit its column, and says so', () => {
     let report: ((entries: { contentRect: { width: number } }[]) => void) | undefined;
     vi.stubGlobal(
