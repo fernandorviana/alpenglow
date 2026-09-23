@@ -125,12 +125,16 @@
   list-style: none;
 }
 
+/* The icon, not the label, is the item's tallest child (24px vs the label's
+   22px line), and align-items: center centres on it — so the padding that
+   makes up the rest of the density token has to be measured from the icon,
+   not the line-height, or the item overshoots by 2px each side. */
 .item {
   display: flex;
   align-items: center;
   gap: var(--ap-spacing-150);
   min-block-size: var(--ap-density-nav-item);
-  padding-block: calc((var(--ap-density-nav-item) - var(--ap-text-body-md-line-height)) / 2);
+  padding-block: calc((var(--ap-density-nav-item) - var(--ap-spacing-300)) / 2);
   padding-inline: var(--ap-spacing-200);
   border-radius: var(--ap-radius-lg);
   color: inherit;

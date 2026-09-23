@@ -164,6 +164,7 @@ describe('density', () => {
     const css = readCss('src/components/Table/Table.module.css');
     expect(block(css, '.auto .th {')).toContain('height: var(--ap-density-row-header);');
     expect(block(css, '.auto .td {')).toContain('height: var(--ap-density-row);');
+    expect(block(css, '.auto .caption {')).toContain('padding-inline: calc(var(--ap-density-row) / 6 + var(--ap-spacing-050));');
   });
 });
 

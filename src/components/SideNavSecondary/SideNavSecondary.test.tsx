@@ -107,6 +107,6 @@ describe('SideNavSecondary — stylesheet', () => {
   it('takes its item height from density, the padding what is left of it', () => {
     const item = block(css, '.item {');
     expect(item).toContain('min-block-size: var(--ap-density-nav-item);');
-    expect(item).toContain('padding-block: calc((var(--ap-density-nav-item) - var(--ap-text-body-md-line-height)) / 2);');
+    expect(item).toContain('padding-block: calc((var(--ap-density-nav-item) - var(--ap-spacing-300)) / 2);');
   });
 });
