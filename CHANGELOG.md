@@ -76,6 +76,22 @@ break: a removed token or prop is named here under **Breaking**.
   status region says the time as it moves. On touch a tap proposes and
   nothing drags. Exports `formatSlots`, the "Copy to clipboard" text, one
   line per day; `SchedulerDraft`, `SchedulerChange`.
+- **CommandPalette** — a dialog with a field and a list of commands, the
+  site's ⌘K graduated: `open`, `onClose`, `label` (names the dialog, the
+  field and the list), `placeholder`, `icon`, `items` of groups `{ label,
+  items }` of `CommandItem { id, label, description, detail, icon,
+  shortcut, keywords, disabled, mono }`, `onSelect(item)`; `filter` as the
+  Combobox's, `null` when the caller narrows, `query` / `defaultQuery` /
+  `onQueryChange`, `loading` / `loadingText`, `emptyText(query)`, `status`
+  for a line the caller writes; `size`. The field keeps focus, the arrows
+  move an active row over a disabled one, Home and End are the caret's
+  until a row is active, Enter follows the active row or the first, the
+  IME's Enter is left alone, Esc closes and stops at the palette; what was
+  typed is marked in the label and the detail. The palette never closes
+  itself and binds nothing. Exports `CommandPalette`, `matchesCommand`,
+  `useCommandPaletteShortcut(onOpen, key = 'k')` — ⌘ or Ctrl with the key,
+  returning "⌘K" / "Ctrl K" after hydration — `CommandPaletteProps`,
+  `CommandItem`, `CommandGroup`.
 - **Category palette** — twenty-four theme tokens, `category/<hue>`,
   `category/on-<hue>`, `category/<hue>-subtle` and `category/<hue>-text`
   for `glacier`, `moss`, `amber`, `ember`, `glow` and `flare`: colour by

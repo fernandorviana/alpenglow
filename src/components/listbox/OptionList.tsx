@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { flatten, fold, isGroup } from './options';
+import { flatten, found, isGroup } from './options';
 import type { SelectEntry, SelectOption } from './options';
 import styles from './OptionList.module.css';
 
@@ -28,11 +28,10 @@ export type OptionListProps = {
 
 /** The label, with what was typed in Semibold. Accents and case are folded to find it, not to show it. */
 function Label({ label, query }: { label: string; query: string }) {
-  const needle = fold(query.trim());
-  const at = needle ? fold(label).indexOf(needle) : -1;
-  if (at < 0) return <>{label}</>;
+  const range = found(label, query);
+  if (!range) return <>{label}</>;
+  const [at, end] = range;
   const chars = Array.from(label);
-  const end = at + Array.from(needle).length;
   return (
     <>
       {chars.slice(0, at).join('')}

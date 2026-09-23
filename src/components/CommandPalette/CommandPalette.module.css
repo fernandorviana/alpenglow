@@ -1,0 +1,144 @@
+/**
+ * CommandPalette
+ *
+ * The site's ⌘K, graduated (docs/superpowers/specs/2026-09-23-command-palette-design.md).
+ * The box is the Dialog and the field the Input; what is this file's own is
+ * the rows. They are the DropdownMenu's row at radius lg: the wash on hover,
+ * interactive/selected when the arrows reach one, and the mark of what was
+ * typed is weight, not a highlight — the wash and the selected fill are the
+ * only fills a row takes.
+ *
+ * Every class is compound, never reached by descent (the Tabs lesson).
+ */
+
+.dialog, .status, .list, .group, .groupLabel, .option, .start, .words, .label, .detail, .description, .kbd, .mark, .mono {
+  box-sizing: border-box;
+}
+
+/* Held near the top so the list grows downward without the box jumping as
+   the results change; the platform would centre it. */
+.dialog { margin-top: 12vh; }
+
+.status {
+  margin: var(--ap-spacing-200) 0 0;
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--ap-spacing-200);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.group + .group { margin-top: var(--ap-spacing-150); }
+
+.groupLabel {
+  padding: 0 var(--ap-spacing-150) var(--ap-spacing-075);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+}
+
+.option {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ap-spacing-150);
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border-radius: var(--ap-radius-lg);
+  color: var(--ap-color-text-primary);
+  cursor: pointer;
+  transition: background var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.option:hover { background: var(--ap-color-interactive-wash-hover); }
+.option.active { background: var(--ap-color-interactive-selected); }
+
+.option.optionDisabled {
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.option.optionDisabled:hover { background: none; }
+
+.start {
+  display: inline-flex;
+  flex: none;
+  align-self: center;
+  min-width: var(--ap-spacing-250);
+  color: var(--ap-color-text-tertiary);
+}
+
+.words {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+}
+
+/* A token or a path: the mono caption, as the Colour page sets its names. */
+.option.mono .label {
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+}
+
+.detail {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
+.description {
+  flex: none;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+  white-space: nowrap;
+}
+
+.option.optionDisabled .detail,
+.option.optionDisabled .description { color: inherit; }
+
+/* A key cap: the mono caption in a hairline box on the sunken surface. */
+.kbd {
+  flex: none;
+  padding: 0 var(--ap-spacing-075);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-default);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-sunken);
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+  white-space: nowrap;
+}
+
+.mark {
+  background: none;
+  color: inherit;
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+/* On a phone the description took the row and the label truncated to five
+   characters — "Choos…" — so the description goes under the label there,
+   the site's lesson of 2026-09-14. 480 is where a 640 dialog no longer fits
+   a label and a breadcrumb side by side. */
+@media (max-width: 480px) {
+  .option { flex-wrap: wrap; }
+  .description {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+}

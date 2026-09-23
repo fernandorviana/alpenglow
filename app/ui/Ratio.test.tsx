@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { ComponentType } from 'react';
 import { render } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { readCss } from '@/test/css';
 import { Ratio } from './Ratio';
 
@@ -17,6 +17,9 @@ import { Ratio } from './Ratio';
  */
 
 const css = readCss('app/docs.css');
+
+// The Command palette page asks for the router, which only Next mounts.
+vi.mock('next/navigation', () => ({ usePathname: () => '/', useRouter: () => ({ push: () => {} }) }));
 
 /** The declarations of every rule whose selector list names `selector`. */
 const rules = (selector: string) =>

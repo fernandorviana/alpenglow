@@ -52,6 +52,18 @@ export const fold = (text: string) =>
     .map((char) => Array.from(char.toLowerCase().normalize('NFD'))[0] ?? char)
     .join('');
 
+/**
+ * Where `text` holds what was typed, as a [start, end] in code points, or
+ * null: found with accents and case folded, shown as typed. One place for
+ * the mark the OptionList and the CommandPalette both draw.
+ */
+export function found(text: string, query: string): [number, number] | null {
+  const needle = fold(query.trim());
+  if (!needle) return null;
+  const at = fold(text).indexOf(needle);
+  return at < 0 ? null : [at, at + Array.from(needle).length];
+}
+
 /** Whether a label holds what was typed, anywhere in it, whatever the case or the accents. */
 export const contains = (option: SelectOption, query: string) => fold(option.label).includes(fold(query.trim()));
 

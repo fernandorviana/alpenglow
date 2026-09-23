@@ -218,8 +218,9 @@ have all been mistaken for errors at least once.
     (`app/ui/search/index.ts`, pure) is a prefix with one typo from four
     characters, weighted title 10/9/6 by kind, labels 4, body 1 × mentions ÷
     length, ties to reading order, eight hits; every rule is a case in
-    `search.test.ts`. The palette is the system's `Dialog` and `Input` as a
-    combobox (`Search.tsx`), opened by ⌘K/Ctrl+K anywhere and by a rail item
+    `search.test.ts`. The palette is the package's `CommandPalette` since
+    2026-09-23 (before that the `Dialog` and `Input` wired in `Search.tsx`
+    itself), opened by ⌘K/Ctrl+K anywhere and by a rail item
     at the head of the rail — Fernando moved it there from the drawer during
     the first browser check ("fora do painel secundário") — which on a
     narrow screen is the first row of the open menu (`grid-area: search`,
@@ -529,7 +530,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2064 tests across 82 files
+npm test            # 2095 tests across 83 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -592,6 +593,37 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **CommandPalette** — built 2026-09-23, not committed; sixth and last of
+  wave 3, "the site's ⌘K graduated". Spec
+  `docs/superpowers/specs/2026-09-23-command-palette-design.md`, plan
+  `docs/superpowers/plans/2026-09-23-command-palette.md`. Controlled Dialog
+  + Input as one combobox over a listbox of grouped `CommandItem`s (data,
+  not JSX: label, description = the site's crumb, detail = its excerpt,
+  icon, `shortcut` drawn as a key cap and binding nothing, keywords, disabled,
+  mono); `filter` as the Combobox's, `null` for a caller that narrows (the
+  site's index stays in the site); `status` for a caller's own line over
+  what it still shows; the keyboard is the site's, over a disabled row;
+  rows of its own (the OptionList draws checks, a command is not chosen),
+  `step`/`first`/`last`/`fold`/`found` shared — `found()` in
+  `listbox/options.ts` now serves the OptionList's mark and the palette's.
+  `useCommandPaletteShortcut(onOpen, key)` binds ⌘/Ctrl+key on a ref
+  written in an effect, **not `useEffectEvent`**: the peer range starts at
+  React 19.0 and that hook arrived in 19.2. `app/ui/search/Search.tsx` is
+  rewritten on it (index, recent, suggested and the hrefs stay the site's;
+  a row's id is `<group>:<href>`); `applyTheme` extracted from the
+  ThemeToggle for the page's "Switch to dark"; `navigation-stub.ts` and
+  `Ratio.test.tsx` gained `useRouter` since the page navigates. The page's
+  Try it binds **⌘J**, because ⌘K is the site's search and two palettes
+  answered one key in Chromium. Recorded, not fixed: a typo hit from the
+  site's index ("buton") is listed unmarked, the palette marking by
+  folding the query. Browser pane: Esc and Enter do not reach the dialog
+  (tool artefact; `cancel` dispatched by hand closes it) and `100vw` does
+  not follow the 375 emulation, so the phone check is the Dialog's own
+  `max-width` plus the stylesheet's 480px rule. Seen in Chromium: the
+  page's palette by button and ⌘J, the filter and the mark, the arrows'
+  fill, Enter switching the theme, the site's ⌘K on the component listing
+  tokens in mono, light and dark. Not checked: Safari, Firefox, a screen
+  reader, a real phone.
 - **Chart palette** (foundation) — built 2026-09-23, on main, unreleased;
   the roadmap's data-vis palette, closing wave 3's foundations beside the
   category palette. Spec

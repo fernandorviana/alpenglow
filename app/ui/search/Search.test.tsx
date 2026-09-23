@@ -86,7 +86,7 @@ describe('the combobox', () => {
     const { field } = await open();
     expect(field).toHaveAttribute('aria-autocomplete', 'list');
     expect(field).toHaveAttribute('aria-expanded', 'true');
-    const list = screen.getByRole('listbox', { name: 'Results' });
+    const list = screen.getByRole('listbox', { name: 'Search' });
     expect(field.getAttribute('aria-controls')).toBe(list.id);
     const suggested = within(list).getByRole('group', { name: 'Suggested' });
     expect(within(suggested).getAllByRole('option')).toHaveLength(SUGGESTED.length);

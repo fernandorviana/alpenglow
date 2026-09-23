@@ -29,6 +29,8 @@ export type { TextareaProps } from './components/Textarea/index';
 
 export { Combobox } from './components/Combobox/index';
 export type { ComboboxProps, ComboboxSingleProps, ComboboxMultipleProps } from './components/Combobox/index';
+export { CommandPalette, matchesCommand, useCommandPaletteShortcut } from './components/CommandPalette/index';
+export type { CommandPaletteProps, CommandItem, CommandGroup } from './components/CommandPalette/index';
 
 export { Select } from './components/Select/index';
 export type { SelectProps, SelectOption, SelectGroup, SelectEntry } from './components/Select/index';

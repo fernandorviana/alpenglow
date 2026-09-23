@@ -235,6 +235,21 @@ export default function Page() {
           }
         />
         <Card
+          href="/command-palette"
+          title="Command palette"
+          description="A dialog with a field and a list of commands, ⌘K from anywhere: the site's own search, graduated."
+          visual={
+            <Input
+              size="sm"
+              aria-label="Commands"
+              placeholder="Type a command"
+              iconStart={<SearchIcon size={16} />}
+              iconEnd={<kbd className="cardKbd">⌘K</kbd>}
+              readOnly
+            />
+          }
+        />
+        <Card
           href="/date-picker"
           title="Date picker"
           description="A masked field and a calendar, single date or range, that never intercepts a key."

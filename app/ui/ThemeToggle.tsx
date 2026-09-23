@@ -56,6 +56,34 @@ function onSystem(notify: () => void) {
 const ignoreSystem = () => () => {};
 
 /**
+ * Puts a choice on the root and in storage, and tells every toggle. Exported
+ * for the Command palette page, whose "Switch to dark" is this click.
+ */
+export function applyTheme(next: Choice) {
+  const root = document.documentElement;
+
+  // A theme flip changes the colour of nearly everything at once, and every
+  // colour transition on the page fires together: measured on /button, 92
+  // button transitions and the section list's 7, so the buttons faded for
+  // 120ms while the page around them snapped. The stylesheet turns
+  // transitions off while this attribute is on the root — the toggle's own
+  // excepted, because the knob's slide is the drawn motion — the reflow
+  // commits the new colours with no transition to start, and the next frame
+  // takes the attribute away again.
+  root.setAttribute('data-theme-swap', '');
+  root.setAttribute('data-theme', next);
+  void root.offsetHeight;
+  requestAnimationFrame(() => root.removeAttribute('data-theme-swap'));
+
+  try {
+    localStorage.setItem(KEY, next);
+  } catch {
+    // The preference simply will not persist. The root still holds it.
+  }
+  for (const notify of choiceListeners) notify();
+}
+
+/**
  * The two-position toggle from the design file, laid out horizontally.
  *
  * It replaces a three-button group — System / Light / Dark — and that trade is
@@ -101,30 +129,7 @@ export function ThemeToggle() {
     if (choice) document.documentElement.setAttribute('data-theme', choice);
   }, [choice]);
 
-  function choose() {
-    const next: Choice = dark ? 'light' : 'dark';
-    const root = document.documentElement;
-
-    // A theme flip changes the colour of nearly everything at once, and every
-    // colour transition on the page fires together: measured on /button, 92
-    // button transitions and the section list's 7, so the buttons faded for
-    // 120ms while the page around them snapped. The stylesheet turns
-    // transitions off while this attribute is on the root — the toggle's own
-    // excepted, because the knob's slide is the drawn motion — the reflow
-    // commits the new colours with no transition to start, and the next frame
-    // takes the attribute away again.
-    root.setAttribute('data-theme-swap', '');
-    root.setAttribute('data-theme', next);
-    void root.offsetHeight;
-    requestAnimationFrame(() => root.removeAttribute('data-theme-swap'));
-
-    try {
-      localStorage.setItem(KEY, next);
-    } catch {
-      // The preference simply will not persist. The root still holds it.
-    }
-    for (const notify of choiceListeners) notify();
-  }
+  const choose = () => applyTheme(dark ? 'light' : 'dark');
 
   return (
     <button

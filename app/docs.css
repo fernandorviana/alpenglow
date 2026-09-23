@@ -1422,86 +1422,6 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   outline-offset: var(--ap-focus-ring-offset);
 }
 
-/* Held near the top so the list grows downward without the box jumping as
-   the results change; the platform would centre it. */
-.searchDialog { margin-top: 12vh; }
-
-.searchStatus {
-  margin: var(--ap-spacing-200) 0 0;
-  color: var(--ap-color-text-tertiary);
-  font-size: var(--ap-text-body-md-size);
-}
-
-.searchList {
-  display: flex;
-  flex-direction: column;
-  margin-top: var(--ap-spacing-200);
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.searchGroup + .searchGroup { margin-top: var(--ap-spacing-150); }
-
-.searchGroupTitle {
-  padding: 0 var(--ap-spacing-150) var(--ap-spacing-075);
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
-  font-weight: var(--ap-font-weight-semibold);
-  color: var(--ap-color-text-tertiary);
-}
-
-/* The DropdownMenu's row: lg radius, the wash on hover, selected when the
-   arrows reach it. Title left, breadcrumb right, the excerpt under both. */
-.searchOption {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--ap-spacing-150);
-  align-items: baseline;
-  padding: var(--ap-spacing-100) var(--ap-spacing-150);
-  border-radius: var(--ap-radius-lg);
-  cursor: pointer;
-  transition: background var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
-}
-
-.searchOption:hover { background: var(--ap-color-interactive-wash-hover); }
-.searchOption[aria-selected='true'] { background: var(--ap-color-interactive-selected); }
-
-.searchTitle {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--ap-text-body-md-size);
-  color: var(--ap-color-text-primary);
-}
-
-/* The mark is weight, not a highlight: the wash and the selected fill are the
-   only fills a row takes. */
-.searchTitle mark,
-.searchExcerpt mark {
-  background: none;
-  color: inherit;
-  font-weight: var(--ap-font-weight-semibold);
-}
-
-.searchMono .searchTitle {
-  font-family: var(--ap-font-mono);
-  font-size: var(--ap-text-caption-md-size);
-}
-
-.searchCrumb {
-  font-size: var(--ap-text-caption-md-size);
-  color: var(--ap-color-text-secondary);
-  white-space: nowrap;
-}
-
-.searchExcerpt {
-  grid-column: 1 / -1;
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
-  color: var(--ap-color-text-tertiary);
-}
-
 /* --- responsive ----------------------------------------------------------- */
 
 /* Wide: the sections join on the left. The breakpoint is where the prose
@@ -1653,9 +1573,6 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
   /* At 320px the breadcrumb took the row and the title truncated to five
      characters — "Choos…" — so the breadcrumb goes under the title here. */
-  .searchOption { grid-template-columns: minmax(0, 1fr); }
-  .searchCrumb { white-space: normal; }
-
   .brandNote { margin-bottom: 0; }
 
   .navToggle {
@@ -1728,6 +1645,17 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
     border-inline: none;
     border-radius: 0;
   }
+}
+
+/* The key cap on the Command palette card: the palette's own, in miniature. */
+.cardKbd {
+  padding: 0 var(--ap-spacing-050);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-default);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-sunken);
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-sm-size);
+  color: var(--ap-color-text-secondary);
 }
 
 /* --- charts (the Data visualisation page) --------------------------------- */
