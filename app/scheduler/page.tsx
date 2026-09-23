@@ -1,11 +1,19 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
-import { Scheduler } from '@/components/Scheduler';
-import type { ISODateTime, SchedulerEvent, SchedulerKind, SchedulerResource, SchedulerView } from '@/components/Scheduler';
+import { Scheduler, formatSlots } from '@/components/Scheduler';
+import type {
+  ISODateTime,
+  SchedulerChange,
+  SchedulerDraft,
+  SchedulerEvent,
+  SchedulerKind,
+  SchedulerResource,
+  SchedulerView,
+} from '@/components/Scheduler';
 import { addDays } from '@/components/Calendar/date';
 import type { ISODate } from '@/components/Calendar/date';
 import { Avatar } from '@/components/Avatar';
@@ -15,6 +23,9 @@ import { Calendar } from '@/components/Calendar';
 import { Card, CardBody } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
 import { Field } from '@/components/Field';
+import { Input } from '@/components/Input';
+import { Switch } from '@/components/Switch';
+import { toast } from '@/components/Toast';
 import { Select } from '@/components/Select';
 import { Table } from '@/components/Table';
 import { useMediaQuery } from '@/components/useMediaQuery';
@@ -191,6 +202,22 @@ const [selected, setSelected] = useState<string | null>(null);
   events={events}
 />
 
+// The gestures: each arms itself with its callback. A press or a drag proposes a
+// draft; the caller keeps it while its panel is open. A move hands back the event
+// as it was, so Undo is one line.
+<Scheduler
+  …
+  draft={draft}
+  onCreate={(proposed) => setDraft(proposed)}
+  onMove={(event, next) => { update(event.id, next); toast('Moved', { action: { label: 'Undo', onClick: () => update(event.id, event) } }); }}
+  onResize={(event, next) => update(event.id, next)}
+  onRemove={(event) => remove(event.id)}
+  createKind={availability ? 'availability' : 'confirmed'}
+/>
+
+// The drawn "Copy to clipboard": one line per day.
+navigator.clipboard.writeText(formatSlots(events.filter((e) => e.kind === 'availability')));
+
 // An event: wall-clock times, no zone; a kind; a tone of its own if it needs one.
 const event: SchedulerEvent = {
   id: '42', title: 'Justin Anderson',
@@ -235,6 +262,13 @@ const PROPS: PropRow[] = [
   { prop: 'maxHeight', type: 'number | string', default: '—' },
   { prop: 'scrollTo', type: 'number (an hour)', default: 'workingHours.start, or the first event' },
   { prop: 'renderEvent', type: '(event) => ReactNode', default: '—' },
+  { prop: 'onCreate', type: '(draft: { start, end, resourceId?, title?, from? }) => void', default: '— (arms press, drag, Enter, paste, duplicate)' },
+  { prop: 'onMove / onResize', type: '(event, next: { start, end, resourceId? }) => void', default: '— (arms the drag, the handle, Shift+arrows)' },
+  { prop: 'onRemove', type: '(event) => void', default: '— (the × on availability, Delete)' },
+  { prop: 'draft', type: '{ start, end, resourceId?, title? } | null', default: '—' },
+  { prop: 'createKind', type: 'SchedulerKind', default: "'confirmed'" },
+  { prop: 'step / defaultDuration', type: 'minutes', default: '15 / 30' },
+  { prop: 'draftLabel / removeLabel', type: 'string', default: "'(No title)' / 'Remove'" },
   { prop: 'className', type: 'string', default: '—' },
 ];
 const propColumns = [
@@ -252,13 +286,46 @@ export default function Page() {
   const [shown, setShown] = useState<SchedulerKind[]>(KINDS);
   const [selected, setSelected] = useState<SchedulerEvent | null>(null);
   const narrow = useMediaQuery('(max-width: 760px)');
+  const [items, setItems] = useState<SchedulerEvent[]>(WEEK);
+  const [staff, setStaff] = useState<SchedulerEvent[]>(STAFF_DAY);
+  const [draft, setDraft] = useState<SchedulerDraft | null>(null);
+  const [title, setTitle] = useState('');
+  const [availability, setAvailability] = useState(false);
+  const counter = useRef(100);
 
   const effective: SchedulerView = narrow || view !== 'week' ? 'day' : 'week';
   const byPerson = view === 'staff';
-  const events = useMemo(() => {
-    const pool = byPerson ? STAFF_DAY : WEEK;
-    return pool.filter((event) => shown.includes(event.kind ?? 'confirmed'));
-  }, [byPerson, shown]);
+  const pool = byPerson ? staff : items;
+  const setPool = byPerson ? setStaff : setItems;
+  const events = useMemo(() => pool.filter((event) => shown.includes(event.kind ?? 'confirmed')), [pool, shown]);
+  const slots = useMemo(() => pool.filter((event) => event.kind === 'availability'), [pool]);
+
+  // The gestures: a press or a drag proposes; in Availability mode it is a slot at once, as drawn.
+  const add = (event: Omit<SchedulerEvent, 'id'>) => {
+    counter.current += 1;
+    setPool((list) => [...list, { ...event, id: `n${counter.current}` }]);
+  };
+  const onCreate = (proposed: SchedulerDraft) => {
+    if (availability) {
+      add({ title: 'Time slot', start: proposed.start, end: proposed.end, resourceId: proposed.resourceId, kind: 'availability' });
+      return;
+    }
+    setDraft(proposed);
+    setTitle(proposed.title ?? proposed.from?.title ?? '');
+  };
+  const change = (word: string) => (event: SchedulerEvent, next: SchedulerChange) => {
+    setPool((list) => list.map((x) => (x.id === event.id ? { ...x, ...next } : x)));
+    toast(`${event.title} ${word} to ${next.start.slice(11)} – ${next.end.slice(11)}`, {
+      action: { label: 'Undo', onClick: () => setPool((list) => list.map((x) => (x.id === event.id ? event : x))) },
+    });
+  };
+  const onRemove = (event: SchedulerEvent) => setPool((list) => list.filter((x) => x.id !== event.id));
+  const copySlots = () => {
+    const text = formatSlots(slots);
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      void navigator.clipboard.writeText(text).then(() => toast('Slots copied', { tone: 'success' }));
+    }
+  };
   const step = effective === 'week' ? 7 : 1;
   const heading = effective === 'week' ? monthName.format(Date.UTC(2023, 3, 1)) : dayName.format(new Date(`${date}T00:00:00Z`));
 
@@ -331,8 +398,58 @@ export default function Page() {
             maxHeight={600}
             selectedId={selected?.id ?? null}
             onSelect={setSelected}
+            draft={draft}
+            createKind={availability ? 'availability' : 'confirmed'}
+            onCreate={onCreate}
+            onMove={change('moved')}
+            onResize={change('resized')}
+            onRemove={onRemove}
           />
           <div className="schedulerSide">
+            {draft && (
+              <Card>
+                <CardBody>
+                  <strong>New event</strong>
+                  <p className="alias" style={{ margin: `${spacing['050']}px 0 ${spacing[150]}px` }}>
+                    {draft.start.slice(0, 10)} · {draft.start.slice(11)} – {draft.end.slice(11)}
+                    {draft.resourceId ? ` · ${PEOPLE.find((r) => r.id === draft.resourceId)?.name}` : ''}
+                  </p>
+                  <Field label="Title">
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="(No title)" />
+                  </Field>
+                  <div className="specimenRow" style={{ marginTop: spacing[150] }}>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        add({ ...draft, title: title || '(No title)', icon: draft.from?.icon, kind: draft.from?.kind });
+                        setDraft(null);
+                      }}
+                    >
+                      Create
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setDraft(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            )}
+            <Switch checked={availability} onChange={(e) => setAvailability(e.target.checked)} description="A press or a drag makes a slot; the × removes it.">
+              Availability
+            </Switch>
+            {availability && (
+              <Card>
+                <CardBody>
+                  <strong>Time slots selected</strong>
+                  <pre className="alias" style={{ margin: `${spacing[100]}px 0`, whiteSpace: 'pre-wrap' }}>
+                    {slots.length ? formatSlots(slots) : 'No time slots selected yet. Click and drag on the calendar.'}
+                  </pre>
+                  <Button size="sm" onClick={copySlots} disabled={slots.length === 0}>
+                    Copy to clipboard
+                  </Button>
+                </CardBody>
+              </Card>
+            )}
             <Calendar
               label="Go to a day"
               headingLevel={3}
@@ -376,6 +493,22 @@ export default function Page() {
       <p className="alias">
         The now line is pinned to the drawn 11:16 on the 20th of April 2023 so the page holds still; left out, the
         component reads the clock. Under 760px the week gives way to the day, as the phone drawing has it.
+      </p>
+      <h2>Creating, moving and the keyboard</h2>
+      <p>
+        Press an empty slot for a thirty-minute draft, or drag for the span you want, snapping to the quarter hour;
+        the dashed &ldquo;(No title)&rdquo; pulses while the New event panel is open, as drawn, and the panel
+        closes it. Drag a card to move it, along its day or into another; select a card and drag the bar at its foot
+        to change its end. With Availability on, the same press or drag makes a slot at once, the drawn teal, with a
+        × to remove it, and the panel writes the slots as text for the clipboard: the Vimcal gesture. Every gesture
+        has a key, and a key acts on the <em>hot</em> event, the one under the pointer if there is one, else the one
+        with focus: Shift with Up and Down move it by a quarter, Shift with Left and Right to the next day; Alt+Shift
+        with Up and Down change its end; ⌘C or Ctrl+C copies it, ⌘V pastes it after the hot event or at the cursor,
+        ⌘D duplicates it, Delete removes it. With the grid itself focused, Enter places a cursor at the first hour
+        in view; the arrows move it, Shift with Up and Down stretch it, Enter proposes it, Escape drops it. A move
+        or a resize shows a Toast with Undo, which is the page&rsquo;s one line: the callback hands back the event
+        as it was. Nothing drags unless its callback is given, and on touch a tap proposes and nothing drags, so the
+        grid keeps its scroll.
       </p>
       <p>
         Drawn as the product&rsquo;s calendar: the weekly view, the daily view with several people, the daily view on a
@@ -505,8 +638,8 @@ export default function Page() {
         />
       </div>
       <p className="alias">
-        <Badge tone="info">phase 1 of 2</Badge> Creating and moving by drag, with the keyboard equivalents, and
-        creating availability are the second phase.
+        <Badge tone="info">not built</Badge> A long press to drag on touch; a week of several people; a month view;
+        an agenda list; a second zone&rsquo;s hours, the Vimcal Time Travel.
       </p>
     </DocPage>
   );

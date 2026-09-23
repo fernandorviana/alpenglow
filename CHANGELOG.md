@@ -65,8 +65,17 @@ break: a removed token or prop is named here under **Breaking**.
   Exports `Scheduler`, `schedulerViews`, `schedulerKinds`,
   `schedulerTones`, `SchedulerProps`, `SchedulerEvent`,
   `SchedulerResource`, `SchedulerView`, `SchedulerKind`, `SchedulerTone`,
-  `SchedulerHours`, `ISODateTime`. Dragging to create and to move is the
-  second phase.
+  `SchedulerHours`, `ISODateTime`. Phase 2, the gestures, each armed by its
+  callback: `onCreate` (a press proposes `defaultDuration`, a drag the span,
+  snapping to `step`; Enter on the region places a keyboard cursor; ⌘V
+  pastes and ⌘D duplicates, with `from`), `onMove` (a card dragged along or
+  across columns; Shift with the arrows), `onResize` (the handle at the foot
+  of the selected card; Alt+Shift with Up and Down), `onRemove` (the × on
+  availability cards; Delete); `draft`, drawn dashed and pulsing while the
+  caller's panel is open; `createKind`; `draftLabel`, `removeLabel`; a
+  status region says the time as it moves. On touch a tap proposes and
+  nothing drags. Exports `formatSlots`, the "Copy to clipboard" text, one
+  line per day; `SchedulerDraft`, `SchedulerChange`.
 - **Category palette** — twenty-four theme tokens, `category/<hue>`,
   `category/on-<hue>`, `category/<hue>-subtle` and `category/<hue>-text`
   for `glacier`, `moss`, `amber`, `ember`, `glow` and `flare`: colour by

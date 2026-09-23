@@ -25,7 +25,7 @@
 
 .root, .bounded, .head, .corner, .zone, .colHead, .person, .weekday, .day, .name, .allDayLabel, .allDayList,
 .allDaySlot, .body, .hours, .hour, .nowTime, .column, .off, .events, .slot, .event, .brief, .icon,
-.icon > svg, .title, .time, .extra, .external, .availability, .now, .nowDot {
+.icon > svg, .title, .time, .extra, .external, .availability, .draft, .handle, .remove, .remove > svg, .now, .nowDot {
   box-sizing: border-box;
 }
 
@@ -228,6 +228,7 @@
 /* A hairline at every hour, painted rather than laid out. */
 .column {
   position: relative;
+  user-select: none;
   block-size: calc(var(--scheduler-hours) * var(--scheduler-hour) + var(--scheduler-pad) * 2);
   border-inline-start: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   background-image: repeating-linear-gradient(
@@ -240,6 +241,11 @@
   background-size: 100% calc(var(--scheduler-hours) * var(--scheduler-hour) + var(--ap-border-width-hairline));
 }
 
+/* Armed for a press to create. */
+.creatable {
+  cursor: cell;
+}
+
 .off {
   position: absolute;
   inset-inline: 0;
@@ -249,7 +255,13 @@
   pointer-events: none;
 }
 
+/* The layer the events are placed on: the hours shown, inset by the pad, so
+   a pointer's minute is its offset in the layer over the layer's height and
+   nothing is read from a custom property. */
 .events {
+  position: absolute;
+  inset-block: var(--scheduler-pad);
+  inset-inline: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -257,7 +269,7 @@
 
 .slot {
   position: absolute;
-  inset-block-start: calc(var(--scheduler-pad) + var(--event-from) / 60 * var(--scheduler-hour));
+  inset-block-start: calc(var(--event-from) / 60 * var(--scheduler-hour));
   block-size: max(calc((var(--event-to) - var(--event-from)) / 60 * var(--scheduler-hour)), var(--scheduler-event-min));
   inset-inline-start: calc(var(--scheduler-gap) + (100% - var(--scheduler-gap) * 2) * var(--event-lane) / var(--event-lanes));
   inline-size: calc((100% - var(--scheduler-gap) * 2) / var(--event-lanes) - var(--ap-spacing-025));
@@ -454,6 +466,100 @@
     0 0 0 var(--ap-border-width-hairline) var(--ap-color-surface-raised),
     0 0 0 calc(var(--ap-border-width-hairline) + var(--ap-border-width-ring)) var(--ap-color-border-accent);
   z-index: 1;
+}
+
+/* ---- gestures --------------------------------------------------------- */
+
+.movable {
+  cursor: grab;
+}
+
+/* The card whose ghost is travelling. */
+.dragging {
+  opacity: 0.5;
+}
+
+.dragging .event {
+  cursor: grabbing;
+}
+
+/* The draft, the ghost and the cursor: the tint with a dashed edge of the
+   fill, as the availability card, in the tone of createKind. */
+.draft {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  border: var(--ap-border-width-hairline) dashed var(--event-fill);
+  border-radius: var(--ap-radius-lg);
+  background: var(--event-tint);
+  color: var(--event-text);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* The drawn "slow opacity blinking while being created": the Skeleton's pace. */
+.pulse {
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* The drawn × on an availability card, with onRemove. */
+.remove {
+  position: absolute;
+  inset-inline-end: var(--ap-spacing-050);
+  inset-block-start: var(--ap-spacing-050);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--ap-spacing-250);
+  block-size: var(--ap-spacing-250);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: transparent;
+  color: var(--event-text);
+  cursor: pointer;
+  z-index: 1;
+}
+
+.remove > svg {
+  inline-size: var(--ap-spacing-150);
+  block-size: var(--ap-spacing-150);
+}
+
+.remove:hover {
+  background: var(--ap-color-interactive-wash-hover);
+}
+
+.remove:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: 0;
+}
+
+/* The drawn bar at the foot of the selected card, only with onResize. */
+.handle {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-end: calc(var(--ap-spacing-025) * -1);
+  inline-size: var(--ap-spacing-200);
+  block-size: var(--ap-spacing-050);
+  transform: translateX(-50%);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-border-strong);
+  cursor: ns-resize;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
 }
 
 /* ---- now -------------------------------------------------------------- */

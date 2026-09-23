@@ -158,7 +158,7 @@ export type { ToasterProps, ToasterPlacement, ToastOptions, ToastAction, ToastTo
 export { Tooltip, tooltipSizes, tooltipPlacements } from './components/Tooltip/index';
 export type { TooltipProps, TooltipSize, TooltipPlacement } from './components/Tooltip/index';
 
-export { Scheduler, schedulerViews, schedulerKinds, schedulerTones } from './components/Scheduler/index';
+export { Scheduler, schedulerViews, schedulerKinds, schedulerTones, formatSlots } from './components/Scheduler/index';
 export type {
   SchedulerProps,
   SchedulerEvent,
@@ -167,5 +167,7 @@ export type {
   SchedulerKind,
   SchedulerTone,
   SchedulerHours,
+  SchedulerDraft,
+  SchedulerChange,
   ISODateTime,
 } from './components/Scheduler/index';

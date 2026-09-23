@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2016 tests across 80 files
+npm test            # 2040 tests across 82 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -592,9 +592,40 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
-- **Scheduler** — phase 1 built 2026-09-23, on main, unreleased; fifth of wave 3.
-  Spec `docs/superpowers/specs/2026-09-23-scheduler-design.md`, plan
-  `docs/superpowers/plans/2026-09-23-scheduler.md`. **Drawn** on the
+- **Scheduler** — phase 1 built 2026-09-23, on main (b3738b9), unreleased;
+  **phase 2 built 2026-09-23, on main, unreleased**; fifth of wave 3. Specs
+  `docs/superpowers/specs/2026-09-23-scheduler-design.md` and
+  `2026-09-23-scheduler-interaction-design.md`, plans
+  `docs/superpowers/plans/2026-09-23-scheduler.md` and
+  `2026-09-23-scheduler-interaction.md`. **Phase 2**: Fernando named Vimcal
+  as the behaviour reference (its public docs confirm A for Slots, Z Time
+  Travel, D/W/M views, ⌘K, ⌘;; the rest from memory, marked so in the
+  spec). Three gestures, each armed by its callback only: `onCreate` (press
+  = `defaultDuration` 30, drag = the span, snapping to `step` 15; Enter on
+  the region places a keyboard cursor, arrows move it, Shift stretches it,
+  Enter proposes; ⌘V pastes after the hot event or at the cursor, ⌘D
+  duplicates, both with `from`), `onMove` (drag along or across columns;
+  Shift+arrows), `onResize` (the drawn handle on the selected card;
+  Alt+Shift+Up/Down), `onRemove` (× on availability cards; Delete). The
+  **hot event** is the hovered one if it is still there, else the focused
+  one (Vimcal's hover-and-press, made accessible). `draft` is controlled,
+  drawn dashed and pulsing at 1.8s (the Skeleton's pace) while the caller's
+  panel is open; the drag draws its own ghost. A `role="status"` says the
+  time as it moves. **Touch taps and does not drag**, by decision: a
+  vertical drag is the grid's own scroll and `touch-action: none` would
+  take scrolling from every finger; a long press is the next step if a
+  product needs it. Placement is measured from the events layer (`.events`
+  absolute, inset by the pad), so no custom property is read from JS; tests
+  mock the layers' rects. `formatSlots(events, locale)` writes the drawn
+  "Copy to clipboard" text. Review fixed: paste from another day shrank to
+  one step; a stale hover id swallowed the keyboard; the status was silent
+  while the cursor moved; the Escape listener re-bound on every move; the
+  page's slot title repeated its kind. Seen in Chromium: a drag creating
+  the pulsing draft with the New event panel, a card moved to another day
+  with the Undo toast, a resize by the handle, an availability slot with
+  its × and the slots' text, the cursor by keyboard. Not built: Time
+  Travel (a second zone's hours), long-press drag on touch, a month view,
+  an agenda list. **Drawn** on the
   product's Calendar V2 page: the weekly view (hours column with the zone,
   a 64 header with today in a 28 accent circle, All-day row, 81 hours, the
   hours outside the working day hatched, the coral now line with its time,
