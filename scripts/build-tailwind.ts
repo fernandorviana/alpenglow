@@ -17,6 +17,7 @@ import { writeFileSync } from 'node:fs';
 import { theme } from '../src/tokens/theme.js';
 import { spacing, radius, borderWidth } from '../src/tokens/scale.js';
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
+import { density } from '../src/tokens/density.js';
 
 const flat = (name: string) => name.replace(/\//g, '-');
 
@@ -55,6 +56,12 @@ lines.push('');
 lines.push('  /* Stroke width */');
 for (const [name, px] of Object.entries(borderWidth)) {
   lines.push(`  --border-width-${name}: ${px}px;`);
+}
+
+lines.push('');
+lines.push('  /* Density — resolves through tokens.css, so these follow data-density. */');
+for (const name of Object.keys(density)) {
+  lines.push(`  --density-${name}: var(--ap-density-${name});`);
 }
 
 lines.push('');

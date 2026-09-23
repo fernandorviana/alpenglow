@@ -17,6 +17,7 @@ import { spacing, radius, borderWidth, focusRingOffset } from '../src/tokens/sca
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
 import { elevation, shadowCss } from '../src/tokens/elevation.js';
 import { motion } from '../src/tokens/motion.js';
+import { density } from '../src/tokens/density.js';
 
 const PREFIX = 'ap';
 
@@ -69,6 +70,12 @@ function motionBlock(): string {
     '',
     ...Object.entries(motion.easing).map(([k, v]) => `  ${cssName(`motion/easing/${k}`)}: ${v};`),
   ].join('\n');
+}
+
+function densityBlock(mode: 'comfortable' | 'compact', indent = '  '): string {
+  return Object.entries(density)
+    .map(([k, v]) => `${indent}${cssName(`density/${k}`)}: ${v[mode]}px;`)
+    .join('\n');
 }
 
 function scaleBlock(): string {
@@ -153,6 +160,26 @@ ${scaleBlock()}
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — density. Comfortable by default; compact on any element that
+   asks, so a region can be dense while the page is not. Touch keeps
+   comfortable: density is for the pointer and the keyboard.
+   --------------------------------------------------------------------------- */
+
+:root {
+${densityBlock('comfortable')}
+}
+
+[data-density="compact"] {
+${densityBlock('compact')}
+}
+
+@media (pointer: coarse) {
+  [data-density="compact"] {
+${densityBlock('comfortable', '    ')}
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Layer 3 — typography. Style and weight are independent axes.
    --------------------------------------------------------------------------- */
 
@@ -205,5 +232,6 @@ console.log(
     `${Object.keys(elevation).length} elevation steps, ` +
     `${Object.keys(spacing).length + Object.keys(radius).length + Object.keys(borderWidth).length} scale values, ` +
     `${Object.keys(textStyle).length} text styles, ` +
-    `${Object.keys(motion.duration).length + Object.keys(motion.easing).length} motion tokens`,
+    `${Object.keys(motion.duration).length + Object.keys(motion.easing).length} motion tokens, ` +
+    `${Object.keys(density).length} density tokens`,
 );

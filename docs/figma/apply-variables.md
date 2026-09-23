@@ -12,7 +12,7 @@ Open the Alpenglow file, then give the agent this, with the JSON attached or
 pasted:
 
 > Read the attached `alpenglow-variables.json`. In the open Figma file, make the
-> three variable collections it describes, in this order, one `use_figma` call
+> four variable collections it describes, in this order, one `use_figma` call
 > per step, validating between steps:
 >
 > 1. **Alpenglow Primitives** — one mode, renamed `Value`. One COLOR variable
@@ -27,6 +27,11 @@ pasted:
 >    `description` on the variable.
 > 3. **Alpenglow Scale** — one mode `Value`. FLOAT variables from `value`, with
 >    the entry's `scopes`.
+> 4. **Alpenglow Density** — modes `Comfortable` then `Compact`, Comfortable
+>    first. One FLOAT variable per entry, both modes set directly from
+>    `values.Comfortable` and `values.Compact` — literal numbers, not
+>    aliases, since density has nothing to alias. Set `scopes` from the entry
+>    and put `description` on the variable.
 >
 > If a collection with the same name already exists, update its variables in
 > place by name — add what is missing, set every value, and delete variables

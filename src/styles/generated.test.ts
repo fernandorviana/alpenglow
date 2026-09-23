@@ -7,6 +7,7 @@ import { elevation, shadowCss } from '../tokens/elevation';
 import { motion } from '../tokens/motion';
 import { alphaPrimitives } from '../tokens/primitives';
 import { hexToRgb } from '../tokens/contrast';
+import { density } from '../tokens/density';
 import { block } from '@/test/css';
 
 /**
@@ -163,5 +164,36 @@ describe('tailwind-theme.css follows the tokens into dark', () => {
     expect(variant).toContain('[data-theme="dark"]');
     expect(tokensCss).toContain(':root:not([data-theme="light"])');
     expect(system).toContain(':root:not([data-theme="light"])');
+  });
+});
+
+describe('tokens.css carries density', () => {
+  it('declares every density token at its comfortable value on :root', () => {
+    const root = block(tokensCss, 'Layer 3 — density');
+    for (const [name, v] of Object.entries(density)) {
+      expect(root, name).toContain(`--ap-density-${name}: ${v.comfortable}px;`);
+    }
+  });
+
+  it('declares compact on any element that asks for it, not only :root', () => {
+    const compact = block(tokensCss, '[data-density="compact"] {');
+    for (const [name, v] of Object.entries(density)) {
+      expect(compact, name).toContain(`--ap-density-${name}: ${v.compact}px;`);
+    }
+    expect(tokensCss).not.toContain(':root[data-density="compact"]');
+  });
+
+  it('gives touch the comfortable values back', () => {
+    const coarse = block(tokensCss, '@media (pointer: coarse)');
+    expect(coarse).toContain('[data-density="compact"]');
+    for (const [name, v] of Object.entries(density)) {
+      expect(coarse, name).toContain(`--ap-density-${name}: ${v.comfortable}px;`);
+    }
+  });
+
+  it('is in the Tailwind theme', () => {
+    for (const name of Object.keys(density)) {
+      expect(tailwindCss, name).toContain(`--density-${name}: var(--ap-density-${name});`);
+    }
   });
 });

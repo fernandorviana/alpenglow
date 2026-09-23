@@ -146,6 +146,13 @@
   --border-width-control: 1.5px;
   --border-width-ring: 2px;
 
+  /* Density — resolves through tokens.css, so these follow data-density. */
+  --density-control: var(--ap-density-control);
+  --density-row: var(--ap-density-row);
+  --density-row-header: var(--ap-density-row-header);
+  --density-hour: var(--ap-density-hour);
+  --density-nav-item: var(--ap-density-nav-item);
+
   /* Type */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;

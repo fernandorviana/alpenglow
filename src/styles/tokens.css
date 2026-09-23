@@ -525,6 +525,38 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — density. Comfortable by default; compact on any element that
+   asks, so a region can be dense while the page is not. Touch keeps
+   comfortable: density is for the pointer and the keyboard.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ap-density-control: 40px;
+  --ap-density-row: 72px;
+  --ap-density-row-header: 44px;
+  --ap-density-hour: 80px;
+  --ap-density-nav-item: 40px;
+}
+
+[data-density="compact"] {
+  --ap-density-control: 32px;
+  --ap-density-row: 48px;
+  --ap-density-row-header: 36px;
+  --ap-density-hour: 64px;
+  --ap-density-nav-item: 32px;
+}
+
+@media (pointer: coarse) {
+  [data-density="compact"] {
+    --ap-density-control: 40px;
+    --ap-density-row: 72px;
+    --ap-density-row-header: 44px;
+    --ap-density-hour: 80px;
+    --ap-density-nav-item: 40px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Layer 3 — typography. Style and weight are independent axes.
    --------------------------------------------------------------------------- */
 
