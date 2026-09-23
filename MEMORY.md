@@ -33,7 +33,7 @@ generated from it.
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
 | Primitives | `src/tokens/primitives.ts` | no | 113 opaque colours (white + ten families of eleven stops, 050–950, generated in OKLCH with one lightness per stop — `scripts/generate-ramps.mjs` — plus `925`, the surface step, in stone and night only) + 21 alpha (12 on the black/white ramps, 4 inks — the light divider, two shadows, the dark scrim — the light scrim's mist, and 4 hazes: mist/500 at 8/12/16/20 for the wash). Never referenced directly. |
-| Theme | `src/tokens/theme.ts` | Light / Dark | 58 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 12 (four `border/*-subtle` added in code on 2026-09-20 for the Alert; **not yet variables in Figma**, whose Theme collection still has 54). Every value is an alias — no raw hex. |
+| Theme | `src/tokens/theme.ts` | Light / Dark | 94 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 12, `category` 24 (2026-09-23), `chart` 12 (2026-09-23). The last two groups and the four `border/*-subtle` of 2026-09-20 are **not yet variables in Figma**, whose Theme collection still has 54; `docs/figma/alpenglow-variables.json` has all 94. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, three steps (`sm` for a part that lifts inside its own control — the segmented tab's thumb, 2026-09-18 — `md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 | Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2040 tests across 82 files
+npm test            # 2064 tests across 82 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -581,7 +581,7 @@ dense Table (sort, sticky header, bulk actions, filters, pagination);
 SegmentedControl, Slider, FileUpload, Scheduler, CommandPalette. "Crest
 feeds Terrain": a site piece that is the general pattern is graduated into
 the package, not rewritten beside it. Foundations to add: breakpoints as
-tokens, a data-vis palette with measured ratios, grid, content and voice,
+tokens, ~~a data-vis palette with measured ratios~~ (done 2026-09-23), grid, content and voice,
 the first Paths — and a candidate decision to ship **no z-index tokens**,
 since every overlay lives in the top layer. Around the code: a deprecation
 policy, brand theming that re-runs the contrast suite, a public Figma
@@ -591,6 +591,31 @@ whether it is already drawn in Figma is not known from the repository.
 Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
+
+- **Chart palette** (foundation) — built 2026-09-23, on main, unreleased;
+  the roadmap's data-vis palette, closing wave 3's foundations beside the
+  category palette. Spec
+  `docs/superpowers/specs/2026-09-23-chart-palette-design.md`, plan
+  `docs/superpowers/plans/2026-09-23-chart-palette.md`. Twelve `chart/*`
+  tokens: sequential twilight 200/400/500/600/800 (dark the other way, so
+  step 1 is always nearest the canvas); diverging twilight 800/600/400,
+  stone/200, flare 400/600/800 (dark 200/400/600, stone/800, 600/400/200),
+  ColorBrewer's PuOr pair. Decisions: single hue over the "alpenglow"
+  multi-hue ramp, whose hue order would reverse between modes; glacier
+  refused as the first category; the near-canvas steps are under 3:1 by
+  construction and **recorded, not graded** (`Ratio recorded`, a
+  `gradeNote` badge), the suite holding neighbour ΔL ≥ .09 / .16 instead;
+  a value inside a cell takes `text/primary` near the canvas and
+  `interactive/on-accent` further out, the light sequential-3
+  (twilight/500) carrying neither at AA — 4.15 / 3.92, large text only;
+  category order on a chart glacier, flare, moss, glow, amber, ember, and
+  a series is labelled directly or by shape, never by a colour legend
+  alone. What the two pages share is `app/ui/chart.ts`. The search
+  extractor now skips text under `role="img"` (the SVG charts' ticks).
+  **Fernando still has to apply the 12 variables in Figma.** Seen in
+  Chromium: the three charts on a card and on the canvas, light and dark,
+  375 with no overflow. Not built: a Chart component, pattern fills,
+  colour-vision simulation.
 
 - **Scheduler** — phase 1 built 2026-09-23, on main (b3738b9), unreleased;
   **phase 2 built 2026-09-23, on main, unreleased**; fifth of wave 3. Specs

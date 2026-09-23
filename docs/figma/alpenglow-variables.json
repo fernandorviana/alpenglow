@@ -1819,6 +1819,174 @@
             "STROKE_COLOR"
           ],
           "description": "Text and edge on the tint, or on a card"
+        },
+        {
+          "name": "color/chart/sequential-1",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/200",
+            "Dark": "twilight/800"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Sequential ramp, the step nearest the canvas"
+        },
+        {
+          "name": "color/chart/sequential-2",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/400",
+            "Dark": "twilight/600"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Sequential ramp, step 2"
+        },
+        {
+          "name": "color/chart/sequential-3",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/500",
+            "Dark": "twilight/500"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Sequential ramp, step 3, the first to clear 3:1"
+        },
+        {
+          "name": "color/chart/sequential-4",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/600",
+            "Dark": "twilight/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Sequential ramp, step 4"
+        },
+        {
+          "name": "color/chart/sequential-5",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/800",
+            "Dark": "twilight/200"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Sequential ramp, the step furthest from the canvas"
+        },
+        {
+          "name": "color/chart/low-3",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/800",
+            "Dark": "twilight/200"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, furthest below the centre"
+        },
+        {
+          "name": "color/chart/low-2",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/600",
+            "Dark": "twilight/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, two below the centre"
+        },
+        {
+          "name": "color/chart/low-1",
+          "type": "COLOR",
+          "alias": {
+            "Light": "twilight/400",
+            "Dark": "twilight/600"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, one below the centre"
+        },
+        {
+          "name": "color/chart/mid",
+          "type": "COLOR",
+          "alias": {
+            "Light": "stone/200",
+            "Dark": "stone/800"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, the centre"
+        },
+        {
+          "name": "color/chart/high-1",
+          "type": "COLOR",
+          "alias": {
+            "Light": "flare/400",
+            "Dark": "flare/600"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, one above the centre"
+        },
+        {
+          "name": "color/chart/high-2",
+          "type": "COLOR",
+          "alias": {
+            "Light": "flare/600",
+            "Dark": "flare/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, two above the centre"
+        },
+        {
+          "name": "color/chart/high-3",
+          "type": "COLOR",
+          "alias": {
+            "Light": "flare/800",
+            "Dark": "flare/200"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Diverging ramp, furthest above the centre"
         }
       ]
     },

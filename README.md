@@ -40,7 +40,7 @@ Three layers, mirrored in Figma as three variable collections.
 | Layer | Varies by mode | What it holds |
 |---|---|---|
 | **Primitives** | no | The raw ramps. 113 opaque colours — white and ten families of eleven stops, generated in OKLCH with one lightness per stop, plus a twelfth, `925`, the surface step, in stone and night only — plus 21 alpha values: twelve on the black and white ramps, four inks (the light divider, two shadows, the dark scrim), the light scrim's mist, and the four hazes of the hover and pressed wash. Nothing references these directly. |
-| **Theme** | Light / Dark | 82 semantic tokens — `surface`, `text`, `interactive`, `border`, and `category`, six hues for colour by category rather than by meaning. Every value is an alias. |
+| **Theme** | Light / Dark | 94 semantic tokens — `surface`, `text`, `interactive`, `border`, `category`, six hues for colour by category rather than by meaning, and `chart`, a sequential and a diverging ramp, each step measured on the canvas and on a card. Every value is an alias. |
 | **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
 | **Motion** | no | Two durations and two curves. `fade` for a change in place, `travel`, a little longer, for something that moves. |
@@ -59,8 +59,9 @@ both, and tests assert the two stay in step.
 
 ## The contrast suite
 
-235 test cases covering what the design actually depends on: text clearing AA on
-every surface it can appear on, status text clearing AA on its own subtle
+253 test cases covering what the design actually depends on: text clearing AA on
+every surface it can appear on, the chart ramps' steps kept a measured lightness
+apart and the text a value takes on each, status text clearing AA on its own subtle
 background, every button label clearing AA on all of its fill states, control
 borders clearing WCAG 1.4.11, the dark elevation ladder staying ordered and
 separable, no token collapsing into the surface behind it, and a dialog staying

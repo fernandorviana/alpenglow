@@ -31,7 +31,12 @@ export const pageFile = (href: string) => `app${href === '/' ? '' : href}/page.t
 function text(el: Element): string {
   const walker = el.ownerDocument.createTreeWalker(el, 4);
   const parts: string[] = [];
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) parts.push(node.nodeValue ?? '');
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    // A picture's text — a chart's tick labels, "Mon Tue 9 11" — is not the
+    // page's; what it says is in its name, and that is not the page's either.
+    if (node.parentElement?.closest('[role="img"]')) continue;
+    parts.push(node.nodeValue ?? '');
+  }
   return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 

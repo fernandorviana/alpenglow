@@ -1245,6 +1245,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .gradePass { background: var(--ap-color-surface-success-subtle); color: var(--ap-color-text-success); }
 .gradeFail { background: var(--ap-color-surface-danger-subtle); color: var(--ap-color-text-danger); }
+.gradeNote { background: var(--ap-color-surface-sunken); color: var(--ap-color-text-secondary); }
 
 /* --- ramp ----------------------------------------------------------------- */
 
@@ -1727,4 +1728,96 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
     border-inline: none;
     border-radius: 0;
   }
+}
+
+/* --- charts (the Data visualisation page) --------------------------------- */
+
+/* A chart sits on a card, which is the surface most of them render on; the
+   second copy of each one on the page sits on the canvas. */
+.chartFigure {
+  display: grid;
+  gap: var(--ap-spacing-200);
+  grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+  margin-block: var(--ap-spacing-300);
+}
+
+.chartOnCard,
+.chartOnCanvas {
+  padding: var(--ap-spacing-200);
+  border-radius: var(--ap-radius-lg);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.chartOnCard { background: var(--ap-color-surface-raised); }
+.chartOnCanvas { background: var(--ap-color-surface-base); }
+
+.chartOnCard > p,
+.chartOnCanvas > p {
+  margin: 0 0 var(--ap-spacing-100);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart text {
+  font-family: inherit;
+  font-size: var(--ap-text-caption-md-size);
+  fill: var(--ap-color-text-secondary);
+}
+
+.chart .chartTitle { fill: var(--ap-color-text-primary); font-weight: var(--ap-font-weight-semibold); }
+.chart .chartGrid { stroke: var(--ap-color-border-subtle); }
+.chart .chartAxis { stroke: var(--ap-color-border-default); }
+.chart .chartZero { stroke: var(--ap-color-border-strong); }
+.chart .chartSeriesLabel { font-weight: var(--ap-font-weight-semibold); }
+
+.chartOrder {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--ap-spacing-100);
+  margin-block: var(--ap-spacing-200);
+  padding: 0;
+  list-style: none;
+  counter-reset: series;
+}
+
+.chartOrder li {
+  display: grid;
+  gap: var(--ap-spacing-050);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+}
+
+.chartOrder li::before {
+  counter-increment: series;
+  content: counter(series);
+  font-family: var(--ap-font-mono);
+  color: var(--ap-color-text-tertiary);
+}
+
+.chartOrder span {
+  display: block;
+  height: 24px;
+  border-radius: var(--ap-radius-xs);
+}
+
+.chartRamp {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  height: 32px;
+  border-radius: var(--ap-radius-xs);
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  .chartOrder { grid-template-columns: repeat(3, 1fr); }
 }

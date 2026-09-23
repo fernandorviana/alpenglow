@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { theme, type ThemeTokenName, type Mode } from './theme';
-import { resolve, contrast, lightness, tokenContrast, AA_NORMAL, NON_TEXT, SURFACE_STEP } from './contrast';
+import { resolve, contrast, lightness, tokenContrast, AA_NORMAL, AA_LARGE, NON_TEXT, SURFACE_STEP } from './contrast';
 import { alphaPrimitives, primitives } from './primitives';
 
 const MODES: Mode[] = ['light', 'dark'];
@@ -1099,10 +1099,138 @@ describe('category: six hues, the accent\'s four stops each', () => {
         expect(tokenContrast(on, fill, mode), 'label on the fill').toBeGreaterThanOrEqual(AA_NORMAL);
         expect(tokenContrast(text, tint, mode), 'text on the tint').toBeGreaterThanOrEqual(AA_NORMAL);
         expect(tokenContrast(text, 'surface/raised', mode), 'text on a card').toBeGreaterThanOrEqual(AA_NORMAL);
+        // The direct label at the end of a chart's line, which the Data
+        // visualisation page draws on the canvas as well as on a card.
+        expect(tokenContrast(text, 'surface/base', mode), 'text on the canvas').toBeGreaterThanOrEqual(AA_NORMAL);
         expect(tokenContrast(fill, 'surface/raised', mode), 'fill on a card').toBeGreaterThanOrEqual(NON_TEXT);
         expect(tokenContrast(fill, 'surface/base', mode), 'fill on the canvas').toBeGreaterThanOrEqual(NON_TEXT);
         expect(tokenContrast(fill, tint, mode), 'edge on the tint').toBeGreaterThanOrEqual(NON_TEXT);
       });
     }
   }
+});
+
+describe('chart: the sequential ramp, twilight in five steps', () => {
+  // A heatmap's low cell sits near its ground and is told apart by the
+  // legend and its neighbours, so the low steps are not held to 3:1 against
+  // the canvas; what is held is the separation between neighbours, twice
+  // the surface ladder's step, and 3:1 from step 3 on both surfaces.
+  const STEPS = ['chart/sequential-1', 'chart/sequential-2', 'chart/sequential-3', 'chart/sequential-4', 'chart/sequential-5'] as const;
+  const NEIGHBOUR = 0.09;
+  for (const mode of MODES) {
+    it(`neighbours are ΔL ≥ ${NEIGHBOUR} apart and step 1 is a step off the canvas — ${mode}`, () => {
+      const first = lightness(resolve(STEPS[0], mode));
+      for (const ground of ['surface/base', 'surface/raised'] as const) {
+        expect(Math.abs(first - lightness(resolve(ground, mode))), `step 1 off ${ground}`).toBeGreaterThanOrEqual(SURFACE_STEP);
+      }
+      STEPS.forEach((step, i) => {
+        if (i === 0) return;
+        const a = lightness(resolve(STEPS[i - 1]!, mode));
+        const b = lightness(resolve(step, mode));
+        expect(Math.abs(b - a), `${STEPS[i - 1]} to ${step}`).toBeGreaterThanOrEqual(NEIGHBOUR);
+      });
+    });
+    it(`steps 3 to 5 clear 3:1 on the canvas and on a card — ${mode}`, () => {
+      for (const step of STEPS.slice(2)) {
+        expect(tokenContrast(step, 'surface/base', mode), `${step} on the canvas`).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast(step, 'surface/raised', mode), `${step} on a card`).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+  }
+  it('the low steps are recorded where they stand', () => {
+    // Under 3:1 by construction; a future edit that pushed them further
+    // towards the canvas would show here.
+    expect(tokenContrast('chart/sequential-1', 'surface/base', 'light')).toBeCloseTo(1.3, 1);
+    expect(tokenContrast('chart/sequential-2', 'surface/base', 'light')).toBeCloseTo(2.34, 1);
+    expect(tokenContrast('chart/sequential-1', 'surface/base', 'dark')).toBeCloseTo(1.47, 1);
+    expect(tokenContrast('chart/sequential-2', 'surface/base', 'dark')).toBeCloseTo(3.27, 1);
+  });
+});
+
+describe('chart: a value inside a sequential cell', () => {
+  // The near steps take text/primary, the far ones the accent's own label,
+  // white in light and night/950 in dark. The light step 3 is twilight/500,
+  // the stop that carries no label at AA; it is recorded at its figures and
+  // a value on it is large text or sits beside the cell.
+  const PRIMARY: Record<Mode, readonly ThemeTokenName[]> = {
+    light: ['chart/sequential-1', 'chart/sequential-2'],
+    dark: ['chart/sequential-1', 'chart/sequential-2'],
+  };
+  const ON_ACCENT: Record<Mode, readonly ThemeTokenName[]> = {
+    light: ['chart/sequential-4', 'chart/sequential-5'],
+    dark: ['chart/sequential-3', 'chart/sequential-4', 'chart/sequential-5'],
+  };
+  for (const mode of MODES) {
+    it(`text/primary on the near steps — ${mode}`, () => {
+      for (const step of PRIMARY[mode]) {
+        expect(tokenContrast('text/primary', step, mode), step).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+    it(`interactive/on-accent on the far steps — ${mode}`, () => {
+      for (const step of ON_ACCENT[mode]) {
+        expect(tokenContrast('interactive/on-accent', step, mode), step).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+  }
+  it('the light step 3 carries neither at AA, and both as large text', () => {
+    const primary = tokenContrast('text/primary', 'chart/sequential-3', 'light');
+    const onAccent = tokenContrast('interactive/on-accent', 'chart/sequential-3', 'light');
+    expect(primary).toBeCloseTo(4.15, 1);
+    expect(onAccent).toBeCloseTo(3.92, 1);
+    expect(primary).toBeGreaterThanOrEqual(AA_LARGE);
+    expect(onAccent).toBeGreaterThanOrEqual(AA_LARGE);
+  });
+});
+
+describe('chart: the diverging ramp, twilight against flare on a stone centre', () => {
+  const STEPS = ['chart/low-3', 'chart/low-2', 'chart/low-1', 'chart/mid', 'chart/high-1', 'chart/high-2', 'chart/high-3'] as const;
+  const NEIGHBOUR = 0.16;
+  for (const mode of MODES) {
+    it(`neighbours are ΔL ≥ ${NEIGHBOUR} apart and the centre is a step off the canvas — ${mode}`, () => {
+      const mid = lightness(resolve('chart/mid', mode));
+      for (const ground of ['surface/base', 'surface/raised'] as const) {
+        expect(Math.abs(mid - lightness(resolve(ground, mode))), `the centre off ${ground}`).toBeGreaterThanOrEqual(SURFACE_STEP);
+      }
+      STEPS.forEach((step, i) => {
+        if (i === 0) return;
+        const a = lightness(resolve(STEPS[i - 1]!, mode));
+        const b = lightness(resolve(step, mode));
+        expect(Math.abs(b - a), `${STEPS[i - 1]} to ${step}`).toBeGreaterThanOrEqual(NEIGHBOUR);
+      });
+    });
+    it(`the outer two steps a side clear 3:1 on the canvas and on a card — ${mode}`, () => {
+      for (const step of ['chart/low-3', 'chart/low-2', 'chart/high-2', 'chart/high-3'] as const) {
+        expect(tokenContrast(step, 'surface/base', mode), `${step} on the canvas`).toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast(step, 'surface/raised', mode), `${step} on a card`).toBeGreaterThanOrEqual(NON_TEXT);
+      }
+    });
+    it(`a value takes text/primary at the centre and beside it, interactive/on-accent further out — ${mode}`, () => {
+      for (const step of ['chart/low-1', 'chart/mid', 'chart/high-1'] as const) {
+        expect(tokenContrast('text/primary', step, mode), step).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+      for (const step of ['chart/low-3', 'chart/low-2', 'chart/high-2', 'chart/high-3'] as const) {
+        expect(tokenContrast('interactive/on-accent', step, mode), step).toBeGreaterThanOrEqual(AA_NORMAL);
+      }
+    });
+  }
+  it('the ±1 steps clear 3:1 in dark and are recorded in light', () => {
+    for (const step of ['chart/low-1', 'chart/high-1'] as const) {
+      expect(tokenContrast(step, 'surface/base', 'dark'), step).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast(step, 'surface/raised', 'dark'), step).toBeGreaterThanOrEqual(NON_TEXT);
+    }
+    expect(tokenContrast('chart/low-1', 'surface/base', 'light')).toBeCloseTo(2.34, 1);
+    expect(tokenContrast('chart/high-1', 'surface/base', 'light')).toBeCloseTo(2.36, 1);
+  });
+});
+
+describe('chart: the six categories on a chart', () => {
+  // The six fills share one lightness, so on a chart they differ by hue
+  // alone: the closest pairs are held at their figures, and the rule on the
+  // page is that a series is labelled directly or by a shape, never by a
+  // colour legend alone.
+  it('the closest pairs stand where they were measured', () => {
+    expect(tokenContrast('category/ember', 'category/glow', 'light')).toBeCloseTo(1.01, 1);
+    expect(tokenContrast('category/glacier', 'category/moss', 'light')).toBeCloseTo(1.03, 1);
+    expect(tokenContrast('category/glacier', 'category/moss', 'dark')).toBeCloseTo(1.0, 1);
+  });
 });

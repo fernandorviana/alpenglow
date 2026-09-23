@@ -219,6 +219,37 @@ export const theme = {
   'category/on-flare':       { light: 'white',       dark: 'night/950',    use: 'Label on category/flare' },
   'category/flare-subtle':   { light: 'flare/050',   dark: 'flare/900',   use: 'The tint of category/flare' },
   'category/flare-text':     { light: 'flare/700',   dark: 'flare/300',   use: 'Text and edge on the tint, or on a card' },
+
+  // ---- chart -----------------------------------------------------------
+  // The two ramps a chart needs beside the six categories: sequential for a
+  // magnitude, diverging for a value on either side of a centre. Numbered by
+  // distance from the canvas, so sequential-1 and mid sit nearest it in
+  // both modes and a heatmap reads "more" as "further from the ground" —
+  // ink in light, light in dark. Sequential is twilight 200 / 400 / 500 /
+  // 600 / 800 and the same list the other way in dark: the low steps do
+  // not reach 3:1 against the canvas by construction, so the suite holds
+  // the separation between neighbours, ΔL ≥ .09 (.099 at the tightest, 500 to
+  // 600), and 3:1 from step 3. The
+  // 100–900 ramp separated better and was refused, its dark 900 being
+  // 1.06:1 against the card, one surface step. Diverging is twilight
+  // against flare, ColorBrewer's PuOr pair and never red against green, on
+  // a stone centre: neighbours ΔL ≥ .16, the ends 12–14:1, the centre
+  // 1.27 / 1.58. A value inside a cell takes text/primary, white or
+  // night/950 by step; contrast.test.ts holds each pairing and records the
+  // light step 3, twilight/500, which carries neither at AA (4.15 / 3.92).
+  // The spec of 2026-09-23 has every figure on both surfaces.
+  'chart/sequential-1': { light: 'twilight/200', dark: 'twilight/800', use: 'Sequential ramp, the step nearest the canvas' },
+  'chart/sequential-2': { light: 'twilight/400', dark: 'twilight/600', use: 'Sequential ramp, step 2' },
+  'chart/sequential-3': { light: 'twilight/500', dark: 'twilight/500', use: 'Sequential ramp, step 3, the first to clear 3:1' },
+  'chart/sequential-4': { light: 'twilight/600', dark: 'twilight/400', use: 'Sequential ramp, step 4' },
+  'chart/sequential-5': { light: 'twilight/800', dark: 'twilight/200', use: 'Sequential ramp, the step furthest from the canvas' },
+  'chart/low-3':        { light: 'twilight/800', dark: 'twilight/200', use: 'Diverging ramp, furthest below the centre' },
+  'chart/low-2':        { light: 'twilight/600', dark: 'twilight/400', use: 'Diverging ramp, two below the centre' },
+  'chart/low-1':        { light: 'twilight/400', dark: 'twilight/600', use: 'Diverging ramp, one below the centre' },
+  'chart/mid':          { light: 'stone/200',    dark: 'stone/800',    use: 'Diverging ramp, the centre' },
+  'chart/high-1':       { light: 'flare/400',    dark: 'flare/600',    use: 'Diverging ramp, one above the centre' },
+  'chart/high-2':       { light: 'flare/600',    dark: 'flare/400',    use: 'Diverging ramp, two above the centre' },
+  'chart/high-3':       { light: 'flare/800',    dark: 'flare/200',    use: 'Diverging ramp, furthest above the centre' },
 } as const satisfies Record<string, ThemeEntry>;
 
 export type ThemeTokenName = keyof typeof theme;

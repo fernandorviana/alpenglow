@@ -92,6 +92,18 @@
   --color-category-on-flare: var(--ap-color-category-on-flare);
   --color-category-flare-subtle: var(--ap-color-category-flare-subtle);
   --color-category-flare-text: var(--ap-color-category-flare-text);
+  --color-chart-sequential-1: var(--ap-color-chart-sequential-1);
+  --color-chart-sequential-2: var(--ap-color-chart-sequential-2);
+  --color-chart-sequential-3: var(--ap-color-chart-sequential-3);
+  --color-chart-sequential-4: var(--ap-color-chart-sequential-4);
+  --color-chart-sequential-5: var(--ap-color-chart-sequential-5);
+  --color-chart-low-3: var(--ap-color-chart-low-3);
+  --color-chart-low-2: var(--ap-color-chart-low-2);
+  --color-chart-low-1: var(--ap-color-chart-low-1);
+  --color-chart-mid: var(--ap-color-chart-mid);
+  --color-chart-high-1: var(--ap-color-chart-high-1);
+  --color-chart-high-2: var(--ap-color-chart-high-2);
+  --color-chart-high-3: var(--ap-color-chart-high-3);
 
   /* Spacing */
   --spacing-0: 0px;

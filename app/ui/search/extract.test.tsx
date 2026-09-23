@@ -68,6 +68,16 @@ describe('buildIndex', () => {
     expect(home?.body).not.toMatch(/DevelopersThe/);
   });
 
+  it('leaves a picture\'s text out', () => {
+    // The Data visualisation page draws its charts as SVG with role="img":
+    // their tick labels are not words a reader searches for, and the chart's
+    // sentence is in its name.
+    const ramp = index.entries.find((e) => e.href === '/data-vis#how-much-the-sequential-ramp');
+    expect(ramp?.body).toContain('twilight');
+    expect(ramp?.body).not.toMatch(/\bMon Tue\b/);
+    expect(ramp?.body).not.toContain('fewer');
+  });
+
   it('leaves the pager out', () => {
     // The pager reads "Previous <label>" and "Next <label>" at the foot of the
     // article; a Calendar's "Previous month" button in a specimen is the

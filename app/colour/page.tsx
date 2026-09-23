@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
 import { tokenId } from '@ui/slug';
+import { recorded } from '@ui/chart';
 import { primitives, alphaPrimitives } from '@/tokens/primitives';
 import { theme, type ThemeTokenName } from '@/tokens/theme';
 import { contrast, lightness, resolve } from '@/tokens/contrast';
@@ -112,14 +114,24 @@ function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold
               <td>
                 <div className="alias">{entry.light}</div>
                 {measurable && (
-                  <Ratio fg={light} bg={resolve(against(token), 'light')} threshold={floor(token, threshold)} />
+                  <Ratio
+                    fg={light}
+                    bg={resolve(against(token), 'light')}
+                    threshold={floor(token, threshold)}
+                    recorded={recorded(token, 'light')}
+                  />
                 )}
               </td>
               <td><Swatch value={dark} /></td>
               <td>
                 <div className="alias">{entry.dark}</div>
                 {measurable && (
-                  <Ratio fg={dark} bg={resolve(against(token), 'dark')} threshold={floor(token, threshold)} />
+                  <Ratio
+                    fg={dark}
+                    bg={resolve(against(token), 'dark')}
+                    threshold={floor(token, threshold)}
+                    recorded={recorded(token, 'dark')}
+                  />
                 )}
               </td>
             </tr>
@@ -319,6 +331,20 @@ export default function Page() {
         not &ldquo;amber&rdquo;.
       </p>
       <TokenTable tokens={group('category/')} threshold={3} />
+
+      <h2>Chart</h2>
+      <p>
+        The two ramps a chart needs beside the six categories: sequential for a magnitude,
+        twilight in five steps, and diverging for a value on either side of a centre, twilight
+        against flare on a stone centre. A step is numbered by its distance from the canvas, so{' '}
+        <code>sequential-1</code> and <code>mid</code> sit nearest it in both modes. The steps
+        near the canvas are under 3:1 by construction — a heatmap&rsquo;s low cell is told apart
+        by the legend and its neighbours — and are recorded rather than graded; what the suite
+        holds for them is the lightness between neighbours. The figures on both surfaces, the
+        text a value inside a cell takes, and the rules are on{' '}
+        <Link href="/data-vis">Data visualisation</Link>.
+      </p>
+      <TokenTable tokens={group('chart/')} threshold={3} />
 
       <h2>Accessibility</h2>
       <p>

@@ -82,6 +82,18 @@ break: a removed token or prop is named here under **Breaking**.
   category rather than by meaning, a person's events on the Scheduler or a
   tag by topic, each hue the accent's own four stops and measured in the
   suite. In `tokens.css`, the Tailwind theme and the Figma export.
+- **Chart palette** — twelve theme tokens: `chart/sequential-1` to
+  `chart/sequential-5`, twilight in five steps numbered by distance from
+  the canvas in both modes, and `chart/low-3` to `chart/high-3` through
+  `chart/mid`, twilight against flare on a stone centre. The suite holds
+  the lightness between neighbours (ΔL ≥ .09 sequential, .16 diverging),
+  3:1 on both surfaces from the third sequential step and the outer two
+  diverging steps a side, and the text a value inside a cell takes on each
+  step; the near-canvas steps are recorded at their figure. No chart
+  component: the palette is for whatever draws the chart, through the
+  custom properties. In `tokens.css`, the Tailwind theme and the Figma
+  export; a sixth table on the Colour page and a Data visualisation page
+  with the rules for the six categories on a chart.
 
 ### Changed
 

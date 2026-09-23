@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon, Checkmark, Search, Time } from '@carbon/icons
 import { DocPage } from '@ui/DocPage';
 import { Card, Cards } from '@ui/Card';
 import { Ramp, Ramps } from '@ui/Ramp';
+import { DIVERGING, cssVar } from '@ui/chart';
 import { primitives, alphaPrimitives } from '@/tokens/primitives';
 import { theme } from '@/tokens/theme';
 import { textStyle } from '@/tokens/typography';
@@ -54,6 +55,18 @@ export default function Page() {
           title="Colour"
           description="Ten families of eleven stops, one lightness per stop, and the semantic layer over them."
           visual={<Ramp />}
+        />
+        <Card
+          href="/data-vis"
+          title="Data visualisation"
+          description="Six categories, a sequential ramp and a diverging one, each step measured on the canvas and on a card."
+          visual={
+            <div className="chartRamp">
+              {DIVERGING.map((t) => (
+                <span key={t} style={{ background: cssVar(t) }} />
+              ))}
+            </div>
+          }
         />
         <Card
           href="/elevation"

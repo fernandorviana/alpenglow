@@ -247,6 +247,18 @@
   --ap-color-category-on-flare: var(--ap-white);
   --ap-color-category-flare-subtle: var(--ap-flare-050);
   --ap-color-category-flare-text: var(--ap-flare-700);
+  --ap-color-chart-sequential-1: var(--ap-twilight-200);
+  --ap-color-chart-sequential-2: var(--ap-twilight-400);
+  --ap-color-chart-sequential-3: var(--ap-twilight-500);
+  --ap-color-chart-sequential-4: var(--ap-twilight-600);
+  --ap-color-chart-sequential-5: var(--ap-twilight-800);
+  --ap-color-chart-low-3: var(--ap-twilight-800);
+  --ap-color-chart-low-2: var(--ap-twilight-600);
+  --ap-color-chart-low-1: var(--ap-twilight-400);
+  --ap-color-chart-mid: var(--ap-stone-200);
+  --ap-color-chart-high-1: var(--ap-flare-400);
+  --ap-color-chart-high-2: var(--ap-flare-600);
+  --ap-color-chart-high-3: var(--ap-flare-800);
 
   --ap-elevation-sm: 0 2px 4px 0px var(--ap-alpha-ink-12);
   --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-ink-10), 0 6px 14px -6px var(--ap-alpha-ink-12);
@@ -338,6 +350,18 @@
     --ap-color-category-on-flare: var(--ap-night-950);
     --ap-color-category-flare-subtle: var(--ap-flare-900);
     --ap-color-category-flare-text: var(--ap-flare-300);
+    --ap-color-chart-sequential-1: var(--ap-twilight-800);
+    --ap-color-chart-sequential-2: var(--ap-twilight-600);
+    --ap-color-chart-sequential-3: var(--ap-twilight-500);
+    --ap-color-chart-sequential-4: var(--ap-twilight-400);
+    --ap-color-chart-sequential-5: var(--ap-twilight-200);
+    --ap-color-chart-low-3: var(--ap-twilight-200);
+    --ap-color-chart-low-2: var(--ap-twilight-400);
+    --ap-color-chart-low-1: var(--ap-twilight-600);
+    --ap-color-chart-mid: var(--ap-stone-800);
+    --ap-color-chart-high-1: var(--ap-flare-600);
+    --ap-color-chart-high-2: var(--ap-flare-400);
+    --ap-color-chart-high-3: var(--ap-flare-200);
 
     --ap-elevation-sm: 0 2px 4px 0px var(--ap-alpha-black-32);
     --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-black-32), 0 6px 14px -6px var(--ap-alpha-black-48);
@@ -437,6 +461,18 @@
   --ap-color-category-on-flare: var(--ap-night-950);
   --ap-color-category-flare-subtle: var(--ap-flare-900);
   --ap-color-category-flare-text: var(--ap-flare-300);
+  --ap-color-chart-sequential-1: var(--ap-twilight-800);
+  --ap-color-chart-sequential-2: var(--ap-twilight-600);
+  --ap-color-chart-sequential-3: var(--ap-twilight-500);
+  --ap-color-chart-sequential-4: var(--ap-twilight-400);
+  --ap-color-chart-sequential-5: var(--ap-twilight-200);
+  --ap-color-chart-low-3: var(--ap-twilight-200);
+  --ap-color-chart-low-2: var(--ap-twilight-400);
+  --ap-color-chart-low-1: var(--ap-twilight-600);
+  --ap-color-chart-mid: var(--ap-stone-800);
+  --ap-color-chart-high-1: var(--ap-flare-600);
+  --ap-color-chart-high-2: var(--ap-flare-400);
+  --ap-color-chart-high-3: var(--ap-flare-200);
 
   --ap-elevation-sm: 0 2px 4px 0px var(--ap-alpha-black-32);
   --ap-elevation-md: 0 10px 32px -4px var(--ap-alpha-black-32), 0 6px 14px -6px var(--ap-alpha-black-48);

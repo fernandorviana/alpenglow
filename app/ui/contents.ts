@@ -47,9 +47,10 @@ export const NAV: readonly NavGroup[] = [
   {
     title: 'Foundations',
     href: '/foundations',
-    blurb: 'Colour, elevation, type, space and icons — the tokens every component is built from.',
+    blurb: 'Colour, charts, elevation, type, space and icons — the tokens every component is built from.',
     items: [
       { href: '/colour', label: 'Colour' },
+      { href: '/data-vis', label: 'Data visualisation' },
       { href: '/elevation', label: 'Elevation and states' },
       { href: '/typography', label: 'Typography' },
       { href: '/space', label: 'Space and shape' },

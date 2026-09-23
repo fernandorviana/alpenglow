@@ -26,6 +26,15 @@ const rules = (selector: string) =>
     .join(' ');
 
 describe('Ratio', () => {
+  it('records a pair that is under its floor by design, without grading it', () => {
+    // A chart step near the canvas is under 3:1 on purpose; the figure is
+    // shown, the badge says "recorded", and neither pass nor fail is claimed.
+    const { container } = render(<Ratio fg="#E2D4FF" bg="#FFFFFF" threshold={3} recorded />);
+    expect(container.textContent).toContain('1.39');
+    expect(container.querySelector('.gradeNote')?.textContent).toBe('recorded');
+    expect(container.querySelector('.gradePass, .gradeFail')).toBeNull();
+  });
+
   it('keeps a value and its grade on one line', () => {
     const { container } = render(<Ratio fg="#000000" bg="#ffffff" />);
     const reading = container.querySelector('.ratio');
