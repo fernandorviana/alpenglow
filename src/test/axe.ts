@@ -22,6 +22,10 @@ export async function axeViolations(root: Element): Promise<string[]> {
     runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
     rules: { 'color-contrast': { enabled: false } },
     resultTypes: ['violations'],
+    // Not into iframes: axe reaches a frame by postMessage, which jsdom's
+    // frames do not answer, and /screen's frame is a page of its own —
+    // /screen/full is run through this suite by itself.
+    iframes: false,
   });
   return results.violations.map(
     (violation) =>

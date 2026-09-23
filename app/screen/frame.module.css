@@ -1,0 +1,54 @@
+/* The frame on /screen: the site's stylesheet, not the screen's, so the
+   local-values test (which reads screen.module.css) does not read it. */
+
+/* The frame is a specimen: as wide as the content column, not the prose's
+   measure. `.prose > *` would hold it to 37.5rem. */
+:global(.prose) > .frame {
+  max-width: none;
+}
+
+.frame {
+  display: grid;
+  /* One column that never grows to its content: the iframe is 1440 wide
+     before it is scaled, and an auto track would widen to hold it. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ap-spacing-200);
+  margin-bottom: var(--ap-spacing-300);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-300);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ap-spacing-200);
+}
+
+/* A Card's border and radius, so the frame reads as a screen set on the
+   page. An outline, not a border: it takes no room, so the frame's scale is
+   the column's width over the screen's, with no hairlines to take off. */
+.well {
+  max-inline-size: 100%;
+  overflow: hidden;
+  outline: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-xl);
+}
+
+.screen {
+  display: block;
+  border: 0;
+  transform-origin: 0 0;
+}
+
+.count,
+.caption {
+  margin: 0;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+}

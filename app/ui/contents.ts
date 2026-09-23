@@ -29,6 +29,7 @@ export const NAV: readonly NavGroup[] = [
     href: '/',
     blurb: 'The name, what is measured, and the decisions that look like mistakes.',
     items: [
+      { href: '/screen', label: 'A scheduling day' },
       { href: '/why', label: 'Why Alpenglow' },
       { href: '/accessibility', label: 'Accessibility' },
       { href: '/decisions', label: 'Decisions' },

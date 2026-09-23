@@ -71,7 +71,7 @@ describe('Pager', () => {
     pathname = '/';
     render(<Pager />);
     expect(screen.queryByRole('link', { name: /Previous/ })).toBeNull();
-    expect(link(/Next/)).toHaveAttribute('href', '/why');
+    expect(link(/Next/)).toHaveAttribute('href', '/screen');
   });
 
   it('offers only previous on the last page', () => {
