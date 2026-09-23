@@ -136,7 +136,11 @@ export default function Page() {
         {used.length} package components, read from <code>app/screen/</code> at build time: {used.join(', ')}.
       </p>
 
-      <p>Not checked: Safari, Firefox, a real touch device, a screen reader.</p>
+      <p>
+        Not checked: Safari, Firefox, a screen reader, a real touch device. The browser the screen was checked in
+        emulates a mouse, so compact giving way to comfortable under a finger is held by a test on the stylesheet and
+        has not been seen.
+      </p>
     </DocPage>
   );
 }

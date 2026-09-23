@@ -5,6 +5,65 @@ the completeness roadmap (2026-09-18); `0.1.0` and `0.2.0` are summarised from
 the record in `MEMORY.md`. While the version is `0.x`, a minor version may
 break: a removed token or prop is named here under **Breaking**.
 
+## Unreleased
+
+Wave 4's first piece, the dense screen, and what it could not be finished
+without: density as a foundation, a current row on the Table, and the Link
+saying a new tab for an internal link. Nothing is removed and nothing is
+renamed.
+
+### Added
+
+- **Density** — a fourth token layer, `density/*`, in two modes:
+  comfortable, what is drawn and the default, and compact, chosen by
+  `data-density="compact"` on **any element** (custom properties inherit,
+  so one region of a page can be compact while the rest is not). Five
+  tokens, only what the screen proves: `density/control` 40 / 32,
+  `density/row` 72 / 48, `density/row-header` 44 / 36, `density/hour`
+  80 / 64, `density/nav-item` 40 / 32 (`--ap-density-*`). **Compact does
+  not apply to touch:** under `(pointer: coarse)` the compact block gives
+  the comfortable values back. In `tokens.css`, the Tailwind theme
+  (`--density-*`) and the Figma export, as a fourth collection,
+  `Alpenglow Density`, modes Comfortable and Compact.
+- **Controls and rows that follow density.** Button, Input, Select,
+  NativeSelect, Combobox and DatePicker with no `size` take
+  `density/control`; the Table with no `density` takes `density/row` and
+  `density/row-header`, its inline padding following the row; the
+  Scheduler's hour is `density/hour`; the SideNav's and SideNavSecondary's
+  items are `density/nav-item`. An explicit `size` or `density` keeps its
+  literal value and wins. **Two defaults are gone, and nothing you see
+  changes:** `size` no longer defaults to `'md'` and the Table's `density`
+  no longer defaults to `'comfortable'`; left out, they follow the
+  attribute, and with no attribute anywhere they render at exactly the
+  heights and paddings they did (40, 72, 44); for the controls the suite
+  reads it from the stylesheets. Pass `size="md"` or
+  `density="comfortable"` to keep a part comfortable inside a compact
+  region. The density objects are not yet exported from the package root
+  (`spacing` and `motion` are); the custom properties are the interface.
+- **Table** — `currentId` and `onCurrentChange`: the row being looked at,
+  apart from the rows chosen by checkbox. With `onCurrentChange` the
+  primary cell's content becomes a bare button that reports its row, and
+  the current row's button carries `aria-current="true"`; the row is drawn
+  with the Scheduler's ring for its selected card, an inset `border/accent`
+  outline, never the selection's fill, so a row can be both. Scrolling it
+  into view is the caller's.
+- **The Density page** under Foundations: the five tokens, the touch rule,
+  and a Try it with the two modes side by side on a Button, an Input, a
+  Select, a Table and a slice of the Scheduler.
+- **The dense screen**, on the site at `/screen`: a physiotherapy clinic's
+  day built only from the package — SideNav, TopBar, Filters, the
+  Scheduler by practitioner and the Table on one state, the
+  CommandPalette, a Drawer, the Dialog with its form, Toasts with Undo —
+  in a frame whose width (1440, 1024, 768, 375), density and mode are
+  switchable and linkable, with what it proves and what moved up the list
+  under it. `/screen/full` is the screen alone.
+
+### Fixed
+
+- **Link** — a `target="_blank"` link now says it opens a new tab whether
+  or not it is `external`; before, an internal link opened in a new tab was
+  not announced. The icon is still drawn only with `external`.
+
 ## 0.5.0 — 2026-09-23
 
 Wave 3 of the completeness roadmap: navigation, the remaining inputs, the

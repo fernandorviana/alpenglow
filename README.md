@@ -35,7 +35,9 @@ More on the site: [Install](https://alpenglow-rose.vercel.app/install) ·
 
 ## Structure
 
-Three layers, mirrored in Figma as three variable collections.
+Three layers, mirrored in Figma as three variable collections, and density, a
+fourth collection whose modes are comfortable and compact rather than light and
+dark.
 
 | Layer | Varies by mode | What it holds |
 |---|---|---|
@@ -44,6 +46,7 @@ Three layers, mirrored in Figma as three variable collections.
 | **Elevation** | Light / Dark | Shadows. Only the ink varies by mode; the geometry does not. |
 | **Scale** | no | Spacing, radius and border width. Dimension must not be reachable by a theme switch. |
 | **Motion** | no | Two durations and two curves. `fade` for a change in place, `travel`, a little longer, for something that moves. |
+| **Density** | Comfortable / Compact | Five heights — a control, a table row and its header, the scheduler's hour, a navigation item. Compact is chosen with `data-density="compact"` on any element, and gives the comfortable values back under a touch pointer. A control given a `size` keeps it. |
 
 TypeScript is the source of truth. Both stylesheets are generated from it, and
 the type system prevents a token from aliasing a primitive that does not exist.

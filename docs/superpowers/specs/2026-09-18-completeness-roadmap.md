@@ -129,7 +129,7 @@ is the wave's third leg.
 
 | Piece | Built on | Notes |
 |---|---|---|
-| **The dense screen** | Scheduler, Table, SideNav, TopBar, Filters, CommandPalette, Toast | A scheduling day with a table beside it, on the site as a page of its own; density, mode and width switchable; nothing from the original product's name in it. Whatever it cannot be finished without moves up the list, as promised. The portfolio's single best picture. |
+| **The dense screen** — built 2026-09-23 on branch `feat/dense-screen` (ac2a4f9..203d98d), not yet on main | Scheduler, Table, SideNav, TopBar, Filters, CommandPalette, Toast | A scheduling day with a table beside it, on the site as a page of its own; density, mode and width switchable; nothing from the original product's name in it. Whatever it cannot be finished without moves up the list, as promised. The portfolio's single best picture. **What moved up:** density became a foundation (five `density/*` tokens, compact on any element, comfortable under touch, a Density page; 34ab2ad, 10aec6f, 455785e), the Table gained a current row (`currentId`, 702370d, 6308409) and the Link says a new tab for an internal link (b6ac4ee). Spec `2026-09-23-dense-screen-design.md`; the gaps it found and did not fix are listed under the frame on `/screen` and in `MEMORY.md`. |
 | **Breakpoints and layout** | `scale.ts` | Named breakpoints as tokens, replacing the site's 1496 / 1160 and the SideNav's 760 literal; the page grid and the gutters the screen uses; the decision to ship **no z-index tokens**, stated on Decisions with the one rule (the top layer, and `isolation` where a card stacks). |
 | **Paths** | the dense screen | The first three patterns, drawn dashed in the Vocabulary until now: a filtered table, a form in a dialog, an empty first-run state, each a page with the composition and what the suite holds for it. |
 | **Brand theming that stays measured** | `theme.ts`, `contrast.test.ts` | A documented path and a script: re-point the accent aliases in a copy of the theme, run the suite against it, get the pairs that fall. A page that shows a second brand passing, and one failing, with the list. |
@@ -140,7 +140,8 @@ Ships as **`0.6.0`**. Content and voice guidance rides with the Paths.
 Carried alongside, when Fernando wants them: the Slider's redesign (his
 call of 2026-09-22), the Scheduler's third phase (a long press to drag on
 touch, Time Travel), the input's resting boundary (the blocked pair), and
-the 36 `category/*` and `chart/*` variables still to apply in Figma.
+the 36 `category/*` and `chart/*` variables and the `Alpenglow Density`
+collection still to apply in Figma.
 
 ## Wave 5 — adoption
 

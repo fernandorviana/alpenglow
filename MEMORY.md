@@ -26,9 +26,10 @@ It is a public portfolio piece. Keep the writing at the standard of the code.
 ## Architecture
 
 Three token layers, mirrored in Figma as three variable collections, plus an
-elevation file that is not a fourth collection — effects are styles in Figma,
-not variables. TypeScript is the source of truth; both stylesheets are
-generated from it.
+elevation file that is not a collection — effects are styles in Figma, not
+variables — and, since 2026-09-23, **density**, a fourth collection whose
+modes are Comfortable and Compact rather than Light and Dark. TypeScript is
+the source of truth; both stylesheets are generated from it.
 
 | Layer | File | Varies by mode | Holds |
 |---|---|---|---|
@@ -36,6 +37,7 @@ generated from it.
 | Theme | `src/tokens/theme.ts` | Light / Dark | 94 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 12, `category` 24 (2026-09-23), `chart` 12 (2026-09-23). The last two groups and the four `border/*-subtle` of 2026-09-20 are **not yet variables in Figma**, whose Theme collection still has 54; `docs/figma/alpenglow-variables.json` has all 94. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, three steps (`sm` for a part that lifts inside its own control — the segmented tab's thumb, 2026-09-18 — `md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
+| Density | `src/tokens/density.ts` | Comfortable / Compact, by `data-density="compact"` on any element, not by the theme | Five heights (2026-09-23, the dense screen): `control` 40/32, `row` 72/48, `row-header` 44/36, `hour` 80/64, `nav-item` 40/32. Dimension that a density switch reaches and a theme switch still does not: the two axes are independent, and the compact block is re-stated as comfortable under `(pointer: coarse)` (invariant 23). A literal `size` or Table `density` never reads it. In `tokens.css`, the Tailwind theme and the Figma export as `Alpenglow Density`, **not yet applied in the Figma file**; not exported from the package root. |
 | Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
 
 Generated artefacts, both written by `npm run build:css`:
@@ -236,6 +238,21 @@ have all been mistaken for errors at least once.
     `Nav` throws. Checked in the Browser pane on 2026-09-14, light and dark,
     800 and 320: the automation's "Return" key does not reach the handler
     (its "Enter" does), like its Esc — not the component.
+
+23. **Compact does not apply to touch.** From 2026-09-23 (spec
+    `docs/superpowers/specs/2026-09-23-dense-screen-design.md`, decision
+    16). `tokens.css` declares the density tokens three times: comfortable
+    on `:root`, compact on `[data-density="compact"]`, and comfortable again
+    on `[data-density="compact"]` inside `@media (pointer: coarse)`. The
+    third block looks like a copy-paste of the first and is not: compact's
+    32 passes WCAG 2.5.8's 24, but under a finger at 375 it is small, and
+    density is for the pointer and the keyboard, so a product that sets
+    compact once gets comfortable on a phone without asking. A literal
+    `size="sm"` is still 32 on touch — the caller's choice, not density's.
+    `src/styles/generated.test.ts` ("gives touch the comfortable values
+    back") fails if the coarse block goes or stops restating every token.
+    The Browser pane emulates a mouse, so no browser check here has seen
+    it; the "Not checked" line under the screen's frame says so.
 
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
     implements none of it. `src/test/popover.ts` covers show, hide, toggle, the
@@ -530,7 +547,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2095 tests across 83 files
+npm test            # 2224 tests across 93 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -593,6 +610,90 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **The dense screen** (wave 4, first piece) — built 2026-09-23 on branch
+  `feat/dense-screen` (ac2a4f9..203d98d, 20 commits), **not yet on main**,
+  unreleased (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
+  `docs/superpowers/specs/2026-09-23-dense-screen-design.md`, plan
+  `docs/superpowers/plans/2026-09-23-dense-screen.md`; page shape after
+  ABUI's block pages, which Fernando showed. Five things, because the
+  screen could not be finished without the first three: **density** as a
+  foundation (the Architecture row, invariant 23), the Table's
+  **current row**, the **Link's new-tab announcement** for an internal
+  link, **the screen** at `/screen` (in the DocPage) and `/screen/full`
+  (alone, no rail — `app/ui/Chrome.tsx` leaves the site's chrome out
+  there; `noindex`, out of the sitemap and the search), and a **Density
+  page** under Foundations. The screen is "Ridge Physio", a fictional
+  clinic, five practitioners, Thursday 17 September 2026 at 11:20 fixed
+  (`app/screen/data.ts`, seeded by date, pure); one `useReducer`
+  (`state.ts`) whose every data action returns its inverse, which the
+  Toast's Undo dispatches — no history. `screen.module.css` is layout
+  only and `local-values.test.ts` fails on a colour, size or spacing that
+  is not a `var(--ap-…)`; the "18 components, 0 local values" count is read
+  from `app/screen/` at build time. Decisions that look like mistakes:
+  **an iframe, not a scoped container** — the width switch must change a
+  real viewport so `useMediaQuery`, the Toast's and the palette's 480px
+  rules and the top layer answer it as in a product; mode and density go
+  in by `postMessage`, accepted only from `location.origin`, and a
+  pre-paint script reads the query (`frame.ts`); the base path is
+  build-time (`NEXT_PUBLIC_DOCS_BASE`) and the query is read after commit,
+  because reading `window.location` in render broke a client-side arrival.
+  **The current row is an inset `outline` on the `tr`, not the selection's
+  fill** — the fill and the start stripe mean "chosen by checkbox", and a
+  row can be both; per-cell inset shadows on first/last child were tried
+  and broke under RTL and under the container collapse. **`.auto` padding
+  is derived from the token** (`(control − line − 2 × hairline) / 2`), so
+  40 is exactly md and 32 exactly sm with no rule per mode; the Button's
+  `.auto` copies md's letter-spacing too, so nothing changes without the
+  attribute. **The Table's inline padding is `row / 6 + 4`** — 16 at 72,
+  12 at 48, the two drawn pairs without a sixth token. **SideNav item
+  padding comes from the 24px icon, not the 22px line**, or the items
+  measured 42/34. **The screen's narrow query is 800**, not the SideNav's
+  760, because the spec puts 768 in the sheet; a literal until breakpoints
+  are tokens. **Visited days keep their edits for the session** and
+  going to the same date is a no-op (ruling R7): an Undo after returning
+  to its day must hit the same records; a reload resets. **"Booked"
+  counts confirmed only** (26 booked · 6 pending · 2 cancelled, ruling
+  R8), so the three badges are disjoint — Fernando to choose. The
+  `density` objects are **not exported from the package root** (`spacing`
+  and `motion` are); decide before the release. Found by the screen and
+  **not fixed in the package** (listed under the frame, open): the
+  Scheduler's column heads misalign with long names (the screen uses first
+  names); the Table always collapses under a 40rem container (a meta line
+  in the collapsed list), and a collapsed row stays 77 tall in both
+  densities; the TopBar has no phone layout; a compact 30-minute card
+  clips its time line; the Button has no square icon-only shape; the bulk
+  bar wraps in a narrow Table; below 1280 the SideNav animates 200 → 80 on
+  load; at 1440 the first paint is the Tabs layout until hydration
+  (`useMediaQuery`'s server snapshot); below 1280 the current row is not
+  scrolled into view on switching to Appointments; the **Filters** bar is
+  its drawn 58 (12 around a 32 `sm` button) at every width and every
+  density, so in the day bar it reads as a tall box beside 24px Badges —
+  the "tall box at 768" of an earlier task, not a 768 layout fault (seen
+  at all four widths; left as the component draws it). **Site-wide, open:**
+  `app/docs.css`'s global `:focus-visible` comes after component CSS and
+  overrides rules of the same specificity — a second ring inside the
+  palette's field on `/screen/full`, the same weight problem the Combobox
+  entry records; likely `:where(:focus-visible)`. Deferred minors in the
+  ledger (`.superpowers/sdd/2026-09-23-dense-screen/progress.md`): the
+  `.auto` calc duplicated in `Combobox.tsx`; the frame script's binary
+  density check; no tests for move/resize Undo, the drawer's Confirm and
+  Cancel, Book, the palette's commands, or a message from the right source
+  with the wrong origin; commit links on `/screen` are raw `a`, and their
+  hashes need re-checking after the merge; spec decision 6's drawing of
+  the zones was not built (a Table instead). Seen in Chromium through the
+  frame's own switches: 1440, 1024, 768 and 375 × light and dark ×
+  comfortable and compact, all sixteen, with no horizontal overflow at
+  375 on either tab; the focus ring by eye on the frame's switch, a card
+  and a row's button; a card dragged with its Toast and Undo; the Drawer;
+  the Dialog; ⌘K inside the frame, "Go to tomorrow" by Enter and Esc
+  closing it. Browser pane artefacts: the first capture after a mode or
+  tab switch often shows the frame half-painted while the computed styles
+  are already settled — a second capture is right; a ref inside the iframe
+  cannot be clicked, only coordinates. Not checked: Safari, Firefox, a
+  screen reader, a real touch device (so invariant 23 is unseen), Esc on
+  the New appointment Dialog, a build with `DOCS_BASE` set. **Fernando
+  still has to apply the Alpenglow Density collection in Figma** (Needs
+  the account owner).
 - **CommandPalette** — built 2026-09-23, on main (48bffcf), released in
   0.5.0; sixth and last of wave 3, "the site's ⌘K graduated". Spec
   `docs/superpowers/specs/2026-09-23-command-palette-design.md`, plan
@@ -1960,3 +2061,14 @@ for new 2FA setups in 2025; the account uses a passkey.
 
 `eleonora` is not reserved: npm's policy discourages packages published only
 to hold a name.
+
+**Applying the variables in Figma.** `docs/figma/alpenglow-variables.json`
+is ahead of the file: the Theme collection there still has 54 of 94 — the
+24 `category/*` and 12 `chart/*` (2026-09-23) and the four
+`border/*-subtle` (2026-09-20) are missing — and the fourth collection,
+**Alpenglow Density** (five `density/*` variables, modes Comfortable and
+Compact, scope `WIDTH_HEIGHT`, from the dense screen, branch
+`feat/dense-screen`), does not exist yet. `docs/figma/apply-variables.md`
+has both ways: A, the prompt for an agent with the Figma MCP (how the
+2026-09-12 round was done), and B, a plugin-console script, which creates
+all four collections.
