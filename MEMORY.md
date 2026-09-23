@@ -611,7 +611,8 @@ Nothing is built.
 Claimed components (add a line before starting; one per session and branch):
 
 - **The dense screen** (wave 4, first piece) — built 2026-09-23 on branch
-  `feat/dense-screen` (ac2a4f9..203d98d, 20 commits), **not yet on main**,
+  `feat/dense-screen` (`ac2a4f9^..203d98d`, 20 commits, the first the
+  spec and plan), **not yet on main**,
   unreleased (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
   `docs/superpowers/specs/2026-09-23-dense-screen-design.md`, plan
   `docs/superpowers/plans/2026-09-23-dense-screen.md`; page shape after

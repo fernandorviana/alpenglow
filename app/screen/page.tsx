@@ -139,7 +139,8 @@ export default function Page() {
       <p>
         Not checked: Safari, Firefox, a screen reader, a real touch device. The browser the screen was checked in
         emulates a mouse, so compact giving way to comfortable under a finger is held by a test on the stylesheet and
-        has not been seen.
+        has not been seen; nor was Esc on the New appointment dialog, which that browser&rsquo;s keys do not always
+        reach.
       </p>
     </DocPage>
   );
