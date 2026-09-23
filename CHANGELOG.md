@@ -39,6 +39,40 @@ break: a removed token or prop is named here under **Breaking**.
   the range is kept, marked and explained; inside, it moves the thumb),
   `disabled`, `name` (a range submits `name-min` and `name-max`). Exports
   `Slider`, `SliderProps`, `SliderPair`.
+- **FileUpload** — a zone to choose or drop files on a real `input
+  type="file"`, its label, and the list of what became of them: `files` of
+  `{ id, name, size, type, status, progress, error, href }` with `ready`,
+  `uploading` (the Progress under the name), `done` (Download) and `failed`
+  (the error and Retry); `accept` and `maxSize` checked by the component,
+  the accepted files to `onAdd`, the refused shown as failed cards with the
+  reason and said to `onReject`; `onRemove`, `onRetry`; `variant` `zone`
+  (drawn; alone, the upload inside the zone), `compact` and `tile`. Exports
+  `FileUpload`, `fileUploadVariants`, `formatSize`, `FileUploadProps`,
+  `FileUploadVariant`, `UploadFile`, `UploadStatus`, `UploadRejection`.
+- **Scheduler** — the grid of hours with the appointments on it, phase 1 of
+  two: `view` `week` (one column per day from `date`, `weekStartsOn`,
+  `days`) or `day` (one column, or one per person with `resources` of
+  `{ id, name, avatar, tone, workingHours }`); `events` of `{ id, title,
+  start, end, resourceId, kind, tone, icon, allDay }` with wall-clock
+  times, `'2023-04-20T11:00'`, no zone; `kind` `confirmed`, `pending`,
+  `cancelled`, `blocker`, `external`, `availability`; overlaps in lanes;
+  the All-day row; `hours`, `workingHours` (off hours banded), `now` (a
+  time, `null`, or the clock after hydration; the past derived from it),
+  `locale` (twelve or twenty-four hours from it), `zoneLabel`,
+  `allDayLabel`, `kindLabels`, `maxHeight`, `scrollTo`, `renderEvent`;
+  `selectedId` and `onSelect`, one tab stop with the arrows, Home and End.
+  Each column a list of buttons under a heading, not a grid of cells.
+  Exports `Scheduler`, `schedulerViews`, `schedulerKinds`,
+  `schedulerTones`, `SchedulerProps`, `SchedulerEvent`,
+  `SchedulerResource`, `SchedulerView`, `SchedulerKind`, `SchedulerTone`,
+  `SchedulerHours`, `ISODateTime`. Dragging to create and to move is the
+  second phase.
+- **Category palette** — twenty-four theme tokens, `category/<hue>`,
+  `category/on-<hue>`, `category/<hue>-subtle` and `category/<hue>-text`
+  for `glacier`, `moss`, `amber`, `ember`, `glow` and `flare`: colour by
+  category rather than by meaning, a person's events on the Scheduler or a
+  tag by topic, each hue the accent's own four stops and measured in the
+  suite. In `tokens.css`, the Tailwind theme and the Figma export.
 
 ### Changed
 

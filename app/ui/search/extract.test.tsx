@@ -114,17 +114,18 @@ describe('buildIndex', () => {
     expect(pages).toEqual([...pages].sort((a, b) => a - b));
   });
 
-  it('keeps every page under 25 KB, so a specimen that starts dumping data is noticed', () => {
+  it('keeps every page under 32 KB, so a specimen that starts dumping data is noticed', () => {
     // Per page, not in total: the total was capped at 200 KB and the fourteenth
     // component crossed it with a page of 5.6 KB. The roadmap adds a page per
-    // component, so a total only says the site grew. The largest page today
-    // is /colour, at 21 KB.
+    // component, so a total only says the site grew. The largest page is
+    // /colour, which lists every theme token with its use: 21 KB at 58 tokens,
+    // 28 KB at 82 with the category palette of 2026-09-23.
     const bytes = new Map<string, number>();
     for (const entry of index.entries) {
       const page = entry.href.split('#')[0]!;
       bytes.set(page, (bytes.get(page) ?? 0) + JSON.stringify(entry).length);
     }
-    expect([...bytes].filter(([, size]) => size >= 25_000)).toEqual([]);
+    expect([...bytes].filter(([, size]) => size >= 32_000)).toEqual([]);
   });
 
   it('and the whole index under 400 KB, which is what the browser fetches', () => {

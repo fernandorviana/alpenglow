@@ -529,7 +529,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 1937 tests across 77 files
+npm test            # 2016 tests across 80 files
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -592,6 +592,83 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Scheduler** — phase 1 built 2026-09-23, on main, unreleased; fifth of wave 3.
+  Spec `docs/superpowers/specs/2026-09-23-scheduler-design.md`, plan
+  `docs/superpowers/plans/2026-09-23-scheduler.md`. **Drawn** on the
+  product's Calendar V2 page: the weekly view (hours column with the zone,
+  a 64 header with today in a 28 accent circle, All-day row, 81 hours, the
+  hours outside the working day hatched, the coral now line with its time,
+  118 cards in 129 columns at radius 8), the daily view with several people
+  (a column per person, avatar and name, a colour each), the daily view on
+  a phone (one column, 24-hour labels) and the Appointment Status sheet
+  (regular at four durations, pending, cancelled struck, time blocker
+  dotted, external with a bar, availability in teal, everything faded when
+  past, hover, selected, the dashed "(No title)" being created). Fernando
+  took **A in two phases**: the grid, the events, selection and the
+  keyboard now; drag to create and to move, the keyboard equivalents and
+  availability as a second spec once this is on main. **The package takes
+  the grid; the screen is the caller's** (toolbar, mini-calendar, filters,
+  the selected event's panel), composed on `/scheduler` from Button, Select
+  in a Field, Calendar, Checkbox and Card. Wall-clock `ISODateTime`
+  strings, no `Date` leaving, on the Calendar's `date.ts` (which gained
+  `startOfWeek`) plus `time.ts`; `layout.ts` gives lanes to overlaps (the
+  drawn cascade is not replicated). Each column is a `section` with a `ul`
+  of buttons named "title, time, kind", not a `grid` of cells; one tab
+  stop, arrows within and across columns to the nearest by start, Home,
+  End; `aria-current` on the selected. `now` is a prop, the clock through
+  `useSyncExternalStore` (null on the server) when left out, past derived
+  from it, all-day past by its date. **The category palette landed here**:
+  24 `category/*` theme tokens (six hues × fill, on, subtle, text, the
+  accent's stops), a fifth table on the Colour page, 12 contrast cases,
+  the Figma export regenerated — **Fernando still has to apply the new
+  variables in Figma** (`docs/figma/alpenglow-variables.json`). Lessons:
+  Node's ICU puts thin spaces in `formatRange` and Chrome's does not, so
+  the page failed to hydrate until `time.ts` composed ranges from parts
+  with plain spaces; an hour label 80 tall with `translateY(-50%)` sat 40
+  up, so it is lifted by half a line; the card floor is a quarter of the
+  hour (20), since the drawn 24 in 81 overlaps the next quarter; the search
+  index's per-page cap went 25 → 32 KB for the Colour page at 82 tokens.
+  Review fixed all-day past, the floor, the All-day lists' names,
+  `renderEvent` documented as seen not read, `startOfWeek` shared; the
+  scroll effect deliberately ignores a `workingHours` change. Not built:
+  drag (phase 2), a week of several people, a month view, an agenda list,
+  the on-appointment and people-waiting bars. Seen in Chromium: week,
+  day by person, kinds, keyboard, light and dark, 375 with one column and
+  no overflow; the pane's Enter did not activate the button (a tool
+  artefact; user-event holds it). Not checked: Safari, Firefox, touch, a
+  screen reader, RTL.
+- **FileUpload** — built 2026-09-22, on main, unreleased; fourth of wave 3. Spec
+  `docs/superpowers/specs/2026-09-22-file-upload-design.md`, plan
+  `docs/superpowers/plans/2026-09-22-file-upload.md`. **Drawn**: the
+  product's "Upload image" dialog in three states (rest, dragged over,
+  uploading with a ring and "Uploading name"), the Uploaded Document card
+  (icon, name, "PDF . Download" or the 4 bar) and the "+" tile among a
+  client's documents. Fernando asked for alternatives; four were shown
+  (drawn single zone; zone + cards; compact button + list; the tile) and
+  he took **B, zone and cards, as the component with A, C and D as
+  variants** (`variant` zone / compact / tile; a single-file zone shows the
+  upload inside itself as drawn). A real file input, the zone its label,
+  named by the words alone through `aria-labelledby` (the hint is inside
+  the same label); the component checks `accept` and `maxSize`, hands the
+  accepted to `onAdd`, shows the refused as failed cards with the reason
+  and does no network; `files` and every status are the caller's. Colours:
+  the dashed edge `border/strong` (the roadmap's boundary; the drawn edge
+  fails), dragged over `surface/accent-subtle` with `border/accent`; two
+  contrast cases (223). Drag state by an enter/leave depth counter, not
+  `relatedTarget`. From the review, each with a test: the variant classes
+  on the root were the label's own classes and the root drew a second
+  dashed box around the list (seen in Chromium) — parts are `.drop`,
+  `.button`, `.square`, apart from `.zone/.compact/.tile`; a dangling
+  `aria-describedby` while the single zone uploads; refused ids stepped
+  inside a state updater (StrictMode); hover beating disabled by sheet
+  order; a refused card's × ignoring `disabled`. Seen in Chromium: rest,
+  dragged over (synthetic), a drop with two accepted and two refused, the
+  bars climbing to Download, the single zone uploading, compact, tile,
+  focus ring, light and dark, no overflow at 375. `/file-upload` page with
+  a pretend upload and "Best practice, and the alternatives"; nav entry
+  (thirty-one); section card. Recorded, not built: a drop of several files
+  on a single zone keeps the first silently; a real drag with a mouse and
+  Safari, Firefox, a screen reader, RTL not checked.
 - **Slider** — built 2026-09-22, on main, unreleased; third of wave 3. Spec
   `docs/superpowers/specs/2026-09-22-slider-design.md`, plan
   `docs/superpowers/plans/2026-09-22-slider.md`. **Drawn** as the Slider

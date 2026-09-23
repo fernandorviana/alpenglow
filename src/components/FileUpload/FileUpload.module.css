@@ -1,0 +1,329 @@
+/**
+ * FileUpload
+ *
+ * Drawn as the product's "Upload image" dialog in three states and the
+ * Uploaded Document card; docs/superpowers/specs/2026-09-22-file-upload-design.md.
+ *
+ * The zone is the label of a file input kept off screen, and draws the
+ * ring for it. Its dashed edge is border/strong, the boundary at 3:1 the
+ * roadmap asks for, not the drawn border/subtle; dragged over, the zone is
+ * surface/accent-subtle with a border/accent edge. At rest it is
+ * surface/sunken: on a card a well, in dark the canvas, where the edge
+ * alone carries it, as the Tabs' track.
+ */
+
+.root, .drop, .icon, .icon > svg, .words, .hint, .line, .button, .button > svg, .aside, .square, .plus, .list, .card, .docIcon, .docIcon > svg, .body, .name, .meta, .error, .retry, .remove, .remove > svg {
+  box-sizing: border-box;
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-150);
+  min-width: 0;
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+}
+
+/* --- the zone -------------------------------------------------------------- */
+
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-spacing-050);
+  min-height: 200px;
+  padding: var(--ap-spacing-300);
+  border: var(--ap-border-width-hairline) dashed var(--ap-color-border-strong);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-sunken);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+/* Not while disabled: two rules of one weight would be ordered by the
+   sheet, not by the state. */
+.root:not(.disabled) .drop:hover {
+  border-color: var(--ap-color-border-accent);
+}
+
+.over .drop,
+.over .square {
+  border-color: var(--ap-color-border-accent);
+  background: var(--ap-color-surface-accent-subtle);
+}
+
+.drop:has(:focus-visible),
+.square:has(:focus-visible),
+.button:has(:focus-visible) {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.disabled .drop,
+.disabled .square,
+.disabled .button {
+  color: var(--ap-color-text-disabled);
+  border-color: var(--ap-color-border-subtle);
+  cursor: not-allowed;
+}
+
+/* The drawn white circle around the cloud. */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-block-end: var(--ap-spacing-100);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-accent);
+  box-shadow: var(--ap-elevation-sm);
+}
+
+.icon > svg {
+  width: var(--ap-spacing-400);
+  height: var(--ap-spacing-400);
+}
+
+.disabled .icon {
+  color: var(--ap-color-text-disabled);
+  box-shadow: none;
+}
+
+.words {
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* Drawn underlined, the words that open the picker. */
+.choose {
+  color: var(--ap-color-text-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.disabled .choose {
+  color: inherit;
+}
+
+.hint {
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+/* --- compact ----------------------------------------------------------------
+   A button-like label with the hint beside; dropping works on the root. */
+
+.line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ap-spacing-100) var(--ap-spacing-150);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-075);
+  height: 32px;
+  padding-inline: var(--ap-spacing-150);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-color-surface-raised);
+  font-size: var(--ap-text-button-md-size);
+  line-height: var(--ap-text-button-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.button > svg {
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+}
+
+.root:not(.disabled) .button:hover {
+  background: var(--ap-color-interactive-wash-hover);
+}
+
+.over .button {
+  border-color: var(--ap-color-border-accent);
+  background: var(--ap-color-surface-accent-subtle);
+}
+
+.aside {
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+/* --- tile -------------------------------------------------------------------
+   The drawn "+" at the end of a row of documents. */
+
+.square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--file-upload-tile, 64px);
+  height: var(--file-upload-tile, 64px);
+  border: var(--ap-border-width-hairline) dashed var(--ap-color-border-strong);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-color-surface-sunken);
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard),
+    border-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.root:not(.disabled) .square:hover {
+  border-color: var(--ap-color-border-accent);
+  color: var(--ap-color-text-accent);
+}
+
+.plus {
+  width: var(--ap-spacing-300);
+  height: var(--ap-spacing-300);
+}
+
+/* --- the cards ---------------------------------------------------------------
+   The drawn Uploaded Document: an icon box, the name, a meta line. */
+
+.list {
+  display: grid;
+  gap: var(--ap-spacing-100);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+  min-width: 0;
+  padding: var(--ap-spacing-100) var(--ap-spacing-150);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-md);
+  background: var(--ap-color-surface-raised);
+}
+
+.card.failed {
+  border-color: var(--ap-color-border-danger);
+}
+
+.docIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--ap-spacing-500);
+  height: var(--ap-spacing-500);
+  border-radius: var(--ap-radius-sm);
+  background: var(--ap-color-surface-sunken);
+  color: var(--ap-color-text-secondary);
+}
+
+.docIcon > svg {
+  width: var(--ap-spacing-300);
+  height: var(--ap-spacing-300);
+}
+
+.body {
+  display: grid;
+  flex: 1;
+  gap: var(--ap-spacing-050);
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.meta,
+.error {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+}
+
+.meta {
+  color: var(--ap-color-text-tertiary);
+}
+
+.error {
+  color: var(--ap-color-text-danger);
+}
+
+/* Retry, in the error's own line and colour, underlined as a link. */
+.retry {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.retry:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+  border-radius: var(--ap-radius-sm);
+}
+
+/* The Tag's ×. */
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--ap-spacing-400);
+  height: var(--ap-spacing-400);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ap-radius-full);
+  background: none;
+  color: var(--ap-color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.remove > svg {
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+}
+
+.remove:hover:not(:disabled) {
+  background: var(--ap-color-interactive-wash-hover);
+  color: var(--ap-color-text-primary);
+}
+
+.remove:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
+.remove:disabled {
+  color: var(--ap-color-text-disabled);
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop, .square, .button, .remove {
+    transition: none;
+  }
+}

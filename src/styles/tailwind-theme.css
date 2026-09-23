@@ -68,6 +68,30 @@
   --color-border-success-subtle: var(--ap-color-border-success-subtle);
   --color-border-warning-subtle: var(--ap-color-border-warning-subtle);
   --color-border-danger-subtle: var(--ap-color-border-danger-subtle);
+  --color-category-glacier: var(--ap-color-category-glacier);
+  --color-category-on-glacier: var(--ap-color-category-on-glacier);
+  --color-category-glacier-subtle: var(--ap-color-category-glacier-subtle);
+  --color-category-glacier-text: var(--ap-color-category-glacier-text);
+  --color-category-moss: var(--ap-color-category-moss);
+  --color-category-on-moss: var(--ap-color-category-on-moss);
+  --color-category-moss-subtle: var(--ap-color-category-moss-subtle);
+  --color-category-moss-text: var(--ap-color-category-moss-text);
+  --color-category-amber: var(--ap-color-category-amber);
+  --color-category-on-amber: var(--ap-color-category-on-amber);
+  --color-category-amber-subtle: var(--ap-color-category-amber-subtle);
+  --color-category-amber-text: var(--ap-color-category-amber-text);
+  --color-category-ember: var(--ap-color-category-ember);
+  --color-category-on-ember: var(--ap-color-category-on-ember);
+  --color-category-ember-subtle: var(--ap-color-category-ember-subtle);
+  --color-category-ember-text: var(--ap-color-category-ember-text);
+  --color-category-glow: var(--ap-color-category-glow);
+  --color-category-on-glow: var(--ap-color-category-on-glow);
+  --color-category-glow-subtle: var(--ap-color-category-glow-subtle);
+  --color-category-glow-text: var(--ap-color-category-glow-text);
+  --color-category-flare: var(--ap-color-category-flare);
+  --color-category-on-flare: var(--ap-color-category-on-flare);
+  --color-category-flare-subtle: var(--ap-color-category-flare-subtle);
+  --color-category-flare-text: var(--ap-color-category-flare-text);
 
   /* Spacing */
   --spacing-0: 0px;

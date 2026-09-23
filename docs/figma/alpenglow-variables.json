@@ -1411,6 +1411,414 @@
             "STROKE_COLOR"
           ],
           "description": "On surface/inverse"
+        },
+        {
+          "name": "color/border/info-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glacier/200",
+            "Dark": "glacier/700"
+          },
+          "scopes": [
+            "STROKE_COLOR"
+          ],
+          "description": "Edge of surface/info-subtle"
+        },
+        {
+          "name": "color/border/success-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "moss/200",
+            "Dark": "moss/700"
+          },
+          "scopes": [
+            "STROKE_COLOR"
+          ],
+          "description": "Edge of surface/success-subtle"
+        },
+        {
+          "name": "color/border/warning-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "amber/300",
+            "Dark": "amber/700"
+          },
+          "scopes": [
+            "STROKE_COLOR"
+          ],
+          "description": "Edge of surface/warning-subtle"
+        },
+        {
+          "name": "color/border/danger-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "ember/200",
+            "Dark": "ember/700"
+          },
+          "scopes": [
+            "STROKE_COLOR"
+          ],
+          "description": "Edge of surface/danger-subtle"
+        },
+        {
+          "name": "color/category/glacier",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glacier/600",
+            "Dark": "glacier/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "A category fill: a person's events, a topic"
+        },
+        {
+          "name": "color/category/on-glacier",
+          "type": "COLOR",
+          "alias": {
+            "Light": "white",
+            "Dark": "night/950"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Label on category/glacier"
+        },
+        {
+          "name": "color/category/glacier-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glacier/050",
+            "Dark": "glacier/900"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "The tint of category/glacier"
+        },
+        {
+          "name": "color/category/glacier-text",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glacier/700",
+            "Dark": "glacier/300"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Text and edge on the tint, or on a card"
+        },
+        {
+          "name": "color/category/moss",
+          "type": "COLOR",
+          "alias": {
+            "Light": "moss/600",
+            "Dark": "moss/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "A category fill: a person's events, a topic"
+        },
+        {
+          "name": "color/category/on-moss",
+          "type": "COLOR",
+          "alias": {
+            "Light": "white",
+            "Dark": "night/950"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Label on category/moss"
+        },
+        {
+          "name": "color/category/moss-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "moss/050",
+            "Dark": "moss/900"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "The tint of category/moss"
+        },
+        {
+          "name": "color/category/moss-text",
+          "type": "COLOR",
+          "alias": {
+            "Light": "moss/700",
+            "Dark": "moss/300"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Text and edge on the tint, or on a card"
+        },
+        {
+          "name": "color/category/amber",
+          "type": "COLOR",
+          "alias": {
+            "Light": "amber/600",
+            "Dark": "amber/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "A category fill: a person's events, a topic"
+        },
+        {
+          "name": "color/category/on-amber",
+          "type": "COLOR",
+          "alias": {
+            "Light": "white",
+            "Dark": "night/950"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Label on category/amber"
+        },
+        {
+          "name": "color/category/amber-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "amber/050",
+            "Dark": "amber/900"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "The tint of category/amber"
+        },
+        {
+          "name": "color/category/amber-text",
+          "type": "COLOR",
+          "alias": {
+            "Light": "amber/700",
+            "Dark": "amber/300"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Text and edge on the tint, or on a card"
+        },
+        {
+          "name": "color/category/ember",
+          "type": "COLOR",
+          "alias": {
+            "Light": "ember/600",
+            "Dark": "ember/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "A category fill: a person's events, a topic"
+        },
+        {
+          "name": "color/category/on-ember",
+          "type": "COLOR",
+          "alias": {
+            "Light": "white",
+            "Dark": "night/950"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Label on category/ember"
+        },
+        {
+          "name": "color/category/ember-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "ember/050",
+            "Dark": "ember/900"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "The tint of category/ember"
+        },
+        {
+          "name": "color/category/ember-text",
+          "type": "COLOR",
+          "alias": {
+            "Light": "ember/700",
+            "Dark": "ember/300"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Text and edge on the tint, or on a card"
+        },
+        {
+          "name": "color/category/glow",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glow/600",
+            "Dark": "glow/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "A category fill: a person's events, a topic"
+        },
+        {
+          "name": "color/category/on-glow",
+          "type": "COLOR",
+          "alias": {
+            "Light": "white",
+            "Dark": "night/950"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Label on category/glow"
+        },
+        {
+          "name": "color/category/glow-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glow/050",
+            "Dark": "glow/900"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "The tint of category/glow"
+        },
+        {
+          "name": "color/category/glow-text",
+          "type": "COLOR",
+          "alias": {
+            "Light": "glow/700",
+            "Dark": "glow/300"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Text and edge on the tint, or on a card"
+        },
+        {
+          "name": "color/category/flare",
+          "type": "COLOR",
+          "alias": {
+            "Light": "flare/600",
+            "Dark": "flare/400"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "A category fill: a person's events, a topic"
+        },
+        {
+          "name": "color/category/on-flare",
+          "type": "COLOR",
+          "alias": {
+            "Light": "white",
+            "Dark": "night/950"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Label on category/flare"
+        },
+        {
+          "name": "color/category/flare-subtle",
+          "type": "COLOR",
+          "alias": {
+            "Light": "flare/050",
+            "Dark": "flare/900"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "The tint of category/flare"
+        },
+        {
+          "name": "color/category/flare-text",
+          "type": "COLOR",
+          "alias": {
+            "Light": "flare/700",
+            "Dark": "flare/300"
+          },
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL",
+            "TEXT_FILL",
+            "STROKE_COLOR"
+          ],
+          "description": "Text and edge on the tint, or on a card"
         }
       ]
     },

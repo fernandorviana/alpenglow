@@ -1068,3 +1068,41 @@ describe('slider: the line, the fill, the thumb and the balloon', () => {
     });
   }
 });
+
+describe('file upload: the dashed edge, the dragged-over zone, the card', () => {
+  // The drawn edge is border/subtle-like and fails 3:1; the roadmap has the
+  // drop zone's dashed edge as a boundary, and it is border/strong.
+  for (const mode of MODES) {
+    it(`the edge is seen at rest and dragged over, and the words read on the tint — ${mode}`, () => {
+      expect(tokenContrast('border/strong', 'surface/sunken', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('border/accent', 'surface/accent-subtle', mode)).toBeGreaterThanOrEqual(NON_TEXT);
+      expect(tokenContrast('text/primary', 'surface/accent-subtle', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/tertiary', 'surface/accent-subtle', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+      expect(tokenContrast('text/danger', 'surface/raised', mode)).toBeGreaterThanOrEqual(AA_NORMAL);
+    });
+  }
+});
+
+describe('category: six hues, the accent\'s four stops each', () => {
+  // A person's events on the Scheduler, a tag by topic. The label on the
+  // fill and the text on the tint are text and clear AA; the fill is a
+  // figure on a card or the canvas, and an edge on the tint, at 3:1; the
+  // text also reads on a card, where a cancelled or external event puts it.
+  const HUES = ['glacier', 'moss', 'amber', 'ember', 'glow', 'flare'] as const;
+  for (const mode of MODES) {
+    for (const hue of HUES) {
+      it(`${hue} — ${mode}`, () => {
+        const fill = `category/${hue}` as ThemeTokenName;
+        const on = `category/on-${hue}` as ThemeTokenName;
+        const tint = `category/${hue}-subtle` as ThemeTokenName;
+        const text = `category/${hue}-text` as ThemeTokenName;
+        expect(tokenContrast(on, fill, mode), 'label on the fill').toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast(text, tint, mode), 'text on the tint').toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast(text, 'surface/raised', mode), 'text on a card').toBeGreaterThanOrEqual(AA_NORMAL);
+        expect(tokenContrast(fill, 'surface/raised', mode), 'fill on a card').toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast(fill, 'surface/base', mode), 'fill on the canvas').toBeGreaterThanOrEqual(NON_TEXT);
+        expect(tokenContrast(fill, tint, mode), 'edge on the tint').toBeGreaterThanOrEqual(NON_TEXT);
+      });
+    }
+  }
+});

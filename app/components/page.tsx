@@ -24,9 +24,11 @@ import { Table } from '@/components/Table';
 import { Accordion, AccordionItem } from '@/components/Accordion';
 import { Alert } from '@/components/Alert';
 import { EmptyState } from '@/components/EmptyState';
+import { FileUpload } from '@/components/FileUpload';
 import { Filters } from '@/components/Filters';
 import { SideNav } from '@/components/SideNav';
 import { Progress } from '@/components/Progress';
+import { Scheduler } from '@/components/Scheduler';
 import { Skeleton } from '@/components/Skeleton';
 import { Slider } from '@/components/Slider';
 import { Tabs } from '@/components/Tabs';
@@ -285,6 +287,16 @@ export default function Page() {
           }
         />
         <Card
+          href="/file-upload"
+          title="File upload"
+          description="A zone to choose or drop files, and the list of what became of them."
+          visual={
+            <div style={{ width: '100%' }}>
+              <FileUpload variant="compact" multiple hint="PDF or image." onAdd={() => {}} files={[{ id: 'a', name: 'Consent.pdf', status: 'uploading', progress: 45 }]} />
+            </div>
+          }
+        />
+        <Card
           href="/filters"
           title="Filters"
           description="The filters on a list, read as words: a chip a field, its values a click away, a plus, and Clear."
@@ -350,6 +362,28 @@ export default function Page() {
           visual={
             <div style={{ width: '100%', maxWidth: 240 }}>
               <Progress label="Uploading" value={62} showValue />
+            </div>
+          }
+        />
+        <Card
+          href="/scheduler"
+          title="Scheduler"
+          description="The grid of hours with the appointments on it: a week of days or a day of people, the now line, each event a card."
+          visual={
+            <div style={{ width: '100%' }}>
+              <Scheduler
+                label="Appointments"
+                view="day"
+                date="2023-04-20"
+                hours={{ start: 9, end: 12 }}
+                now="2023-04-20T10:20"
+                maxHeight={180}
+                events={[
+                  { id: 'a', title: 'Ryan Williams', start: '2023-04-20T09:00', end: '2023-04-20T09:30' },
+                  { id: 'b', title: 'Gary Kim', start: '2023-04-20T10:00', end: '2023-04-20T11:00', kind: 'pending' },
+                  { id: 'c', title: 'Lunch', start: '2023-04-20T11:00', end: '2023-04-20T12:00', kind: 'blocker' },
+                ]}
+              />
             </div>
           }
         />

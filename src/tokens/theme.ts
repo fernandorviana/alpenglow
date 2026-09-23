@@ -182,6 +182,43 @@ export const theme = {
   'border/success-subtle': { light: 'moss/200',    dark: 'moss/700',    use: 'Edge of surface/success-subtle' },
   'border/warning-subtle': { light: 'amber/300',   dark: 'amber/700',   use: 'Edge of surface/warning-subtle' },
   'border/danger-subtle':  { light: 'ember/200',   dark: 'ember/700',   use: 'Edge of surface/danger-subtle' },
+
+  // ---- category --------------------------------------------------------
+  // Colour by category, not by meaning: a person's events on the Scheduler,
+  // a tag by topic — the palette the Tag's neutral-only decision of
+  // 2026-09-21 was waiting for, and the roadmap's data-vis palette in its
+  // first form. Six hues, each the accent's own four stops (600 / 400 fill,
+  // white / night-950 label, 050 / 900 tint, 700 / 300 text), so whatever
+  // holds for the accent holds for each: the ramps share one lightness per
+  // stop, and the tightest figures across the six are the label on the fill
+  // 5.09 light and 7.51 dark, the text on the tint 7.25 and 9.36, the fill
+  // on surface/raised 4.74 and 6.97. Twilight is left out because it is the
+  // accent, mist because it is a grey. Not a status: those stay under
+  // surface/*-subtle and text/*, and a warning is not "amber".
+  'category/glacier':        { light: 'glacier/600', dark: 'glacier/400', use: 'A category fill: a person\'s events, a topic' },
+  'category/on-glacier':     { light: 'white',       dark: 'night/950',    use: 'Label on category/glacier' },
+  'category/glacier-subtle': { light: 'glacier/050', dark: 'glacier/900', use: 'The tint of category/glacier' },
+  'category/glacier-text':   { light: 'glacier/700', dark: 'glacier/300', use: 'Text and edge on the tint, or on a card' },
+  'category/moss':           { light: 'moss/600',    dark: 'moss/400',    use: 'A category fill: a person\'s events, a topic' },
+  'category/on-moss':        { light: 'white',       dark: 'night/950',    use: 'Label on category/moss' },
+  'category/moss-subtle':    { light: 'moss/050',    dark: 'moss/900',    use: 'The tint of category/moss' },
+  'category/moss-text':      { light: 'moss/700',    dark: 'moss/300',    use: 'Text and edge on the tint, or on a card' },
+  'category/amber':          { light: 'amber/600',   dark: 'amber/400',   use: 'A category fill: a person\'s events, a topic' },
+  'category/on-amber':       { light: 'white',       dark: 'night/950',    use: 'Label on category/amber' },
+  'category/amber-subtle':   { light: 'amber/050',   dark: 'amber/900',   use: 'The tint of category/amber' },
+  'category/amber-text':     { light: 'amber/700',   dark: 'amber/300',   use: 'Text and edge on the tint, or on a card' },
+  'category/ember':          { light: 'ember/600',   dark: 'ember/400',   use: 'A category fill: a person\'s events, a topic' },
+  'category/on-ember':       { light: 'white',       dark: 'night/950',    use: 'Label on category/ember' },
+  'category/ember-subtle':   { light: 'ember/050',   dark: 'ember/900',   use: 'The tint of category/ember' },
+  'category/ember-text':     { light: 'ember/700',   dark: 'ember/300',   use: 'Text and edge on the tint, or on a card' },
+  'category/glow':           { light: 'glow/600',    dark: 'glow/400',    use: 'A category fill: a person\'s events, a topic' },
+  'category/on-glow':        { light: 'white',       dark: 'night/950',    use: 'Label on category/glow' },
+  'category/glow-subtle':    { light: 'glow/050',    dark: 'glow/900',    use: 'The tint of category/glow' },
+  'category/glow-text':      { light: 'glow/700',    dark: 'glow/300',    use: 'Text and edge on the tint, or on a card' },
+  'category/flare':          { light: 'flare/600',   dark: 'flare/400',   use: 'A category fill: a person\'s events, a topic' },
+  'category/on-flare':       { light: 'white',       dark: 'night/950',    use: 'Label on category/flare' },
+  'category/flare-subtle':   { light: 'flare/050',   dark: 'flare/900',   use: 'The tint of category/flare' },
+  'category/flare-text':     { light: 'flare/700',   dark: 'flare/300',   use: 'Text and edge on the tint, or on a card' },
 } as const satisfies Record<string, ThemeEntry>;
 
 export type ThemeTokenName = keyof typeof theme;

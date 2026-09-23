@@ -18,6 +18,7 @@ import {
   orderRange,
   parts,
   startOfMonth,
+  startOfWeek,
   today,
   toISO,
   utcTimestamp,
@@ -44,6 +45,14 @@ describe('date', () => {
 
   it('pads single-digit months and days', () => {
     expect(toISO(2026, 1, 5)).toBe('2026-01-05');
+  });
+
+  it('finds the start of the week a day falls in, for any first day', () => {
+    // 2023-04-20 is a Thursday.
+    expect(startOfWeek('2023-04-20', 0)).toBe('2023-04-16');
+    expect(startOfWeek('2023-04-20', 1)).toBe('2023-04-17');
+    expect(startOfWeek('2023-04-20', 4)).toBe('2023-04-20');
+    expect(startOfWeek('2023-04-20', 5)).toBe('2023-04-14');
   });
 
   it('rejects a date whose day does not exist in its month', () => {

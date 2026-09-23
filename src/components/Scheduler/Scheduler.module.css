@@ -1,0 +1,482 @@
+/**
+ * Scheduler
+ *
+ * Drawn as the product's Calendar V2 page;
+ * docs/superpowers/specs/2026-09-23-scheduler-design.md.
+ *
+ * One scrolling region holding a sticky header and the body, so the header
+ * and the hours column stay put while the columns scroll under them, and a
+ * week too wide for a phone scrolls sideways as one piece. Both are grids
+ * of the same columns: the hours' width, then one track per column with the
+ * drawn 129 as its floor and a share of the rest.
+ *
+ * Every event is placed by the stylesheet from four custom properties the
+ * component sets on its slot — minutes from the first hour to its start and
+ * to its end, its lane and its cluster's lanes — against --scheduler-hour,
+ * so a consumer that wants a denser grid sets one property.
+ *
+ * A tone is four properties, the accent's own tokens or a category's, and a
+ * kind reads them: confirmed is the fill, pending the tint with the fill as
+ * an edge, cancelled a card with the words struck, a blocker the tint under
+ * dots of the fill, external a card with a bar of the fill, availability the
+ * tint with a dashed edge. Past loses the fill for the tint and nothing
+ * loses opacity, so every text still measures.
+ */
+
+.root, .bounded, .head, .corner, .zone, .colHead, .person, .weekday, .day, .name, .allDayLabel, .allDayList,
+.allDaySlot, .body, .hours, .hour, .nowTime, .column, .off, .events, .slot, .event, .brief, .icon,
+.icon > svg, .title, .time, .extra, .external, .availability, .now, .nowDot {
+  box-sizing: border-box;
+}
+
+.root {
+  /* 80 for the drawn 81; the whole grid is placed from it. */
+  --scheduler-hour: var(--ap-spacing-1000);
+  /* 128 for the drawn 129: a column's floor, so a phone gets one full column and a week scrolls. */
+  --scheduler-column: var(--ap-spacing-1200);
+  --scheduler-hours-width: var(--ap-spacing-1000);
+  /* Room over the first hour's label, which sits on its line. */
+  --scheduler-pad: var(--ap-spacing-150);
+  /* A quarter of the hour, 20 at 80: the floor of a card, so a five-minute
+     event is still a target and a run of quarter-hour events does not
+     overlap. The drawn quarter-hour card is 24 in an 81 hour, which would
+     lay each over the next by 4. */
+  --scheduler-event-min: var(--ap-spacing-250);
+  /* A card's inset from its column's edges. */
+  --scheduler-gap: var(--ap-spacing-075);
+  position: relative;
+  overflow: auto;
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  border-radius: var(--ap-radius-lg);
+  background: var(--ap-color-surface-raised);
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+}
+
+.bounded {
+  max-block-size: var(--scheduler-max-height);
+}
+
+/* The region is focusable so a keyboard can scroll it; the ring is drawn
+   inside, where its own overflow cannot cut it. */
+.root:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(var(--ap-border-width-ring) * -1);
+}
+
+.head,
+.body {
+  display: grid;
+  grid-template-columns: var(--scheduler-hours-width) repeat(var(--scheduler-columns), minmax(var(--scheduler-column), 1fr));
+  min-inline-size: max-content;
+}
+
+.head {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 3;
+  background: var(--ap-color-surface-raised);
+  border-block-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.corner,
+.hours,
+.allDayLabel {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 2;
+  background: var(--ap-color-surface-raised);
+}
+
+.corner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: var(--ap-spacing-800);
+}
+
+.zone {
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-tertiary);
+}
+
+.colHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ap-spacing-025);
+  block-size: var(--ap-spacing-800);
+  min-inline-size: 0;
+  border-inline-start: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.weekday {
+  font-size: var(--ap-text-caption-sm-size);
+  line-height: var(--ap-text-caption-sm-line-height);
+  letter-spacing: var(--ap-text-caption-sm-tracking);
+  font-weight: var(--ap-font-weight-medium);
+  text-transform: uppercase;
+  color: var(--ap-color-text-tertiary);
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--ap-spacing-400);
+  block-size: var(--ap-spacing-400);
+  border-radius: var(--ap-radius-full);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+  color: var(--ap-color-text-secondary);
+}
+
+.today .weekday {
+  color: var(--ap-color-text-accent);
+}
+
+/* The drawn 28 circle, at the Calendar's 32. */
+.today .day {
+  background: var(--ap-color-interactive-accent);
+  color: var(--ap-color-interactive-on-accent);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.person {
+  flex-direction: row;
+  gap: var(--ap-spacing-100);
+  padding-inline: var(--ap-spacing-100);
+}
+
+.name {
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+  color: var(--ap-color-text-primary);
+}
+
+.allDayLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-inline-end: var(--ap-spacing-100);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+  color: var(--ap-color-text-tertiary);
+}
+
+.allDayList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-025);
+  margin: 0;
+  padding: var(--ap-spacing-025);
+  list-style: none;
+  /* The drawn 28 row: a card and its inset. */
+  min-block-size: calc(var(--scheduler-event-min) + var(--ap-spacing-100));
+  border-inline-start: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+}
+
+.allDaySlot {
+  block-size: var(--scheduler-event-min);
+}
+
+.body {
+  position: relative;
+}
+
+.hours {
+  position: relative;
+  padding-block-start: var(--scheduler-pad);
+}
+
+/* Each label owns an hour of height and sits on its line, as drawn: lifted
+   by half a line of text, not by half the hour. */
+.hour {
+  display: block;
+  block-size: var(--scheduler-hour);
+  padding-inline-end: var(--ap-spacing-100);
+  transform: translateY(calc(var(--ap-text-caption-md-line-height) / -2));
+  text-align: end;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
+}
+
+.nowTime {
+  position: absolute;
+  inset-inline-end: var(--ap-spacing-100);
+  inset-block-start: calc(var(--scheduler-pad) + var(--scheduler-now) / 60 * var(--scheduler-hour));
+  transform: translateY(-50%);
+  padding-inline: var(--ap-spacing-025);
+  background: var(--ap-color-surface-raised);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+  color: var(--ap-color-text-danger);
+}
+
+/* A hairline at every hour, painted rather than laid out. */
+.column {
+  position: relative;
+  block-size: calc(var(--scheduler-hours) * var(--scheduler-hour) + var(--scheduler-pad) * 2);
+  border-inline-start: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--ap-color-border-subtle) 0 var(--ap-border-width-hairline),
+    transparent var(--ap-border-width-hairline) var(--scheduler-hour)
+  );
+  background-repeat: no-repeat;
+  background-position: 0 var(--scheduler-pad);
+  background-size: 100% calc(var(--scheduler-hours) * var(--scheduler-hour) + var(--ap-border-width-hairline));
+}
+
+.off {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(var(--scheduler-pad) + var(--off-from) / 60 * var(--scheduler-hour));
+  block-size: calc((var(--off-to) - var(--off-from)) / 60 * var(--scheduler-hour));
+  background: var(--ap-color-surface-sunken);
+  pointer-events: none;
+}
+
+.events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  position: absolute;
+  inset-block-start: calc(var(--scheduler-pad) + var(--event-from) / 60 * var(--scheduler-hour));
+  block-size: max(calc((var(--event-to) - var(--event-from)) / 60 * var(--scheduler-hour)), var(--scheduler-event-min));
+  inset-inline-start: calc(var(--scheduler-gap) + (100% - var(--scheduler-gap) * 2) * var(--event-lane) / var(--event-lanes));
+  inline-size: calc((100% - var(--scheduler-gap) * 2) / var(--event-lanes) - var(--ap-spacing-025));
+  padding-block-end: var(--ap-spacing-025);
+}
+
+/* ---- tones: four properties a kind reads ------------------------------ */
+
+.accent {
+  --event-fill: var(--ap-color-interactive-accent);
+  --event-on: var(--ap-color-interactive-on-accent);
+  --event-tint: var(--ap-color-surface-accent-subtle);
+  --event-text: var(--ap-color-text-accent);
+}
+
+.glacier {
+  --event-fill: var(--ap-color-category-glacier);
+  --event-on: var(--ap-color-category-on-glacier);
+  --event-tint: var(--ap-color-category-glacier-subtle);
+  --event-text: var(--ap-color-category-glacier-text);
+}
+
+.moss {
+  --event-fill: var(--ap-color-category-moss);
+  --event-on: var(--ap-color-category-on-moss);
+  --event-tint: var(--ap-color-category-moss-subtle);
+  --event-text: var(--ap-color-category-moss-text);
+}
+
+.amber {
+  --event-fill: var(--ap-color-category-amber);
+  --event-on: var(--ap-color-category-on-amber);
+  --event-tint: var(--ap-color-category-amber-subtle);
+  --event-text: var(--ap-color-category-amber-text);
+}
+
+.ember {
+  --event-fill: var(--ap-color-category-ember);
+  --event-on: var(--ap-color-category-on-ember);
+  --event-tint: var(--ap-color-category-ember-subtle);
+  --event-text: var(--ap-color-category-ember-text);
+}
+
+.glow {
+  --event-fill: var(--ap-color-category-glow);
+  --event-on: var(--ap-color-category-on-glow);
+  --event-tint: var(--ap-color-category-glow-subtle);
+  --event-text: var(--ap-color-category-glow-text);
+}
+
+.flare {
+  --event-fill: var(--ap-color-category-flare);
+  --event-on: var(--ap-color-category-on-flare);
+  --event-tint: var(--ap-color-category-flare-subtle);
+  --event-text: var(--ap-color-category-flare-text);
+}
+
+/* ---- the card --------------------------------------------------------- */
+
+.event {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: var(--ap-spacing-050) var(--ap-spacing-100);
+  border: var(--ap-border-width-hairline) solid transparent;
+  border-radius: var(--ap-radius-lg);
+  background: var(--event-fill);
+  color: var(--event-on);
+  font: inherit;
+  text-align: start;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.brief {
+  justify-content: center;
+  padding-block: 0;
+}
+
+.title {
+  max-inline-size: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.time,
+.extra {
+  max-inline-size: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--ap-text-caption-sm-size);
+  line-height: var(--ap-text-caption-sm-line-height);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* The drawn 24 circle under the time, from an hour up. */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--ap-spacing-300);
+  block-size: var(--ap-spacing-300);
+  margin-block-start: var(--ap-spacing-050);
+  border-radius: var(--ap-radius-full);
+  background: var(--event-tint);
+  color: var(--event-text);
+}
+
+.icon > svg {
+  inline-size: var(--ap-spacing-200);
+  block-size: var(--ap-spacing-200);
+}
+
+.confirmed {
+  background: var(--event-fill);
+  color: var(--event-on);
+}
+
+.pending {
+  background: var(--event-tint);
+  border-color: var(--event-fill);
+  color: var(--event-text);
+}
+
+.cancelled {
+  background: var(--ap-color-surface-raised);
+  border-color: var(--ap-color-border-default);
+  color: var(--event-text);
+}
+
+.cancelled .title,
+.cancelled .time {
+  text-decoration: line-through;
+}
+
+/* The drawn dotted tint: the fill at a quarter, on a 6px grid, under the text. */
+.blocker {
+  background-color: var(--event-tint);
+  background-image: radial-gradient(color-mix(in srgb, var(--event-fill) 25%, transparent) 1px, transparent 1.5px);
+  background-size: var(--ap-spacing-075) var(--ap-spacing-075);
+  border-color: var(--event-fill);
+  color: var(--event-text);
+}
+
+.external {
+  background: var(--ap-color-surface-raised);
+  border-color: var(--ap-color-border-default);
+  border-inline-start: var(--ap-spacing-050) solid var(--event-fill);
+  color: var(--event-text);
+}
+
+.availability {
+  background: var(--event-tint);
+  border: var(--ap-border-width-hairline) dashed var(--event-fill);
+  color: var(--event-text);
+}
+
+/* Past: the fill goes to the tint; the icon sits on a card so it still reads. */
+.past.confirmed {
+  background: var(--event-tint);
+  color: var(--event-text);
+}
+
+.past .icon {
+  background: var(--ap-color-surface-raised);
+}
+
+/* The wash, over whatever the kind painted; the text beneath keeps its token. */
+.event:hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ap-color-interactive-wash-hover);
+  pointer-events: none;
+}
+
+.event:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+  z-index: 1;
+}
+
+.selected {
+  box-shadow:
+    0 0 0 var(--ap-border-width-hairline) var(--ap-color-surface-raised),
+    0 0 0 calc(var(--ap-border-width-hairline) + var(--ap-border-width-ring)) var(--ap-color-border-accent);
+  z-index: 1;
+}
+
+/* ---- now -------------------------------------------------------------- */
+
+.now {
+  position: absolute;
+  inset-inline-start: var(--scheduler-hours-width);
+  inset-inline-end: 0;
+  inset-block-start: calc(var(--scheduler-pad) + var(--scheduler-now) / 60 * var(--scheduler-hour));
+  border-block-start: var(--ap-border-width-hairline) solid var(--ap-color-border-danger);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nowDot {
+  position: absolute;
+  inset-inline-start: calc(var(--ap-spacing-075) * -1);
+  inset-block-start: calc(var(--scheduler-pad) + var(--scheduler-now) / 60 * var(--scheduler-hour));
+  inline-size: var(--ap-spacing-150);
+  block-size: var(--ap-spacing-150);
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-border-danger);
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}

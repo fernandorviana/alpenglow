@@ -59,7 +59,7 @@ export const NAV: readonly NavGroup[] = [
   {
     title: 'Components',
     href: '/components',
-    blurb: 'Thirty components, each with its states measured in both modes.',
+    blurb: 'Thirty-two components, each with its states measured in both modes.',
     items: [
       { href: '/accordion', label: 'Accordion' },
       { href: '/alert', label: 'Alert' },
@@ -76,12 +76,14 @@ export const NAV: readonly NavGroup[] = [
       { href: '/drawer', label: 'Drawer' },
       { href: '/dropdown-menu', label: 'Dropdown menu' },
       { href: '/empty-state', label: 'Empty state' },
+      { href: '/file-upload', label: 'File upload' },
       { href: '/filters', label: 'Filters' },
       { href: '/link', label: 'Link' },
       { href: '/navigation', label: 'Navigation' },
       { href: '/pagination', label: 'Pagination' },
       { href: '/popover', label: 'Popover' },
       { href: '/progress', label: 'Progress' },
+      { href: '/scheduler', label: 'Scheduler' },
       { href: '/segmented-control', label: 'Segmented control' },
       { href: '/select', label: 'Select' },
       { href: '/skeleton', label: 'Skeleton' },

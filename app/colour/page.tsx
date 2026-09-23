@@ -55,8 +55,20 @@ function group(prefix: string) {
 
 /** The surface each group is measured against — the one it actually sits on. */
 function against(token: ThemeTokenName): ThemeTokenName {
+  // A category's label is read on its fill, its text on its tint; the fill
+  // itself is a figure on a card, as the interactive fills are.
+  const label = token.match(/^category\/on-(\w+)$/);
+  if (label) return `category/${label[1]}` as ThemeTokenName;
+  const text = token.match(/^category\/(\w+)-text$/);
+  if (text) return `category/${text[1]}-subtle` as ThemeTokenName;
   if (token.endsWith('-subtle')) return token;
   return 'surface/raised';
+}
+
+/** Text is held to AA, a fill or an edge to 3:1. */
+function floor(token: ThemeTokenName, fallback: number): number {
+  if (/^category\/(on-|\w+-text$)/.test(token)) return 4.5;
+  return fallback;
 }
 
 /** An alpha token has no colour of its own until it lands on something; here that is a card. */
@@ -86,7 +98,9 @@ function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold
           const dark = resolve(token, 'dark', ground('dark'));
           // A wash is a ground for text, not a figure against one; its
           // readings are on the Elevation page.
-          const measurable = !scrim && !wash && !token.startsWith('surface/');
+          // A category's tint is a ground, as a surface is.
+          const measurable =
+            !scrim && !wash && !token.startsWith('surface/') && !/^category\/\w+-subtle$/.test(token);
 
           return (
             <tr key={token} id={tokenId(token)}>
@@ -98,14 +112,14 @@ function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold
               <td>
                 <div className="alias">{entry.light}</div>
                 {measurable && (
-                  <Ratio fg={light} bg={resolve(against(token), 'light')} threshold={threshold} />
+                  <Ratio fg={light} bg={resolve(against(token), 'light')} threshold={floor(token, threshold)} />
                 )}
               </td>
               <td><Swatch value={dark} /></td>
               <td>
                 <div className="alias">{entry.dark}</div>
                 {measurable && (
-                  <Ratio fg={dark} bg={resolve(against(token), 'dark')} threshold={threshold} />
+                  <Ratio fg={dark} bg={resolve(against(token), 'dark')} threshold={floor(token, threshold)} />
                 )}
               </td>
             </tr>
@@ -293,6 +307,18 @@ export default function Page() {
         that clears WCAG 1.4.11 — which is why every form control uses it.
       </p>
       <TokenTable tokens={group('border/')} threshold={3} />
+
+      <h2>Category</h2>
+      <p>
+        Colour by category rather than by meaning: a person&rsquo;s events on the Scheduler, a
+        tag by topic. Six hues, each the accent&rsquo;s own four stops — 600 / 400 for the
+        fill, white / night-950 for the label on it, 050 / 900 for the tint, 700 / 300 for
+        the text on the tint or on a card — so whatever holds for the accent holds for each.
+        The label is measured on its fill and the text on its tint, both to AA; the fill on
+        a card to 3:1. The tint is a ground, and is not measured. Not a status: a warning is
+        not &ldquo;amber&rdquo;.
+      </p>
+      <TokenTable tokens={group('category/')} threshold={3} />
 
       <h2>Accessibility</h2>
       <p>

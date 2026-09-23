@@ -23,6 +23,7 @@ const SCOPES: Record<string, string[]> = {
   'color/text': ['TEXT_FILL'],
   'color/interactive': ['FRAME_FILL', 'SHAPE_FILL', 'TEXT_FILL'],
   'color/border': ['STROKE_COLOR'],
+  'color/category': ['FRAME_FILL', 'SHAPE_FILL', 'TEXT_FILL', 'STROKE_COLOR'],
   spacing: ['GAP', 'WIDTH_HEIGHT'],
   radius: ['CORNER_RADIUS'],
   'border-width': ['STROKE_FLOAT'],

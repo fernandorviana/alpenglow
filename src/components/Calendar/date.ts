@@ -142,6 +142,11 @@ export function dateFormat(
   return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'UTC' });
 }
 
+/** The first day of the week `date` falls in, for a week that starts on `weekStartsOn` (0 = Sunday). */
+export function startOfWeek(date: ISODate, weekStartsOn: number): ISODate {
+  return addDays(date, -((weekday(date) - weekStartsOn + 7) % 7));
+}
+
 /** Two ends in the order the calendar reads them, whichever order they arrived in. */
 export function orderRange(a: ISODate, b: ISODate): { start: ISODate; end: ISODate } {
   return compare(a, b) <= 0 ? { start: a, end: b } : { start: b, end: a };
@@ -155,8 +160,7 @@ export function orderRange(a: ISODate, b: ISODate): { start: ISODate; end: ISODa
 export function monthGrid(month: ISODate, weekStartsOn: number): CalendarCell[][] {
   const first = startOfMonth(month);
   const { month: inMonth } = parts(first);
-  const lead = (weekday(first) - weekStartsOn + 7) % 7;
-  const origin = addDays(first, -lead);
+  const origin = startOfWeek(first, weekStartsOn);
 
   const rows: CalendarCell[][] = [];
   for (let row = 0; row < 6; row += 1) {

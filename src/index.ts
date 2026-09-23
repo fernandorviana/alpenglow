@@ -122,6 +122,9 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb/in
 export { EmptyState, emptyStateSizes, emptyStateVariants } from './components/EmptyState/index';
 export type { EmptyStateProps, EmptyStateSize, EmptyStateVariant } from './components/EmptyState/index';
 
+export { FileUpload, fileUploadVariants, formatSize } from './components/FileUpload/index';
+export type { FileUploadProps, FileUploadVariant, UploadFile, UploadStatus, UploadRejection } from './components/FileUpload/index';
+
 export { SegmentedControl } from './components/SegmentedControl/index';
 export type { SegmentedControlProps, SegmentedOption } from './components/SegmentedControl/index';
 
@@ -154,3 +157,15 @@ export type { ToasterProps, ToasterPlacement, ToastOptions, ToastAction, ToastTo
 
 export { Tooltip, tooltipSizes, tooltipPlacements } from './components/Tooltip/index';
 export type { TooltipProps, TooltipSize, TooltipPlacement } from './components/Tooltip/index';
+
+export { Scheduler, schedulerViews, schedulerKinds, schedulerTones } from './components/Scheduler/index';
+export type {
+  SchedulerProps,
+  SchedulerEvent,
+  SchedulerResource,
+  SchedulerView,
+  SchedulerKind,
+  SchedulerTone,
+  SchedulerHours,
+  ISODateTime,
+} from './components/Scheduler/index';
