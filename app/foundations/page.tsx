@@ -103,6 +103,17 @@ export default function Page() {
           }
         />
         <Card
+          href="/density"
+          title="Density"
+          description="Five tokens, comfortable and compact, chosen with data-density on any element."
+          visual={
+            <div className="miniDensity">
+              <span className="miniDensityBar" style={{ height: 56 }} />
+              <span className="miniDensityBar" style={{ height: 36 }} />
+            </div>
+          }
+        />
+        <Card
           href="/icons"
           title="Icons"
           description="IBM Carbon, installed by the consumer, plus fifteen drawn for this system."

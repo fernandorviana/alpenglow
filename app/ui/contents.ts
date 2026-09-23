@@ -55,6 +55,7 @@ export const NAV: readonly NavGroup[] = [
       { href: '/elevation', label: 'Elevation and states' },
       { href: '/typography', label: 'Typography' },
       { href: '/space', label: 'Space and shape' },
+      { href: '/density', label: 'Density' },
       { href: '/icons', label: 'Icons' },
     ],
   },

@@ -1105,6 +1105,18 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 .miniShapeLg { border-radius: var(--ap-radius-lg); }
 .miniShapeFull { border-radius: var(--ap-radius-full); }
 
+.miniDensity {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ap-spacing-200);
+}
+
+.miniDensityBar {
+  width: 28px;
+  border-radius: var(--ap-radius-xs) var(--ap-radius-xs) 0 0;
+  background: var(--ap-color-interactive-accent);
+}
+
 .miniIcons {
   display: flex;
   gap: var(--ap-spacing-200);
@@ -1747,4 +1759,34 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 @media (max-width: 760px) {
   .chartOrder { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* --- density: Try it side by side ------------------------------------------
+   The same auto-fit grid as .chartFigure: two panels at 17.5rem minimum,
+   wrapping to one column once both no longer fit — the reason a phone at
+   375px never scrolls sideways here. */
+
+.densityCompare {
+  display: grid;
+  gap: var(--ap-spacing-200);
+  grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+  margin-block: var(--ap-spacing-300);
+}
+
+.densityPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ap-spacing-150);
+  padding: var(--ap-spacing-200);
+  border-radius: var(--ap-radius-lg);
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  background: var(--ap-color-surface-raised);
+  min-width: 0;
+}
+
+.densityPanelCaption {
+  margin: 0;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-tertiary);
 }
