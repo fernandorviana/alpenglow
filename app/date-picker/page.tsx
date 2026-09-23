@@ -33,7 +33,7 @@ const CALENDAR_PROPS: PropRow[] = [
 ];
 
 const DATE_PICKER_PROPS: PropRow[] = [
-  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: 'density/control — 40, 32 compact' },
   { prop: 'invalid', type: 'boolean', default: '— (or the Field it sits in)' },
   { prop: 'disabled', type: 'boolean', default: 'false' },
   { prop: 'readOnly', type: 'boolean', default: 'false' },

@@ -105,7 +105,7 @@ const PROPS: PropRow[] = [
   { prop: 'defaultValue', type: 'string', default: "''" },
   { prop: 'onChange', type: '(value: string) => void', default: '—' },
   { prop: 'placeholder', type: 'string', default: '—' },
-  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: 'density/control — 40, 32 compact' },
   { prop: 'invalid', type: 'boolean', default: 'from Field, else false' },
   { prop: 'disabled', type: 'boolean', default: 'false' },
   { prop: 'required', type: 'boolean', default: 'from Field' },

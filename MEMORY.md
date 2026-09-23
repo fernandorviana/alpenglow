@@ -37,7 +37,7 @@ the source of truth; both stylesheets are generated from it.
 | Theme | `src/tokens/theme.ts` | Light / Dark | 94 semantic tokens: `surface` 11, `text` 12, `interactive` 23, `border` 12, `category` 24 (2026-09-23), `chart` 12 (2026-09-23). The last two groups and the four `border/*-subtle` of 2026-09-20 are **not yet variables in Figma**, whose Theme collection still has 54; `docs/figma/alpenglow-variables.json` has all 94. Every value is an alias — no raw hex. |
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, three steps (`sm` for a part that lifts inside its own control — the segmented tab's thumb, 2026-09-18 — `md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
-| Density | `src/tokens/density.ts` | Comfortable / Compact, by `data-density="compact"` on any element, not by the theme | Five heights (2026-09-23, the dense screen): `control` 40/32, `row` 72/48, `row-header` 44/36, `hour` 80/64, `nav-item` 40/32. Dimension that a density switch reaches and a theme switch still does not: the two axes are independent, and the compact block is re-stated as comfortable under `(pointer: coarse)` (invariant 23). A literal `size` or Table `density` never reads it. In `tokens.css`, the Tailwind theme and the Figma export as `Alpenglow Density`, **not yet applied in the Figma file**; not exported from the package root. |
+| Density | `src/tokens/density.ts` | Comfortable / Compact, by `data-density="compact"` on any element, not by the theme | Five heights (2026-09-23, the dense screen): `control` 40/32, `row` 72/48, `row-header` 44/36, `hour` 80/64, `nav-item` 40/32. Dimension that a density switch reaches and a theme switch still does not: the two axes are independent, and the compact block is re-stated as comfortable under `(pointer: coarse)` (invariant 23). A literal `size` or Table `density` never reads it. In `tokens.css`, the Tailwind theme and the Figma export as `Alpenglow Density`, **not yet applied in the Figma file**. Exported from the package root as `density`, `densityModes` and the `Density` type. In Tailwind the tokens are `--spacing-density-*` in an `@theme inline` block, so `h-density-row` reads `--ap-density-row` where it is used; a plain `@theme` resolves the variable once on `:root` and a compact region never sees it. `data-density="comfortable"` gives a region inside a compact one the room back. |
 | Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
 
 Generated artefacts, both written by `npm run build:css`:
@@ -654,10 +654,9 @@ Claimed components (add a line before starting; one per session and branch):
   going to the same date is a no-op (ruling R7): an Undo after returning
   to its day must hit the same records; a reload resets. **"Booked"
   counts confirmed only** (26 booked · 6 pending · 2 cancelled, ruling
-  R8), so the three badges are disjoint — Fernando to choose. The
-  `density` objects are **not exported from the package root** (`spacing`
-  and `motion` are); decide before the release. Found by the screen and
-  **not fixed in the package** (listed under the frame, open): the
+  R8), so the three badges are disjoint — Fernando to choose. Found by
+  the screen and **not fixed in the package** (listed under the frame,
+  open): the
   Scheduler's column heads misalign with long names (the screen uses first
   names); the Table always collapses under a 40rem container (a meta line
   in the collapsed list), and a collapsed row stays 77 tall in both

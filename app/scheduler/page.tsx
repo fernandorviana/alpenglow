@@ -32,6 +32,7 @@ import { useMediaQuery } from '@/components/useMediaQuery';
 import { resolve } from '@/tokens/contrast';
 import { spacing, radius } from '@/tokens/scale';
 import { textStyle } from '@/tokens/typography';
+import { density } from '@/tokens/density';
 import type { Mode, ThemeTokenName } from '@/tokens/theme';
 
 const MODES: Mode[] = ['light', 'dark'];
@@ -228,7 +229,7 @@ const event: SchedulerEvent = {
 type Measure = { part: string; value: string };
 const type = (name: keyof typeof textStyle) => `${textStyle[name].size} / ${textStyle[name].lineHeight}`;
 const MEASURES: Measure[] = [
-  { part: 'Hour', value: `${spacing[1000]} (--scheduler-hour), for the drawn 81` },
+  { part: 'Hour', value: `density/hour (--scheduler-hour) — ${density.hour.comfortable}, ${density.hour.compact} compact; for the drawn 81` },
   { part: 'Column floor', value: `${spacing[1200]} (--scheduler-column), for the drawn 129; a share of the rest above it` },
   { part: 'Hours column', value: `${spacing[1000]} wide, the labels caption/md in text/tertiary on their line` },
   { part: 'Header', value: `${spacing[800]} tall; weekday caption/sm uppercase, day body/md Medium, today in a ${spacing[400]} accent circle` },

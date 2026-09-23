@@ -19,7 +19,7 @@ const PROPS: PropRow[] = [
   { prop: 'columns', type: 'Column<Row>[]', default: 'required' },
   { prop: 'rows', type: 'Row[]', default: 'required' },
   { prop: 'getRowId', type: '(row: Row) => string', default: 'required' },
-  { prop: 'density', type: "'comfortable' | 'compact'", default: "'comfortable'" },
+  { prop: 'density', type: "'comfortable' | 'compact'", default: 'follows data-density' },
   { prop: 'sort', type: 'Sort | null', default: '—' },
   { prop: 'onSortChange', type: '(next: Sort | null) => void', default: '—' },
   { prop: 'selected', type: 'ReadonlySet<string>', default: '—' },

@@ -73,6 +73,8 @@ export { theme } from './tokens/theme';
 export { spacing, radius, borderWidth, focusRingOffset } from './tokens/scale';
 export { fontFamily, fontWeight, textStyle } from './tokens/typography';
 export { motion } from './tokens/motion';
+export { density, densityModes } from './tokens/density';
+export type { Density } from './tokens/density';
 export { elevation, shadowCss } from './tokens/elevation';
 export type { ElevationName, ShadowLayer } from './tokens/elevation';
 export { contrast, resolve, tokenContrast } from './tokens/contrast';

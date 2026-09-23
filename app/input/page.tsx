@@ -14,7 +14,7 @@ import { radius, spacing } from '@/tokens/scale';
 type PropRow = { prop: string; type: string; default: string };
 
 const INPUT_PROPS: PropRow[] = [
-  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: 'density/control — 40, 32 compact' },
   { prop: 'invalid', type: 'boolean', default: 'from Field, else false' },
   { prop: 'iconStart', type: 'ReactNode', default: '—' },
   { prop: 'iconEnd', type: 'ReactNode', default: '—' },

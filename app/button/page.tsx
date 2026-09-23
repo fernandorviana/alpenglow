@@ -17,7 +17,7 @@ type PropRow = { prop: string; type: string; default: string };
 const PROPS: PropRow[] = [
   { prop: 'variant', type: "'solid' | 'outline' | 'ghost'", default: "'solid'" },
   { prop: 'tone', type: "'accent' | 'neutral' | 'tertiary' | 'success' | 'danger'", default: "'accent'" },
-  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  { prop: 'size', type: "'sm' | 'md' | 'lg'", default: 'density/control — 40, 32 compact' },
   { prop: 'loading', type: 'boolean', default: 'false' },
   { prop: 'iconStart', type: 'ReactNode', default: '—' },
   { prop: 'iconEnd', type: 'ReactNode', default: '—' },

@@ -22,9 +22,15 @@ renamed.
   `density/row` 72 / 48, `density/row-header` 44 / 36, `density/hour`
   80 / 64, `density/nav-item` 40 / 32 (`--ap-density-*`). **Compact does
   not apply to touch:** under `(pointer: coarse)` the compact block gives
-  the comfortable values back. In `tokens.css`, the Tailwind theme
-  (`--density-*`) and the Figma export, as a fourth collection,
-  `Alpenglow Density`, modes Comfortable and Compact.
+  the comfortable values back. `data-density="comfortable"` gives a
+  region inside a compact one the room back. In `tokens.css`, the
+  Tailwind theme and the Figma export, as a fourth collection,
+  `Alpenglow Density`, modes Comfortable and Compact. In Tailwind the
+  tokens are spacing utilities written inline, so `h-density-row` or
+  `min-h-density-control` reads the token where it is used and follows
+  `data-density` there; a plain `var(--density-*)` would not, and is not
+  declared. `density`, `densityModes` and the `Density` type are exported
+  from the package root beside `spacing` and `motion`.
 - **Controls and rows that follow density.** Button, Input, Select,
   NativeSelect, Combobox and DatePicker with no `size` take
   `density/control`; the Table with no `density` takes `density/row` and
@@ -38,8 +44,7 @@ renamed.
   heights and paddings they did (40, 72, 44); for the controls the suite
   reads it from the stylesheets. Pass `size="md"` or
   `density="comfortable"` to keep a part comfortable inside a compact
-  region. The density objects are not yet exported from the package root
-  (`spacing` and `motion` are); the custom properties are the interface.
+  region, or put `data-density="comfortable"` on it.
 - **Table** — `currentId` and `onCurrentChange`: the row being looked at,
   apart from the rows chosen by checkbox. With `onCurrentChange` the
   primary cell's content becomes a bare button that reports its row, and
@@ -62,7 +67,11 @@ renamed.
 
 - **Link** — a `target="_blank"` link now says it opens a new tab whether
   or not it is `external`; before, an internal link opened in a new tab was
-  not announced. The icon is still drawn only with `external`.
+  not announced. The icon is still drawn only with `external`. **The
+  accessible name changes:** any `target="_blank"` link without `external`
+  now ends with "(opens in a new tab)", or its `externalLabel`. A test that
+  matches the exact name will need the words, and a link whose text
+  already says them will say them twice.
 
 ## 0.5.0 — 2026-09-23
 
