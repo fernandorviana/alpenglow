@@ -2,9 +2,9 @@
 
 `alpenglow-variables.json` beside this file is generated from `src/tokens` by
 `npx tsx scripts/export-figma.ts`. It is the only input: nothing here is typed
-by hand, so the three Figma collections cannot drift from the two stylesheets.
+by hand, so the four Figma collections cannot drift from the two stylesheets.
 
-Two ways to apply it. Either one ends with the same three collections.
+Two ways to apply it. Either one ends with the same four collections.
 
 ## A — hand the prompt to an agent with the Figma MCP
 
@@ -102,14 +102,25 @@ for (const v of DATA.collections['Alpenglow Scale'].variables) {
   it.scopes = v.scopes;
 }
 
-// 4 — retire primitives the JSON no longer names, now that no alias points at them
+// 4 — density, literal floats per mode (nothing to alias)
+const dn = await collection('Alpenglow Density', ['Comfortable', 'Compact']);
+for (const v of DATA.collections['Alpenglow Density'].variables) {
+  const it = dn.byName.get(v.name) ?? figma.variables.createVariable(v.name, dn.col, 'FLOAT');
+  for (const mode of ['Comfortable', 'Compact']) {
+    it.setValueForMode(dn.ids[mode], v.values[mode]);
+  }
+  it.scopes = v.scopes;
+  it.description = v.description;
+}
+
+// 5 — retire primitives the JSON no longer names, now that no alias points at them
 const keep = new Set(DATA.collections['Alpenglow Primitives'].variables.map((v) => v.name));
 for (const [name, v] of prim.byName) if (!keep.has(name)) v.remove();
 
 figma.notify('Alpenglow variables applied');
 ```
 
-Step 4 is last on purpose: deleting a primitive before every alias has been
+Step 5 is last on purpose: deleting a primitive before every alias has been
 re-pointed detaches the alias, and Figma does not warn.
 
 ## What this does not do
