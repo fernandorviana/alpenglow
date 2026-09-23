@@ -185,6 +185,24 @@
   vertical-align: middle;
 }
 
+/* No density passed: the rows follow data-density. The inline padding is
+   comfortable's 16 at 72 and compact's 12 at 48, a sixth of the row plus 4,
+   so the two drawn pairs are kept without a sixth token. */
+.auto .caption {
+  padding-inline: calc(var(--ap-density-row) / 6 + var(--ap-spacing-050));
+}
+
+.auto .th {
+  height: var(--ap-density-row-header);
+  padding-inline: calc(var(--ap-density-row) / 6 + var(--ap-spacing-050));
+}
+
+.auto .td {
+  height: var(--ap-density-row);
+  padding-inline: calc(var(--ap-density-row) / 6 + var(--ap-spacing-050));
+  vertical-align: middle;
+}
+
 /* --- sorting ---------------------------------------------------------------
  *
  * The control is a button inside the <th>, never a handler on the <th>: only
@@ -347,7 +365,8 @@
   }
 
   .comfortable .td,
-  .compact .td {
+  .compact .td,
+  .auto .td {
     height: auto;
     padding-block: var(--ap-spacing-150);
   }

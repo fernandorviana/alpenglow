@@ -103,4 +103,10 @@ describe('SideNavSecondary — stylesheet', () => {
     expect(block(css, '.caption {')).toContain('var(--ap-color-text-tertiary)');
     expect(css).not.toContain('text-disabled');
   });
+
+  it('takes its item height from density, the padding what is left of it', () => {
+    const item = block(css, '.item {');
+    expect(item).toContain('min-block-size: var(--ap-density-nav-item);');
+    expect(item).toContain('padding-block: calc((var(--ap-density-nav-item) - var(--ap-text-body-md-line-height)) / 2);');
+  });
 });

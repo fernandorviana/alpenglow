@@ -395,12 +395,16 @@ describe('Scheduler — the stylesheet', () => {
 
   it('places everything from the hour and the column floor, as custom properties', () => {
     const root = block(css, '\n.root {');
-    expect(root).toContain('--scheduler-hour: var(--ap-spacing-1000)');
+    expect(root).toContain('--scheduler-hour: var(--ap-density-hour)');
     expect(root).toContain('--scheduler-column: var(--ap-spacing-1200)');
     // A quarter of the hour, so quarter-hour events in a row do not overlap.
     expect(root).toContain('--scheduler-event-min: var(--ap-spacing-250)');
     expect(block(css, '\n.slot {')).toContain('var(--event-from) / 60 * var(--scheduler-hour)');
     expect(block(css, '\n.slot {')).toContain('var(--event-lane) / var(--event-lanes)');
+  });
+
+  it('takes its hour from density', () => {
+    expect(block(readCss('src/components/Scheduler/Scheduler.module.css'), '.root {')).toContain('--scheduler-hour: var(--ap-density-hour);');
   });
 
   it('paints a tone from the category tokens and a kind from the tone', () => {

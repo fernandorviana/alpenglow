@@ -30,8 +30,9 @@
 }
 
 .root {
-  /* 80 for the drawn 81; the whole grid is placed from it. */
-  --scheduler-hour: var(--ap-spacing-1000);
+  /* 80 for the drawn 81 at comfortable, 64 at compact; the whole grid is
+     placed from it. */
+  --scheduler-hour: var(--ap-density-hour);
   /* 128 for the drawn 129: a column's floor, so a phone gets one full column and a week scrolls. */
   --scheduler-column: var(--ap-spacing-1200);
   --scheduler-hours-width: var(--ap-spacing-1000);

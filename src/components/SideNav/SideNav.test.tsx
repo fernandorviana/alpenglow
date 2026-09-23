@@ -163,6 +163,12 @@ describe('SideNav — stylesheet', () => {
     expect(current).toContain('var(--ap-color-text-accent)');
   });
 
+  it('takes its item height from density, the padding what is left of it', () => {
+    const item = block(css, '.item {');
+    expect(item).toContain('min-block-size: var(--ap-density-nav-item);');
+    expect(item).toContain('padding-block: calc((var(--ap-density-nav-item) - var(--ap-text-body-md-line-height)) / 2);');
+  });
+
   it('sets display on the sheet only while open, and the scrim on its backdrop', () => {
     expect(block(css, '.sheet {')).not.toMatch(/(^|\s)display:/);
     expect(block(css, '.sheet[open] {')).toContain('display: flex');

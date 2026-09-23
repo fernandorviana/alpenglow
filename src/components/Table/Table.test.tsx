@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { Table, nextSort, headerSelectionState } from './Table';
 import type { Column } from './Table';
 import styles from './Table.module.css';
+import { readCss, block } from '@/test/css';
 
 type Row = { id: string; name: string; seen: string };
 
@@ -108,9 +109,15 @@ describe('Table empty state', () => {
 });
 
 describe('Table density', () => {
-  it('is comfortable by default — the density that was drawn', () => {
+  it('follows the token by default, not a literal comfortable', () => {
+    // `density` has no default in the destructuring any more: with none
+    // passed the root takes the internal `auto` class, which reads
+    // `--ap-density-row`/`--ap-density-row-header` rather than a literal.
+    // At comfortable (no `data-density` attribute) that renders identically
+    // to the old literal default — see the `density` describe block below.
     const { container } = render(<Table {...base} />);
-    expect(container.firstElementChild).toHaveClass(styles.comfortable!);
+    expect(container.firstElementChild).toHaveClass(styles.auto!);
+    expect(container.firstElementChild).not.toHaveClass(styles.comfortable!);
   });
 
   it('takes the compact density', () => {
@@ -138,6 +145,25 @@ describe('Table density', () => {
     expect(css).toMatch(/\.compact\s+\.td/);
     expect(css).toMatch(/\.comfortable\s+\.th/);
     expect(css).toMatch(/\.compact\s+\.th/);
+  });
+});
+
+describe('density', () => {
+  it('follows the token when no density is passed', () => {
+    const { container } = render(<Table caption="People" columns={columns} rows={rows} getRowId={(r) => r.id} />);
+    expect(container.firstElementChild).toHaveClass(styles.auto!);
+  });
+
+  it('keeps an explicit density', () => {
+    const { container } = render(<Table caption="People" columns={columns} rows={rows} getRowId={(r) => r.id} density="comfortable" />);
+    expect(container.firstElementChild).toHaveClass(styles.comfortable!);
+    expect(container.firstElementChild).not.toHaveClass(styles.auto!);
+  });
+
+  it('reads the row tokens, with the inline padding following the row', () => {
+    const css = readCss('src/components/Table/Table.module.css');
+    expect(block(css, '.auto .th {')).toContain('height: var(--ap-density-row-header);');
+    expect(block(css, '.auto .td {')).toContain('height: var(--ap-density-row);');
   });
 });
 

@@ -64,6 +64,7 @@ export type TableProps<Row> = {
   getRowId: (row: Row) => string;
   /** Shown in place of rows when `rows` is empty. Defaults to "No rows". */
   empty?: ReactNode;
+  /** Left out, the row follows `data-density`; `comfortable` or `compact` fixes it. */
   density?: TableDensity;
   sort?: Sort | null;
   onSortChange?: (next: Sort | null) => void;
@@ -115,7 +116,7 @@ export function Table<Row>({
   columns,
   rows,
   getRowId,
-  density = 'comfortable',
+  density,
   empty = 'No rows',
   sort,
   onSortChange,
@@ -184,7 +185,7 @@ export function Table<Row>({
   return (
     <div
       {...rest}
-      className={[styles.root, styles[density], bar && styles.withBar, className].filter(Boolean).join(' ')}
+      className={[styles.root, styles[density ?? 'auto'], bar && styles.withBar, className].filter(Boolean).join(' ')}
       aria-busy={loading || undefined}
     >
       <div className={styles.frame}>

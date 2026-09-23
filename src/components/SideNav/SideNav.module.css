@@ -61,8 +61,8 @@
   align-items: center;
   justify-content: var(--sidenav-justify);
   gap: var(--ap-spacing-200);
-  min-block-size: var(--ap-spacing-500);
-  padding-block: var(--ap-spacing-100);
+  min-block-size: var(--ap-density-nav-item);
+  padding-block: calc((var(--ap-density-nav-item) - var(--ap-text-body-md-line-height)) / 2);
   padding-inline: var(--sidenav-inset-start) var(--sidenav-inset-end);
   border-radius: var(--ap-radius-full);
   color: inherit;
