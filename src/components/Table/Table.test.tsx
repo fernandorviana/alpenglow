@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +6,7 @@ import { Table, nextSort, headerSelectionState } from './Table';
 import type { Column } from './Table';
 import styles from './Table.module.css';
 import { readCss, block } from '@/test/css';
+import { axeViolations } from '../../test/axe';
 
 type Row = { id: string; name: string; seen: string };
 
@@ -689,5 +690,51 @@ describe('Table dense: a bounded region, the selection bar and the footer', () =
     const sheet = css();
     expect(sheet).toMatch(/\.tr\[data-selected='true'\] \.td:first-child \{[^}]*inset 3px 0 0 var\(--ap-color-interactive-accent\)/);
     expect(sheet).toMatch(/\.tr\[data-selected='true'\]:dir\(rtl\) \.td:first-child \{[^}]*inset -3px 0 0/);
+  });
+});
+
+describe('current row', () => {
+  const props = { caption: 'People', columns, rows, getRowId: (r: (typeof rows)[number]) => r.id };
+
+  it('draws no button without onCurrentChange', () => {
+    render(<Table {...props} />);
+    expect(within(screen.getAllByRole('row')[1]!).queryByRole('button')).toBeNull();
+  });
+
+  it('wraps the primary cell in a plain button that reports the row', async () => {
+    const onCurrentChange = vi.fn();
+    render(<Table {...props} onCurrentChange={onCurrentChange} />);
+    const button = screen.getByRole('button', { name: rows[1]!.name });
+    expect(button).toHaveAttribute('type', 'button');
+    await userEvent.click(button);
+    expect(onCurrentChange).toHaveBeenCalledWith(rows[1]!.id);
+  });
+
+  it('marks the current row for the eye and for a screen reader', () => {
+    render(<Table {...props} onCurrentChange={() => {}} currentId={rows[0]!.id} />);
+    expect(screen.getByRole('button', { name: rows[0]!.name })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('button', { name: rows[1]!.name })).not.toHaveAttribute('aria-current');
+    expect(screen.getAllByRole('row')[1]).toHaveAttribute('data-current', 'true');
+  });
+
+  it('keeps the checkbox its own press', async () => {
+    const onCurrentChange = vi.fn();
+    render(<Table {...props} onCurrentChange={onCurrentChange} selected={new Set()} onSelectionChange={() => {}} />);
+    await userEvent.click(screen.getAllByRole('checkbox')[1]!);
+    expect(onCurrentChange).not.toHaveBeenCalled();
+  });
+
+  it('draws current as a ring, not the selection fill, so a row can be both', () => {
+    const css = readCss('src/components/Table/Table.module.css');
+    const rule = block(css, ".tr[data-current='true'] .td {");
+    expect(rule).toContain('var(--ap-color-border-accent)');
+    expect(rule).not.toContain('interactive-selected');
+  });
+
+  it('passes axe with a current and a selected row', async () => {
+    const { container } = render(
+      <Table {...props} onCurrentChange={() => {}} currentId={rows[0]!.id} selected={new Set([rows[0]!.id])} onSelectionChange={() => {}} />,
+    );
+    expect(await axeViolations(container)).toEqual([]);
   });
 });

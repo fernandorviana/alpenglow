@@ -34,6 +34,8 @@ const PROPS: PropRow[] = [
   { prop: 'bulkLabel', type: '(count: number) => string', default: '{n} selected' },
   { prop: 'clearSelectionLabel', type: 'string', default: "'Clear selection'" },
   { prop: 'footer', type: 'ReactNode', default: '—' },
+  { prop: 'currentId', type: 'string | null', default: '—' },
+  { prop: 'onCurrentChange', type: '(id: string) => void', default: '—' },
 ];
 
 const COLUMN_PROPS: PropRow[] = [
@@ -262,7 +264,8 @@ export default function Page() {
         An empty table says what would be here and offers the way to fill it; a shrug —{' '}
         <em>No rows</em> — is the default only because the table cannot know. Loading keeps the
         table&rsquo;s shape and reserves the rows&rsquo; place, so the page does not jump when
-        they arrive.
+        they arrive. Current: the row being looked at, drawn with a ring, told by{' '}
+        <code>aria-current</code>; a row can be current and selected.
       </p>
       <div className="specimen">
         <Table

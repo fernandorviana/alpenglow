@@ -321,6 +321,55 @@
   background: var(--ap-color-interactive-wash-hover);
 }
 
+/* --- the current row -------------------------------------------------------
+ *
+ * The one being looked at, not the ones chosen: those are the fill and the
+ * start stripe above, and a row can be both. The ring is the Scheduler's for
+ * its selected card, inset so it adds no width. */
+.tr[data-current='true'] .td {
+  box-shadow:
+    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
+    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
+}
+
+.tr[data-current='true'] .td:first-child {
+  box-shadow:
+    inset var(--ap-border-width-ring) 0 0 var(--ap-color-border-accent),
+    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
+    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
+}
+
+.tr[data-current='true'] .td:last-child {
+  box-shadow:
+    inset calc(-1 * var(--ap-border-width-ring)) 0 0 var(--ap-color-border-accent),
+    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
+    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
+}
+
+/* A row that is both selected and current: the stripe still has to show
+   alongside the ring, so it is added back as the first shadow, ahead of the
+   ring's own sides, only for this combination — the plain current rule above
+   does not carry it. */
+.tr[data-selected='true'][data-current='true'] .td:first-child {
+  box-shadow:
+    inset 3px 0 0 var(--ap-color-interactive-accent),
+    inset var(--ap-border-width-ring) 0 0 var(--ap-color-border-accent),
+    inset 0 var(--ap-border-width-ring) 0 var(--ap-color-border-accent),
+    inset 0 calc(-1 * var(--ap-border-width-ring)) 0 var(--ap-color-border-accent);
+}
+
+/* The primary cell as a button: the cell's own words, nothing drawn. */
+.current {
+  all: unset;
+  cursor: pointer;
+  border-radius: var(--ap-radius-sm);
+}
+
+.current:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: var(--ap-focus-ring-offset);
+}
+
 /* --- action column ---------------------------------------------------------
  *
  * The header is empty to the eye and named to assistive technology: an

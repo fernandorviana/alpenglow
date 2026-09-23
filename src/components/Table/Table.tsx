@@ -94,6 +94,18 @@ export type TableProps<Row> = {
   clearSelectionLabel?: string;
   /** Under the frame: a Pagination. */
   footer?: ReactNode;
+  /**
+   * The row being looked at, as opposed to the rows chosen by checkbox. Its
+   * primary cell's button carries `aria-current`; the row is drawn with the
+   * Scheduler's ring for its selected card.
+   */
+  currentId?: string | null;
+  /**
+   * Makes the primary cell a button that reports its row. The primary cell's
+   * content must then be plain — text, an Avatar — and hold nothing
+   * interactive of its own, or a button would sit inside a button.
+   */
+  onCurrentChange?: (id: string) => void;
 } & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
 
 export type BulkActionsApi = { selected: ReadonlySet<string>; clear: () => void };
@@ -131,6 +143,8 @@ export function Table<Row>({
   bulkLabel = (count) => `${count} selected`,
   clearSelectionLabel = 'Clear selection',
   footer,
+  currentId,
+  onCurrentChange,
   className,
   ...rest
 }: TableProps<Row>) {
@@ -293,12 +307,14 @@ export function Table<Row>({
             rows.map((row, index) => {
               const id = ids[index]!;
               const isSelected = selectedIds.has(id);
+              const isCurrent = currentId === id;
 
               return (
                 <tr
                   key={id}
                   className={styles.tr}
                   data-selected={isSelected ? 'true' : undefined}
+                  data-current={isCurrent ? 'true' : undefined}
                 >
                   {toggleRow && (
                     <td className={`${styles.td} ${styles.selectCell}`}>
@@ -316,7 +332,18 @@ export function Table<Row>({
                       data-align={column.align ?? 'start'}
                       data-primary={column.key === primaryKey ? 'true' : undefined}
                     >
-                      {column.cell(row)}
+                      {column.key === primaryKey && onCurrentChange ? (
+                        <button
+                          type="button"
+                          className={styles.current}
+                          aria-current={isCurrent ? 'true' : undefined}
+                          onClick={() => onCurrentChange(id)}
+                        >
+                          {column.cell(row)}
+                        </button>
+                      ) : (
+                        column.cell(row)
+                      )}
                     </td>
                   ))}
                   {action && (
