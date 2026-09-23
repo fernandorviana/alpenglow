@@ -118,6 +118,38 @@ promise, not a wave.
 
 ---
 
+## Wave 4 — the screen, the foundations, and staying measured
+
+Added 2026-09-23, the day wave 3 shipped as `0.5.0`. With every component
+the dense screen needs now in the package, the instrument this roadmap
+promised alongside wave 1 and never built comes first; the foundations
+listed below it are what the screen and a second team both need; and the
+one claim no system read makes — contrast that survives customisation —
+is the wave's third leg.
+
+| Piece | Built on | Notes |
+|---|---|---|
+| **The dense screen** | Scheduler, Table, SideNav, TopBar, Filters, CommandPalette, Toast | A scheduling day with a table beside it, on the site as a page of its own; density, mode and width switchable; nothing from the original product's name in it. Whatever it cannot be finished without moves up the list, as promised. The portfolio's single best picture. |
+| **Breakpoints and layout** | `scale.ts` | Named breakpoints as tokens, replacing the site's 1496 / 1160 and the SideNav's 760 literal; the page grid and the gutters the screen uses; the decision to ship **no z-index tokens**, stated on Decisions with the one rule (the top layer, and `isolation` where a card stacks). |
+| **Paths** | the dense screen | The first three patterns, drawn dashed in the Vocabulary until now: a filtered table, a form in a dialog, an empty first-run state, each a page with the composition and what the suite holds for it. |
+| **Brand theming that stays measured** | `theme.ts`, `contrast.test.ts` | A documented path and a script: re-point the accent aliases in a copy of the theme, run the suite against it, get the pairs that fall. A page that shows a second brand passing, and one failing, with the list. |
+| **The specimen's own light and dark, and the state matrix** | `tokens.css` | A scoped dark block in the generated stylesheet so a "Try it" can stand beside its dark twin; a state matrix per component with the ratio in every cell in both modes, forced by `data-state`. The two site pieces the surveys ranked first. |
+| **The developer surface** | the search extractor | `llms.txt`, each page as Markdown, a Source link beside every title, the `applying-alpenglow-tokens` skill on a page of its own, `app/not-found.tsx` in the site's chrome. |
+
+Ships as **`0.6.0`**. Content and voice guidance rides with the Paths.
+Carried alongside, when Fernando wants them: the Slider's redesign (his
+call of 2026-09-22), the Scheduler's third phase (a long press to drag on
+touch, Time Travel), the input's resting boundary (the blocked pair), and
+the 36 `category/*` and `chart/*` variables still to apply in Figma.
+
+## Wave 5 — adoption
+
+Starters for Next.js and Vite with the Tailwind theme and the dark switch
+wired; the public Figma library; the deprecation policy; the decisions on
+the shadcn registry and an MCP server; and, once wave 4 has held for a
+release, the `1.0.0` stability promise. Not scheduled until wave 4 is on
+main.
+
 ## Foundations to add
 
 - **Breakpoints as tokens.** The site's 1496 / 1160 / 760 are derived from
