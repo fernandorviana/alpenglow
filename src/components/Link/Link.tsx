@@ -47,9 +47,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
   },
   ref,
 ) {
-  // The caller's `rel` joins `noreferrer` and does not replace it, and the new
-  // tab is said only if that is where the link still goes.
-  const newTab = external && target === '_blank';
+  // The caller's `rel` joins `noreferrer` and does not replace it. A new tab is
+  // said whenever the link opens one, internal or not.
+  const newTab = target === '_blank';
   const props = {
     ...rest,
     target,

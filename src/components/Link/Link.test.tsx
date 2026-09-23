@@ -55,6 +55,11 @@ describe('Link — structure', () => {
 });
 
 describe('Link — external', () => {
+  it('says a new tab for an internal link too', () => {
+    render(<Link href="/screen/full" target="_blank">Open full screen</Link>);
+    expect(screen.getByRole('link', { name: /^Open full screen ?\(opens in a new tab\)$/ })).toBeInTheDocument();
+  });
+
   it('opens a new tab, keeps the opener, and says so without showing it', () => {
     render(
       <Link href="https://example.com" external>
