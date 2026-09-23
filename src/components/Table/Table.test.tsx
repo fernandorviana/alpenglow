@@ -724,6 +724,15 @@ describe('current row', () => {
     expect(onCurrentChange).not.toHaveBeenCalled();
   });
 
+  it('makes the whole width of the primary cell the button’s target, not only its words', () => {
+    // `all: unset` leaves the button inline, a box as wide as the name and a
+    // line tall. A block alone is not enough: a button shrinks to its content
+    // even as a block, so it is given the cell's width too. The look stays unset.
+    const rule = block(readCss('src/components/Table/Table.module.css'), '.current {');
+    expect(rule).toMatch(/all:\s*unset;[\s\S]*display:\s*block;/);
+    expect(rule).toMatch(/all:\s*unset;[\s\S]*inline-size:\s*100%;/);
+  });
+
   it('draws current as a ring, not the selection fill, so a row can be both', () => {
     const css = readCss('src/components/Table/Table.module.css');
     const rule = block(css, ".tr[data-current='true'] {");

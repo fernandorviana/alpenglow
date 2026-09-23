@@ -47,8 +47,9 @@ renamed.
   region, or put `data-density="comfortable"` on it.
 - **Table** — `currentId` and `onCurrentChange`: the row being looked at,
   apart from the rows chosen by checkbox. With `onCurrentChange` the
-  primary cell's content becomes a bare button that reports its row, and
-  the current row's button carries `aria-current="true"`; the row is drawn
+  primary cell's content becomes a bare button, the cell's width, that
+  reports its row, and the current row's button carries
+  `aria-current="true"`; the row is drawn
   with the Scheduler's ring for its selected card, an inset `border/accent`
   outline, never the selection's fill, so a row can be both. Scrolling it
   into view is the caller's.

@@ -375,9 +375,16 @@
   outline-offset: calc(-1 * var(--ap-border-width-ring));
 }
 
-/* The primary cell as a button: the cell's own words, nothing drawn. */
+/* The primary cell as a button: the cell's own words, nothing drawn. A block
+   the cell's width after the unset, so the target is the cell and not only
+   the words; inline, it was as wide as the name, and a button shrinks to its
+   content even as a block, so the width is said. It stays a line tall, and
+   the rows' height apart is the spacing WCAG 2.5.8 accepts. */
 .current {
   all: unset;
+  box-sizing: border-box;
+  display: block;
+  inline-size: 100%;
   cursor: pointer;
   border-radius: var(--ap-radius-sm);
 }

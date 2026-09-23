@@ -102,6 +102,38 @@ describe('the dense screen', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 
+  it('books on another day by going there first, and undoes it there', async () => {
+    // The dialog's path through `go` and then `apply`: the reducer keeps only
+    // the day it shows, so a booking for Friday must land on Friday's record,
+    // and its Undo must find it there.
+    render(
+      <>
+        <Screen />
+        <Toaster />
+      </>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'New appointment' }));
+    const dialog = screen.getByRole('dialog', { name: 'New appointment' });
+    await userEvent.type(within(dialog).getByRole('combobox', { name: /Client/ }), 'Rui Kow');
+    await userEvent.click(screen.getByRole('option', { name: 'Rui Kowalski', hidden: true }));
+    const date = within(dialog).getByRole('textbox', { name: /Date/ });
+    await userEvent.clear(date);
+    await userEvent.type(date, '18092026');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Book' }));
+
+    const booked = () =>
+      within(table())
+        .queryAllByRole('row')
+        .filter((r) => within(r).queryAllByText('Rui Kowalski').length > 0 && within(r).queryAllByText(/14:00 – 14:30 · Ana Ferreira/).length > 0);
+    expect(screen.getByRole('heading', { name: /Friday 18 September/ })).toBeInTheDocument();
+    expect(booked()).toHaveLength(1);
+    expect(within(booked()[0]!).getAllByText('Pending')).not.toHaveLength(0);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Undo' }));
+    expect(screen.getByRole('heading', { name: /Friday 18 September/ })).toBeInTheDocument();
+    expect(booked()).toHaveLength(0);
+  });
+
   it('names the columns by first name and keeps the full name in the Avatar', () => {
     render(<Screen />);
     // The Scheduler lays its head out at max-content: a full name wider than

@@ -3,6 +3,7 @@ import { Ratio } from '@ui/Ratio';
 import { Table } from '@/components/Table';
 import { resolve } from '@/tokens/contrast';
 import { density } from '@/tokens/density';
+import { textStyle } from '@/tokens/typography';
 import type { Mode, ThemeTokenName } from '@/tokens/theme';
 import { componentsUsed } from './composition';
 import { Frame } from './FrameView';
@@ -89,8 +90,10 @@ export default function Page() {
           </ul>
         </li>
         <li>
-          The targets in compact: controls {d.control.compact}, nav items {d['nav-item'].compact}, rows {d.row.compact},
-          all over WCAG 2.5.8&rsquo;s {TARGET_FLOOR}. Under a touch pointer compact gives the comfortable values back.
+          The targets in compact: controls {d.control.compact} and nav items {d['nav-item'].compact}, both over WCAG
+          2.5.8&rsquo;s {TARGET_FLOOR}. A row&rsquo;s target is the button in its primary cell, the cell&rsquo;s
+          width and a line, {textStyle['body/md'].lineHeight}, tall; it passes on the rule&rsquo;s spacing, each
+          one {d.row.compact} from the next. Under a touch pointer compact gives the comfortable values back.
         </li>
       </ul>
 
