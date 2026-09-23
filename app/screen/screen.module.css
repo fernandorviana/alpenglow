@@ -1,0 +1,239 @@
+/*
+ * The dense screen's layout: grid, areas, widths. Nothing else — every
+ * colour, size of type and space here is a token, and local-values.test.ts
+ * fails on anything that is not. The breakpoints are literals waiting on
+ * the breakpoints piece of wave 4.
+ */
+.screen {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  block-size: 100dvh;
+  background: var(--ap-color-surface-base);
+  color: var(--ap-color-text-primary);
+  font-family: var(--ap-font-sans);
+}
+
+/* The TopBar, then the main: the day bar and the body. */
+.column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+/* A column: the rows that size to their content, then the body, which takes
+   the rest and scrolls inside itself. */
+.main {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.phoneDate {
+  padding: var(--ap-spacing-150) var(--ap-spacing-200) 0;
+}
+
+/* --- the TopBar's contents ---------------------------------------------- */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+  font-size: var(--ap-text-body-lg-size);
+  line-height: var(--ap-text-body-lg-line-height);
+  font-weight: var(--ap-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.brand > svg { color: var(--ap-color-text-accent); }
+
+.dateNav {
+  display: flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  min-inline-size: 0;
+}
+
+.date {
+  margin: 0 var(--ap-spacing-100);
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--ap-text-subheading-md-size);
+  line-height: var(--ap-text-subheading-md-line-height);
+  letter-spacing: var(--ap-text-subheading-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+}
+
+.hint {
+  margin-inline-start: var(--ap-spacing-100);
+  color: var(--ap-color-text-tertiary);
+  font-weight: var(--ap-font-weight-regular);
+}
+
+/* --- the day bar --------------------------------------------------------- */
+
+.dayBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-150);
+  padding: var(--ap-spacing-200) var(--ap-spacing-300);
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ap-spacing-100);
+}
+
+.newAppointment { margin-inline-start: auto; }
+
+/* --- the body ------------------------------------------------------------ */
+
+/* About 60 / 40, and never less than the Scheduler's five columns at their
+   floor beside its hours: the Scheduler's own --scheduler-column and
+   --scheduler-hours-width, and its frame. */
+.body {
+  flex: 1 1 0;
+  display: grid;
+  grid-template-columns:
+    minmax(calc(5 * var(--ap-spacing-1200) + var(--ap-spacing-1000) + 2 * var(--ap-border-width-hairline)), 3fr)
+    minmax(0, 2fr);
+  gap: var(--ap-spacing-300);
+  padding: 0 var(--ap-spacing-300) var(--ap-spacing-300);
+  min-block-size: 0;
+}
+
+/* The Tabs, below 1280: the list, then the one panel shown, which takes the
+   rest of the height so the Scheduler and the Table scroll inside it. */
+.tabs {
+  flex: 1 1 0;
+  padding: 0 var(--ap-spacing-300) var(--ap-spacing-300);
+  min-block-size: 0;
+}
+
+.tabs > [role='tabpanel']:not([hidden]) {
+  display: grid;
+  flex: 1 1 0;
+  min-block-size: 0;
+}
+
+/* A zone fills its cell, and what scrolls inside it is the component's own region. */
+.zone {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--ap-spacing-150);
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.zone > :only-child { grid-row: 1 / -1; }
+
+.fill {
+  min-block-size: 0;
+}
+
+/* The Table's root holds its frame and the selection bar's dock; the frame
+   takes the height, and its region scrolls within it (maxHeight 100%). */
+.table {
+  grid-template-rows: minmax(0, 1fr);
+  min-block-size: 0;
+}
+
+/* The client, and under it what the collapsed list would otherwise lose. The
+   40rem is the Table's own collapse query; its root is the container. */
+.who {
+  display: grid;
+  gap: var(--ap-spacing-050);
+}
+
+.meta {
+  display: none;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ap-spacing-100);
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+@container (max-width: 40rem) {
+  .meta { display: flex; }
+}
+
+.empty {
+  margin-block: auto;
+  align-self: center;
+  padding: var(--ap-spacing-300);
+}
+
+/* --- the Drawer's record -------------------------------------------------- */
+
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ap-spacing-150) var(--ap-spacing-300);
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--ap-color-text-secondary);
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  font-weight: var(--ap-font-weight-medium);
+}
+
+/* The foot's caption: text/tertiary in the caption style, at the start of the row. */
+.note {
+  align-self: center;
+  margin: 0;
+  margin-inline-end: auto;
+  color: var(--ap-color-text-tertiary);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+}
+
+/* --- the Dialog's form ---------------------------------------------------- */
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ap-spacing-200);
+}
+
+.wide { grid-column: 1 / -1; }
+
+/* Below 1280 the search is its icon: the date keeps its words, and the
+   shortcut stays on the button as aria-keyshortcuts. */
+@media (max-width: 1279px) {
+  .body { grid-template-columns: minmax(0, 1fr); }
+  .searchWords { display: none; }
+}
+
+/* With the SideNav in its sheet: the brand is its mark, and the gutters
+   narrow so the Scheduler's five columns fit at 768 without scrolling. */
+@media (max-width: 800px) {
+  .dayBar, .body, .tabs { padding-inline: var(--ap-spacing-200); }
+  .brandName { display: none; }
+}
+
+/* At a phone's width: Filters and New appointment share the first row, the
+   summary takes the second. */
+@media (max-width: 480px) {
+  .form { grid-template-columns: minmax(0, 1fr); }
+  .summary { order: 1; flex-basis: 100%; }
+}
