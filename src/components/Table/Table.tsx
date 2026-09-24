@@ -200,8 +200,11 @@ export function Table<Row>({
   // column's width, and the cells draw the same lists.
   const actionsOf = rowActions ? rows.map(rowActions) : undefined;
   const hasActions = action !== undefined || actionsOf !== undefined;
+  // A spread over every row's count would hand Math.max one argument per
+  // row, which a long enough table can push past the engine's argument
+  // limit; reduce has no such ceiling.
   const inlineButtons = actionsOf
-    ? Math.max(1, ...actionsOf.map((list) => inlineButtonCount(list, rowActionsInline)))
+    ? actionsOf.reduce((most, list) => Math.max(most, inlineButtonCount(list, rowActionsInline)), 1)
     : action ? 1 : 0;
   const gatheredButtons = hasActions ? 1 : 0;
   const columnCount = columns.length + (onSelect ? 1 : 0) + (hasActions ? 1 : 0);

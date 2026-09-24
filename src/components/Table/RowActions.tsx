@@ -46,9 +46,13 @@ function Menu({ items, label }: { items: DropdownMenuAction[]; label: string }) 
  * rules show one or the other by its width. The hidden one is display: none,
  * so it is out of the tab order and the accessibility tree.
  *
- * An inline button is named by its Tooltip (`purpose="label"`), the words a
- * pointer sees; `aria-label` is the same words, for the moment before the
- * Tooltip's panel exists.
+ * `aria-label` is only there because the icon-only Button requires a name to
+ * compile; `purpose="label"` makes the Tooltip add `aria-labelledby` from its
+ * first render, the server's included, and that wins over `aria-label` as the
+ * button's actual accessible name. So the prop is a fallback that matters
+ * only if the Tooltip is ever taken away — `actionText` is what it falls back
+ * to, which is `label` when that is a plain string and otherwise the
+ * action's `id`, unless the caller gave a `textValue`.
  */
 export function RowActions({
   actions,
