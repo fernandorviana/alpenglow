@@ -133,9 +133,9 @@
 
 /* On a phone the description took the row and the label truncated to five
    characters — "Choos…" — so the description goes under the label there,
-   the site's lesson of 2026-09-14. 480 is where a 640 dialog no longer fits
-   a label and a breadcrumb side by side. */
-@media (max-width: 480px) {
+   the site's lesson of 2026-09-14. Below `xs`, 480, is where a 640 dialog no
+   longer fits a label and a breadcrumb side by side. */
+@media (width < 30rem) {
   .option { flex-wrap: wrap; }
   .description {
     flex-basis: 100%;

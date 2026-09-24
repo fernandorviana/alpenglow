@@ -30,6 +30,8 @@
   --slider-line: var(--ap-spacing-050);
   --slider-box: var(--ap-spacing-300);
   --slider-field-width: 64px;
+  /* The upper input of a range (z-index 1) stacks inside the Slider. */
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   gap: var(--ap-spacing-075);

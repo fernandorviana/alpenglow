@@ -47,4 +47,8 @@ describe('TopBar', () => {
     expect(bar).toContain('var(--ap-color-surface-raised)');
     expect(bar).toContain('border-block-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle)');
   });
+
+  it('pads its sides by the layout margin, so it lines up with the content under it', () => {
+    expect(block(css, '.topbar {')).toMatch(/padding: var\(--ap-spacing-150\) var\(--ap-layout-margin\);/);
+  });
 });

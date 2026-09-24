@@ -3,7 +3,9 @@
  *
  * Drawn as the Top Bar set: 64 tall on surface/raised, a hairline under, the
  * menu and the logo at the start, the actions at the end;
- * docs/superpowers/specs/2026-09-22-navigation-design.md.
+ * docs/superpowers/specs/2026-09-22-navigation-design.md. Its sides are the
+ * layout margin, so the bar's start and end line up with the content under
+ * it at every width.
  */
 
 .topbar, .start, .menu, .menu svg, .brand, .middle, .end {
@@ -15,7 +17,7 @@
   align-items: center;
   gap: var(--ap-spacing-500);
   min-block-size: var(--ap-spacing-800);
-  padding: var(--ap-spacing-150) var(--ap-spacing-300);
+  padding: var(--ap-spacing-150) var(--ap-layout-margin);
   border-block-end: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   background: var(--ap-color-surface-raised);
   color: var(--ap-color-text-primary);

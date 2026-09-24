@@ -269,7 +269,7 @@ describe('the stylesheet', () => {
     expect(css).toMatch(/\.mark \{[^}]*background: none/);
     expect(css).toMatch(/\.dialog \{ margin-top: 12vh; \}/);
     // On a phone the description wraps under the label rather than taking the row.
-    expect(css).toMatch(/@media \(max-width: 480px\) \{\s*\.option \{ flex-wrap: wrap; \}/);
+    expect(css).toMatch(/@media \(width < 30rem\) \{\s*\.option \{ flex-wrap: wrap; \}/);
   });
 });
 

@@ -33,6 +33,10 @@
 .root {
   display: grid;
   container-type: inline-size;
+  /* The sticky header's z-index stays inside the Table. container-type holds
+     it in today through layout containment; this says so, and keeps saying
+     so if the container query goes. */
+  isolation: isolate;
 }
 
 .frame {

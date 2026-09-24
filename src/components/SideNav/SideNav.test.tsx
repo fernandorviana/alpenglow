@@ -139,7 +139,7 @@ describe('SideNav — narrow', () => {
     const media = window.matchMedia as unknown as ReturnType<typeof vi.fn>;
     render(<SideNav items={items} narrow="(max-width: 1000px)" />);
     expect(media).toHaveBeenCalledWith('(max-width: 1000px)');
-    expect(SIDE_NAV_NARROW).toBe('(max-width: 760px)');
+    expect(SIDE_NAV_NARROW).toBe('(width < 48rem)');
   });
 
   it('has no axe violations open', async () => {

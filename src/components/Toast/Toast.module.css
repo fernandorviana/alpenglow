@@ -185,11 +185,11 @@
 }
 
 /* --- a narrow screen --------------------------------------------------------
-   Every placement becomes the bottom edge, the width of the viewport less 16
-   a side: a corner means nothing at 320, and the top is where the page's own
-   header is. */
+   Below `xs` (480), every placement becomes the bottom edge, the width of the
+   viewport less 16 a side: a corner means nothing at 320, and the top is
+   where the page's own header is. */
 
-@media (max-width: 480px) {
+@media (width < 30rem) {
   .region.top-start,
   .region.top-center,
   .region.top-end,

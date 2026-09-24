@@ -46,6 +46,9 @@
   /* A card's inset from its column's edges. */
   --scheduler-gap: var(--ap-spacing-075);
   position: relative;
+  /* The sticky head (3) and hours (2) stack inside the Scheduler, never in
+     the page's stack: a product's sticky bar at z-index 1 stays over them. */
+  isolation: isolate;
   overflow: auto;
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   border-radius: var(--ap-radius-lg);

@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Anchor, type LinkRender } from '../linkRender';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { useMediaQuery } from '../useMediaQuery';
+import { media } from '../../tokens/scale';
 import styles from './SideNav.module.css';
 
 export type SideNavItem = {
@@ -15,7 +16,8 @@ export type SideNavItem = {
   current?: boolean;
 };
 
-export const SIDE_NAV_NARROW = '(max-width: 760px)';
+/** Below `md` the side nav is a modal sheet: 768 keeps the rail. */
+export const SIDE_NAV_NARROW = media.down.md;
 
 export type SideNavProps = {
   items: SideNavItem[];
