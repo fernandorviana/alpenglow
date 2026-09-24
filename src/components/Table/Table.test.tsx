@@ -910,6 +910,17 @@ describe('Table row actions', () => {
     expect(cell).toBeEmptyDOMElement();
   });
 
+  it('passes axe with rowActions rendered both ways: inline, tooltipped, and the gathered "⋯" hidden beside them', async () => {
+    // Both sets are always in the DOM — the rules pick one by width — so an
+    // axe pass here has to cover the inline buttons, their Tooltips and the
+    // gathered menu together, hidden set included, not just whichever the
+    // container's own width would show.
+    const { container } = render(<Table {...base} rowActions={actions} rowActionsLabel={(r) => `More actions for ${r.name}`} />);
+    expect(document.querySelectorAll('[data-actions="inline"]')).toHaveLength(rows.length);
+    expect(document.querySelectorAll('[data-actions="gathered"]')).toHaveLength(rows.length);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
   it('takes rowAction or rowActions, not both', () => {
     // @ts-expect-error — one action column, filled one way
     render(<Table {...base} rowAction={() => null} rowActions={() => []} />);
