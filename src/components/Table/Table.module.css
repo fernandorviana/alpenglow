@@ -146,8 +146,19 @@
 .td[data-align='end'] { font-variant-numeric: tabular-nums; }
 
 /* A column that asks keeps to one line. Text and inline content only: a
-   block inside the cell is the caller's to truncate. */
+   block inside the cell is the caller's to truncate — except the Table's
+   own `.current` button, below, since `onCurrentChange` puts that block
+   there itself and a `text-overflow` on the td cannot reach inside it. */
 .truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Reaches into the primary cell's own button, which `.truncate` above
+   cannot: a td's text-overflow only ever clips the td's own inline content,
+   never a block nested inside it. */
+.truncate .current {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -802,9 +802,28 @@ describe('current row', () => {
     // `all: unset` leaves the button inline, a box as wide as the name and a
     // line tall. A block alone is not enough: a button shrinks to its content
     // even as a block, so it is given the cell's width too. The look stays unset.
-    const rule = block(readCss('src/components/Table/Table.module.css'), '.current {');
+    // The leading newline picks the bare rule over `.truncate .current {`,
+    // which also ends in the literal text ".current {".
+    const rule = block(readCss('src/components/Table/Table.module.css'), '\n.current {');
     expect(rule).toMatch(/all:\s*unset;[\s\S]*display:\s*block;/);
     expect(rule).toMatch(/all:\s*unset;[\s\S]*inline-size:\s*100%;/);
+  });
+
+  it("reaches the current button from a truncating column, since the td's own text-overflow cannot see inside a block", () => {
+    // `.truncate` alone clips a td's inline content; onCurrentChange puts a
+    // `display: block` button in the primary cell instead, which the td's
+    // own text-overflow does not reach. `.truncate .current` is the rule
+    // that does.
+    const rule = block(readCss('src/components/Table/Table.module.css'), '.truncate .current {');
+    expect(rule).toMatch(/overflow:\s*hidden/);
+    expect(rule).toMatch(/text-overflow:\s*ellipsis/);
+    expect(rule).toMatch(/white-space:\s*nowrap/);
+
+    const truncated: Column<Row>[] = [{ ...columns[0]!, truncate: true }, columns[1]!];
+    render(<Table {...props} columns={truncated} onCurrentChange={() => {}} />);
+    const cell = document.querySelector('td[data-col="name"]')!;
+    expect(cell).toHaveClass(styles.truncate!);
+    expect(cell.querySelector('button')).toHaveClass(styles.current!);
   });
 
   it('draws current as a ring, not the selection fill, so a row can be both', () => {
