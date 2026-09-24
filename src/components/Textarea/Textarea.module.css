@@ -4,18 +4,36 @@
  * It has one size, a fixed starting height, and symmetric horizontal padding —
  * where a single-line field is tighter on the right to sit closer to its icon,
  * a block of text wants the same margin on both sides.
+ *
+ * control.module.css's `.control` sits on this same element (Textarea has no
+ * wrapper to carry the box the way Input's does), so this stylesheet never
+ * redeclares a property `.control` already sets — background, border,
+ * font-family, font-size, line-height, letter-spacing, color — because two
+ * rules of equal specificity on the same element are settled by stylesheet
+ * load order, which next dev and the production build do not agree on
+ * (89b3d8c). What is declared below is only what neither `.control` nor the
+ * browser's own author-origin styles already supply: box geometry, the reset
+ * of the native focus ring, and the placeholder colour that used to live on
+ * `.field`, which this element no longer carries.
  */
 
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
 .textarea {
   box-sizing: border-box;
-}
 
-.textarea {
   min-height: 144px;
   padding: var(--ap-spacing-150) var(--ap-spacing-200);
   /* Text starts at the top; the box does not centre a paragraph. */
   align-items: flex-start;
   resize: vertical;
+
+  /* .control supplies the visible focus border; the browser's own focus
+     ring would otherwise still draw on top of it. */
+  outline: none;
+}
+
+.textarea::placeholder {
+  color: var(--ap-color-text-placeholder);
+  opacity: 1; /* Firefox dims placeholders by default. */
 }

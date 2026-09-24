@@ -32,7 +32,6 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
 
   const classes = [
     control.control,
-    control.field,
     styles.textarea,
     isInvalid && control.invalid,
     disabled && control.disabled,
