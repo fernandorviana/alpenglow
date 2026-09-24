@@ -611,8 +611,9 @@ Nothing is built.
 Claimed components (add a line before starting; one per session and branch):
 
 - **The dense screen** (wave 4, first piece) — built 2026-09-23 on branch
-  `feat/dense-screen` (`ac2a4f9^..203d98d`, 20 commits, the first the
-  spec and plan), **not yet on main**,
+  `feat/dense-screen` (`ac2a4f9^..cb3f95f`, 26 commits, the first the
+  spec and plan, the last four the final review's fixes), on main and
+  pushed 2026-09-24 as `cb3f95f`,
   unreleased (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
   `docs/superpowers/specs/2026-09-23-dense-screen-design.md`, plan
   `docs/superpowers/plans/2026-09-23-dense-screen.md`; page shape after
@@ -2067,8 +2068,8 @@ is ahead of the file: the Theme collection there still has 54 of 94 — the
 24 `category/*` and 12 `chart/*` (2026-09-23) and the four
 `border/*-subtle` (2026-09-20) are missing — and the fourth collection,
 **Alpenglow Density** (five `density/*` variables, modes Comfortable and
-Compact, scope `WIDTH_HEIGHT`, from the dense screen, branch
-`feat/dense-screen`), does not exist yet. `docs/figma/apply-variables.md`
+Compact, scope `WIDTH_HEIGHT`, from the dense screen, on main as
+`cb3f95f`), does not exist yet. `docs/figma/apply-variables.md`
 has both ways: A, the prompt for an agent with the Figma MCP (how the
 2026-09-12 round was done), and B, a plugin-console script, which creates
 all four collections.
