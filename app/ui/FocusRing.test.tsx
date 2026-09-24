@@ -16,8 +16,11 @@ describe('the site focus ring', () => {
   }));
 
   // A selector anchored on nothing: no class, id, element or attribute of its
-  // own, only pseudo-classes, possibly inside `:where()`.
-  const global = (s: string) => s.startsWith(':') || s.startsWith('*');
+  // own, only pseudo-classes, possibly inside `:where()`. What is left once
+  // they, what they negate, `*` and the punctuation are gone is its anchor —
+  // `.prosea` for the prose's own focused link, nothing for the ring.
+  const global = (s: string) =>
+    s.replace(/:not\([^()]*\)/g, '').replace(/::?[\w-]+/g, '').replace(/[\s()*>+~]/g, '') === '';
   // What is left to count once `:where()` and `*` are gone; empty is (0,0,0).
   const weighed = (s: string) => s.replace(/:where\([^()]*\)/g, '').replace(/\*/g, '').trim();
 

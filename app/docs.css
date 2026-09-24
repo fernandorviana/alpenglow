@@ -327,15 +327,18 @@ html[data-nav-open] { overflow: hidden; }
    column set. */
 .prose { min-width: 0; }
 
-.prose > * { max-width: 37.5rem; }
-
-.prose > .specimen,
-.prose > .specimenRow,
-.prose > .tableScroll,
-.prose > .pager,
-.prose > .hero,
-.prose > .cards {
-  max-width: none;
+/* The text is named, rather than every child with a list of exceptions: the
+   exceptions missed whatever a page put there next — a code block, a chart,
+   and the Drawer and the CommandPalette, which render where they are called,
+   so the Drawer was 480 wide on a 375 screen and the palette 600. A list
+   with a class is a layout (the cards, a chart's series), not text; the
+   callout is text. Weightless, like every prose rule below: `app/docs.css`
+   loads after the components in the production build, so a prose rule with
+   any weight ties a component's single class and wins on order. At zero,
+   any component or docs class beats it, and plain prose, which has no class
+   of its own, still gets it. `ProseScope.test.tsx` holds every one to zero. */
+:where(.prose) > :where(p, h1, h2, h3, h4, ul:not([class]), ol:not([class]), dl, blockquote, .lead, .rejected) {
+  max-width: 37.5rem;
 }
 
 /* The evidence gutter. Numbers live here, aligned in a column so they can be
@@ -424,15 +427,13 @@ html[data-nav-open] { overflow: hidden; }
   border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
 }
 
-/* `.prose a` paints links in the accent; the pager's name is chrome, not a
-   link in a sentence, so the selector carries `.prose` to outrank it. */
-.prose .pagerLink {
+/* The prose paints links in the accent; the pager's name is chrome, not a
+   link in a sentence, and its class is enough to say so — the prose rules
+   weigh nothing. */
+.pagerLink {
   display: inline-flex;
   align-items: center;
   gap: var(--ap-spacing-100);
-  /* In by the text's own padding, so the name lines up with the prose at rest
-     and the wash, when it comes, reaches past it on both sides. */
-  margin-inline: calc(-1 * var(--ap-spacing-150));
   padding: var(--ap-spacing-100) var(--ap-spacing-150);
   border-radius: var(--ap-radius-lg);
   color: var(--ap-color-text-primary);
@@ -444,8 +445,17 @@ html[data-nav-open] { overflow: hidden; }
 
 .pagerLink svg { flex: none; color: var(--ap-color-text-tertiary); }
 
-/* The next link keeps to the right when there is no previous one. */
-.pagerNext { margin-inline-start: auto; text-align: end; }
+/* Out by the text's own padding on the outer side, so the name lines up with
+   the prose at rest and the wash, when it comes, reaches past it. One rule
+   per link and one value per side: the start margin the next link needs is
+   `auto`, which keeps it to the right when there is no previous one, and a
+   shared `margin-inline` on both links had cancelled it. */
+.pagerPrevious { margin-inline-start: calc(-1 * var(--ap-spacing-150)); }
+
+.pagerNext {
+  margin-inline: auto calc(-1 * var(--ap-spacing-150));
+  text-align: end;
+}
 
 .pagerText { display: flex; flex-direction: column; }
 
@@ -611,14 +621,18 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* --- prose ---------------------------------------------------------------- */
 
+/* Every rule here reaches inside the prose, where the specimens, dialogs and
+   drawers are, so every one is under `:where()` and weighs nothing: a
+   component's own class beats it, and an element with no class of its own —
+   the page's text — still gets it. See the measure, above. */
+
 /* Balanced, so a heading that wraps does not leave one word on its own
    line — "…and the suite cannot see / it" did, on Decisions. */
-.prose h1,
-.prose h2 {
+:where(.prose) :where(h1, h2) {
   text-wrap: balance;
 }
 
-.prose h1 {
+:where(.prose) :where(h1) {
   margin: 0 0 var(--ap-spacing-150);
   font-size: var(--ap-text-heading-h1-size);
   line-height: var(--ap-text-heading-h1-line-height);
@@ -626,7 +640,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   font-weight: var(--ap-font-weight-semibold);
 }
 
-.prose h2 {
+:where(.prose) :where(h2) {
   margin: var(--ap-spacing-600) 0 var(--ap-spacing-150);
   scroll-margin-top: var(--ap-spacing-500);
   font-size: var(--ap-text-heading-h4-size);
@@ -635,7 +649,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   font-weight: var(--ap-font-weight-semibold);
 }
 
-.prose h3 {
+:where(.prose) :where(h3) {
   margin: var(--ap-spacing-400) 0 var(--ap-spacing-100);
   font-size: var(--ap-text-subheading-md-size);
   line-height: var(--ap-text-subheading-md-line-height);
@@ -643,7 +657,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   font-weight: var(--ap-font-weight-semibold);
 }
 
-.prose p { margin: 0 0 var(--ap-spacing-200); }
+:where(.prose) :where(p) { margin: 0 0 var(--ap-spacing-200); }
 
 .lead {
   font-size: var(--ap-text-subheading-lg-size);
@@ -654,22 +668,22 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* The Link's decision, for the links the prose writes as plain `a`: the
    accent and Medium at rest, a line under the pointer and the focus. */
-/* Only an `a` with no class: a Button with an href is an `a` too, and this
-   rule outranks a single class, so it made that button Medium and underlined
-   it under the pointer. */
-.prose a { color: var(--ap-color-text-accent); }
+/* Only an `a` with no class: a Button with an href is an `a` too, and it
+   would take whatever of this its own rules do not set — an underline under
+   the pointer. */
+:where(.prose) :where(a) { color: var(--ap-color-text-accent); }
 
-.prose a:not([class]) {
+:where(.prose) :where(a:not([class])) {
   font-weight: var(--ap-font-weight-medium);
   text-decoration-line: none;
   text-decoration-thickness: var(--ap-border-width-hairline);
   text-underline-offset: 0.2em;
 }
 
-.prose a:not([class]):hover,
-.prose a:not([class]):focus-visible { text-decoration-line: underline; }
+:where(.prose) :where(a:not([class]):hover),
+:where(.prose) :where(a:not([class]):focus-visible) { text-decoration-line: underline; }
 
-.prose code {
+:where(.prose) :where(code) {
   font-family: var(--ap-font-mono);
   font-size: 0.9em;
   padding: 1px 4px;
@@ -862,8 +876,6 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   transform: scale(0.96);
 }
 
-.prose a.heroAction { color: var(--ap-color-interactive-on-accent); }
-
 /* As the Button: the pressed colour stays, the scale goes. */
 @media (prefers-reduced-motion: reduce) {
   .heroAction { transition: none; }
@@ -996,8 +1008,8 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* The prose paints links in the accent; a card's title is chrome, and the
-   card is the link, so the selector carries `.prose` to outrank it. */
-.prose .cardLink {
+   card is the link. The class is enough: the prose rules weigh nothing. */
+.cardLink {
   color: var(--ap-color-text-primary);
   text-decoration: none;
 }
@@ -1624,7 +1636,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
      groups leaves each of them under the 9rem their labels need. */
   .footer { padding: var(--ap-spacing-500) var(--ap-layout-margin) var(--ap-spacing-400); }
   .footerInner { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
-  .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
+  :where(.prose) :where(h1) { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
   .hero { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
 }
 
@@ -1644,9 +1656,13 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    cell is what the focus ring was measured in. Thinner padding alone cannot
    get there — the narrow margin already leaves no specimen padding to take
    away. `xs` is the safe step, so every phone gets the specimen edge to edge.
-   `DocPage.test.tsx` checks it. */
+   `DocPage.test.tsx` checks it.
+
+   The specimen's own class, later than its rule above: this has to beat that
+   rule's padding and border, and a prose selector may not carry that weight
+   (`ProseScope.test.tsx`). Every specimen is a child of the prose. */
 @media (width < 30rem) {
-  .prose > .specimen {
+  .specimen {
     margin-inline: calc(-1 * var(--ap-layout-margin));
     padding-inline: var(--ap-layout-margin);
     border-inline: none;

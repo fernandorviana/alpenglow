@@ -60,7 +60,7 @@ describe('the specimen on the narrowest screens', () => {
   });
 
   it('holds a Calendar at 320px once it runs edge to edge', () => {
-    const rule = declarations(bleed, '.prose > .specimen');
+    const rule = declarations(bleed, '.specimen');
     expect(rule).toMatch(/border-inline: none/);
     expect(rule).toMatch(/border-radius: 0/);
     // Out by the page's margin and in by the same, so the specimen's content

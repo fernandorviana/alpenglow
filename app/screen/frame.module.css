@@ -1,12 +1,8 @@
 /* The frame on /screen: the site's stylesheet, not the screen's, so the
-   local-values test (which reads screen.module.css) does not read it. */
+   local-values test (which reads screen.module.css) does not read it.
 
-/* The frame is a specimen: as wide as the content column, not the prose's
-   measure. `.prose > *` would hold it to 37.5rem. */
-:global(.prose) > .frame {
-  max-width: none;
-}
-
+   The frame is a specimen, as wide as the content column: the prose's
+   measure is for its text only. */
 .frame {
   display: grid;
   /* One column that never grows to its content: the iframe is 1440 wide
