@@ -20,7 +20,7 @@ export function mediaWidths(text: string): string[] {
   ];
   return queries.flatMap((q) =>
     [...q.matchAll(/\(([^()]*\bwidth\b[^()]*)\)/g)]
-      .flatMap(([, group]) => [...group.matchAll(/(\d+(?:\.\d+)?)(px|rem|em)/g)])
+      .flatMap(([, group]) => [...group!.matchAll(/(\d+(?:\.\d+)?)(px|rem|em)/g)])
       .map(([length]) => length),
   );
 }
