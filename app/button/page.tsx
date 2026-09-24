@@ -21,6 +21,7 @@ const PROPS: PropRow[] = [
   { prop: 'loading', type: 'boolean', default: 'false' },
   { prop: 'iconStart', type: 'ReactNode', default: '—' },
   { prop: 'iconEnd', type: 'ReactNode', default: '—' },
+  { prop: 'icon', type: 'ReactNode — alone, square; aria-label required', default: '—' },
   { prop: 'fullWidth', type: 'boolean', default: 'false' },
   { prop: 'href', type: 'string — makes it an a', default: '—' },
   { prop: 'render', type: '(props) => ReactNode, with href', default: '—' },
@@ -255,6 +256,10 @@ export default function Page() {
         no label needs an <code>aria-label</code>, and it needs one the same way a labelled
         button reads: the verb and the object.
       </p>
+      <p>
+        An icon alone takes <code>icon</code> rather than <code>iconStart</code>, which makes
+        the button square and does not compile without <code>aria-label</code>.
+      </p>
       <div className="specimen">
         <div className="specimenRow">
           <Button iconStart={<Add size={16} />}>New appointment</Button>
@@ -264,7 +269,7 @@ export default function Page() {
           <Button variant="ghost" tone="danger" iconStart={<TrashCan size={16} />}>
             Delete note
           </Button>
-          <Button variant="outline" tone="neutral" aria-label="Add attachment" iconStart={<Add size={16} />} />
+          <Button variant="outline" tone="neutral" aria-label="Add attachment" icon={<Add size={16} />} />
         </div>
       </div>
       <p>

@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { createRef } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
+import { block, readCss } from '@/test/css';
 import { Button } from './Button';
 import styles from './Button.module.css';
 
@@ -293,5 +294,36 @@ describe('Button — with an href it is a link that looks like a button', () => 
     expect(css).toContain(".button:disabled,\n.button[aria-disabled='true'] {");
     expect(css).toContain(".ghost[aria-disabled='true']:not(.loading)");
     expect(css).toMatch(/a\.button,\s*a\.button:hover,\s*a\.button:focus-visible \{\s*text-decoration: none;/);
+  });
+});
+
+describe('Button — icon only', () => {
+  it('draws the icon alone, hidden, and takes its name from aria-label', () => {
+    render(<Button icon={<svg data-testid="glyph" />} aria-label="Confirm" />);
+    const button = screen.getByRole('button', { name: 'Confirm' });
+    expect(button).toHaveClass(styles.iconOnly!);
+    expect(within(button).getByTestId('glyph').parentElement).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('keeps its name as a link too', () => {
+    render(<Button href="/next" icon={<svg />} aria-label="Next page" />);
+    expect(screen.getByRole('link', { name: 'Next page' })).toHaveClass(styles.iconOnly!);
+  });
+
+  it('does not compile without a name, or with a label beside the icon', () => {
+    // @ts-expect-error — an icon says nothing to a screen reader
+    render(<Button icon={<svg />} />);
+    // @ts-expect-error — an icon-only button draws no label
+    render(<Button icon={<svg />} aria-label="Add">Add</Button>);
+  });
+
+  it('is square at every size and density: no padding, one to one, after the sizes it overrides', () => {
+    // jsdom has no layout, so the rule is read: the height is the size's or
+    // the density's, and aspect-ratio makes the width follow it.
+    const css = readCss('src/components/Button/Button.module.css');
+    const rule = block(css, '.iconOnly {');
+    expect(rule).toMatch(/aspect-ratio:\s*1\b/);
+    expect(rule).toMatch(/padding-inline:\s*0\b/);
+    expect(css.indexOf('.iconOnly {')).toBeGreaterThan(css.indexOf('.lg {'));
   });
 });

@@ -7,7 +7,7 @@
 
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
-.button, .auto, .sm, .md, .lg, .fullWidth, .icon, .icon svg {
+.button, .auto, .sm, .md, .lg, .fullWidth, .iconOnly, .icon, .icon svg {
   box-sizing: border-box;
 }
 
@@ -123,6 +123,14 @@ a.button:focus-visible {
   font-size: var(--ap-text-button-lg-size);
   line-height: var(--ap-text-button-lg-line-height);
   letter-spacing: var(--ap-text-button-lg-tracking);
+}
+
+/* Icon only. As wide as it is tall — the size's height, or the density's —
+   with no padding, so the capsule's radius draws it round. After the sizes,
+   which set padding at the same specificity. */
+.iconOnly {
+  aspect-ratio: 1;
+  padding-inline: 0;
 }
 
 .fullWidth {

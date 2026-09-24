@@ -108,7 +108,18 @@ describe('buildIndex', () => {
 
   it('yields a prop entry per row of a Props table', () => {
     const props = index.entries.filter((e) => e.kind === 'prop' && e.page === 'Button');
-    expect(props.map((e) => e.title)).toEqual(['variant', 'tone', 'size', 'loading', 'iconStart', 'iconEnd', 'fullWidth', 'href', 'render']);
+    expect(props.map((e) => e.title)).toEqual([
+      'variant',
+      'tone',
+      'size',
+      'loading',
+      'iconStart',
+      'iconEnd',
+      'icon',
+      'fullWidth',
+      'href',
+      'render',
+    ]);
     expect(props[0]?.href).toBe('/button#props');
     expect(props[0]?.body).toContain("'solid' | 'outline' | 'ghost'");
     // Pages with no Props heading yield none — Avatar and Badge today.

@@ -6,15 +6,28 @@ import type { LinkRender, LinkRenderProps } from '../linkRender';
 import type { ControlSize, FillTone, TintTone } from '../vocabulary';
 import styles from './Button.module.css';
 
+/**
+ * A label, with an icon on either side, or an icon alone. Alone, the button
+ * is square and its name is required: the icon says nothing to a screen
+ * reader. The dense screen recorded its absence; the Table's row actions
+ * need it.
+ */
+type ContentProps =
+  | { icon?: undefined; iconStart?: ReactNode; iconEnd?: ReactNode; children?: ReactNode }
+  | {
+      icon: ReactNode;
+      'aria-label': string;
+      iconStart?: undefined;
+      iconEnd?: undefined;
+      children?: undefined;
+    };
+
 type BaseProps = {
   size?: ControlSize;
   /** Renders a spinner, hides the label without changing the button's width, and blocks activation. */
   loading?: boolean;
-  iconStart?: ReactNode;
-  iconEnd?: ReactNode;
   fullWidth?: boolean;
-  children?: ReactNode;
-};
+} & ContentProps;
 
 /** Every tone the theme can fill. */
 export const buttonFillTones = ['accent', 'neutral', 'tertiary', 'success', 'danger'] as const satisfies readonly FillTone[];
@@ -61,7 +74,14 @@ export type ButtonAsLinkProps = BaseProps &
 
 export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
-type LooseProps = BaseProps & {
+type LooseProps = {
+  size?: ControlSize;
+  loading?: boolean;
+  icon?: ReactNode;
+  iconStart?: ReactNode;
+  iconEnd?: ReactNode;
+  fullWidth?: boolean;
+  children?: ReactNode;
   variant?: 'solid' | 'outline' | 'ghost';
   tone?: (typeof buttonFillTones)[number];
   href?: string;
@@ -77,6 +97,7 @@ function ButtonImpl(
     tone = 'accent',
     size,
     loading = false,
+    icon,
     iconStart,
     iconEnd,
     fullWidth = false,
@@ -96,6 +117,7 @@ function ButtonImpl(
     styles[tone],
     styles[size ?? 'auto'],
     fullWidth && styles.fullWidth,
+    icon !== undefined && styles.iconOnly,
     loading && styles.loading,
     className,
   ]
@@ -107,16 +129,24 @@ function ButtonImpl(
   const content = (
     <>
       <span className={styles.content}>
-        {iconStart && (
+        {icon !== undefined ? (
           <span className={styles.icon} aria-hidden="true">
-            {iconStart}
+            {icon}
           </span>
-        )}
-        {children}
-        {iconEnd && (
-          <span className={styles.icon} aria-hidden="true">
-            {iconEnd}
-          </span>
+        ) : (
+          <>
+            {iconStart && (
+              <span className={styles.icon} aria-hidden="true">
+                {iconStart}
+              </span>
+            )}
+            {children}
+            {iconEnd && (
+              <span className={styles.icon} aria-hidden="true">
+                {iconEnd}
+              </span>
+            )}
+          </>
         )}
       </span>
       {loading && (
