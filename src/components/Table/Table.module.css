@@ -316,7 +316,7 @@
 }
 
 /* The drawn stripe at the row's start: 3px of accent, an inset shadow on the
-   first cell so it adds no width and survives the collapse. */
+   first cell so it adds no width of its own. */
 .tr[data-selected='true'] .td:first-child {
   box-shadow: inset 3px 0 0 var(--ap-color-interactive-accent);
 }
@@ -344,12 +344,12 @@
  * lands on the wrong edge under `:dir(rtl)` (the stripe above has an
  * explicit rtl rule for exactly this; a plain rectangle needs none, so the
  * bug had no fix to mirror). And `:first-child`/`:last-child` match by DOM
- * position, not by what is actually visible: the container collapse below
- * hides every non-primary `.td` except the selection and action cells, so a
- * table with neither of those and a primary column that is not literally
- * the first one in `columns` collapses to a row whose one visible cell is
- * neither the DOM first nor last child — the two rules that were supposed
- * to draw the ring's sides never matched it, and the ring lost them.
+ * position, not by what is actually visible: a column can leave —
+ * `display: none`, from the rules columns.ts writes for the container —
+ * and a column that leaves can be the first or last one in `columns`, so
+ * the cell that is actually first or last on screen is not always the
+ * DOM's `:first-child`/`:last-child` — the two rules that were supposed to
+ * draw the ring's sides could miss it, and the ring would lose them.
  * `outline` sidesteps both: it wraps whatever box the row actually lays
  * out, which is always the full row regardless of which cells are hidden
  * or which direction the text runs, and it has no left/right asymmetry to
@@ -369,18 +369,17 @@
  * cascade can no longer make one replace the other.
  *
  * Confirmed in a real (Chromium) browser, not reasoned only: rendered the
- * Try It table with a row both selected and current, and the compact and
- * collapsed (sub-40rem container, list view) specimens with a current row,
- * in both `dir="ltr"` and `dir="rtl"`. The ring wraps the full row in every
- * case, including the collapsed list where only the primary cell is
- * visible. Where a row is both selected and current, the ring and the
- * stripe visibly overlap near the row's start — but `border/accent` and
- * `interactive/accent` are the same `twilight` step in both themes
- * (confirmed against the live custom properties: `#b091ff` for both, in the
- * rendered dark theme), so the overlap is invisible: it reads as one
- * continuous accent edge, not one indicator hiding the other. Playwright is
- * not installed and this session did not install it; verification used the
- * Browser pane against the project's own dev server instead. */
+ * Try It table with a row both selected and current, and the compact
+ * specimen with a current row, in both `dir="ltr"` and `dir="rtl"`. The
+ * ring wraps the full row in every case. Where a row is both selected and
+ * current, the ring and the stripe visibly overlap near the row's start —
+ * but `border/accent` and `interactive/accent` are the same `twilight` step
+ * in both themes (confirmed against the live custom properties: `#b091ff`
+ * for both, in the rendered dark theme), so the overlap is invisible: it
+ * reads as one continuous accent edge, not one indicator hiding the other.
+ * Playwright is not installed and this session did not install it;
+ * verification used the Browser pane against the project's own dev server
+ * instead. */
 .tr[data-current='true'] {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-accent);
   outline-offset: calc(-1 * var(--ap-border-width-ring));

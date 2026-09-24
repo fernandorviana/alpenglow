@@ -174,8 +174,8 @@ export function Table<Row>({
   );
   const columnCount = columns.length + (onSelect ? 1 : 0) + (action ? 1 : 0);
 
-  // First in source order wins. Zero is the common case for a table nobody
-  // expects to collapse, so it is not an error.
+  // First in source order wins. Zero is the common case for a table with no
+  // column that must be kept from leaving, so it is not an error.
   const primaryKey = columns.find((column) => column.primary)?.key;
 
   // One scope per Table, so its rules touch no other Table on the page.
