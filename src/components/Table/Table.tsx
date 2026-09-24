@@ -144,9 +144,10 @@ export type TableProps<Row> = TableBaseProps<Row> & RowActionProps<Row> & Omit<H
 export type BulkActionsApi = { selected: ReadonlySet<string>; clear: () => void };
 
 /**
- * A real table, named, with scoped headers and a column group, plus
- * controlled sorting, selection, and row actions. The component sorts, selects
- * and actions nothing itself: it reports intent and renders what it is given.
+ * A real table, named, with scoped headers and fixed-layout columns that
+ * give way by rank as the Table's own width shrinks, plus controlled
+ * sorting, selection, and row actions. The component sorts, selects and
+ * actions nothing itself: it reports intent and renders what it is given.
  *
  * Selection state lives in the checkboxes, not in `aria-selected` — that
  * attribute is only valid on rows under `role="grid"`, so on a plain table it
@@ -198,7 +199,7 @@ export function Table<Row>({
   );
   // Asked for once a render: the buttons the rows show set the action
   // column's width, and the cells draw the same lists.
-  const actionsOf = rowActions ? rows.map(rowActions) : undefined;
+  const actionsOf = rowActions ? rows.map((row) => rowActions(row)) : undefined;
   const hasActions = action !== undefined || actionsOf !== undefined;
   // A spread over every row's count would hand Math.max one argument per
   // row, which a long enough table can push past the engine's argument

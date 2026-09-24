@@ -136,7 +136,8 @@ export default function Page() {
   // The compact and state specimens drop the avatar cell deliberately: a 48px
   // row is for one line of content, and an avatar beside two lines is what the
   // 72px row exists for. `primary` still marks one column, because these
-  // specimens are the ones narrow enough to collapse.
+  // specimens are the ones narrow enough for a column to give way, and
+  // primary is what never does.
   const simpleColumns: Column<Client>[] = [
     { key: 'name', header: 'Client', primary: true, cell: (c) => c.name },
     { key: 'visits', header: 'Visits', align: 'end', cell: (c) => c.visits },
