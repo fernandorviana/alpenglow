@@ -59,10 +59,11 @@ const SELECT_OPTIONS = [
 /**
  * One panel of the Try it: a Button, an Input and a Select, none passed a
  * `size`, and a two-hour Scheduler slice. Narrow enough to sit two up that
- * the Table can't join them without collapsing to its own list below the
- * Table's 40rem container threshold — decision 18's row-height comparison
- * needs the Table full width, so the two client Tables are stacked below
- * instead, each still following the `data-density` it sits under.
+ * the Table can't join them without losing its Appointment column, below
+ * the client Table's own 258px threshold — decision 18's row-height
+ * comparison needs the Table full width, so the two client Tables are
+ * stacked below instead, each still following the `data-density` it sits
+ * under.
  */
 function Panel({ mode }: { mode: (typeof densityModes)[number] }) {
   const suffix = mode === 'compact' ? ' (compact)' : ' (comfortable)';
@@ -167,8 +168,8 @@ export default function Page() {
       </div>
       <p>
         The client Table takes no <code>density</code> prop either, but it needs its own full
-        width to prove it: below the Table&rsquo;s own 40rem container threshold it collapses to
-        a list, which is correct — and which is exactly what the panels above would force on it.
+        width to prove it: below the Table&rsquo;s own 258px threshold it loses its Appointment
+        column, which is correct — and exactly what the panels above would force on it.
         Stacked instead, its row is {density.row.comfortable}px in the first and{' '}
         {density.row.compact}px in the second.
       </p>

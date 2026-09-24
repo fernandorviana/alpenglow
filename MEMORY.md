@@ -265,7 +265,8 @@ have all been mistaken for errors at least once.
     breakpoints, in rem and range syntax — `(width >= 48rem)`, never
     `max-width: 767px` — held to it by `src/styles/breakpoints.test.ts`,
     which reads only width features. `@container` queries are not
-    breakpoints and are exempt: the Alert's 400px, the Table's 40rem.
+    breakpoints and are exempt: the Alert's 400px, and the Table's
+    generated per-column px thresholds (`columns.ts`).
 
 25. **No z-index in `src/components/` outside a module that isolates, and
     none above 3.** A `z-index` declaration lives only in a stylesheet

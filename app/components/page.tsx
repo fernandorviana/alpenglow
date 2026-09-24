@@ -434,7 +434,7 @@ export default function Page() {
         <Card
           href="/table"
           title="Table"
-          description="Sorting and selection, two densities, and a list form below 40rem."
+          description="Sorting and selection, two densities, and columns that give way."
           visual={
             // Full width on purpose: the Table's wrapper is a size container,
             // and centred in the well it would measure its intrinsic width — 0.
