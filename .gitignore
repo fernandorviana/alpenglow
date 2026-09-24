@@ -10,6 +10,7 @@ tsconfig.tsbuildinfo
 app/ui/search/search-index.json
 .vercel
 .env*
+.audit/
 
 # Private agent context — provenance, Figma keys. Local only, never publish.
 # The public brief is MEMORY.md, which IS committed.

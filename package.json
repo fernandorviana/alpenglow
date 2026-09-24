@@ -51,7 +51,9 @@
     "dev": "next dev",
     "build:docs": "npm run build:css && npm run build:search && next build",
     "build:tailwind": "tsx scripts/build-tailwind.ts",
-    "start": "next start"
+    "start": "next start",
+    "audit:responsive": "node scripts/audit/responsive.mjs",
+    "audit:css-order": "node scripts/audit/css-order.mjs"
   },
   "peerDependencies": {
     "react": "^19.0.0",
