@@ -94,9 +94,11 @@ and action cells, turning the table into a list.
      with the actions gathered.
    - Below the last threshold only what never leaves is shown; if even that
      does not fit, the table keeps that width as its `min-width` and the
-     region scrolls sideways, as it can today. The primary's 160 plus
-     selection plus a gathered "⋯" plus the frame is 290, under the 320
-     floor.
+     region scrolls sideways, as it can today. The Table's container is not
+     the viewport — it is narrower by the page's margins and whatever sits
+     beside it — so a caller sets its own minimums to fit its own floor: the
+     dense screen's is 258, which fits its 1280 zone and a 320 phone (288 of
+     Table).
 
 ### The mechanism
 
