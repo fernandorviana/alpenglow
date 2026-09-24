@@ -3,9 +3,9 @@
  *
  * A real <table> in a scrolling region. Every colour is a token; row and
  * header heights and the selection column's width are geometry from the
- * drawing rather than values from the scale. The action column has no width:
- * it is the trailing column, so caller-supplied Column.width values do not
- * slide, and its content is a render prop so can be any width.
+ * drawing rather than values from the scale. Column widths are not here: each
+ * Table writes rules for its own container (columns.ts), and the columns
+ * that do not fit leave by rank.
  *
  * The header band is `surface/base`, NOT `surface/sunken` — even though that
  * token's own `use` string advertises "table headers". In light, `sunken`
@@ -28,14 +28,14 @@
 }
 
 /* The root holds the frame, the selection bar's dock and the footer, and is
-   the container the collapse query measures. Nothing here scrolls: the dock
+   the container its column rules measure. Nothing here scrolls: the dock
    is sticky to the viewport, which an overflowing ancestor would hold. */
 .root {
   display: grid;
   container-type: inline-size;
   /* The sticky header's z-index stays inside the Table. container-type holds
      it in today through layout containment; this says so, and keeps saying
-     so if the container query goes. */
+     so. */
   isolation: isolate;
 }
 
@@ -66,6 +66,9 @@
 }
 
 .table {
+  /* Fixed: the widths are the header cells', from the rules, and content does
+     not push a column wider than its share. */
+  table-layout: fixed;
   width: 100%;
   border-collapse: collapse;
   font-family: var(--ap-font-sans);
@@ -116,6 +119,9 @@
    than assumed. */
 .td {
   border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
+  /* In a fixed layout a long word would spill into the next cell; it breaks
+     instead, and the row grows. */
+  overflow-wrap: anywhere;
 }
 
 .tr:last-child .td {
@@ -136,6 +142,14 @@
    figures give every digit one width, and a sort that reorders the rows
    changes nothing but the order. */
 .td[data-align='end'] { font-variant-numeric: tabular-nums; }
+
+/* A column that asks keeps to one line. Text and inline content only: a
+   block inside the cell is the caller's to truncate. */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .empty {
   text-align: center;
@@ -288,16 +302,9 @@
  * Selection is never colour-only — the checkbox carries it.
  *
  * Horizontal padding is deliberately absent here: the density blocks set it
- * on every cell and outrank this rule. The class also marks the cells that
- * survive the responsive collapse.
- *
- * The 56px appears here AND on the column's <col>, which looks like a
- * duplicated literal and is the one exception to "widths live on the <col>".
- * Both are needed and they do different jobs. The <col> cannot be dropped
- * because <colgroup> maps positionally, so losing it would slide every
- * caller-supplied Column.width one column to the left. The declaration here
- * cannot be dropped either, because `table-layout` is auto, where a <col>
- * width is a suggestion the browser may narrow. If one changes, change both.
+ * on every cell and outrank this rule. The 56 is the drawing's, and
+ * columns.ts counts it as SELECTION_WIDTH; if one changes, change both. The
+ * class also keeps the cell out of the column rules: it carries no data-col.
  */
 
 .selectCell {
@@ -412,41 +419,6 @@
    the density blocks: height on .td and vertical-align: middle. */
 .loadingCell {
   text-align: center;
-}
-
-/* --- collapse --------------------------------------------------------------
- *
- * The drawing's mobile variant does not scroll — it collapses to a list:
- * header gone, secondary columns gone.
- *
- * Four kinds of cell survive and the drawing accounts for two of them. The
- * primary cell and the row action are its list item. The selection cell is a
- * deliberate addition: selection is a feature the caller opted into, and
- * hiding the checkbox at a container width would take it away on a phone
- * rather than lay it out differently. The empty and loading cells are
- * excluded because they are the only content those two states have, and
- * hiding them leaves a blank region.
- *
- * A container query rather than a media query, because a table in a narrow
- * sidebar should collapse on a wide screen and it is the container's width
- * that decides.
- */
-
-@container (max-width: 40rem) {
-  .thead {
-    display: none;
-  }
-
-  .td:not([data-primary='true']):not(.selectCell):not(.actionCell):not(.empty):not(.loadingCell) {
-    display: none;
-  }
-
-  .comfortable .td,
-  .compact .td,
-  .auto .td {
-    height: auto;
-    padding-block: var(--ap-spacing-150);
-  }
 }
 
 /* --- selection bar ---------------------------------------------------------

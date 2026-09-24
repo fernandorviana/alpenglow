@@ -13,7 +13,7 @@ import { commit, dayTitle, practitionerName, STATUS_LABEL, STATUS_TONE, timeRang
 import styles from '../screen.module.css';
 
 const COLUMNS: Column<Appointment>[] = [
-  { key: 'time', header: 'Time', cell: (a) => timeRange(a), width: '8.5rem' },
+  { key: 'time', header: 'Time', cell: (a) => timeRange(a), width: 136 },
   {
     key: 'client',
     header: 'Client',

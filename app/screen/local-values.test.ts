@@ -39,11 +39,12 @@ describe('the dense screen', () => {
     }
   });
 
-  it('shows the collapsed list’s line at the Table’s own collapse, and only there', () => {
-    const table = readCss('src/components/Table/Table.module.css');
+  it('shows the extra line at its own narrow width, since the Table no longer collapses to one', () => {
+    // Table.module.css carries no single collapse breakpoint any more — its
+    // columns leave one at a time, by rank, at widths columnCss computes per
+    // Table. 40rem here is this screen's own literal, kept for continuity.
     const screen = readCss('app/screen/screen.module.css');
-    const at = (css: string) => css.match(/@container \(max-width: ([\d.]+rem)\)/)?.[1];
-    expect(at(screen)).toBe(at(table));
+    expect(screen).toMatch(/@container \(max-width: 40rem\)/);
     expect(block(screen, '.meta {')).toMatch(/display: none/);
   });
 

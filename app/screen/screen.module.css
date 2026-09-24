@@ -145,8 +145,11 @@
   min-block-size: 0;
 }
 
-/* The client, and under it what the collapsed list would otherwise lose. The
-   40rem is the Table's own collapse query; its root is the container. */
+/* The client, and under it what a narrow row would otherwise lose: the Table
+   no longer collapses to a list of its own (2026-09-24), so 40rem is this
+   screen's own choice, not a value read from Table.module.css. Left as the
+   same figure for continuity; the zone's column priorities are a Task 5
+   decision. Its root is the container. */
 .who {
   display: grid;
   gap: var(--ap-spacing-050);

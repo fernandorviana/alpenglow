@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import { Table, nextSort, headerSelectionState } from './Table';
 import type { Column } from './Table';
@@ -50,16 +51,12 @@ describe('Table semantics', () => {
     }
   });
 
-  it('renders one col per column so widths do not fight the cells', () => {
-    const { container } = render(
-      <Table {...base} columns={[{ ...columns[0]!, width: '20rem' }, columns[1]!]} />,
-    );
-    const cols = container.querySelectorAll('colgroup col');
-    expect(cols).toHaveLength(2);
-    // toHaveStyle resolves rem through getComputedStyle, which would test
-    // jsdom's unit conversion rather than the component. The contract is that
-    // the caller's value reaches the col untouched, so read it back raw.
-    expect(cols[0]!.getAttribute('style')).toContain('20rem');
+  it('puts a fixed width on the header cell, in px, and draws no colgroup', () => {
+    // A positional <col> would slide onto its neighbour once a column's cells
+    // are display: none, so the width is the header cell's, from the rules.
+    const { container } = render(<Table {...base} columns={[{ ...columns[0]!, width: 320 }, columns[1]!]} />);
+    expect(container.querySelector('colgroup')).toBeNull();
+    expect(container.querySelector('style')!.textContent).toContain('th[data-col="name"] { width: 320px; }');
   });
 
   it('renders a row per item and a cell per column', () => {
@@ -526,10 +523,11 @@ describe('Table loading', () => {
   });
 });
 
-describe('Table collapse', () => {
+describe('Table columns giving way', () => {
+  const rules = (container: HTMLElement) => container.querySelector('style')!.textContent!;
+
   it('marks the primary column, and only the first one', () => {
-    // The drawing's mobile variant keeps the primary cell and drops the
-    // rest. Several primaries is a caller mistake that still has to render.
+    // Several primaries is a caller mistake that still has to render.
     const many: Column<Row>[] = [
       { key: 'name', header: 'Name', cell: (r) => r.name, primary: true },
       { key: 'seen', header: 'Last seen', cell: (r) => r.seen, primary: true },
@@ -541,38 +539,89 @@ describe('Table collapse', () => {
 
   it('marks no column primary when none is declared', () => {
     const { container } = render(
-      <Table
-        {...base}
-        columns={[{ key: 'seen', header: 'Last seen', cell: (r) => r.seen }]}
-      />,
+      <Table {...base} columns={[{ key: 'seen', header: 'Last seen', cell: (r) => r.seen }]} />,
     );
     expect(container.querySelectorAll('[data-primary="true"]')).toHaveLength(0);
   });
 
-  it('collapses on the container width, not the viewport', () => {
-    // A table in a narrow sidebar should collapse on a wide screen, and it
-    // is the container's width that decides. jsdom does not evaluate
-    // container queries, so the rule is asserted against the source.
-    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
-    expect(css).toMatch(/container-type:\s*inline-size/);
-    expect(css).toMatch(/@container\s*\(\s*max-width:\s*40rem\s*\)/);
+  it('names a column’s header and every one of its cells with its key', () => {
+    const { container } = render(<Table {...base} />);
+    expect(container.querySelectorAll('[data-col="seen"]')).toHaveLength(3); // header + 2
+    expect(container.querySelector('th[data-col="seen"]')).toHaveTextContent('Last seen');
   });
 
-  it('keeps the selection, action, empty and loading cells when it collapses', () => {
-    // The drawing's mobile frame has no selection column, so "primary cell
-    // and row action only" is a complete reading of it and an incomplete
-    // rule: selection is a feature the caller opted into, and hiding the
-    // checkbox here would remove it on a phone rather than lay it out
-    // differently. Empty and loading are excluded because they are the only
-    // content those states have. jsdom does not evaluate container queries,
-    // so the selector is asserted against the source.
-    const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
-    const hide = css.match(/\.td:not\(\[data-primary='true'\]\)([^{]*)/)?.[1] ?? '';
+  it('writes its rules in place, as the root’s first child, for its own container', () => {
+    const { container } = render(<Table {...base} />);
+    const root = container.firstElementChild!;
+    expect(root.firstElementChild!.tagName).toBe('STYLE');
+    const scope = root.getAttribute('data-table')!;
+    expect(scope).not.toBe('');
+    expect(rules(container)).toContain(`[data-table="${scope}"] [data-col="seen"] { display: none; }`);
+  });
 
-    expect(hide).toContain(':not(.selectCell)');
-    expect(hide).toContain(':not(.actionCell)');
-    expect(hide).toContain(':not(.empty)');
-    expect(hide).toContain(':not(.loadingCell)');
+  it('scopes its rules to itself, so two Tables do not touch each other', () => {
+    const { container } = render(
+      <>
+        <Table {...base} caption="One" />
+        <Table {...base} caption="Two" />
+      </>,
+    );
+    const [one, two] = [...container.querySelectorAll('[data-table]')];
+    const [a, b] = [one!.getAttribute('data-table'), two!.getAttribute('data-table')];
+    expect(a).not.toBe(b);
+    expect(one!.querySelector('style')!.textContent).not.toContain(`"${b}"`);
+  });
+
+  it('raises the sorted column: its rules change with the sort', () => {
+    const three: Column<Row>[] = [
+      { key: 'name', header: 'Name', cell: (r) => r.name, primary: true },
+      { key: 'seen', header: 'Last seen', cell: (r) => r.seen },
+      { key: 'id', header: 'Id', cell: (r) => r.id },
+    ];
+    const { container, rerender } = render(<Table {...base} columns={three} />);
+    const unsorted = rules(container);
+    rerender(<Table {...base} columns={three} sort={{ key: 'id', direction: 'asc' }} onSortChange={() => {}} />);
+    const sorted = rules(container);
+    // Unsorted, id leaves first (the widest step); sorted by id, seen does.
+    expect(unsorted.indexOf('[data-col="id"] { display: none; }')).toBeLessThan(unsorted.indexOf('[data-col="seen"] { display: none; }'));
+    expect(sorted.indexOf('[data-col="seen"] { display: none; }')).toBeLessThan(sorted.indexOf('[data-col="id"] { display: none; }'));
+  });
+
+  it('never hides the primary, and gives the selection, empty and loading cells no data-col, so no rule can reach them', () => {
+    const { container } = render(<Table {...base} onSelectionChange={() => {}} />);
+    expect(container.querySelector('td[data-primary="true"]')).toHaveAttribute('data-col', 'name');
+    expect(rules(container)).not.toContain('[data-col="name"] { display: none; }');
+    expect(container.querySelector(`td.${styles.selectCell}`)).not.toHaveAttribute('data-col');
+
+    const empty = render(<Table {...base} rows={[]} />);
+    expect(empty.container.querySelector(`td.${styles.empty}`)).not.toHaveAttribute('data-col');
+    const loading = render(<Table {...base} loading />);
+    expect(loading.container.querySelector(`td.${styles.loadingCell}`)).not.toHaveAttribute('data-col');
+  });
+
+  it('arrives in the server’s HTML: nothing runs after load to add it', () => {
+    const html = renderToString(<Table {...base} />);
+    // React writes a style's text raw, unescaped (checked 2026-09-24), so the CSS is as generated.
+    expect(html).toMatch(/<style>[^<]*@container \(width < \d+px\)/);
+    expect(html).toContain('data-table=');
+  });
+
+  it('lays the table out fixed, and no longer collapses it to a list', () => {
+    const css = readCss('src/components/Table/Table.module.css');
+    expect(block(css, '.table {')).toMatch(/table-layout:\s*fixed/);
+    expect(css).not.toMatch(/@container/);
+    expect(css).not.toContain('40rem');
+  });
+
+  it('wraps a cell’s text by default and truncates a column that asks', () => {
+    const { container } = render(
+      <Table {...base} columns={[columns[0]!, { ...columns[1]!, truncate: true }]} />,
+    );
+    expect(container.querySelector('td[data-col="seen"]')).toHaveClass(styles.truncate!);
+    expect(container.querySelector('td[data-col="name"]')).not.toHaveClass(styles.truncate!);
+    const css = readCss('src/components/Table/Table.module.css');
+    expect(block(css, '.truncate {')).toMatch(/text-overflow:\s*ellipsis/);
+    expect(block(css, '.td {')).toMatch(/overflow-wrap:\s*anywhere/);
   });
 });
 
@@ -742,12 +791,11 @@ describe('current row', () => {
     expect(rule).not.toContain('interactive-selected');
   });
 
-  it('draws the ring on the row, not a per-cell first/last-child shadow, so RTL and the collapse cannot lose a side', () => {
+  it('draws the ring on the row, not a per-cell first/last-child shadow, so RTL cannot lose a side', () => {
     // Physical left/right insets on :first-child/:last-child broke two ways:
-    // wrong edge under :dir(rtl), and no match at all once the collapse (below)
-    // hides the true first or last cell. An outline on the row itself has
-    // neither failure mode, so no rule naming these selectors for the current
-    // row should come back.
+    // wrong edge under :dir(rtl), and no match at all. An outline on the row
+    // itself has neither failure mode, so no rule naming these selectors for
+    // the current row should come back.
     const css = readCss('src/components/Table/Table.module.css');
     expect(css).not.toMatch(/\.tr\[data-current='true'\]\s*\.td/);
   });

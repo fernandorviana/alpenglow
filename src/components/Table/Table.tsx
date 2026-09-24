@@ -1,7 +1,9 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import { useId } from 'react';
 import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Loader } from '../Loader/Loader';
+import { columnCss } from './columns';
 import styles from './Table.module.css';
 
 export type SortDirection = 'asc' | 'desc';
@@ -49,9 +51,19 @@ export type Column<Row> = {
   /** Defaults to 'start'. Use 'end' for numbers. */
   align?: ColumnAlign;
   sortable?: boolean;
-  /** Any CSS width. Applied via <col>, so it does not fight the cells. */
-  width?: string;
-  /** Survives the collapse to a list. First one in source order wins. */
+  /**
+   * Fixed, in px: the column keeps this width and leaves whole. Left out, the
+   * column is flexible and shares what the fixed ones leave, in proportion
+   * to its minimum.
+   */
+  width?: number;
+  /** A flexible column's narrowest, padding included, before it leaves. Defaults to 96; 160 for the primary. */
+  minWidth?: number;
+  /** 1 is the most important. Left out, source order: the last column leaves first. */
+  priority?: number;
+  /** One line with an ellipsis instead of wrapping, for a dense column of names or types. */
+  truncate?: boolean;
+  /** Never leaves, and names the row. First one in source order wins. */
   primary?: boolean;
 };
 
@@ -166,6 +178,17 @@ export function Table<Row>({
   // expects to collapse, so it is not an error.
   const primaryKey = columns.find((column) => column.primary)?.key;
 
+  // One scope per Table, so its rules touch no other Table on the page.
+  const scope = useId();
+  const css = columnCss(scope, {
+    columns,
+    primaryKey,
+    sortKey: sort?.key,
+    selection: onSelect !== undefined,
+    inlineButtons: action ? 1 : 0,
+    gatheredButtons: action ? 1 : 0,
+  });
+
   const toggleRow = onSelect
     ? (id: string) => {
         const next = new Set(selectedIds);
@@ -201,7 +224,12 @@ export function Table<Row>({
       {...rest}
       className={[styles.root, styles[density ?? 'auto'], bar && styles.withBar, className].filter(Boolean).join(' ')}
       aria-busy={loading || undefined}
+      data-table={scope}
     >
+      {/* In place, not hoisted with href and precedence: React never removes
+          a hoisted sheet, so an earlier sort's rules would stay and keep
+          hiding. Here it changes with the Table and leaves with it. */}
+      <style>{css}</style>
       <div className={styles.frame}>
       <div
         className={[styles.region, maxHeight !== undefined && styles.bounded].filter(Boolean).join(' ')}
@@ -218,13 +246,6 @@ export function Table<Row>({
         <caption className={captionVisible ? styles.caption : 'ap-sr-only'}>
           {caption}
         </caption>
-
-        <colgroup>
-          {onSelect && <col style={{ width: '56px' }} />}
-          {columns.map((column) => (
-            <col key={column.key} style={column.width ? { width: column.width } : undefined} />
-          ))}
-        </colgroup>
 
         <thead className={[styles.thead, stickyHeader && styles.sticky].filter(Boolean).join(' ')}>
           <tr>
@@ -256,6 +277,7 @@ export function Table<Row>({
                   key={column.key}
                   scope="col"
                   className={styles.th}
+                  data-col={column.key}
                   data-align={column.align ?? 'start'}
                   data-primary={column.key === primaryKey ? 'true' : undefined}
                   aria-sort={sorted ? ARIA_SORT[sorted.direction] : undefined}
@@ -280,7 +302,7 @@ export function Table<Row>({
               );
             })}
             {action && (
-              <th scope="col" className={`${styles.th} ${styles.actionCell}`}>
+              <th scope="col" className={`${styles.th} ${styles.actionCell}`} data-actions="column">
                 <span className="ap-sr-only">Actions</span>
               </th>
             )}
@@ -328,7 +350,8 @@ export function Table<Row>({
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={styles.td}
+                      className={[styles.td, column.truncate && styles.truncate].filter(Boolean).join(' ')}
+                      data-col={column.key}
                       data-align={column.align ?? 'start'}
                       data-primary={column.key === primaryKey ? 'true' : undefined}
                     >
