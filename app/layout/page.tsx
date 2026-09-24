@@ -35,7 +35,9 @@ const BREAKPOINT_COLUMNS: Column<BreakpointRow>[] = [
 const MODE_LABEL = { narrow: 'Narrow', medium: 'Medium', wide: 'Wide' } as const;
 const since = (m: (typeof layoutModes)[number]) => {
   const start = layoutModeStart[m];
-  return start ? `from ${start}, ${breakpoint[start]}` : `below ${layoutModeStart.medium}`;
+  return start
+    ? `from ${start}, ${breakpoint[start]}`
+    : `below ${layoutModeStart.medium}, ${breakpoint[layoutModeStart.medium]}`;
 };
 
 type LayoutRow = { name: LayoutTokenName };
@@ -50,7 +52,23 @@ const LAYOUT_COLUMNS: Column<LayoutRow>[] = [
 
 export default function LayoutPage() {
   return (
-    <DocPage>
+    <DocPage
+      evidence={
+        <>
+          <p>{Object.keys(breakpoint).length} breakpoints, floor {minViewport}</p>
+          {(Object.entries(breakpoint) as [BreakpointName, number][]).map(([name, px]) => (
+            <p key={name}>
+              {name} {px} · {px / 16}rem
+            </p>
+          ))}
+          {(Object.keys(layout) as LayoutTokenName[]).map((name) => (
+            <p key={name}>
+              layout/{name} {layoutModes.map((m) => layout[name][m]).join(' / ')}
+            </p>
+          ))}
+        </>
+      }
+    >
       <h1>Breakpoints and layout</h1>
       <p className="lead">
         Six breakpoints — Tailwind&rsquo;s five and one below them — and two layout tokens that step with them. The

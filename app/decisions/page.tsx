@@ -223,7 +223,7 @@ export default function Page() {
         Scheduler&rsquo;s sticky head at 3, the Table&rsquo;s header at 1, the thumbs of the SegmentedControl and Tabs.
         A z-index lives only inside a component that isolates, never above 3, and a test holds both. So the page&rsquo;s
         stack is the product&rsquo;s: a sticky bar at <code>z-index: 1</code> sits over everything Alpenglow draws. The
-        Scheduler and the Slider did not isolate until this was written, and a product&rsquo;s sticky bar at 1 or 2
+        Scheduler and the Slider did not isolate until 2026-09-24, and a product&rsquo;s sticky bar at 1 or 2
         would have had the Scheduler&rsquo;s head scroll over it. A third-party overlay with a high z-index still sits
         under an open <code>&lt;dialog&gt;</code>, which is the behaviour wanted.
       </p>
