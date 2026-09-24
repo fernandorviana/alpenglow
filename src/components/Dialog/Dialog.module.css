@@ -117,15 +117,18 @@ html:has(.dialog:modal) {
   font-weight: var(--ap-font-weight-semibold);
   text-align: center;
   text-wrap: balance;
-  overflow-wrap: normal;
-  hyphens: manual;
+  overflow-wrap: break-word;
 }
 
 /* Below the scale's own xs (30rem/480) a narrow viewport clamps the xs
    dialog to less than its 320px: at 320 it is 288 (100vw - 2 * spacing-200),
    and the header's spacing-300 gap either side of the title left it about
    112px — "appointment?" alone measures 115, with nowhere to go but
-   mid-word. Tightened here, the title gets back to about 144px. */
+   mid-word. Tightened here, the title gets back to about 144px, where every
+   word this system draws in a title fits whole, so break-word above never
+   fires on real content — it stays only as the last resort for what the
+   caller passes in (a long email, an unbroken foreign compound) that would
+   otherwise paint past the grid track and over the icon buttons. */
 @media (width < 30rem) {
   .header { column-gap: var(--ap-spacing-100); }
 }

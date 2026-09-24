@@ -180,15 +180,17 @@ describe('Dialog', () => {
       expect(css).toMatch(/\n\.dialog \.title\s*\{/);
     });
 
-    it('never breaks a title word, even mid-word', () => {
-      // overflow-wrap: break-word let the grid squeeze "appointment" onto two
-      // lines by splitting the word itself. normal keeps a word whole and
-      // pushes it onto its own line instead; hyphens stays off explicitly, so
-      // no user-agent dictionary inserts a hyphen either.
+    it('breaks a title word only as a last resort', () => {
+      // overflow-wrap: normal kept every word whole, but a single unbreakable
+      // string the caller passes in — a long email, an unbroken foreign
+      // compound — has nowhere else to go and paints past the grid track,
+      // over the icon buttons, clipped only at the dialog's edge. break-word
+      // only breaks a word when nothing else on the line can: with the
+      // narrowed gap below the title (the next test) the column is 144px,
+      // wide enough for every word this system's own titles use, so on real
+      // content break-word never fires and this behaves exactly like normal.
       const title = css.match(/\n\.dialog \.title\s*\{([^}]*)\}/)![1]!;
-      expect(title).toMatch(/overflow-wrap:\s*normal/);
-      expect(title).not.toMatch(/break-word/);
-      expect(title).toMatch(/hyphens:\s*manual/);
+      expect(title).toMatch(/overflow-wrap:\s*break-word/);
     });
 
     it('gives the xs footer buttons their own height back', () => {
