@@ -690,7 +690,8 @@ Claimed components (add a line before starting; one per session and branch):
 - **Table responsive columns** (wave 4, third piece) — built 2026-09-24 on
   branch `table-responsive-columns` (`f595b9a^..e7c9ebc`, 22 commits, the
   first three the spec, its amendment and the plan, the last nine a final
-  review's fixes), not on main. Spec
+  review's fixes), on main and pushed 2026-09-24 as `192aec1`, unreleased
+  (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
   `docs/superpowers/specs/2026-09-24-table-responsive-columns-design.md`,
   plan `docs/superpowers/plans/2026-09-24-table-responsive-columns.md`.
   Columns shrink to their minimum (96; 160 for the primary) and then
