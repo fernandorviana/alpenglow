@@ -148,10 +148,11 @@ export default function Page() {
 
       <h2>Touch</h2>
       <p>
-        Compact does not apply under a finger. When pointer is coarse (a touch screen) the
-        compact block restates the comfortable values, so a control stays at its comfortable size
-        even with <code>data-density=&quot;compact&quot;</code> set. Touch targets must meet WCAG 2.5.8&rsquo;s
-        24px floor, and density is for the pointer and the keyboard, not the touchscreen.
+        Compact does not apply under a finger. Inside <code>@media (pointer: coarse)</code> the
+        compact block restates the comfortable values, so a control stays 40px and a row 72px
+        even with <code>data-density=&quot;compact&quot;</code> set. 32px passes WCAG 2.5.8&rsquo;s
+        24px floor, but under a thumb at 375px it reads small, and density is for the pointer and
+        the keyboard, not the touchscreen.
       </p>
 
       <h2>Try it</h2>

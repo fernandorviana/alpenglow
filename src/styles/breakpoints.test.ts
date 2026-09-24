@@ -12,13 +12,17 @@ import { breakpoint } from '@/tokens/scale';
  */
 const allowed = new Set(Object.values(breakpoint).map((px) => `${px / 16}rem`));
 
-/** The lengths named by media queries in `text`: `@media` preludes, and query strings in code. */
+/** The lengths named by media queries in `text`: from `@media` preludes and query strings in code, extracting only from parenthesized features that mention `width`. */
 export function mediaWidths(text: string): string[] {
   const queries = [
     ...[...text.matchAll(/@media([^{]+)\{/g)].map(([, prelude]) => prelude!),
     ...[...text.matchAll(/(['"`])(\((?:min-|max-)?width[^'"`]*|\([\d.]+(?:px|rem|em)\s*<=?\s*width[^'"`]*)\1/g)].map(([, , q]) => q!),
   ];
-  return queries.flatMap((q) => [...q.matchAll(/(\d+(?:\.\d+)?)(px|rem|em)/g)].map(([length]) => length));
+  return queries.flatMap((q) =>
+    [...q.matchAll(/\(([^()]*\bwidth\b[^()]*)\)/g)]
+      .flatMap(([, group]) => [...group.matchAll(/(\d+(?:\.\d+)?)(px|rem|em)/g)])
+      .map(([length]) => length),
+  );
 }
 
 const files = ['src', 'app']
@@ -35,6 +39,7 @@ describe('the breakpoint scale holds', () => {
     expect(mediaWidths("useMediaQuery('(width < 30rem)')")).toEqual(['30rem']);
     expect(mediaWidths('@media (prefers-reduced-motion: reduce) {')).toEqual([]);
     expect(mediaWidths('grid-template-columns: minmax(0, 480px);')).toEqual([]);
+    expect(mediaWidths('<code>@media (pointer: coarse)</code> keeps 40px and 72px, {')).toEqual([]);
   });
 
   it('walks the package and the site', () => {
