@@ -10,3 +10,4 @@ export type {
 } from './Table';
 export { columnThresholds } from './columns';
 export type { ColumnSizing, ColumnLayout, Thresholds } from './columns';
+export { inlineButtonCount } from './RowActions';

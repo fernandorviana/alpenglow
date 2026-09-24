@@ -36,4 +36,11 @@ describe('the package root', () => {
   it('exports the Table\'s thresholds for a caller who wants the numbers', () => {
     expect(root.columnThresholds).toBeTypeOf('function');
   });
+
+  it('exports inlineButtonCount beside columnThresholds, for a caller with rowActions who calls the Table\'s own thresholds', () => {
+    // columnThresholds needs the row's inline button count as its layout's
+    // inlineButtons; without this export a caller with rowActions has no
+    // way to produce that number themselves.
+    expect(root.inlineButtonCount).toBeTypeOf('function');
+  });
 });

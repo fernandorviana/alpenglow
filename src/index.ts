@@ -47,7 +47,7 @@ export type { SwitchProps } from './components/Switch/index';
 export { Radio } from './components/Radio/index';
 export type { RadioProps } from './components/Radio/index';
 
-export { Table, columnThresholds } from './components/Table/index';
+export { Table, columnThresholds, inlineButtonCount } from './components/Table/index';
 export type {
   TableProps,
   BulkActionsApi,
