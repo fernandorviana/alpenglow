@@ -19,7 +19,8 @@ and action cells, turning the table into a list.
 
 1. **Two kinds of column.** A column with a `width` is **fixed**: it keeps
    that width and leaves whole, never shrinking first. A column without one
-   is **flexible**: it takes an even share of what the fixed columns leave.
+   is **flexible**: it takes a share of what the fixed columns leave, in
+   proportion to its minimum (decision 11).
 
 2. **`width` becomes a number, in px** (was any CSS string, applied through
    a `<col>`). The arithmetic in decision 9 has to add it up, and a `rem` or
@@ -75,54 +76,71 @@ and action cells, turning the table into a list.
 
 9. **`columnThresholds(columns, extras)`**, a pure function, returns the
    container width below which each thing leaves:
-   - **The extras** are the selection column (56) and the action column:
-     cell padding at comfortable (2 × 16) plus 40 a button and 4
-     (`spacing/050`) between buttons. Inline, the button count is the most
-     any row shows plus "⋯" if any row overflows, read from `rows` at
-     render; gathered, it is one. Buttons count as 40 at both densities,
-     so compact has a little room to spare.
+   - **The extras** are the frame's border (2 × 1), the selection column
+     (56) and the action column: cell padding at comfortable (2 × 16) plus
+     40 a button and 4 (`spacing/050`) between buttons. Inline, the button
+     count is the most any row shows plus "⋯" if any row overflows, read
+     from `rows` at render, and at least one; gathered, it is one. Buttons
+     count as 40 at both densities, so compact has a little room to spare.
    - **A set of shown columns fits** when the container holds the extras,
-     the fixed columns' widths, and — because flexible columns share
-     evenly — the number of flexible columns times the largest minimum
-     among them. Counting only the sum of minimums would let an even share
-     push a column with a large minimum under it.
+     the fixed columns' widths and the flexible columns' minimums. Each
+     flexible column's share is in proportion to its minimum (decision 11),
+     so the plain sum is enough: no column is pushed under its minimum
+     while the set fits.
    - **Inline actions** leave first: their threshold is every column shown
      plus the inline action column.
    - **Columns** then leave in reverse rank. Column *k*'s threshold is the
      fit of the never-leaving columns and every column ranked up to *k*,
      with the actions gathered.
    - Below the last threshold only what never leaves is shown; if even that
-     does not fit, the region scrolls sideways, as it can today. The
-     primary's 160 plus selection plus a gathered "⋯" is 288, under the 320
+     does not fit, the table keeps that width as its `min-width` and the
+     region scrolls sideways, as it can today. The primary's 160 plus
+     selection plus a gathered "⋯" plus the frame is 290, under the 320
      floor.
 
 ### The mechanism
 
 10. **Generated container queries, per instance.** The root is already
     `container-type: inline-size`. Each Table gets a `useId`, set as
-    `data-table` on the root, and renders a React 19
-    `<style href precedence>` whose rules read, for example:
+    `data-table` on the root, and renders a `<style>` as the root's first
+    child whose rules read, for example:
 
     ```css
     @container (width < 432px) {
-      [data-table="«r1»"] [data-col="type"] { display: none; }
+      [data-table="_r_0_"] [data-col="type"] { display: none; }
     }
     ```
 
-    The attribute value is quoted, so any id React produces is a valid
-    selector. The widths are px, the Table's own content arithmetic, not
-    breakpoints; the scale test already leaves `@container` alone. The
-    `href` is built from the id and the rules, so a change of sort or of
-    columns swaps the sheet instead of leaving a stale one deduplicated.
-    With no JS the rules still arrive in the server's HTML: nothing waits
-    for a measurement, and there is no `ResizeObserver`.
+    The attribute value is quoted and escaped, so any id React produces and
+    any column key is a valid selector. The widths are px, the Table's own
+    content arithmetic, not breakpoints; the scale test already leaves
+    `@container` alone. The `<style>` is rendered in place, not hoisted
+    with `href` and `precedence`: React never removes a hoisted sheet, so
+    the rules written for an earlier sort would stay in the head and keep
+    hiding. In place, it changes with the Table and leaves when it unmounts
+    (tried in jsdom on 2026-09-24: updated on rerender, gone on unmount,
+    no warning). With no JS the rules still arrive in the server's HTML:
+    nothing waits for a measurement, and there is no `ResizeObserver`.
 
 11. **Fixed table layout.** `table-layout: fixed`, widths on the header
-    cells (fixed columns their px; flexible ones none, so they share), and
-    no `<colgroup>`: with `display: none` on a column's cells a positional
-    `<col>` would slide onto its neighbour. The selection cell keeps its 56,
-    now said once. Flexible columns share evenly where the auto layout
-    sized them by content (Changed).
+    cells, and no `<colgroup>`: with `display: none` on a column's cells a
+    positional `<col>` would slide onto its neighbour. The selection cell
+    keeps its 56, now said once. For each set of shown columns the
+    generated rules give:
+    - a fixed column its px;
+    - the action column its px, inline or gathered;
+    - each flexible column `calc((100cqi - F) * m / M)`, where `F` is the
+      extras and the fixed widths shown, `m` its minimum and `M` the shown
+      flexible minimums' sum — its share in proportion to its minimum, read
+      from the Table's own container;
+    - one flexible column no width — the primary, or else the most
+      important flexible column shown — so it takes what is left, and a
+      vertical scrollbar in a bounded region comes off it instead of
+      pushing the table wider than its frame.
+
+    Flexible columns share by their minimums where the auto layout sized
+    them by content (Changed). With no flexible column, the browser shares
+    the leftover among the fixed ones.
 
 12. **Hidden means gone.** `display: none` on a column's `th` and every
     `td` takes it out of the accessibility tree with the pixels, so a
@@ -165,8 +183,10 @@ and action cells, turning the table into a list.
 - `Button`: the icon-only form.
 - Tests:
   - `columnThresholds`: defaults, source order, priorities with ties, a
-    fixed column, the largest-minimum rule, the sorted column raised, the
-    actions gathering first, the extras with and without selection.
+    fixed column, the thresholds as plain sums of minimums, the sorted
+    column raised, the actions gathering first, the extras with and without
+    selection; the generated widths (each flexible share, the one left
+    without a width, the table's `min-width`) and the escaping of keys.
   - The Table: `data-col` on the header and every cell of a column; the
     generated rules name the thresholds; the style changes when the sort
     does; the primary, selection and action cells are never in a rule;
@@ -184,9 +204,10 @@ and action cells, turning the table into a list.
 - The screen: the Appointments Table as in Migrations.
 - `CHANGELOG.md` under Unreleased — **Added**: `minWidth`, `priority`,
   `truncate`, `rowActions`, `rowActionsInline`, `rowActionsLabel`,
-  `columnThresholds`, the icon-only Button. **Changed**: `Column.width` is
-  a px number; columns leave by rank instead of the Table collapsing to a
-  list under 40rem; fixed table layout, flexible columns sharing evenly.
+  `columnThresholds`, the icon-only Button. **Breaking**: `Column.width` is
+  a px number, no longer a CSS string. **Changed**: columns leave by rank
+  instead of the Table collapsing to a list under 40rem; fixed table
+  layout, flexible columns sharing by their minimums.
 - `MEMORY.md`: the claim; an invariant — a column leaves by rank; the
   primary, selection and action columns never do; the gaps "Table always
   collapses under 40rem" and "Button has no square icon-only shape"
