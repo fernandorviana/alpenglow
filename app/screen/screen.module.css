@@ -32,7 +32,7 @@
 }
 
 .phoneDate {
-  padding: var(--ap-spacing-150) var(--ap-spacing-200) 0;
+  padding: var(--ap-spacing-150) var(--ap-layout-margin) 0;
 }
 
 /* --- the TopBar's contents ---------------------------------------------- */
@@ -81,7 +81,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ap-spacing-150);
-  padding: var(--ap-spacing-200) var(--ap-spacing-300);
+  padding: var(--ap-spacing-200) var(--ap-layout-margin);
 }
 
 .summary {
@@ -104,8 +104,8 @@
   grid-template-columns:
     minmax(calc(5 * var(--ap-spacing-1200) + var(--ap-spacing-1000) + 2 * var(--ap-border-width-hairline)), 3fr)
     minmax(0, 2fr);
-  gap: var(--ap-spacing-300);
-  padding: 0 var(--ap-spacing-300) var(--ap-spacing-300);
+  gap: var(--ap-layout-gap);
+  padding: 0 var(--ap-layout-margin) var(--ap-layout-margin);
   min-block-size: 0;
 }
 
@@ -113,7 +113,7 @@
    rest of the height so the Scheduler and the Table scroll inside it. */
 .tabs {
   flex: 1 1 0;
-  padding: 0 var(--ap-spacing-300) var(--ap-spacing-300);
+  padding: 0 var(--ap-layout-margin) var(--ap-layout-margin);
   min-block-size: 0;
 }
 
@@ -217,23 +217,22 @@
 
 .wide { grid-column: 1 / -1; }
 
-/* Below 1280 the search is its icon: the date keeps its words, and the
+/* Below xl the search is its icon: the date keeps its words, and the
    shortcut stays on the button as aria-keyshortcuts. */
-@media (max-width: 1279px) {
+@media (width < 80rem) {
   .body { grid-template-columns: minmax(0, 1fr); }
   .searchWords { display: none; }
 }
 
-/* With the SideNav in its sheet: the brand is its mark, and the gutters
-   narrow so the Scheduler's five columns fit at 768 without scrolling. */
-@media (max-width: 800px) {
-  .dayBar, .body, .tabs { padding-inline: var(--ap-spacing-200); }
+/* With the SideNav in its sheet, below lg, the brand is its mark. The
+   margin narrows by itself: layout/margin is 16 below lg. */
+@media (width < 64rem) {
   .brandName { display: none; }
 }
 
 /* At a phone's width: Filters and New appointment share the first row, the
    summary takes the second. */
-@media (max-width: 480px) {
+@media (width < 30rem) {
   .form { grid-template-columns: minmax(0, 1fr); }
   .summary { order: 1; flex-basis: 100%; }
 }

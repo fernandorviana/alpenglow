@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { block, readCss } from '@/test/css';
+import { breakpoint, borderWidth, spacing } from '@/tokens/scale';
+import { layout } from '@/tokens/layout';
 import { componentsUsed } from './composition';
 
 /**
@@ -52,5 +54,21 @@ describe('the dense screen', () => {
     const scheduler = readCss('src/components/Scheduler/Scheduler.module.css');
     expect(scheduler).toMatch(/--scheduler-column: var\(--ap-spacing-1200\)/);
     expect(scheduler).toMatch(/--scheduler-hours-width: var\(--ap-spacing-1000\)/);
+  });
+
+  it('lays out by the layout tokens, with no gutter of its own', () => {
+    const css = readCss('app/screen/screen.module.css');
+    for (const selector of ['.dayBar {', '.body {', '.tabs {']) {
+      expect(block(css, selector), selector).toMatch(/var\(--ap-layout-margin\)/);
+    }
+    expect(block(css, '.body {')).toMatch(/gap: var\(--ap-layout-gap\)/);
+  });
+
+  it('fits the Scheduler’s five columns at md with the narrow margin', () => {
+    // 768 is the frame's tablet: the SideNav is a sheet, so the body has the
+    // window less two narrow margins. The narrow mode runs up to lg.
+    const floor = 5 * spacing[1200] + spacing[1000] + 2 * borderWidth.hairline;
+    expect(breakpoint.md - 2 * layout.margin.narrow).toBeGreaterThanOrEqual(floor);
+    expect(breakpoint.md).toBeLessThan(breakpoint.lg);
   });
 });

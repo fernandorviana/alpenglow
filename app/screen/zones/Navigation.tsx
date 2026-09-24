@@ -5,6 +5,7 @@ import { SideNav } from '@/components/SideNav';
 import type { SideNavItem } from '@/components/SideNav';
 import type { LinkRenderProps } from '@/components/linkRender';
 import { useMediaQuery } from '@/components/useMediaQuery';
+import { media } from '@/tokens/scale';
 import { CalendarGlyph, Clients, Messages, Reports, Settings, Today } from './glyphs';
 
 export const sections = ['today', 'calendar', 'clients', 'messages', 'reports', 'settings'] as const;
@@ -28,11 +29,8 @@ export const SECTION_ICON: Record<Section, ReactNode> = {
   settings: <Settings />,
 };
 
-/**
- * The spec's table puts 768 in the sheet; SIDE_NAV_NARROW is 760. Waiting on
- * the breakpoints piece of wave 4.
- */
-export const NAV_NARROW = '(max-width: 800px)';
+/** The spec puts 768 in the sheet and 1024 on the rail: the sheet is below lg. */
+export const NAV_NARROW = media.down.lg;
 
 const item = (section: Section, current: Section): SideNavItem => ({
   href: `#${section}`,
@@ -53,8 +51,8 @@ export function Navigation({
   open: boolean;
   onClose: () => void;
 }) {
-  // The spec's table puts 1024 on the rail. Waiting on the breakpoints piece of wave 4.
-  const collapsed = useMediaQuery('(max-width: 1279px)');
+  // On the rail below xl, expanded from xl.
+  const collapsed = useMediaQuery(media.down.xl);
 
   const renderLink = (props: LinkRenderProps) => (
     <a

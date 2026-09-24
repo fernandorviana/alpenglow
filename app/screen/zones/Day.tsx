@@ -8,6 +8,7 @@ import { Scheduler } from '@/components/Scheduler';
 import type { SchedulerChange, SchedulerEvent, SchedulerResource } from '@/components/Scheduler';
 import { Select } from '@/components/Select';
 import { useMediaQuery } from '@/components/useMediaQuery';
+import { media } from '@/tokens/scale';
 import { DAY, NOW, practitioners } from '../data';
 import type { Appointment } from '../data';
 import { move, visible } from '../state';
@@ -49,7 +50,7 @@ function toEvent(a: Appointment): SchedulerEvent {
 
 /** The Scheduler in day view, a column per practitioner; at a phone's width, one chosen in a Select. */
 export function Day({ state, dispatch }: { state: ScreenState; dispatch: Dispatch<Action> }) {
-  const phone = useMediaQuery('(max-width: 480px)');
+  const phone = useMediaQuery(media.down.xs);
   const [chosen, setChosen] = useState(practitioners[0]!.id);
 
   // The practitioner filter narrows the columns too; one that matches nobody leaves them all, empty.

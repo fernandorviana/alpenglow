@@ -5,6 +5,7 @@ import { axeViolations } from '@/test/axe';
 import { installDialogStub } from '@/test/dialog';
 import { installPopoverStub } from '@/test/popover';
 import { Toaster, toast } from '@/components/Toast';
+import { media } from '@/tokens/scale';
 import { Screen } from './Screen';
 import { initialState, reducer } from './state';
 
@@ -12,14 +13,13 @@ vi.mock('next/navigation', () => ({ usePathname: () => '/screen/full', useRouter
 
 /**
  * The wide screen: the day and the table side by side, the SideNav expanded.
- * Only `(min-width: 1280px)` matches, so every narrower query is false. A
- * test that wants the phone sets `wide` to false, and then every max-width
- * query matches.
+ * Only `media.up.xl` matches, so every narrower query is false. A test that
+ * wants the phone sets `wide` to false, and then every `width <` query matches.
  */
 let wide = true;
 window.matchMedia = (query: string) =>
   ({
-    matches: wide ? query === '(min-width: 1280px)' : query.startsWith('(max-width'),
+    matches: wide ? query === media.up.xl : query.startsWith('(width <'),
     media: query,
     addEventListener: () => {},
     removeEventListener: () => {},

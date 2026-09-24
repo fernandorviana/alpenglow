@@ -9,6 +9,7 @@ import { Tabs } from '@/components/Tabs';
 import { TopBar } from '@/components/TopBar';
 import { addDays } from '@/components/Calendar/date';
 import { useMediaQuery } from '@/components/useMediaQuery';
+import { media } from '@/tokens/scale';
 import { DAY } from './data';
 import type { FrameMode } from './frame';
 import { initialState, reducer, visible } from './state';
@@ -37,9 +38,9 @@ export function Screen({ onTheme, initial }: { onTheme?: (theme: FrameMode) => v
   const [sheet, setSheet] = useState(false);
   const [section, setSection] = useState<Section>('today');
 
-  const wide = useMediaQuery('(min-width: 1280px)');
+  const wide = useMediaQuery(media.up.xl);
   const narrow = useMediaQuery(NAV_NARROW);
-  const phone = useMediaQuery('(max-width: 480px)');
+  const phone = useMediaQuery(media.down.xs);
   const hint = useCommandPaletteShortcut(() => setPalette(true), 'k');
 
   const go = (date: string) => {
