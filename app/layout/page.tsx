@@ -76,7 +76,16 @@ export default function LayoutPage() {
       </p>
 
       <h2>The scale</h2>
-      <Table caption="Breakpoints" columns={BREAKPOINT_COLUMNS} rows={BREAKPOINT_ROWS} getRowId={(r) => r.name} />
+      <div className="specimen">
+        <Table
+          caption="Breakpoints"
+          captionVisible
+          density="compact"
+          columns={BREAKPOINT_COLUMNS}
+          rows={BREAKPOINT_ROWS}
+          getRowId={(r) => r.name}
+        />
+      </div>
       <p>
         {minViewport}px is the floor, not a breakpoint: the narrowest width the system is built and tested at, WCAG
         1.4.10&rsquo;s reflow. Every step is in rem, so a reader who sets a larger default font size gets the narrower
@@ -115,7 +124,16 @@ export default function LayoutPage() {
       </p>
 
       <h2>Margin and gap</h2>
-      <Table caption="Layout tokens" columns={LAYOUT_COLUMNS} rows={LAYOUT_ROWS} getRowId={(r) => r.name} />
+      <div className="specimen">
+        <Table
+          caption="Layout tokens"
+          captionVisible
+          density="compact"
+          columns={LAYOUT_COLUMNS}
+          rows={LAYOUT_ROWS}
+          getRowId={(r) => r.name}
+        />
+      </div>
       <p>
         The margin is the space around the content region, from the navigation&rsquo;s edge, the window&rsquo;s and the
         TopBar alike; the TopBar pads its sides by it, so its start and end line up with the content. The gap is between
