@@ -278,9 +278,11 @@ html[data-nav-open] { overflow: hidden; }
 
 /* Three columns on a wide screen — the page's sections, the prose, the
    evidence — and two below it, with the sections at the head of the evidence
-   column. The prose keeps one measure throughout: 832px
-   is what the 1120px page left it, and it is the column a Table specimen
-   needs (see below). On a wide screen the evidence is pushed to the right
+   column. The text keeps one measure throughout (see below); the column
+   around it, measured: 852 from `xl`, what the 1120px page leaves once its
+   margins, the evidence and the gap are out; from `2xl` at most the 832 the
+   grid names, 740 at 1536 — never under the 704 a Table specimen needs
+   (`Nav.test.tsx`). On a wide screen the evidence is pushed to the right
    edge by an empty track that takes whatever is left, so the numbers sit in
    the margin rather than against the text. */
 .page {
@@ -321,9 +323,9 @@ html[data-nav-open] { overflow: hidden; }
    own container queries still cost it a column once it is narrower than
    that column needs, and a specimen inside a 600px column is only 550px —
    tight enough to cost a full-width Table a column or two before the
-   reader has done anything. The content column is 784px, which leaves
-   734px inside a specimen once its padding and hairline are taken off
-   both sides, room enough for the package's Tables to keep their whole
+   reader has done anything. The content column is 852px from `xl`, which
+   leaves 802px inside a specimen once its padding and hairline are taken
+   off both sides, room enough for the package's Tables to keep their whole
    column set. */
 .prose { min-width: 0; }
 
@@ -417,11 +419,16 @@ html[data-nav-open] { overflow: hidden; }
 
 /* The page before and the page after, closing the prose under a rule. Each
    is one block: the direction in the caption, the page's name in the body
-   weight, and a chevron on the outer side pointing the way. */
+   weight, and a chevron on the outer side pointing the way.
+
+   No gap: the links' own padding keeps their names 24 apart, and their boxes
+   meet without overlapping. A 16 gap on top of it wrapped a pair of long
+   names onto two lines each at 320 (Badge, Colour, Input, Why) and at 375
+   (Density). */
 .pager {
   display: flex;
   justify-content: space-between;
-  gap: var(--ap-spacing-200);
+  gap: 0;
   margin-top: var(--ap-spacing-800);
   padding-top: var(--ap-spacing-300);
   border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
@@ -621,10 +628,11 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* --- prose ---------------------------------------------------------------- */
 
-/* Every rule here reaches inside the prose, where the specimens, dialogs and
-   drawers are, so every one is under `:where()` and weighs nothing: a
+/* Every `.prose` rule here reaches inside the prose, where the specimens,
+   dialogs and drawers are, so each is under `:where()` and weighs nothing: a
    component's own class beats it, and an element with no class of its own —
-   the page's text — still gets it. See the measure, above. */
+   the page's text — still gets it. See the measure, above. `.lead` is a
+   class the page sets on its own paragraph, not a prose rule. */
 
 /* Balanced, so a heading that wraps does not leave one word on its own
    line — "…and the suite cannot see / it" did, on Decisions. */
@@ -667,12 +675,14 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* The Link's decision, for the links the prose writes as plain `a`: the
-   accent and Medium at rest, a line under the pointer and the focus. */
-/* Only an `a` with no class: a Button with an href is an `a` too, and it
-   would take whatever of this its own rules do not set — an underline under
-   the pointer. */
+   accent and Medium at rest, a line under the pointer and the focus.
+
+   The accent for every `a`: a component that sets its own colour keeps it. */
 :where(.prose) :where(a) { color: var(--ap-color-text-accent); }
 
+/* The rest only for an `a` with no class: a Button with an href is an `a`
+   too, and it would take whatever of this its own rules do not set — an
+   underline under the pointer. */
 :where(.prose) :where(a:not([class])) {
   font-weight: var(--ap-font-weight-medium);
   text-decoration-line: none;
@@ -1000,10 +1010,15 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .cardBody { padding: var(--ap-spacing-050) var(--ap-spacing-100) var(--ap-spacing-100); }
 
+/* The drawn Card's two lines (Figma 3072:3359, State=Default): the title
+   16/24 semibold, `body/lg`; the description 12/16 medium, `caption/md`.
+   Each declares its whole style — size, line height, tracking, weight — so
+   nothing of the prose's `h3` or `p` comes through underneath. */
 .cardTitle {
   margin: 0 0 var(--ap-spacing-050);
-  font-size: var(--ap-text-body-md-size);
-  line-height: var(--ap-text-body-md-line-height);
+  font-size: var(--ap-text-body-lg-size);
+  line-height: var(--ap-text-body-lg-line-height);
+  letter-spacing: var(--ap-text-body-lg-tracking);
   font-weight: var(--ap-font-weight-semibold);
 }
 
@@ -1023,6 +1038,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .cardDescription {
   margin: 0;
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  letter-spacing: var(--ap-text-caption-md-tracking);
+  font-weight: var(--ap-font-weight-medium);
   color: var(--ap-color-text-secondary);
   text-wrap: pretty;
 }
@@ -1658,11 +1677,12 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    away. `xs` is the safe step, so every phone gets the specimen edge to edge.
    `DocPage.test.tsx` checks it.
 
-   The specimen's own class, later than its rule above: this has to beat that
-   rule's padding and border, and a prose selector may not carry that weight
-   (`ProseScope.test.tsx`). Every specimen is a child of the prose. */
+   The specimen's own class, twice: this has to beat the specimen's padding
+   and border wherever the rule sits in the file, and a prose selector may
+   not carry that weight (`ProseScope.test.tsx`). Every specimen is a child
+   of the prose. */
 @media (width < 30rem) {
-  .specimen {
+  .specimen.specimen {
     margin-inline: calc(-1 * var(--ap-layout-margin));
     padding-inline: var(--ap-layout-margin);
     border-inline: none;
