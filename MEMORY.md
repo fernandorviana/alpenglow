@@ -631,8 +631,8 @@ Nothing is built.
 Claimed components (add a line before starting; one per session and branch):
 
 - **Breakpoints and layout** (wave 4, second piece) — built 2026-09-24 on
-  branch `breakpoints-and-layout` (`22aa8b9^..54a836b`, 12 commits, the
-  first two the spec and the plan), not yet on main, unreleased
+  branch `breakpoints-and-layout` (from `22aa8b9`, the
+  first two commits the spec and the plan), not yet on main, unreleased
   (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
   `docs/superpowers/specs/2026-09-24-breakpoints-and-layout-design.md`,
   plan `docs/superpowers/plans/2026-09-24-breakpoints-and-layout.md`.
