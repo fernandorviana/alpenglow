@@ -179,5 +179,37 @@ describe('Dialog', () => {
     it('gives the title two classes, so a page prose h2 rule cannot restyle it', () => {
       expect(css).toMatch(/\n\.dialog \.title\s*\{/);
     });
+
+    it('never breaks a title word, even mid-word', () => {
+      // overflow-wrap: break-word let the grid squeeze "appointment" onto two
+      // lines by splitting the word itself. normal keeps a word whole and
+      // pushes it onto its own line instead; hyphens stays off explicitly, so
+      // no user-agent dictionary inserts a hyphen either.
+      const title = css.match(/\n\.dialog \.title\s*\{([^}]*)\}/)![1]!;
+      expect(title).toMatch(/overflow-wrap:\s*normal/);
+      expect(title).not.toMatch(/break-word/);
+      expect(title).toMatch(/hyphens:\s*manual/);
+    });
+
+    it('gives the xs footer buttons their own height back', () => {
+      // `.actions > * { flex: 1 1 0 }` is for the row layout at sm/md/lg,
+      // where it shares width evenly. Inside `.xs .actions`'s column, the same
+      // rule shares *height* instead, so two buttons split the footer down to
+      // 22px each. `flex: none` on the xs override lets each button keep its
+      // own 40px, and the column's default `align-items: stretch` still
+      // spans them full width.
+      expect(block(css, '\n.xs .actions > * {')).toMatch(/flex:\s*none/);
+    });
+
+    it('narrows the header gap below xs so a 320 title has room to wrap on whole words', () => {
+      // At 320 the viewport clamps the xs dialog to 288px wide (100vw - 2 *
+      // spacing-200). With the header's spacing-300 gap either side of the
+      // title column, that leaves the title about 112px — "appointment?"
+      // alone measures 115 and has nowhere to go but mid-word. Tightening the
+      // gap to spacing-100 below the xs breakpoint (30rem, the scale's own
+      // xs) gives the title back to about 144px.
+      const media = block(css, '\n@media (width < 30rem) {');
+      expect(media).toMatch(/\.header\s*\{[^}]*column-gap:\s*var\(--ap-spacing-100\)/);
+    });
   });
 });

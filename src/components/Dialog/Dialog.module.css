@@ -77,8 +77,8 @@ html:has(.dialog:modal) {
 /* --- header --------------------------------------------------------------- */
 
 /* Three columns, so the title stays centred with or without a back button.
-   The gap is the header's own padding: at 40 the xs title had 112px, and
-   "appointment?" alone is 115. */
+   The gap between them is tightened further below 30rem — see the media
+   query after the title rule, where the narrow-viewport measurement lives. */
 .header {
   position: relative;
   display: grid;
@@ -117,7 +117,17 @@ html:has(.dialog:modal) {
   font-weight: var(--ap-font-weight-semibold);
   text-align: center;
   text-wrap: balance;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
+  hyphens: manual;
+}
+
+/* Below the scale's own xs (30rem/480) a narrow viewport clamps the xs
+   dialog to less than its 320px: at 320 it is 288 (100vw - 2 * spacing-200),
+   and the header's spacing-300 gap either side of the title left it about
+   112px — "appointment?" alone measures 115, with nowhere to go but
+   mid-word. Tightened here, the title gets back to about 144px. */
+@media (width < 30rem) {
+  .header { column-gap: var(--ap-spacing-100); }
 }
 
 /* interactive/neutral, not the drawn surface/base: the same primitive in
@@ -193,5 +203,14 @@ html:has(.dialog:modal) {
 /* Stacked in DOM order, the first on top, as drawn. */
 .xs .actions {
   flex-direction: column;
+  align-items: stretch;
   gap: var(--ap-spacing-100);
 }
+
+/* `.actions > * { flex: 1 1 0 }` above is for the row layout, where it shares
+   width evenly between two buttons. Applied inside this column it shares
+   *height* instead — flex-basis 0 on the main axis, which is now vertical —
+   so two buttons in a fixed-height footer were split to 22px each instead of
+   their own 40. `flex: none` lets each button keep its own height; the
+   column's `align-items: stretch` above still spans them full width. */
+.xs .actions > * { flex: none; }
