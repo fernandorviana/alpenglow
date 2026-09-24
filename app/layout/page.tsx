@@ -15,7 +15,7 @@ import type { LayoutTokenName } from '@/tokens/layout';
  */
 
 const READERS: Record<BreakpointName, string> = {
-  xs: 'Below it, a phone: the Toast full width, the CommandPalette full screen, the site’s specimens edge to edge',
+  xs: 'Below it, a phone: the Toast full width, the CommandPalette’s description under the label, the site’s specimens edge to edge',
   sm: 'No reader yet — Tailwind’s step, kept so sm: means the same everywhere',
   md: 'Below it, the SideNav is a sheet and the site’s bar is narrow; the Tailwind default, 768',
   lg: 'Margin 24 and gap 20 from here; the screen’s navigation leaves its sheet',
@@ -90,7 +90,10 @@ export default function LayoutPage() {
         the other five are Tailwind&rsquo;s own.
       </p>
       <CodeBlock lang="css" code={`@media (width < 48rem) { … }   /* below md */\n@media (width >= 80rem) { … }  /* xl and up */`} />
-      <CodeBlock lang="tsx" code={`import { media } from 'alpenglow';\nconst narrow = useMediaQuery(media.down.md); // '(width < 48rem)'`} />
+      <CodeBlock
+        lang="tsx"
+        code={`import { media } from 'alpenglow';\nconst narrow = useMediaQuery(media.down.md); // the app's own hook, or any`}
+      />
       <p>
         <code>--ap-breakpoint-*</code> in <code>tokens.css</code> are for JavaScript and for reading. A test fails on any
         width in a media query outside the scale.
@@ -98,8 +101,9 @@ export default function LayoutPage() {
 
       <h2>A layout of your own</h2>
       <p>
-        Measure where the content breaks, then round to the safe step. This site&rsquo;s wide page needs 1108 to hold a
-        Table specimen beside the section list, so it starts at <code>2xl</code>, 1536; its evidence column needs the
+        Measure where the content breaks, then round to the safe step. This site&rsquo;s wide page needs 1108 of page
+        between the margins to hold a Table specimen beside the section list — 1500 of viewport, once the rail, the
+        drawer and the margins are out — so it starts at <code>2xl</code>, 1536; its evidence column needs the
         prose beside it to keep 704, which it does from <code>xl</code>. The tests hold the inequality, not the number.
       </p>
 
@@ -118,9 +122,11 @@ export default function LayoutPage() {
         panes and between the columns of a composition. Below <code>xl</code> the content is one pane, two behind Tabs;
         from <code>xl</code> two sit side by side. There is no 12-column grid in code: the Scheduler and the Table size
         themselves. In Figma the <code>Alpenglow Layout</code> collection has the three modes, and a 12-column grid style
-        is bound to it as a guide.
+        is bound to it as a guide. The package&rsquo;s default keeps the SideNav a rail down to <code>md</code>; beside a
+        Scheduler, pass it <code>narrow={'{media.down.lg}'}</code> instead, so a tablet gets the whole 736 rather than
+        sharing it with the rail.
       </p>
-      <figure className="layoutModes" aria-label="The pane model in its three modes">
+      <figure className="layoutModes" aria-label="The pane model in the dense screen’s three modes">
         {layoutModes.map((m) => (
           <div key={m} className="layoutMode" data-mode={m}>
             <span className="layoutNav" aria-hidden="true" />

@@ -1443,9 +1443,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 /* --- responsive ----------------------------------------------------------- */
 
 /* Wide, from `2xl`: the sections join on the left. Measured, the prose holds
-   a Table specimen with the list beside it from 1108 of page — the 80 rail,
-   the 232 drawer, two 40 margins, the list, the evidence, three 20 gaps and
-   the spacer — and 2xl, 1536, is the safe step above it. `Nav.test.tsx`
+   a Table specimen with the list beside it from 1500 of viewport — 1108 of
+   page between the 40 margins, once the 80 rail and the 232 drawer are also
+   gone, and the list, the evidence, three 20 gaps and the spacer leave the
+   704 from that — and 2xl, 1536, is the safe step above it. `Nav.test.tsx`
    checks the inequality. */
 @media (width >= 96rem) {
   .page {

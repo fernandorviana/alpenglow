@@ -264,11 +264,13 @@ have all been mistaken for errors at least once.
 
 25. **No z-index in `src/components/` outside a module that isolates, and
     none above 3.** A `z-index` declaration lives only in a stylesheet
-    whose own selector also declares `isolation: isolate` — the
-    Scheduler, the Table, the Slider — so a product's own stacking
-    context always wins: its sticky bar at `z-index: 1` sits over the
-    Scheduler's head. `src/components/layering.test.ts` enforces both the
-    isolation and the ceiling.
+    whose own selector also declares `isolation: isolate` — six modules
+    do: the Scheduler, the Table, the Slider, the Card, Tabs and the
+    shared segmented module, the first three added 2026-09-24 — so a
+    product's own stacking context always wins: its sticky bar at
+    `z-index: 1` sits over the Scheduler's head.
+    `src/components/layering.test.ts` enforces both the isolation and the
+    ceiling.
 
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
     implements none of it. `src/test/popover.ts` covers show, hide, toggle, the
@@ -664,11 +666,14 @@ Claimed components (add a line before starting; one per session and branch):
   below `xs` (480), not at 480 and below; the TopBar pads its sides by
   `var(--ap-layout-margin)` (16 below 1024, 24 to 1279, 40 from 1280),
   where it was 24 at every width. The site and the screen move onto the
-  scale: the site's own breakpoints — 1496 and 1440 (the drawer's two
-  thresholds) and 1160 (the evidence column) → `2xl` and `xl`, 760 (the
-  old SideNav literal) → `md`, 370 (Search's own break) → `xs` — and the
-  screen's frame breakpoint, 1000, → `lg`, are now inequalities against
-  the breakpoint scale, tested as inequalities rather than literal pixels.
+  scale: the site's own breakpoints — 1496 (the wide page with the
+  section list beside the prose) and 1440 (where the drawer left the
+  flow) and 1160 (the evidence column) → `2xl` and `xl`, and 370 (the
+  Calendar specimen's edge-to-edge bleed) → `xs` — are now inequalities
+  against the breakpoint scale, tested as inequalities rather than
+  literal pixels; 760 (the old SideNav literal) → `md` and 1000 (the
+  Scheduler docs page's inline query, `app/scheduler/page.tsx`) → `lg`
+  are straight replacements, not inequalities.
   A Breakpoints and layout page under Foundations (`/layout`), and the
   z-index decision on `/decisions`: no z-index tokens, one rule — a
   z-index lives only inside a module that declares `isolation: isolate`,
@@ -714,9 +719,10 @@ Claimed components (add a line before starting; one per session and branch):
   attribute. **The Table's inline padding is `row / 6 + 4`** — 16 at 72,
   12 at 48, the two drawn pairs without a sixth token. **SideNav item
   padding comes from the 24px icon, not the 22px line**, or the items
-  measured 42/34. **The screen's narrow query is 800**, not the SideNav's
-  760 (768, `media.down.md`, since 2026-09-24), because the spec puts 768
-  in the sheet; a literal until breakpoints were tokens. **Visited days
+  measured 42/34. **The screen's narrow query was 800**, not the
+  SideNav's 760 (768, `media.down.md`, since 2026-09-24) — a literal
+  until breakpoints were tokens; it is now `media.down.lg` (1024),
+  because the spec puts 768 in the sheet and 1024 on the rail. **Visited days
   keep their edits for the session** and
   going to the same date is a no-op (ruling R7): an Undo after returning
   to its day must hit the same records; a reload resets. **"Booked"

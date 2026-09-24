@@ -5,7 +5,11 @@
  * the viewport. Measured from the original product's design file at 1440 —
  * 40 around the content, 20 between columns and cards — and stepped down for
  * narrower screens. The margin stays 16 below `lg` because the Scheduler's
- * five columns need 722, and 768 − 2 × 16 leaves 736.
+ * five columns need 722, and 768 − 2 × 16 leaves 736 — a fit that holds when
+ * the SideNav is a sheet below `lg`, as the dense screen passes it
+ * (`narrow={media.down.lg}`). The package default keeps the rail there
+ * instead: `SIDE_NAV_NARROW` is `media.down.md`, so a page that keeps that
+ * default and needs the whole 736 should pass `narrow={media.down.lg}` too.
  *
  * The navigation is outside it: the margin starts at the SideNav's edge, or
  * at the window's when the SideNav is a sheet.

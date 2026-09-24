@@ -12,11 +12,18 @@ import { breakpoint } from '@/tokens/scale';
  */
 const allowed = new Set(Object.values(breakpoint).map((px) => `${px / 16}rem`));
 
-/** The lengths named by media queries in `text`: from `@media` preludes and query strings in code, extracting only from parenthesized features that mention `width`. */
+/**
+ * The lengths named by media queries in `text`: from `@media` preludes and query strings in
+ * code, extracting only from parenthesized features that mention `width`. A query string is any
+ * single-quoted, double-quoted or backtick string on one line — `screen and (max-width: 700px)`
+ * and `(orientation: portrait) and (max-width: 700px)` both count, not only a string that opens
+ * with the width feature — and the width groups are pulled out of it the same way as from an
+ * `@media` prelude. A template string built with `${n}px` has no literal to catch; this misses it.
+ */
 export function mediaWidths(text: string): string[] {
   const queries = [
     ...[...text.matchAll(/@media([^{]+)\{/g)].map(([, prelude]) => prelude!),
-    ...[...text.matchAll(/(['"`])(\((?:min-|max-)?width[^'"`]*|\([\d.]+(?:px|rem|em)\s*<=?\s*width[^'"`]*)\1/g)].map(([, , q]) => q!),
+    ...[...text.matchAll(/(['"`])((?:(?!\1)[^\n])*)\1/g)].map(([, , q]) => q!),
   ];
   return queries.flatMap((q) =>
     [...q.matchAll(/\(([^()]*\bwidth\b[^()]*)\)/g)]
@@ -37,6 +44,8 @@ describe('the breakpoint scale holds', () => {
     expect(mediaWidths('@container (max-width: 40rem) { .a { color: red; } }')).toEqual([]);
     expect(mediaWidths("useMediaQuery('(max-width: 480px)')")).toEqual(['480px']);
     expect(mediaWidths("useMediaQuery('(width < 30rem)')")).toEqual(['30rem']);
+    expect(mediaWidths("'screen and (max-width: 700px)'")).toEqual(['700px']);
+    expect(mediaWidths("'(orientation: portrait) and (max-width: 700px)'")).toEqual(['700px']);
     expect(mediaWidths('@media (prefers-reduced-motion: reduce) {')).toEqual([]);
     expect(mediaWidths('grid-template-columns: minmax(0, 480px);')).toEqual([]);
     expect(mediaWidths('<code>@media (pointer: coarse)</code> keeps 40px and 72px, {')).toEqual([]);

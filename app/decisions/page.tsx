@@ -219,8 +219,9 @@ export default function Page() {
         A z-index scale orders layers that compete on one stack, and nothing here competes. What floats goes to the top
         layer — the Dialog, Drawer, Popover, Tooltip, Select, Combobox, DatePicker, DropdownMenu, PageSize, Toast, the
         SideNav&rsquo;s sheet and, through the Dialog, the CommandPalette: twelve components, no z-index, stacked in the
-        order they opened. What stacks inside a component is shut in its own <code>isolation: isolate</code>: the
-        Scheduler&rsquo;s sticky head at 3, the Table&rsquo;s header at 1, the thumbs of the SegmentedControl and Tabs.
+        order they opened. What stacks inside a component is shut in its own <code>isolation: isolate</code>, for
+        example: the Scheduler&rsquo;s sticky head at 3, the Table&rsquo;s header at 1, the Card&rsquo;s actions at 1,
+        the Slider&rsquo;s upper thumb input at 1, the thumbs of the SegmentedControl and Tabs.
         A z-index lives only inside a component that isolates, never above 3, and a test holds both. So the page&rsquo;s
         stack is the product&rsquo;s: a sticky bar at <code>z-index: 1</code> sits over everything Alpenglow draws. The
         Scheduler and the Slider did not isolate until 2026-09-24, and a product&rsquo;s sticky bar at 1 or 2
@@ -233,9 +234,10 @@ export default function Page() {
       <p>
         The site&rsquo;s page has three columns on a wide screen — the sections, the prose,
         the measurements — and a Table specimen needs 704px of prose to keep its header: 654
-        for the table and a specimen&rsquo;s padding and hairline on both sides. Measured, the
-        chrome and the columns leave that from 1108: the 80px rail, the 232px drawer, two 40px
-        margins, the 152px list, the 168px measurements, three 20px gaps and a 24px spacer.
+        for the table and a specimen&rsquo;s padding and hairline on both sides. Measured, that
+        holds from 1500 of viewport: the 80px rail, the 232px drawer and two 40px margins leave
+        1108 of page between the margins, and the 152px list, the 168px measurements, three
+        20px gaps and a 24px spacer leave the 704 from that.
         It was a breakpoint of its own, 1496, until the breakpoints became a scale; now it is
         the scale&rsquo;s step on the safe side of the measure, <code>2xl</code>, 1536, and the
         test holds the inequality rather than the number.

@@ -83,9 +83,11 @@ link. Nothing is removed and nothing is renamed.
 ### Changed
 
 - **The SideNav turns at 768**, `media.down.md`, not 760: from 761 to 767
-  it is now the sheet.
+  it is now the sheet. The query is in rem, so it follows the reader's
+  default font size: at a 20px default, 768 becomes 960.
 - **The Toast and the CommandPalette take their phone layout below 480**,
-  not at 480 and below.
+  not at 480 and below. The query is in rem too: at a 20px default, 480
+  becomes 600.
 - **The TopBar pads its sides by `layout/margin`**: 16 below 1024, 24 to
   1279, 40 from 1280, where it was 24 at every width.
 - **The Scheduler, the Table and the Slider isolate** (`isolation:

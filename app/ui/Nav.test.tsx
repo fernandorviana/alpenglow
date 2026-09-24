@@ -377,13 +377,19 @@ describe('the nav stylesheet', () => {
     expect(breakpoint['2xl'] - chrome - beside).toBeGreaterThanOrEqual(704);
   });
 
-  it('drops the evidence column below xl, and not before it is squeezed', () => {
+  it("keeps the Table specimen's 704 beside the evidence from xl, and drops the evidence below it", () => {
     // From xl to 2xl the drawer overlays, so the rail alone is the chrome;
-    // the prose beside the evidence must still hold the Table specimen's 704.
+    // the prose beside the evidence must still hold the Table specimen's
+    // 704. The page itself caps at its own max-width, so the width to
+    // subtract margins, evidence and gap from is whichever is smaller: the
+    // viewport left after the rail, or the page's own cap.
     const below = block(css, `@media ${media.down.xl}`);
     expect(below).toMatch(/\.gutter\s*\{\s*display: none/);
     const evidence = Number(rulesOf('.page').match(/grid-template-columns: minmax\(0, 1fr\) (\d+)px/)![1]);
-    const prose = breakpoint.xl - px(rulesOf('.rail'), 'width') - 2 * layout.margin.wide - evidence - layout.gap.wide;
+    const maxWidth = px(rulesOf('.page'), 'max-width');
+    const available = breakpoint.xl - px(rulesOf('.rail'), 'width');
+    const pageWidth = Math.min(maxWidth, available);
+    const prose = pageWidth - 2 * layout.margin.wide - evidence - layout.gap.wide;
     expect(prose).toBeGreaterThanOrEqual(704);
   });
 });
