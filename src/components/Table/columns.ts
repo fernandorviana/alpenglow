@@ -108,8 +108,14 @@ export function columnThresholds(layout: ColumnLayout): Thresholds {
   return { gather, leave: leave.reverse(), floor };
 }
 
-/** A quoted, escaped attribute value, so any key or id makes a valid selector. */
-const quoted = (value: string) => `"${value.replace(/["\\]/g, '\\$&')}"`;
+/**
+ * A quoted, escaped attribute value, so any key or id makes a valid selector.
+ * A literal newline would otherwise break the string token outright, not
+ * just the selector's meaning, so it gets its own CSS escape, `\a` plus the
+ * trailing space that ends it, rather than a backslash a browser would only
+ * read as escaping the character after it.
+ */
+const quoted = (value: string) => `"${value.replace(/["\\]/g, '\\$&').replace(/\n/g, '\\a ')}"`;
 
 const query = (below: number, rules: string[]) => `@container (width < ${below}px) {\n${rules.join('\n')}\n}`;
 

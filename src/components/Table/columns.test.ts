@@ -158,4 +158,9 @@ describe('columnCss', () => {
     expect(odd).toContain('[data-table="a\\"b"]');
     expect(odd).toContain('[data-col="x\\"y\\\\z"]');
   });
+
+  it('escapes a newline in a key as the CSS escape \\a, since a literal one would break the string token', () => {
+    const odd = columnCss('t', { ...tryIt, columns: [{ key: 'name' }, { key: 'a\nb' }] });
+    expect(odd).toContain('[data-col="a\\a b"]');
+  });
 });
