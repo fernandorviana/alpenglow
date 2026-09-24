@@ -315,9 +315,12 @@
 
 /* --- the field ------------------------------------------------------------ */
 
+/* Input's wrapper div carries both .control and .field, so this sets
+   --control-width rather than width itself: control.module.css reads it
+   on the same element, which needs no stylesheet to load after the other. */
 .field {
   flex: none;
-  width: var(--slider-field-width);
+  --control-width: var(--slider-field-width);
 }
 
 .caption {

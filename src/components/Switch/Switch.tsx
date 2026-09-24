@@ -27,7 +27,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
   const described = [describedBy, description ? descriptionId : null].filter(Boolean).join(' ');
 
   return (
-    <div className={[choice.root, className].filter(Boolean).join(' ')}>
+    <div className={[choice.root, styles.root, className].filter(Boolean).join(' ')}>
       <label className={choice.main}>
         <input
           {...rest}
@@ -40,7 +40,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
         {children && <span className={choice.label}>{children}</span>}
       </label>
       {description && (
-        <span className={`${choice.description} ${styles.description}`} id={descriptionId}>
+        <span className={choice.description} id={descriptionId}>
           {description}
         </span>
       )}

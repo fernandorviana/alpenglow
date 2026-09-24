@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { Switch } from './Switch';
+import styles from './Switch.module.css';
+import { readCss, block } from '../../test/css';
 
 describe('Switch', () => {
   it('announces itself as a switch, not a checkbox', () => {
@@ -82,5 +84,32 @@ describe('Switch', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(onSubmit).toHaveBeenCalledOnce();
+  });
+});
+
+describe('Switch — description indent (production chunk order)', () => {
+  it('sets --choice-indent on its own root class instead of overriding margin-left, so choice.module.css cannot outrank it when chunk order differs in production', () => {
+    // .description sits in choice.module.css, shared with Checkbox and
+    // Radio. Overriding its margin-left from Switch.module.css at equal
+    // specificity is decided by whichever stylesheet's chunk loads last —
+    // which next dev and the production build do not agree on. Bridging
+    // the value through a custom property set on an ancestor of
+    // .description removes the conflict instead of winning it.
+    const switchCss = readCss('src/components/Switch/Switch.module.css');
+    expect(switchCss).not.toMatch(/\.description\s*\{/);
+    expect(block(switchCss, '.root {')).toMatch(/--choice-indent:\s*40px/);
+
+    const choiceCss = readCss('src/components/choice.module.css');
+    expect(block(choiceCss, '.description {')).toMatch(
+      /margin-left:\s*calc\(var\(--choice-indent,\s*20px\)\s*\+\s*var\(--ap-spacing-100\)\)/,
+    );
+  });
+
+  it('puts --choice-indent on an actual ancestor of the description, not a sibling it could never reach', () => {
+    render(<Switch description="They get an email the day before.">Send reminders</Switch>);
+    const description = screen.getByText('They get an email the day before.');
+    const root = description.closest(`.${styles.root}`);
+    expect(root).not.toBeNull();
+    expect(root).toContainElement(description);
   });
 });

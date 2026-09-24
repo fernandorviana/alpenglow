@@ -259,6 +259,21 @@ describe('Slider — stylesheet', () => {
   it('insets the line by half a thumb, so the fill meets the thumb’s centre', () => {
     expect(block(css, '\n.line {')).toMatch(/inset-inline:\s*calc\(var\(--slider-thumb\) \/ 2\)/);
   });
+
+  it('sets --control-width on .field instead of width, so control.module.css cannot outrank it when chunk order differs in production', () => {
+    // Input's wrapper div carries both .control and .field on the same
+    // element. Two rules declaring the literal `width` property there at
+    // equal specificity would be decided by whichever stylesheet's chunk
+    // loads last — which next dev and the production build do not agree
+    // on. Bridging the value through a custom property that only .field
+    // declares removes the conflict instead of winning it.
+    const field = block(css, '.field {');
+    expect(field).not.toMatch(/(?:^|[\s;])width\s*:/);
+    expect(field).toMatch(/--control-width:\s*var\(--slider-field-width\)/);
+
+    const controlCss = readCss('src/components/control.module.css');
+    expect(block(controlCss, '.control {')).toMatch(/width:\s*var\(--control-width,\s*100%\)/);
+  });
 });
 
 describe('Slider — axe', () => {

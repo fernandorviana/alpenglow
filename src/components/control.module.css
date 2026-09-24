@@ -25,7 +25,12 @@
   display: flex;
   align-items: center;
   gap: var(--ap-spacing-150);
-  width: 100%;
+  /* A caller sharing this element — Slider's .field is the case — sets
+     --control-width instead of overriding width directly: two rules
+     declaring the same property at equal specificity would be decided by
+     stylesheet load order, which differs between next dev and the
+     production build. */
+  width: var(--control-width, 100%);
 
   border: var(--ap-border-width-hairline) solid transparent;
   border-radius: var(--ap-radius-xl);

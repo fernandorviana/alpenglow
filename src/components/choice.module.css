@@ -182,8 +182,12 @@
 .description {
   display: block;
   /* Aligned under the label text, past the control and its gap. The switch is
-     wider than a box, so it sets its own offset. */
-  margin-left: calc(20px + var(--ap-spacing-100));
+     wider than a box, so it sets --choice-indent on its own root, an
+     ancestor of this element: a rule from Switch.module.css overriding
+     margin-left directly here would be at equal specificity, decided by
+     stylesheet load order, which differs between next dev and the
+     production build. */
+  margin-left: calc(var(--choice-indent, 20px) + var(--ap-spacing-100));
   margin-top: var(--ap-spacing-025);
   color: var(--ap-color-text-tertiary);
   font-size: var(--ap-text-caption-md-size);

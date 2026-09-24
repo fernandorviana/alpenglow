@@ -84,7 +84,10 @@
 }
 
 /* The switch is 40px wide, not 20, so its description indents further to stay
-   under the label rather than under the track. */
-.description {
-  margin-left: calc(40px + var(--ap-spacing-100));
+   under the label rather than under the track. choice.module.css reads this
+   from .description's ancestor rather than Switch overriding margin-left
+   there directly — a rule that only wins by loading after choice.module.css,
+   which next dev and the production build do not agree on. */
+.root {
+  --choice-indent: 40px;
 }
