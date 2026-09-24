@@ -128,14 +128,19 @@ have all been mistaken for errors at least once.
    one proving it least. Do not delete it as drift — and do not silently add
    more, which is the mistake the Loader made.
 
-8. **The Table keeps its selection column when it collapses.** Below `40rem`
-   of container width the table becomes a list: header gone, secondary columns
-   gone. The drawing's mobile frame shows the primary cell and the row action
-   only, and it has no selection column to show. Selection is a feature the
-   caller opts into, so hiding the checkbox there would remove it on a phone
-   rather than lay it out differently. The empty and loading cells are
-   excluded from the same hide rule because they are the only content those
-   two states have.
+8. **A Table's columns leave by rank; the primary, selection and action
+   columns never do.** From 2026-09-24 (spec
+   `docs/superpowers/specs/2026-09-24-table-responsive-columns-design.md`)
+   the Table no longer collapses to a list under 40rem. Each Table writes
+   container queries for its own root (`columns.ts`): a column shrinks to
+   its minimum (96; 160 for the primary; a fixed column's `width`), then
+   leaves, the lowest priority first; the sorted column is raised so it
+   stays; the row's inline actions gather into "⋯" before any column
+   leaves. Hidden is `display: none`, header and cells, so the
+   accessibility tree matches the screen. The `<style>` is rendered in
+   place in the root, not hoisted with `href` and `precedence`: React
+   never removes a hoisted sheet, and an earlier sort's rules would keep
+   hiding. Do not "fix" it into the head.
 
 9. **The theme toggle's dark rules are written twice, on purpose.** Once under
    `@media (prefers-color-scheme: dark)` scoped with
@@ -681,6 +686,18 @@ Claimed components (add a line before starting; one per session and branch):
   and never above 3. Found and not fixed in the package: **the Table's
   columns give way as its space shrinks** — its own spec, next; at `xl`
   with the SideNav expanded the screen's Table has about 260.
+- **Table responsive columns** (wave 4, third piece) — built 2026-09-24 on
+  branch `table-responsive-columns` (`f595b9a^..3afb34b`, 11 commits, the
+  first three the spec, its amendment and the plan), not on main. Spec
+  `docs/superpowers/specs/2026-09-24-table-responsive-columns-design.md`,
+  plan `docs/superpowers/plans/2026-09-24-table-responsive-columns.md`.
+  Columns shrink to their minimum (96; 160 for the primary) and then
+  leave, the lowest priority first, as the Table's own width shrinks,
+  whether the window or a side panel narrows it, replacing the 40rem
+  collapse to a list; the primary, selection and action columns never
+  leave, the sorted column is raised to stay, and the row's own actions
+  gather into "⋯" before any column does. The Button gained a square,
+  icon-only form for the actions that need one.
 - **The dense screen** (wave 4, first piece) — built 2026-09-23 on branch
   `feat/dense-screen` (`ac2a4f9^..cb3f95f`, 26 commits, the first the
   spec and plan, the last four the final review's fixes), on main and
@@ -732,11 +749,12 @@ Claimed components (add a line before starting; one per session and branch):
   the screen and **not fixed in the package** (listed under the frame,
   open): the
   Scheduler's column heads misalign with long names (the screen uses first
-  names); the Table always collapses under a 40rem container (a meta line
-  in the collapsed list), and a collapsed row stays 77 tall in both
-  densities; the TopBar has no phone layout; a compact 30-minute card
-  clips its time line; the Button has no square icon-only shape; the bulk
-  bar wraps in a narrow Table; below 1280 the SideNav animates 200 → 80 on
+  names); ~~the Table always collapses under a 40rem container (a meta
+  line in the collapsed list), and a collapsed row stays 77 tall in both
+  densities~~ (closed 2026-09-24: columns leave by rank); the TopBar has
+  no phone layout; a compact 30-minute card clips its time line; ~~the
+  Button has no square icon-only shape~~ (closed 2026-09-24: `icon`); the
+  bulk bar wraps in a narrow Table; below 1280 the SideNav animates 200 → 80 on
   load; at 1440 the first paint is the Tabs layout until hydration
   (`useMediaQuery`'s server snapshot); below 1280 the current row is not
   scrolled into view on switching to Appointments; the **Filters** bar is

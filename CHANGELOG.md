@@ -7,10 +7,17 @@ break: a removed token or prop is named here under **Breaking**.
 
 ## Unreleased
 
-Wave 4's first piece, the dense screen, and its second, breakpoints and
-layout, and what it could not be finished without: density as a foundation,
-a current row on the Table, and the Link saying a new tab for an internal
-link. Nothing is removed and nothing is renamed.
+Wave 4's first piece, the dense screen, its second, breakpoints and layout,
+and its third, the Table's columns giving way, and what it could not be
+finished without: density as a foundation, a current row on the Table, and
+the Link saying a new tab for an internal link. One prop changes its type:
+the Table's `Column.width`, under Breaking.
+
+### Breaking
+
+- **Table** — `Column.width` is a number of px, no longer any CSS string:
+  the Table adds widths up to decide which columns fit. `'8.5rem'` is
+  `136`.
 
 ### Added
 
@@ -79,6 +86,21 @@ link. Nothing is removed and nothing is renamed.
   `layoutModes` are exported from the root.
 - **A Breakpoints and layout page** under Foundations, and the decision to
   ship no z-index tokens on Decisions.
+- **Table columns that give way** — `minWidth` (px; 96 unless told, 160
+  for the primary), `priority` (1 the most important; left out, source
+  order) and `truncate` on a column. As the Table's own width shrinks,
+  whether from the window or a side panel, a column shrinks to its
+  minimum, then leaves, the lowest priority first; the primary, selection
+  and action columns never leave, and the sorted column is raised to stay.
+  Each Table writes container queries for itself, so nothing is measured
+  and the rules arrive in the server's HTML. `columnThresholds` is
+  exported for a caller who wants the numbers.
+- **Table row actions** — `rowActions` (the DropdownMenu's action shape),
+  `rowActionsInline` (default 2) and `rowActionsLabel` (default "More
+  actions"): the first actions with an icon are buttons, the rest in "⋯",
+  and all of them gather into "⋯" before any column leaves.
+- **Button** — `icon`, an icon-only form: square, the icon alone, and
+  `aria-label` required by the types.
 
 ### Changed
 
@@ -93,6 +115,10 @@ link. Nothing is removed and nothing is renamed.
 - **The Scheduler, the Table and the Slider isolate** (`isolation:
   isolate`): their z-indexes stay inside them, so a product's sticky bar at
   `z-index: 1` sits over the Scheduler's head. Nothing else changes.
+- **The Table no longer collapses to a list under a 40rem container.** Its
+  columns leave one by one instead, right to left unless priorities say
+  otherwise. It lays out fixed, and flexible columns share by their
+  minimums where the browser sized them by content.
 
 ### Fixed
 

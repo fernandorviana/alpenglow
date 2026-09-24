@@ -116,15 +116,23 @@ export default function Page() {
           opens a tab; the Link said so only for an external link, and now says it whenever it opens one (
           {commit('b6ac4ee')}).
         </li>
+        <li>
+          <strong>The Table&rsquo;s columns give way.</strong> It no longer becomes a list under 40rem: a column
+          shrinks to its minimum and then leaves, the lowest priority first ({commit('d2eb1f6')}); the row&rsquo;s
+          actions gather into &ldquo;&#8943;&rdquo; before any column does ({commit('3845c2f')}). The screen says which
+          of its columns stay, confirms from the row, and drops the meta line it had added ({commit('abd81a0')}).
+        </li>
+        <li>
+          <strong>The Button&rsquo;s icon-only form.</strong> Square, the icon alone, its name required (
+          {commit('1fcabc3')}).
+        </li>
       </ul>
 
       <h3>Found, and not fixed in the package</h3>
       <ul>
         <li>The Scheduler&rsquo;s column heads misalign with long names; the screen uses first names.</li>
-        <li>The Table always collapses to a list under a 40rem container; the screen adds a meta line when it does.</li>
         <li>The TopBar has no phone layout.</li>
         <li>In compact, a 30-minute card clips its time line.</li>
-        <li>The Button has no square, icon-only shape.</li>
         <li>The bulk bar wraps in a narrow Table.</li>
         <li>Below 1280 the SideNav animates from 200 to 80 on load.</li>
         <li>At desktop the first paint is the Tabs layout until hydration: <code>useMediaQuery</code>&rsquo;s server snapshot.</li>
