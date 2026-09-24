@@ -145,31 +145,6 @@
   min-block-size: 0;
 }
 
-/* The client, and under it what a narrow row would otherwise lose: the Table
-   no longer collapses to a list of its own (2026-09-24), so 40rem is this
-   screen's own choice, not a value read from Table.module.css. Left as the
-   same figure for continuity; the zone's column priorities are a Task 5
-   decision. Its root is the container. */
-.who {
-  display: grid;
-  gap: var(--ap-spacing-050);
-}
-
-.meta {
-  display: none;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--ap-spacing-100);
-  color: var(--ap-color-text-secondary);
-  font-size: var(--ap-text-caption-md-size);
-  line-height: var(--ap-text-caption-md-line-height);
-  letter-spacing: var(--ap-text-caption-md-tracking);
-}
-
-@container (max-width: 40rem) {
-  .meta { display: flex; }
-}
-
 .empty {
   margin-block: auto;
   align-self: center;

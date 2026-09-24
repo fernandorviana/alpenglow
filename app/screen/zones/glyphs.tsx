@@ -104,6 +104,26 @@ export const Plus = () => (
   </Glyph>
 );
 
+export const Check = () => (
+  <Glyph>
+    <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+  </Glyph>
+);
+
+export const Cross = () => (
+  <Glyph>
+    <path d="M4.5 4.5 11.5 11.5M11.5 4.5 4.5 11.5" />
+  </Glyph>
+);
+
+/** The details drawer: a panel opening at the side. */
+export const OpenPanel = () => (
+  <Glyph>
+    <rect x="2" y="3" width="12" height="10" rx="1.5" />
+    <path d="M9.5 3v10" />
+  </Glyph>
+);
+
 /** The practice's mark: a ridge with the light still on its peak, 20 as the brand is drawn. */
 export const Ridge = () => (
   <Glyph width="20" height="20">

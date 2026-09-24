@@ -6,36 +6,40 @@ import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Table } from '@/components/Table';
 import type { Column } from '@/components/Table';
+import { spacing } from '@/tokens/scale';
 import type { Appointment, Status } from '../data';
 import { setStatus, visible } from '../state';
 import type { Action, ScreenState } from '../state';
 import { commit, dayTitle, practitionerName, STATUS_LABEL, STATUS_TONE, timeRange, typeOf, whom } from './shared';
+import { Check, Cross, OpenPanel } from './glyphs';
 import styles from '../screen.module.css';
 
+/**
+ * Which columns stay as the Table narrows — beside the Scheduler, under a
+ * side panel, on a phone. The status first: it is what the day is worked
+ * by. Then the time, which the Scheduler beside it also shows; the type
+ * leaves first. Names and types truncate: one line a row is the density.
+ */
 const COLUMNS: Column<Appointment>[] = [
-  { key: 'time', header: 'Time', cell: (a) => timeRange(a), width: 136 },
+  // 8.5rem before, as px: the arithmetic adds it up. "09:00 – 09:45" and padding.
+  { key: 'time', header: 'Time', cell: (a) => timeRange(a), width: 136, priority: 2 },
+  { key: 'client', header: 'Client', primary: true, truncate: true, cell: (a) => a.client },
   {
-    key: 'client',
-    header: 'Client',
-    primary: true,
-    // Collapsed to its list — beside the Scheduler at 1440, and on a phone —
-    // the Table keeps only this cell, so the cell carries the rest of the row
-    // there, and only there: hidden, it is out of the accessible name too.
-    cell: (a) => (
-      <span className={styles.who}>
-        <span>{a.client}</span>
-        <span className={styles.meta}>
-          {timeRange(a)} · {practitionerName(a.practitionerId)}
-          <Badge size="sm" tone={STATUS_TONE[a.status]}>
-            {STATUS_LABEL[a.status]}
-          </Badge>
-        </span>
-      </span>
-    ),
+    key: 'practitioner',
+    header: 'Practitioner',
+    priority: 3,
+    truncate: true,
+    cell: (a) => practitionerName(a.practitionerId),
   },
-  { key: 'practitioner', header: 'Practitioner', cell: (a) => practitionerName(a.practitionerId) },
-  { key: 'type', header: 'Type', cell: (a) => typeOf(a.typeId)?.label ?? a.typeId },
-  { key: 'status', header: 'Status', cell: (a) => <Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge> },
+  { key: 'type', header: 'Type', priority: 4, truncate: true, cell: (a) => typeOf(a.typeId)?.label ?? a.typeId },
+  {
+    key: 'status',
+    header: 'Status',
+    priority: 1,
+    // A badge does not wrap; the widest, "Cancelled", needs more than 96.
+    minWidth: spacing[1200],
+    cell: (a) => <Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge>,
+  },
 ];
 
 const DONE: Record<Status, string> = { confirmed: 'Confirmed', pending: 'Marked pending', cancelled: 'Cancelled' };
@@ -75,6 +79,33 @@ export function Appointments({ state, dispatch }: { state: ScreenState; dispatch
         selected={state.selected}
         onSelectionChange={(ids) => dispatch({ type: 'select', ids })}
         selectionLabel={(a) => `Select ${a.client} at ${timeRange(a)}`}
+        rowActions={(a) => [
+          {
+            id: 'confirm',
+            label: 'Confirm',
+            icon: <Check />,
+            disabled: a.status === 'confirmed',
+            onSelect: () => changeStatus(state, dispatch, [a.id], 'confirmed'),
+          },
+          {
+            id: 'cancel',
+            label: 'Cancel',
+            icon: <Cross />,
+            tone: 'danger',
+            disabled: a.status === 'cancelled',
+            onSelect: () => changeStatus(state, dispatch, [a.id], 'cancelled'),
+          },
+          {
+            id: 'open',
+            label: 'Open details',
+            icon: <OpenPanel />,
+            onSelect: () => {
+              dispatch({ type: 'current', id: a.id });
+              dispatch({ type: 'drawer', open: true });
+            },
+          },
+        ]}
+        rowActionsLabel={(a) => `More actions for ${a.client} at ${timeRange(a)}`}
         bulkActions={({ selected, clear }) => (
           <>
             <Button

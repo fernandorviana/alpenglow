@@ -35,13 +35,11 @@ afterEach(() => {
 
 const scheduler = () => screen.getByRole('region', { name: 'Day schedule' });
 const table = () => screen.getByRole('table', { name: /Appointments on/ });
-/**
- * The client's name in a row's primary cell. The cell also holds the line
- * the collapsed list shows (time, practitioner, status), hidden by a
- * container query jsdom does not apply, so the button's whole text is more
- * than the name.
- */
-const clientOf = (button: HTMLElement) => button.firstElementChild!.firstElementChild!.textContent!;
+/** The client's name in a row's primary cell: the cell holds only the name. */
+const clientOf = (button: HTMLElement) => button.textContent!;
+
+/** The selection bar: a group named by its count. Its Confirm and Cancel share their names with every row's. */
+const bar = () => screen.getByRole('group', { name: /selected/ });
 
 describe('the dense screen', () => {
   it('opens on Thursday 17 September with the day and the table side by side', async () => {
@@ -56,7 +54,10 @@ describe('the dense screen', () => {
     const [card] = within(scheduler()).getAllByRole('button', { name: /Confirmed|Pending/ });
     await userEvent.click(card!);
     expect(within(table()).getByRole('button', { current: true })).toBeInTheDocument();
-    const rowButton = within(table()).getAllByRole('button').find((b) => !b.hasAttribute('aria-current'))!;
+    const rowButton = within(table())
+      .getAllByRole('button')
+      .filter((b) => b.closest('td[data-primary="true"]'))
+      .find((b) => !b.hasAttribute('aria-current'))!;
     await userEvent.click(rowButton);
     expect(within(scheduler()).getByRole('button', { current: true })).toHaveAccessibleName(new RegExp(clientOf(rowButton)));
   });
@@ -70,8 +71,7 @@ describe('the dense screen', () => {
     );
     const pending = within(table()).getAllByRole('row').filter((r) => within(r).queryAllByText('Pending').length > 0).slice(0, 2);
     for (const r of pending) await userEvent.click(within(r).getByRole('checkbox'));
-    await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-    // The status reads twice in a row, in its column and in the collapsed list's line: neither may say the old one.
+    await userEvent.click(within(bar()).getByRole('button', { name: 'Confirm' }));
     for (const r of pending) {
       expect(within(r).getAllByText('Confirmed')).not.toHaveLength(0);
       expect(within(r).queryAllByText('Pending')).toHaveLength(0);
@@ -124,7 +124,12 @@ describe('the dense screen', () => {
     const booked = () =>
       within(table())
         .queryAllByRole('row')
-        .filter((r) => within(r).queryAllByText('Rui Kowalski').length > 0 && within(r).queryAllByText(/14:00 – 14:30 · Ana Ferreira/).length > 0);
+        .filter(
+          (r) =>
+            within(r).queryAllByText('Rui Kowalski').length > 0 &&
+            within(r).queryAllByText('14:00 – 14:30').length > 0 &&
+            within(r).queryAllByText('Ana Ferreira').length > 0,
+        );
     expect(screen.getByRole('heading', { name: /Friday 18 September/ })).toBeInTheDocument();
     expect(booked()).toHaveLength(1);
     expect(within(booked()[0]!).getAllByText('Pending')).not.toHaveLength(0);
@@ -140,12 +145,6 @@ describe('the dense screen', () => {
     // the 128 floor widened the head and not the body at 1440.
     for (const first of ['Ana', 'Kwame', 'Lin', 'Sofia', 'Omar']) expect(within(scheduler()).getByText(first)).toBeInTheDocument();
     expect(within(scheduler()).getByText('Sofia Marques')).toHaveClass('ap-sr-only');
-  });
-
-  it('carries the time, the practitioner and the status in the primary cell, for the collapsed list', () => {
-    render(<Screen />);
-    const first = table().querySelector('tbody button')!;
-    expect(first).toHaveTextContent(/^Mateo Silva08:30 – 09:15 · Ana FerreiraConfirmed$/);
   });
 
   it('proposes the first free half hour after now, and says when each start would end', async () => {
@@ -184,7 +183,7 @@ describe('the dense screen', () => {
     const row = () => within(table()).getAllByRole('row').find((r) => within(r).queryAllByText('Leila Okafor').length > 0 && within(r).queryAllByText(/09:00 – 09:45/).length > 0)!;
     expect(within(row()).queryAllByText('Pending')).not.toHaveLength(0);
     await userEvent.click(within(row()).getByRole('checkbox'));
-    await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await userEvent.click(within(bar()).getByRole('button', { name: 'Confirm' }));
     expect(within(row()).queryAllByText('Pending')).toHaveLength(0);
 
     await userEvent.click(screen.getByRole('button', { name: 'Today' }));
@@ -195,6 +194,22 @@ describe('the dense screen', () => {
     expect(screen.getByRole('heading', { name: /Thursday 17 September/ })).toBeInTheDocument();
     expect(within(row()).getAllByText('Confirmed')).not.toHaveLength(0);
     expect(within(row()).queryAllByText('Pending')).toHaveLength(0);
+  });
+
+  it('confirms one appointment from its row, and names the rest of its actions by the row', async () => {
+    render(
+      <>
+        <Screen />
+        <Toaster />
+      </>,
+    );
+    const row = within(table()).getAllByRole('row').find((r) => within(r).queryAllByText('Pending').length > 0)!;
+    const client = row.querySelector('td[data-primary="true"] button') as HTMLElement;
+    const inline = row.querySelector('[data-actions="inline"]') as HTMLElement;
+    expect(within(inline).getByRole('button', { name: new RegExp(`More actions for ${clientOf(client)}`) })).toBeInTheDocument();
+    await userEvent.click(within(inline).getByRole('button', { name: 'Confirm' }));
+    expect(within(row).queryAllByText('Pending')).toHaveLength(0);
+    expect(within(row).getAllByText('Confirmed')).not.toHaveLength(0);
   });
 });
 

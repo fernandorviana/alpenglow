@@ -39,15 +39,6 @@ describe('the dense screen', () => {
     }
   });
 
-  it('shows the extra line at its own narrow width, since the Table no longer collapses to one', () => {
-    // Table.module.css carries no single collapse breakpoint any more — its
-    // columns leave one at a time, by rank, at widths columnCss computes per
-    // Table. 40rem here is this screen's own literal, kept for continuity.
-    const screen = readCss('app/screen/screen.module.css');
-    expect(screen).toMatch(/@container \(max-width: 40rem\)/);
-    expect(block(screen, '.meta {')).toMatch(/display: none/);
-  });
-
   it('never gives the Scheduler less than its five columns at their floor', () => {
     expect(block(readCss('app/screen/screen.module.css'), '.body {')).toMatch(
       /minmax\(calc\(5 \* var\(--ap-spacing-1200\) \+ var\(--ap-spacing-1000\)/,
