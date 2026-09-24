@@ -631,8 +631,9 @@ Nothing is built.
 Claimed components (add a line before starting; one per session and branch):
 
 - **Breakpoints and layout** (wave 4, second piece) — built 2026-09-24 on
-  branch `breakpoints-and-layout` (from `22aa8b9`, the
-  first two commits the spec and the plan), not yet on main, unreleased
+  branch `breakpoints-and-layout` (`22aa8b9^..e66bd3c`, 18 commits, the
+  first two the spec and the plan), on main and pushed 2026-09-24 as
+  `e66bd3c`, unreleased
   (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
   `docs/superpowers/specs/2026-09-24-breakpoints-and-layout-design.md`,
   plan `docs/superpowers/plans/2026-09-24-breakpoints-and-layout.md`.
@@ -2145,7 +2146,7 @@ is ahead of the file: the Theme collection there still has 54 of 94 — the
 **Alpenglow Density** (five `density/*` variables, modes Comfortable and
 Compact, scope `WIDTH_HEIGHT`, from the dense screen, on main as
 `cb3f95f`), does not exist yet. Also not yet applied, from breakpoints and
-layout (2026-09-24, branch `breakpoints-and-layout`, not yet on main):
+layout (2026-09-24, on main as `e66bd3c`):
 `breakpoint/*` inside the existing Scale collection, and a fifth
 collection, **Alpenglow Layout** (`layout/margin` and `layout/gap`, modes
 Narrow, Medium, Wide), plus an `Alpenglow / 12 columns` grid style bound
