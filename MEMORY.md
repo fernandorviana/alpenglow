@@ -38,6 +38,7 @@ the source of truth; both stylesheets are generated from it.
 | Elevation | `src/tokens/elevation.ts` | Light / Dark | Shadows, three steps (`sm` for a part that lifts inside its own control — the segmented tab's thumb, 2026-09-18 — `md` for anchored panels, `lg` for the Dialog). Geometry is shared; only the ink changes. |
 | Scale | `src/tokens/scale.ts` | no | Spacing, radius, border width. Dimension must not be reachable by a theme switch. |
 | Density | `src/tokens/density.ts` | Comfortable / Compact, by `data-density="compact"` on any element, not by the theme | Five heights (2026-09-23, the dense screen): `control` 40/32, `row` 72/48, `row-header` 44/36, `hour` 80/64, `nav-item` 40/32. Dimension that a density switch reaches and a theme switch still does not: the two axes are independent, and the compact block is re-stated as comfortable under `(pointer: coarse)` (invariant 23). A literal `size` or Table `density` never reads it. In `tokens.css`, the Tailwind theme and the Figma export as `Alpenglow Density`, **not yet applied in the Figma file**. Exported from the package root as `density`, `densityModes` and the `Density` type. In Tailwind the tokens are `--spacing-density-*` in an `@theme inline` block, so `h-density-row` reads `--ap-density-row` where it is used; a plain `@theme` resolves the variable once on `:root` and a compact region never sees it. `data-density="comfortable"` gives a region inside a compact one the room back. |
+| Breakpoints & layout | `src/tokens/scale.ts` (`breakpoint`, `minViewport`, `media`), `src/tokens/layout.ts` (`layout`, `layoutModes`) | no (breakpoints); Narrow / Medium / Wide by viewport width, not by the theme or density (layout) | Six breakpoints — Tailwind's five plus `xs` below them: `xs` 480, `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 — and `minViewport` 320, the floor the system is tested at. `media.up.*` and `media.down.*` are range-syntax query strings (`'(width >= 48rem)'`) for JS; a media query cannot read the `--ap-breakpoint-*` custom properties, so `tokens.css` carries them for reading only. `layout/margin` 16/24/40 and `layout/gap` 16/20/20 step at `lg` and `xl` inside `tokens.css`, so `var(--ap-layout-margin)` needs no query of its own. In Figma, `breakpoint/*` in the Scale collection and a fifth collection, `Alpenglow Layout` (modes Narrow, Medium, Wide), plus an `Alpenglow / 12 columns` grid style bound to it — **none of it applied in the Figma file yet**. Built 2026-09-24 on `breakpoints-and-layout` (invariants 24–25). |
 | Motion | `src/tokens/motion.ts` | no | `duration/fade` 120ms (a change in place), `duration/travel` 140ms (something that moves, and what changes with it), `easing/standard` and `easing/enter`. |
 
 Generated artefacts, both written by `npm run build:css`:
@@ -254,6 +255,21 @@ have all been mistaken for errors at least once.
     The Browser pane emulates a mouse, so no browser check here has seen
     it; the "Not checked" line under the screen's frame says so.
 
+24. **No width in a media query outside the breakpoint scale.** Every
+    `@media` width feature in `src/` and `app/` names one of the six
+    breakpoints, in rem and range syntax — `(width >= 48rem)`, never
+    `max-width: 767px` — held to it by `src/styles/breakpoints.test.ts`,
+    which reads only width features. `@container` queries are not
+    breakpoints and are exempt: the Alert's 400px, the Table's 40rem.
+
+25. **No z-index in `src/components/` outside a module that isolates, and
+    none above 3.** A `z-index` declaration lives only in a stylesheet
+    whose own selector also declares `isolation: isolate` — the
+    Scheduler, the Table, the Slider — so a product's own stacking
+    context always wins: its sticky bar at `z-index: 1` sits over the
+    Scheduler's head. `src/components/layering.test.ts` enforces both the
+    isolation and the ceiling.
+
 12. **The popover stub is shared, and only covers part of the API.** jsdom 30
     implements none of it. `src/test/popover.ts` covers show, hide, toggle, the
     queued `toggle` event and invoker clicks, and has two consumers —
@@ -361,9 +377,11 @@ have all been mistaken for errors at least once.
     at the rail's foot, 48×84 as drawn (it lay down while it lived in a bar
     and a sidebar); the drawer carries no caption naming the section, the
     rail's filled pill does that. The rail costs 80px, so the wide
-    breakpoint is 1496 (derived in `Nav.test.tsx` from the rail, the drawer,
-    the page's padding and the 704 a Table specimen needs) and the evidence
-    column leaves at 1160. Below 760px the nav is a sticky bar
+    breakpoint is 1496, now `2xl` (derived in `Nav.test.tsx` from the rail,
+    the drawer, the page's padding and the 704 a Table specimen needs) and
+    the evidence column leaves at 1160, now `xl`. Below 768 (`media.down.md`,
+    since 2026-09-24; 760px until breakpoints were tokens — from 761 to 767
+    it is now the sheet too) the nav is a sticky bar
     with a toggle — the rail and the drawer take `display: contents`, so the
     brand and the toggle are the same elements in both layouts; open, `.sidebar[data-open='true']` fixes it over the whole
     viewport (`100dvh`, a scroll of its own) rather than growing the bar and
@@ -610,6 +628,53 @@ Nothing is built.
 
 Claimed components (add a line before starting; one per session and branch):
 
+- **Breakpoints and layout** (wave 4, second piece) — built 2026-09-24 on
+  branch `breakpoints-and-layout` (`22aa8b9..54a836b`, 12 commits, the
+  first two the spec and the plan), not yet on main, unreleased
+  (Unreleased in `CHANGELOG.md`, for `0.6.0`). Spec
+  `docs/superpowers/specs/2026-09-24-breakpoints-and-layout-design.md`,
+  plan `docs/superpowers/plans/2026-09-24-breakpoints-and-layout.md`.
+  Six breakpoints — Tailwind's five plus `xs` below them: `xs` 480, `sm`
+  640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 — and `minViewport` 320,
+  the floor the system is tested at; `breakpoint`, `minViewport` and
+  `media` (range-syntax query strings, `media.up.md` is
+  `'(width >= 48rem)'`) exported from `src/tokens/scale.ts`. A new
+  `src/tokens/layout.ts` exports `layout` and `layoutModes`: `layout/margin`
+  16/24/40 and `layout/gap` 16/20/20, stepping up at `lg` and `xl`.
+  `tokens.css` gets a breakpoints block (`--ap-breakpoint-*`, for JS and
+  reading only — a media query cannot read a custom property) and a layout
+  block restated inside `@media (width >= 64rem)` and
+  `@media (width >= 80rem)`, so `var(--ap-layout-margin)` needs no query of
+  its own. Tailwind's `--breakpoint-*` restates the five and adds `xs`;
+  `--spacing-layout-*` is written inline so `px-layout-margin` and
+  `gap-layout-gap` read the token where it is used. In Figma:
+  `breakpoint/*` in the Scale collection, a fifth collection
+  `Alpenglow Layout` (modes Narrow, Medium, Wide) and an
+  `Alpenglow / 12 columns` grid style bound to it, both described in
+  `docs/figma/apply-variables.md` — **none of it applied in the Figma file
+  yet**. Two new invariants (24, 25): no width in a media query outside the
+  breakpoint scale (`src/styles/breakpoints.test.ts`, which reads only
+  width features), and no z-index in `src/components/` outside a module
+  that isolates, none above 3 (`src/components/layering.test.ts`). The
+  Scheduler, the Table and the Slider now declare `isolation: isolate`, so
+  a product's own sticky bar at `z-index: 1` sits over the Scheduler's
+  head and nothing else about the three changes. The SideNav's narrow
+  default moved to `media.down.md` (768, not 760 — from 761 to 767 it is
+  now the sheet); the Toast and the CommandPalette take their phone layout
+  below `xs` (480), not at 480 and below; the TopBar pads its sides by
+  `var(--ap-layout-margin)` (16 below 1024, 24 to 1279, 40 from 1280),
+  where it was 24 at every width. The site and the screen move onto the
+  scale: the site's own breakpoints — 1496 and 1440 (the drawer's two
+  thresholds) and 1160 (the evidence column) → `2xl` and `xl`, 760 (the
+  old SideNav literal) → `md`, 370 (Search's own break) → `xs` — and the
+  screen's frame breakpoint, 1000, → `lg`, are now inequalities against
+  the breakpoint scale, tested as inequalities rather than literal pixels.
+  A Breakpoints and layout page under Foundations (`/layout`), and the
+  z-index decision on `/decisions`: no z-index tokens, one rule — a
+  z-index lives only inside a module that declares `isolation: isolate`,
+  and never above 3. Found and not fixed in the package: **the Table's
+  columns give way as its space shrinks** — its own spec, next; at `xl`
+  with the SideNav expanded the screen's Table has about 260.
 - **The dense screen** (wave 4, first piece) — built 2026-09-23 on branch
   `feat/dense-screen` (`ac2a4f9^..cb3f95f`, 26 commits, the first the
   spec and plan, the last four the final review's fixes), on main and
@@ -650,8 +715,9 @@ Claimed components (add a line before starting; one per session and branch):
   12 at 48, the two drawn pairs without a sixth token. **SideNav item
   padding comes from the 24px icon, not the 22px line**, or the items
   measured 42/34. **The screen's narrow query is 800**, not the SideNav's
-  760, because the spec puts 768 in the sheet; a literal until breakpoints
-  are tokens. **Visited days keep their edits for the session** and
+  760 (768, `media.down.md`, since 2026-09-24), because the spec puts 768
+  in the sheet; a literal until breakpoints were tokens. **Visited days
+  keep their edits for the session** and
   going to the same date is a no-op (ruling R7): an Undo after returning
   to its day must hit the same records; a reload resets. **"Booked"
   counts confirmed only** (26 booked · 6 pending · 2 cancelled, ruling
@@ -937,8 +1003,9 @@ Claimed components (add a line before starting; one per session and branch):
   buttons and the Avatar at the end). Fernando took **A, two levels as two
   components**, and the design as proposed: the collapse control is the
   TopBar's menu button and the caller holds `collapsed` and `open`; on a
-  narrow screen (`narrow`, a media query, 760px until breakpoints are
-  tokens) the SideNav is a **modal `<dialog>`** with the Dialog's mechanics;
+  narrow screen (`narrow`, a media query, `media.down.md` — 768, since
+  2026-09-24; 760px until breakpoints were tokens) the SideNav is a
+  **modal `<dialog>`** with the Dialog's mechanics;
   collapsed items keep their names in Tooltips; a section is a `<details>`;
   the caption is `text/tertiary`, not the drawn `text/disabled`. What is
   graduated from the site's nav is the pattern, not the M3 rail, which the
@@ -1665,11 +1732,12 @@ CSS-counter line numbers when `title` is given, a copy button, and colour from
 shiki, on Decisions. The home card's picture stays the small `pre`: Fernando said on 2026-09-15
 to leave it, since the cards will get assets of their own. The same day the
 drawer got a
-**laptop tier**: from 1440 down to 761 it is absolute under the rail,
-`visibility: hidden` and `translateX(-100%)`, slid out by `.sidebar:hover`
-and `:focus-within` (the search dialog excluded), on Decisions, on Space,
-and asserted in `Nav.test.tsx`. Not changed with it: the 1160 breakpoint,
-which still assumes the drawer's 232 beside the page and could fall to 928;
+**laptop tier**: from 1440 (now `2xl`) down to 761 it is absolute under the
+rail, `visibility: hidden` and `translateX(-100%)`, slid out by
+`.sidebar:hover` and `:focus-within` (the search dialog excluded), on
+Decisions, on Space, and asserted in `Nav.test.tsx`. Not changed with it:
+the 1160 breakpoint (now `xl`), which still assumes the drawer's 232
+beside the page and could fall to 928;
 and the brand, which leaves the page with the drawer on that tier — the
 rail is 80 wide. What the code block leaves open: the tokenizer knows the site's
 samples, not the languages — `html` reads script keywords throughout, `sh`
@@ -1729,7 +1797,8 @@ Every page was rewritten on 2026-09-12 and 13 with the `better-*` skills
 "Try it" or "See it", a "Choosing …" section on when to use the thing
 against its neighbours, anatomy with the drawn numbers, states,
 accessibility, props. The home is a card index in the M3 shape; the site
-has no bar across the top, a section list beside the prose from 1496 (1440 until the rail), the
+has no bar across the top, a section list beside the prose from 1496
+(1440 until the rail), now `2xl`, the
 measurements against the right edge, a skip link, a `main`, a pager. Every
 number that was text became a computation. Both modes were checked on every
 page (see the screenshot workaround in the private memory).
@@ -2069,7 +2138,12 @@ is ahead of the file: the Theme collection there still has 54 of 94 — the
 `border/*-subtle` (2026-09-20) are missing — and the fourth collection,
 **Alpenglow Density** (five `density/*` variables, modes Comfortable and
 Compact, scope `WIDTH_HEIGHT`, from the dense screen, on main as
-`cb3f95f`), does not exist yet. `docs/figma/apply-variables.md`
+`cb3f95f`), does not exist yet. Also not yet applied, from breakpoints and
+layout (2026-09-24, branch `breakpoints-and-layout`, not yet on main):
+`breakpoint/*` inside the existing Scale collection, and a fifth
+collection, **Alpenglow Layout** (`layout/margin` and `layout/gap`, modes
+Narrow, Medium, Wide), plus an `Alpenglow / 12 columns` grid style bound
+to it. `docs/figma/apply-variables.md`
 has both ways: A, the prompt for an agent with the Figma MCP (how the
 2026-09-12 round was done), and B, a plugin-console script, which creates
-all four collections.
+all five collections.

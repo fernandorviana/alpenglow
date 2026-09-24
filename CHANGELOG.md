@@ -7,10 +7,10 @@ break: a removed token or prop is named here under **Breaking**.
 
 ## Unreleased
 
-Wave 4's first piece, the dense screen, and what it could not be finished
-without: density as a foundation, a current row on the Table, and the Link
-saying a new tab for an internal link. Nothing is removed and nothing is
-renamed.
+Wave 4's first piece, the dense screen, and its second, breakpoints and
+layout, and what it could not be finished without: density as a foundation,
+a current row on the Table, and the Link saying a new tab for an internal
+link. Nothing is removed and nothing is renamed.
 
 ### Added
 
@@ -63,6 +63,34 @@ renamed.
   in a frame whose width (1440, 1024, 768, 375), density and mode are
   switchable and linkable, with what it proves and what moved up the list
   under it. `/screen/full` is the screen alone.
+- **Breakpoints** — `xs` 480, `sm` 640, `md` 768, `lg` 1024, `xl` 1280,
+  `2xl` 1536: Tailwind's five and one below them, in rem. `breakpoint`,
+  `minViewport` (320, the floor the system is tested at) and `media` —
+  `media.up.md` is `'(width >= 48rem)'`, `media.down.md` `'(width < 48rem)'`
+  — are exported from the root. `--ap-breakpoint-*` in `tokens.css` are for
+  JS and reading; a media query cannot read them. The Tailwind theme
+  restates the five and adds `xs:`. In Figma, `breakpoint/*` in the Scale
+  collection.
+- **Layout margin and gap** — `layout/margin` 16 / 24 / 40 and `layout/gap`
+  16 / 20 / 20, stepping up at `lg` and `xl` inside `tokens.css`, so
+  `var(--ap-layout-margin)` needs no query of its own. `px-layout-margin`
+  and `gap-layout-gap` in Tailwind. In Figma, a fifth collection,
+  `Alpenglow Layout`, modes Narrow, Medium and Wide. `layout` and
+  `layoutModes` are exported from the root.
+- **A Breakpoints and layout page** under Foundations, and the decision to
+  ship no z-index tokens on Decisions.
+
+### Changed
+
+- **The SideNav turns at 768**, `media.down.md`, not 760: from 761 to 767
+  it is now the sheet.
+- **The Toast and the CommandPalette take their phone layout below 480**,
+  not at 480 and below.
+- **The TopBar pads its sides by `layout/margin`**: 16 below 1024, 24 to
+  1279, 40 from 1280, where it was 24 at every width.
+- **The Scheduler, the Table and the Slider isolate** (`isolation:
+  isolate`): their z-indexes stay inside them, so a product's sticky bar at
+  `z-index: 1` sits over the Scheduler's head. Nothing else changes.
 
 ### Fixed
 
