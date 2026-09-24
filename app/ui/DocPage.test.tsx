@@ -1,7 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { block, readCss } from '@/test/css';
-import { borderWidth, spacing } from '@/tokens/scale';
+import { borderWidth, breakpoint, media, minViewport, spacing } from '@/tokens/scale';
+import { layout } from '@/tokens/layout';
 import { DocPage } from './DocPage';
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
@@ -15,9 +16,8 @@ vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
  * hairline leave less than that below 370px: a Calendar ran into its
  * specimen's padding from 369 down, through its border by 340, and below 325
  * pushed the Date picker page sideways.
- * Below 370 a specimen goes edge to edge. The breakpoint is a literal, because
- * a media query cannot read a custom property, so it is checked against the
- * numbers it was derived from.
+ * Below `xs` a specimen goes edge to edge. The breakpoint is the scale's,
+ * checked against the numbers it was measured from.
  */
 
 const css = readCss('app/docs.css');
@@ -39,36 +39,33 @@ const token = (text: string) => {
 };
 
 describe('the specimen on the narrowest screens', () => {
-  const narrow = block(css, '@media (max-width: 760px)');
-  const pagePadding = token(declarations(narrow, '.page').match(/padding: \S+ (\S+)/)![1]!);
+  const pageRule = declarations(css, '.page');
+  const pagePadding = layout.margin.narrow;
   const specimenPadding = token(declarations(css, '.specimen').match(/padding: (\S+)/)![1]!);
   const hairline = declarations(css, '.specimen').includes('--ap-border-width-hairline')
     ? borderWidth.hairline
     : NaN;
   const calendar = Number(declarations(calendarCss, '.calendar').match(/width: (\d+)px/)?.[1]);
+  const bleed = block(css, `@media ${media.down.xs}`);
 
-  const header = css.match(/@media \(width < (\d+)px\)/);
-  const bleed = header ? block(css, header[0]) : '';
-
-  it('starts where a bordered specimen stops holding a Calendar', () => {
-    expect(pagePadding, 'the narrow page padding is a spacing token').toBeTypeOf('number');
+  it('bleeds on every phone, above where a bordered specimen stops holding a Calendar', () => {
+    expect(pageRule).toMatch(/padding: var\(--ap-layout-margin\) var\(--ap-layout-margin\)/);
     expect(specimenPadding, 'the specimen padding is a spacing token').toBeTypeOf('number');
     expect(calendar).toBe(280);
-    expect(header, 'the edge-to-edge block exists').toBeTruthy();
-
-    expect(Number(header![1])).toBe(calendar + 2 * (pagePadding + specimenPadding + hairline));
+    // Measured: the bordered specimen stops holding a Calendar at 362 with the
+    // narrow margin. Rounded up to the safe step, xs.
+    expect(breakpoint.xs).toBeGreaterThanOrEqual(calendar + 2 * (pagePadding + specimenPadding + hairline));
   });
 
   it('holds a Calendar at 320px once it runs edge to edge', () => {
     const rule = declarations(bleed, '.prose > .specimen');
     expect(rule).toMatch(/border-inline: none/);
     expect(rule).toMatch(/border-radius: 0/);
-    // Out by the page's padding, and in by the same amount, so the specimen's
-    // content lines up with the text around it.
-    expect(token(rule.match(/margin-inline: calc\(-1 \* (var\([^)]+\))\)/)?.[1] ?? '')).toBe(pagePadding);
-    expect(token(rule.match(/padding-inline: (var\([^)]+\))/)?.[1] ?? '')).toBe(pagePadding);
-
-    expect(320 - 2 * pagePadding).toBeGreaterThanOrEqual(calendar);
+    // Out by the page's margin and in by the same, so the specimen's content
+    // lines up with the text around it.
+    expect(rule).toMatch(/margin-inline: calc\(-1 \* var\(--ap-layout-margin\)\)/);
+    expect(rule).toMatch(/padding-inline: var\(--ap-layout-margin\)/);
+    expect(minViewport - 2 * pagePadding).toBeGreaterThanOrEqual(calendar);
   });
 });
 

@@ -30,7 +30,7 @@ import { Select } from '@/components/Select';
 import { Table } from '@/components/Table';
 import { useMediaQuery } from '@/components/useMediaQuery';
 import { resolve } from '@/tokens/contrast';
-import { spacing, radius } from '@/tokens/scale';
+import { media, spacing, radius } from '@/tokens/scale';
 import { textStyle } from '@/tokens/typography';
 import { density } from '@/tokens/density';
 import type { Mode, ThemeTokenName } from '@/tokens/theme';
@@ -286,7 +286,7 @@ export default function Page() {
   const [view, setView] = useState('week');
   const [shown, setShown] = useState<SchedulerKind[]>(KINDS);
   const [selected, setSelected] = useState<SchedulerEvent | null>(null);
-  const narrow = useMediaQuery('(max-width: 760px)');
+  const narrow = useMediaQuery(media.down.md);
   const [items, setItems] = useState<SchedulerEvent[]>(WEEK);
   const [staff, setStaff] = useState<SchedulerEvent[]>(STAFF_DAY);
   const [draft, setDraft] = useState<SchedulerDraft | null>(null);
@@ -364,7 +364,7 @@ export default function Page() {
           .schedulerSide { display: grid; gap: ${spacing[300]}px; }
           .schedulerSide fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: ${spacing[100]}px; }
           .schedulerSide legend { padding: 0; margin-bottom: ${spacing[100]}px; font-weight: 600; }
-          @media (max-width: 1000px) { .schedulerScreen { grid-template-columns: 1fr; } .schedulerSide { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
+          @media (width < 64rem) { .schedulerScreen { grid-template-columns: 1fr; } .schedulerSide { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
         `}</style>
         <div className="schedulerToolbar">
           <h3>{heading}</h3>
@@ -493,7 +493,7 @@ export default function Page() {
       </div>
       <p className="alias">
         The now line is pinned to the drawn 11:16 on the 20th of April 2023 so the page holds still; left out, the
-        component reads the clock. Under 760px the week gives way to the day, as the phone drawing has it.
+        component reads the clock. Below <code>md</code>, 768, the week gives way to the day, as the phone drawing has it.
       </p>
       <h2>Creating, moving and the keyboard</h2>
       <p>

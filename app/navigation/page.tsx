@@ -76,7 +76,7 @@ const SIDE: PropRow[] = [
   { prop: 'aria-label', type: 'string', default: "'Main'" },
   { prop: 'collapsed', type: 'boolean', default: 'false' },
   { prop: 'open, onClose', type: 'boolean, () => void — narrow only', default: 'false' },
-  { prop: 'narrow', type: 'string — a media query', default: "'(max-width: 760px)'" },
+  { prop: 'narrow', type: 'string — a media query', default: "media.down.md — '(width < 48rem)'" },
   { prop: 'closeLabel, className', type: 'string', default: "'Close'" },
 ];
 const SECONDARY: PropRow[] = [
@@ -269,7 +269,7 @@ export default function Page() {
             collapsed={collapsed}
             open={open}
             onClose={() => setOpen(false)}
-            narrow={narrow ? '(min-width: 0px)' : SIDE_NAV_NARROW}
+            narrow={narrow ? 'all' : SIDE_NAV_NARROW}
           />
           {section === '/settings' && (
             <SideNavSecondary
@@ -314,8 +314,8 @@ export default function Page() {
 
       <h2>On a narrow screen</h2>
       <p>
-        Below <code>narrow</code>, a media query of 760px unless told, the side nav is a modal <code>dialog</code>{' '}
-        sliding from the start side: the top layer, the scrim, the inert page, Esc and the focus going back are
+        Below <code>narrow</code>, <code>media.down.md</code>, below 768, unless told, the side nav is a modal{' '}
+        <code>dialog</code> sliding from the start side: the top layer, the scrim, the inert page, Esc and the focus going back are
         the platform&rsquo;s, as the Dialog&rsquo;s. <code>onClose</code> is called and the caller sets{' '}
         <code>open</code> to false. In the drawer the labels are always shown, whatever <code>collapsed</code> says.
         A press on a link does not close it: the caller closes on navigation, as its router tells it, which is

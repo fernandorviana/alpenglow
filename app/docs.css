@@ -290,9 +290,9 @@ html[data-nav-open] { overflow: hidden; }
      shared out to both and the measurements would start half way down
      the page instead of just under the list. */
   grid-template-rows: max-content 1fr;
-  gap: var(--ap-spacing-400);
+  gap: var(--ap-layout-gap);
   align-items: start;
-  padding: var(--ap-spacing-500) var(--ap-spacing-400) var(--ap-spacing-1100);
+  padding: var(--ap-layout-margin) var(--ap-layout-margin) var(--ap-spacing-1100);
   max-width: 1120px;
 }
 
@@ -1334,7 +1334,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    markup puts it after it rather than at the end of the prose. The pager,
    which closes the prose, is the page's own end; this is the site's. */
 .footer {
-  padding: var(--ap-spacing-600) var(--ap-spacing-400) var(--ap-spacing-500);
+  padding: var(--ap-spacing-600) var(--ap-layout-margin) var(--ap-spacing-500);
   border-top: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   background: var(--ap-color-surface-raised);
 }
@@ -1442,17 +1442,15 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* --- responsive ----------------------------------------------------------- */
 
-/* Wide: the sections join on the left. The breakpoint is where the prose
-   still holds a Table specimen with the list beside it: the 80px rail, the
-   232px drawer and the page's 64px of padding leave 1120; less the list, the
-   evidence, three gaps and the spacer's minimum, 704 — exactly what a Table
-   specimen needs (654 plus the specimen's padding and hairlines). It is a
-   literal because a media query cannot read a custom property;
-   `Nav.test.tsx` checks it against the numbers it is made of. */
-@media (min-width: 1496px) {
+/* Wide, from `2xl`: the sections join on the left. Measured, the prose holds
+   a Table specimen with the list beside it from 1108 of page — the 80 rail,
+   the 232 drawer, two 40 margins, the list, the evidence, three 20 gaps and
+   the spacer — and 2xl, 1536, is the safe step above it. `Nav.test.tsx`
+   checks the inequality. */
+@media (width >= 96rem) {
   .page {
     grid-template-columns: 152px minmax(0, 832px) minmax(var(--ap-spacing-300), 1fr) 168px;
-    column-gap: var(--ap-spacing-300);
+    column-gap: var(--ap-layout-gap);
     max-width: none;
   }
   .onThisPage {
@@ -1469,7 +1467,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   .footerColophon { max-width: none; }
 }
 
-/* The laptop tier: at 1440 and below the drawer leaves the flow and waits
+/* The laptop tier: below `2xl` the drawer leaves the flow and waits
    under the rail, and slides out over the page while the pointer or the
    focus is in the sidebar — the rail alone is the sidebar's width, so the
    page gains the drawer's 232. Focus opens it too, because a keyboard
@@ -1477,10 +1475,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    left out, since its field is focus inside the sidebar and the drawer
    would slide out behind the scrim. Hidden as well as moved, so its links
    are out of the tab order while it is under the rail. The floor is the
-   narrow tier's edge: below 760 both bars dissolve into the narrow bar,
+   narrow tier's edge: below `md` both bars dissolve into the narrow bar,
    and `visibility: hidden` on a `display: contents` drawer would take the
    brand and the toggle with it. `Nav.test.tsx` holds the floor to NARROW. */
-@media (max-width: 1440px) and (min-width: 761px) {
+@media (48rem <= width < 96rem) {
   .sidebar { z-index: 2; }
 
   .rail {
@@ -1513,15 +1511,16 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   }
 }
 
-/* The rail's 80px added to where the evidence column used to leave. */
-@media (max-width: 1160px) {
+/* Below `xl` the evidence column goes: from `xl` the prose beside it still
+   holds a Table specimen (`Nav.test.tsx`). */
+@media (width < 80rem) {
   .page { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
   .prose { grid-row: auto; }
   .onThisPage,
   .gutter { display: none; }
 }
 
-@media (max-width: 760px) {
+@media (width < 48rem) {
   .shell { grid-template-columns: minmax(0, 1fr); }
 
   /* Narrow: the nav becomes a bar that stays put while the page scrolls, so
@@ -1632,11 +1631,11 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
     align-content: start;
     border-bottom: none;
   }
-  .page { padding: var(--ap-spacing-400) var(--ap-spacing-250) var(--ap-spacing-600); }
+  .page { padding-block-end: var(--ap-spacing-600); }
 
   /* The page's padding, and one column: 19rem of description beside the
      groups leaves each of them under the 9rem their labels need. */
-  .footer { padding: var(--ap-spacing-500) var(--ap-spacing-250) var(--ap-spacing-400); }
+  .footer { padding: var(--ap-spacing-500) var(--ap-layout-margin) var(--ap-spacing-400); }
   .footerInner { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
   .prose h1 { font-size: var(--ap-text-heading-h3-size); line-height: var(--ap-text-heading-h3-line-height); }
   .hero { grid-template-columns: minmax(0, 1fr); gap: var(--ap-spacing-400); }
@@ -1655,11 +1654,13 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    at the size where it is hardest to use. Not a smaller Calendar: its 40px
    cell is what the focus ring was measured in. Thinner padding alone cannot
    get there — the page's 20px leaves no specimen padding to take away.
-   `DocPage.test.tsx` checks the breakpoint against these numbers. */
-@media (width < 370px) {
+   Measured, a bordered specimen stops holding it at 362 with the narrow
+   margin; `xs` is the safe step, so every phone gets the specimen edge to
+   edge. `DocPage.test.tsx` checks it. */
+@media (width < 30rem) {
   .prose > .specimen {
-    margin-inline: calc(-1 * var(--ap-spacing-250));
-    padding-inline: var(--ap-spacing-250);
+    margin-inline: calc(-1 * var(--ap-layout-margin));
+    padding-inline: var(--ap-layout-margin);
     border-inline: none;
     border-radius: 0;
   }
@@ -1763,7 +1764,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   overflow: hidden;
 }
 
-@media (max-width: 760px) {
+@media (width < 48rem) {
   .chartOrder { grid-template-columns: repeat(3, 1fr); }
 }
 

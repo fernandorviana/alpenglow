@@ -2,7 +2,8 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { block, readCss } from '@/test/css';
-import { spacing } from '@/tokens/scale';
+import { breakpoint, media, spacing } from '@/tokens/scale';
+import { layout } from '@/tokens/layout';
 import { NAV } from './contents';
 import { Nav, NARROW } from './Nav';
 
@@ -318,12 +319,14 @@ describe('the nav stylesheet', () => {
     expect(shared('.railList', '.drawerNav')).toMatch(/display: none/);
   });
 
-  describe('the laptop tier, 1440 and below', () => {
-    // The floor is the narrow tier's edge: below 760 both bars dissolve
-    // into the narrow bar, and a drawer left absolute there would take the
-    // brand and the toggle with it.
-    const floor = Number(NARROW.match(/(\d+)px/)?.[1]) + 1;
-    const laptop = block(css, `@media (max-width: 1440px) and (min-width: ${floor}px)`);
+  describe('the laptop tier, from md up to 2xl', () => {
+    // The floor is the narrow tier's edge: below md both bars dissolve into
+    // the narrow bar, and a drawer left absolute there would take the brand
+    // and the toggle with it. The top is where the wide page begins.
+    it('starts where the narrow bar ends', () => {
+      expect(NARROW).toBe(media.down.md);
+    });
+    const laptop = block(css, `@media (${breakpoint.md / 16}rem <= width < ${breakpoint['2xl'] / 16}rem)`);
 
     it('takes the drawer out of the flow and under the rail, so the page gains its width', () => {
       const drawer = declarations(laptop, '.drawer');
@@ -357,22 +360,31 @@ describe('the nav stylesheet', () => {
   const px = (text: string, property: string) => Number(text.match(new RegExp(`${property}: (\\d+)px`))?.[1]);
   const step = (text: string) => spacing[Number(text.match(/--ap-spacing-(\d+)/)?.[1]) as keyof typeof spacing];
 
-  it('puts the wide breakpoint where the prose still holds a Table specimen beside the list', () => {
-    // The breakpoint is a literal because a media query cannot read a custom
-    // property, so it is checked against the numbers it is made of: the two
-    // bars, the page's padding, the list, the evidence, the three gaps and
-    // the spacer's minimum leave the 704 a Table specimen needs — 654 of
-    // table plus the specimen's padding and hairlines on both sides.
-    const wide = Number(css.match(/@media \(min-width: (\d+)px\)/)?.[1]);
-    const page = block(css, `@media (min-width: ${wide}px)`);
+  it('puts the wide page at 2xl, where the prose still holds a Table specimen beside the list', () => {
+    // Measure where the content breaks, then round to the safe step. At 2xl
+    // the drawer is in the flow and the margin is wide; the two bars, the
+    // margins, the list, the evidence, three gaps and the spacer's minimum
+    // must leave the 704 a Table specimen needs — 654 of table plus the
+    // specimen's padding and hairlines on both sides.
+    const page = block(css, `@media ${media.up['2xl']}`);
     const columns = page.match(/\.page\s*\{[^}]*grid-template-columns: ([^;]+);/)![1]!;
     const [list, , spacer, evidence] = columns.split(/\s+(?![^(]*\))/);
-    const gap = step(page.match(/column-gap: ([^;]+);/)![1]!);
-    const padding = step(rulesOf('.page').match(/padding: \S+ (\S+)/)![1]!);
+    expect(page).toMatch(/column-gap: var\(--ap-layout-gap\)/);
+    expect(rulesOf('.page')).toMatch(/padding: var\(--ap-layout-margin\) var\(--ap-layout-margin\)/);
 
-    const chrome = px(rulesOf('.rail'), 'width') + px(rulesOf('.drawer'), 'width') + 2 * padding;
-    const beside = Number(list!.replace('px', '')) + Number(evidence!.replace('px', '')) + 3 * gap + step(spacer!);
-    expect(wide - chrome - beside).toBe(704);
+    const chrome = px(rulesOf('.rail'), 'width') + px(rulesOf('.drawer'), 'width') + 2 * layout.margin.wide;
+    const beside = Number(list!.replace('px', '')) + Number(evidence!.replace('px', '')) + 3 * layout.gap.wide + step(spacer!);
+    expect(breakpoint['2xl'] - chrome - beside).toBeGreaterThanOrEqual(704);
+  });
+
+  it('drops the evidence column below xl, and not before it is squeezed', () => {
+    // From xl to 2xl the drawer overlays, so the rail alone is the chrome;
+    // the prose beside the evidence must still hold the Table specimen's 704.
+    const below = block(css, `@media ${media.down.xl}`);
+    expect(below).toMatch(/\.gutter\s*\{\s*display: none/);
+    const evidence = Number(rulesOf('.page').match(/grid-template-columns: minmax\(0, 1fr\) (\d+)px/)![1]);
+    const prose = breakpoint.xl - px(rulesOf('.rail'), 'width') - 2 * layout.margin.wide - evidence - layout.gap.wide;
+    expect(prose).toBeGreaterThanOrEqual(704);
   });
 });
 

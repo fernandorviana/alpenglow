@@ -213,34 +213,33 @@ export default function Page() {
         checked in Chrome, and this entry says so rather than letting a stub claim them.
       </p>
 
-      <h2>The section list joins the prose at 1496, and not before</h2>
-      <Decided on="2026-09-12, moved on 2026-09-14" />
+      <h2>The section list joins the prose at 2xl, and not before</h2>
+      <Decided on="2026-09-12, moved on 2026-09-14 and 2026-09-24" />
       <p>
         The site&rsquo;s page has three columns on a wide screen — the sections, the prose,
         the measurements — and a Table specimen needs 704px of prose to keep its header: 654
-        for the table and a specimen&rsquo;s padding and hairline on both sides. The
-        breakpoint is where the chrome and the columns leave exactly that: the 80px rail, the
-        232px drawer, the page&rsquo;s 64 of padding, the 152px list, the 168px measurements,
-        three 24px gaps and a 24px spacer take 792 of 1496. It was 1440 while the navigation
-        was one 232px sidebar; the rail moved it by its own width, and the test derives the
-        number from those parts rather than reading it. Below it the list sits at the head
-        of the measurements column instead, and the prose keeps 784.
+        for the table and a specimen&rsquo;s padding and hairline on both sides. Measured, the
+        chrome and the columns leave that from 1108: the 80px rail, the 232px drawer, two 40px
+        margins, the 152px list, the 168px measurements, three 20px gaps and a 24px spacer.
+        It was a breakpoint of its own, 1496, until the breakpoints became a scale; now it is
+        the scale&rsquo;s step on the safe side of the measure, <code>2xl</code>, 1536, and the
+        test holds the inequality rather than the number.
       </p>
 
-      <h2>At 1440 the drawer waits under the rail</h2>
-      <Decided on="2026-09-15" />
+      <h2>Below 2xl the drawer waits under the rail</h2>
+      <Decided on="2026-09-15, moved on 2026-09-24" />
       <p>
-        From 1440 down to the narrow bar at 760, the drawer is out of the flow: the rail alone
-        is the sidebar, the page gains the drawer&rsquo;s 232, and the drawer slides out over
-        the page — 140ms, the travel duration — while the pointer or the focus is in the
-        sidebar, and back under the rail when they leave. Focus opens it because a keyboard
-        reaches the drawer&rsquo;s links through the rail&rsquo;s; the search&rsquo;s own
-        dialog does not, since its field is focus inside the sidebar and the drawer would
-        slide out behind the scrim. Hidden as well as moved, so its links are out of the tab
-        order while it is under the rail. The reader without a pointer, on a tablet in this
-        range, has the section&rsquo;s page one tap away on the rail, and it lists the same
-        pages as cards. The brand goes with the drawer on this tier; the rail is 80 wide and
-        the name does not fit it.
+        From <code>2xl</code> down to the narrow bar at <code>md</code>, the drawer is out of the
+        flow: the rail alone is the sidebar, the page gains the drawer&rsquo;s 232, and the drawer
+        slides out over the page — 140ms, the travel duration — while the pointer or the focus is
+        in the sidebar, and back under the rail when they leave. Focus opens it because a keyboard
+        reaches the drawer&rsquo;s links through the rail&rsquo;s; the search&rsquo;s own dialog
+        does not, since its field is focus inside the sidebar and the drawer would slide out
+        behind the scrim. Hidden as well as moved, so its links are out of the tab order while it
+        is under the rail. The reader without a pointer, on a tablet in this range, has the
+        section&rsquo;s page one tap away on the rail, and it lists the same pages as cards. The
+        brand goes with the drawer on this tier; the rail is 80 wide and the name does not fit it.
+        It started at 1440; one edge at <code>2xl</code> now serves this tier and the wide page.
       </p>
 
       <h2>The Dialog&rsquo;s title wraps</h2>

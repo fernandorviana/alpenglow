@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ComponentType } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Code, Cube, Home, Layers } from '@carbon/icons-react';
+import { media } from '@/tokens/scale';
 import { NAV, PAGES, route, sectionOf } from './contents';
 import { ThemeToggle } from './ThemeToggle';
 import { Search } from './search/Search';
@@ -11,9 +12,9 @@ import { Search } from './search/Search';
 /**
  * Where the sidebar becomes a bar with a toggle. The stylesheet's narrow
  * block carries the same query; `Nav.test.tsx` reads it from here so the two
- * cannot drift apart.
+ * cannot drift apart. `md`, 768.
  */
-export const NARROW = '(max-width: 760px)';
+export const NARROW = media.down.md;
 
 /**
  * One icon per section, keyed by the section's route. Carbon, like every

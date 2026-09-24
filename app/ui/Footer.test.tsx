@@ -110,8 +110,12 @@ describe('the stylesheet', () => {
         .filter((padding) => padding !== null)
         .map((padding) => padding[1]!.split(/\s+/)[1]);
 
-    // Two tiers each: the wide default, and the narrow one that restates it.
+    // The page's side padding is the layout margin token, the same value at
+    // every tier, so it declares the shorthand once — its narrow tier changes
+    // only the block-end. The footer restates it because its narrow tier also
+    // changes its own vertical padding; both tiers take the same side value.
+    expect(sides('.page')).toEqual(['var(--ap-layout-margin)']);
     expect(sides('.footer')).toHaveLength(2);
-    expect(sides('.footer')).toEqual(sides('.page'));
+    expect(new Set(sides('.footer'))).toEqual(new Set(sides('.page')));
   });
 });
