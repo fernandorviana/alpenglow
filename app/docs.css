@@ -25,7 +25,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-:focus-visible {
+/* The ring for whatever has no ring of its own, at zero specificity. In the
+   production build this sheet comes after the components' CSS Modules, so a
+   bare `:focus-visible` would tie with a component's `.field` or `.button`
+   and win on order: a second ring inside the CommandPalette's field, a pill
+   button squared off to radius/xs while focused. Under `:where()` any
+   component rule beats it, wherever the bundler puts the sheets. */
+:where(:focus-visible) {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
   outline-offset: var(--ap-focus-ring-offset);
   border-radius: var(--ap-radius-xs);
