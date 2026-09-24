@@ -308,6 +308,31 @@ describe('Table sorting', () => {
     const css = readFileSync('src/components/Table/Table.module.css', 'utf8');
     expect(css).toMatch(/\.sortButton:hover\s*\{[^}]*color:\s*var\(--ap-color-text-primary\)/);
   });
+
+  it('clips a header that overflows its column with an ellipsis, the label inside the button truncating too', () => {
+    // .th is fixed-width under table-layout: fixed, so a header longer than
+    // its column must clip rather than push the table wider. The sort
+    // button is inline-flex and sizes to its content by default, so it
+    // needs its own cap; the label inside it needs its own min-inline-size:
+    // 0 or a flex item never shrinks past its content to let the ellipsis
+    // show.
+    const css = readCss('src/components/Table/Table.module.css');
+    expect(block(css, '.th {')).toMatch(/overflow:\s*hidden/);
+    expect(block(css, '.th {')).toMatch(/text-overflow:\s*ellipsis/);
+    expect(block(css, '.sortButton {')).toMatch(/max-inline-size:\s*100%/);
+    expect(block(css, '.sortLabel {')).toMatch(/min-inline-size:\s*0/);
+    expect(block(css, '.sortLabel {')).toMatch(/text-overflow:\s*ellipsis/);
+  });
+
+  it("draws the sort button's focus ring inset, so the th's new overflow: hidden cannot clip it", () => {
+    const css = readCss('src/components/Table/Table.module.css');
+    expect(block(css, '.sortButton:focus-visible {')).toMatch(/outline-offset:\s*calc\(var\(--ap-focus-ring-offset\) \* -1\)/);
+  });
+
+  it("keeps a sortable header's full text as the th's own text content, even truncated on screen", () => {
+    render(<Table {...base} columns={sortable} onSortChange={() => {}} />);
+    expect(screen.getByRole('columnheader', { name: 'Name' })).toHaveTextContent('Name');
+  });
 });
 
 describe('headerSelectionState', () => {

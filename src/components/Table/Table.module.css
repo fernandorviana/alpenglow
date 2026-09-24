@@ -22,7 +22,7 @@
 
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
-.root, .frame, .region, .bounded, .table, .caption, .th, .td, .sortButton, .sortMark, .selectCell,
+.root, .frame, .region, .bounded, .table, .caption, .th, .td, .sortButton, .sortLabel, .sortMark, .selectCell,
 .dock, .bar, .count, .divider, .bulk, .footer {
   box-sizing: border-box;
 }
@@ -101,6 +101,8 @@
   text-transform: uppercase;
   border-bottom: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Pinned inside the bounded region. The line under it is a shadow and not
@@ -240,10 +242,14 @@
  * label, with a hover colour below to show where that target is.
  */
 
+/* inline-flex sizes to its content and ignores the th's own overflow, so a
+   long header would sit wider than the cell instead of clipping with it;
+   max-inline-size caps it at the th's content box. */
 .sortButton {
   display: inline-flex;
   align-items: center;
   gap: var(--ap-spacing-050);
+  max-inline-size: 100%;
   margin: 0;
   padding: 0;
   border: 0;
@@ -254,6 +260,16 @@
   text-transform: inherit;
   color: inherit;
   cursor: pointer;
+}
+
+/* The label alone truncates, not the mark beside it. A flex item's default
+   min-inline-size is auto (its content's width), which blocks the ellipsis
+   from ever showing; 0 lets it shrink first. */
+.sortLabel {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* The target is the label rather than the whole cell, so this is what tells a
@@ -267,10 +283,13 @@
 
 /* Radius sits on the base rule, not here, so the outline it shapes is not
    geometry that exists only while focused. Button, choice and Switch all do
-   it this way. */
+   it this way. The offset is negative, unlike theirs: the button now sits
+   inside a th with overflow: hidden for its own ellipsis, and a positive
+   offset at the truncated edge would be clipped by it. Inset is the same
+   trick `.region:focus-visible` uses. */
 .sortButton:focus-visible {
   outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
-  outline-offset: var(--ap-focus-ring-offset);
+  outline-offset: calc(var(--ap-focus-ring-offset) * -1);
 }
 
 .sortMark {

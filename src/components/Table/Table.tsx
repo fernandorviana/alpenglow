@@ -323,7 +323,9 @@ export function Table<Row>({
                       className={styles.sortButton}
                       onClick={() => onSort(nextSort(sort, column.key))}
                     >
-                      {column.header}
+                      {/* Truncates on its own so the mark beside it, fixed
+                          width, is never what gives way. */}
+                      <span className={styles.sortLabel}>{column.header}</span>
                       <span
                         className={styles.sortMark}
                         aria-hidden="true"
