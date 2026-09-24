@@ -175,12 +175,14 @@ shrinks — found while deciding this — get their own spec, next.
     sticky bar at `z-index: 1` sits over everything Alpenglow draws.
     Stated on Decisions, with one paragraph and a link on the Layout page.
 
-14. **Three components escape today** and are fixed: the Scheduler (a
-    sticky head at 3, hours at 2), the Table (a sticky header at 1) and
-    the Slider (the upper input at 1) have no isolation, so their values
-    join the page's stack — a product's sticky bar at 1 or 2 would have
-    the Scheduler's head scroll over it. Each gains `isolation: isolate`
-    on its root. A test: any `.module.css` under `src/components/` with a
+14. **Two components escape today** and are fixed: the Scheduler (a
+    sticky head at 3, hours at 2) and the Slider (the upper input at 1)
+    have no isolation, so their values join the page's stack — a
+    product's sticky bar at 1 or 2 would have the Scheduler's head scroll
+    over it. The Table (a sticky header at 1) is held in today only by the
+    layout containment its `container-type` brings, which its columns'
+    spec may take away. All three gain `isolation: isolate` on the root,
+    said rather than implied. A test: any `.module.css` under `src/components/` with a
     `z-index` declares `isolation: isolate`, and no value is above 3. The
     site is outside the test — its skip link (3), sidebar (2) and rail (1)
     are the page's stack, which is the product's.
