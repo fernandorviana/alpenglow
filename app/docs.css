@@ -1816,6 +1816,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   border-radius: var(--ap-radius-lg);
   overflow: hidden;
+  background: var(--ap-color-surface-raised);
 }
 
 .layoutNav { background: var(--ap-color-surface-sunken); }
