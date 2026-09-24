@@ -213,6 +213,21 @@ export default function Page() {
         checked in Chrome, and this entry says so rather than letting a stub claim them.
       </p>
 
+      <h2 id="no-z-index-tokens">No z-index tokens</h2>
+      <Decided on="2026-09-24" />
+      <p>
+        A z-index scale orders layers that compete on one stack, and nothing here competes. What floats goes to the top
+        layer — the Dialog, Drawer, Popover, Tooltip, Select, Combobox, DatePicker, DropdownMenu, PageSize, Toast, the
+        SideNav&rsquo;s sheet and, through the Dialog, the CommandPalette: twelve components, no z-index, stacked in the
+        order they opened. What stacks inside a component is shut in its own <code>isolation: isolate</code>: the
+        Scheduler&rsquo;s sticky head at 3, the Table&rsquo;s header at 1, the thumbs of the SegmentedControl and Tabs.
+        A z-index lives only inside a component that isolates, never above 3, and a test holds both. So the page&rsquo;s
+        stack is the product&rsquo;s: a sticky bar at <code>z-index: 1</code> sits over everything Alpenglow draws. The
+        Scheduler and the Slider did not isolate until this was written, and a product&rsquo;s sticky bar at 1 or 2
+        would have had the Scheduler&rsquo;s head scroll over it. A third-party overlay with a high z-index still sits
+        under an open <code>&lt;dialog&gt;</code>, which is the behaviour wanted.
+      </p>
+
       <h2>The section list joins the prose at 2xl, and not before</h2>
       <Decided on="2026-09-12, moved on 2026-09-14 and 2026-09-24" />
       <p>

@@ -80,11 +80,9 @@ export default function Page() {
         each other, and {spacing[300]}px around a borderless one — a ghost button, an icon
         button — whose edge nothing draws. Controls stay inside the layout&rsquo;s margins and
         the safe area; a full-width button on a phone is inset by {spacing[200]}px, never
-        against the edge. Breakpoints come from content, not devices: this site breaks at 370
-        where a Calendar stops fitting a bordered specimen, at 760 where the rail and the
-        drawer stop fitting beside the prose, at 1440 where the drawer leaves the flow to wait
-        under the rail, and at 1496 where the section list can join the prose without
-        squeezing a Table below its width.
+        against the edge. Breakpoints are a scale of six, and a layout of its own measures
+        where its content breaks and rounds to the safe step — see{' '}
+        <a href="/layout">Breakpoints and layout</a>.
       </p>
 
       <h2>Size</h2>

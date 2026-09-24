@@ -56,6 +56,7 @@ export const NAV: readonly NavGroup[] = [
       { href: '/typography', label: 'Typography' },
       { href: '/space', label: 'Space and shape' },
       { href: '/density', label: 'Density' },
+      { href: '/layout', label: 'Breakpoints and layout' },
       { href: '/icons', label: 'Icons' },
     ],
   },

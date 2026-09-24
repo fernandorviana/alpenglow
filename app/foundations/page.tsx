@@ -114,6 +114,18 @@ export default function Page() {
           }
         />
         <Card
+          href="/layout"
+          title="Breakpoints and layout"
+          description="Tailwind's five and xs, and a margin and gap that step up at lg and xl."
+          visual={
+            <div className="miniDensity">
+              <span className="miniDensityBar" style={{ height: 24 }} />
+              <span className="miniDensityBar" style={{ height: 40 }} />
+              <span className="miniDensityBar" style={{ height: 56 }} />
+            </div>
+          }
+        />
+        <Card
           href="/icons"
           title="Icons"
           description="IBM Carbon, installed by the consumer, plus fifteen drawn for this system."
