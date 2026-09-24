@@ -8,3 +8,5 @@ export type {
   Sort,
   SortDirection,
 } from './Table';
+export { columnThresholds } from './columns';
+export type { ColumnSizing, ColumnLayout, Thresholds } from './columns';

@@ -32,4 +32,8 @@ describe('the package root', () => {
     const mode: LayoutMode = 'wide';
     expect(root.layoutModes).toContain(mode);
   });
+
+  it('exports the Table\'s thresholds for a caller who wants the numbers', () => {
+    expect(root.columnThresholds).toBeTypeOf('function');
+  });
 });
