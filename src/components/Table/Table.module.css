@@ -414,6 +414,15 @@
   text-align: end;
 }
 
+/* The row's actions: icon buttons 4 apart, "⋯" last. Inline-flex, so the
+   cell's text-align puts them at its end. */
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-050);
+  vertical-align: middle;
+}
+
 /* Centres the Loader horizontally. Height and vertical centring come from
    the density blocks: height on .td and vertical-align: middle. */
 .loadingCell {

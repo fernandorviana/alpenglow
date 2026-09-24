@@ -807,3 +807,67 @@ describe('current row', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 });
+
+describe('Table row actions', () => {
+  const Pencil = () => <svg data-testid="edit-glyph" />;
+  const Bin = () => <svg />;
+  const edit = vi.fn();
+  const actions = (r: Row) => [
+    { id: 'edit', label: 'Edit', icon: <Pencil />, onSelect: () => edit(r.id) },
+    { id: 'delete', label: 'Delete', icon: <Bin />, tone: 'danger' as const },
+    { id: 'archive', label: 'Archive' },
+  ];
+  const inline = (row: number) => document.querySelectorAll('tbody tr')[row]!.querySelector('[data-actions="inline"]') as HTMLElement;
+  const rules = () => document.querySelector('[data-table] > style')!.textContent!;
+
+  it('shows the first two with an icon as buttons named by their label, and the rest in "⋯"', () => {
+    render(<Table {...base} rowActions={actions} rowActionsLabel={(r) => `More actions for ${r.name}`} />);
+    expect(within(inline(0)).getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(within(inline(0)).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    expect(within(inline(0)).getByRole('button', { name: 'More actions for Lisa Roberts' })).toHaveAttribute('aria-haspopup', 'menu');
+    expect(within(inline(0)).queryByRole('button', { name: 'Archive' })).toBeNull();
+  });
+
+  it('keeps an action without an icon out of the row however many are inline', () => {
+    render(<Table {...base} rowActions={actions} rowActionsInline={3} />);
+    expect(within(inline(0)).getAllByRole('button')).toHaveLength(3); // Edit, Delete, "⋯"
+  });
+
+  it('calls the action from its button', async () => {
+    render(<Table {...base} rowActions={actions} />);
+    await userEvent.click(within(inline(1)).getByRole('button', { name: 'Edit' }));
+    expect(edit).toHaveBeenCalledWith('b');
+  });
+
+  it('draws no "⋯" when every action fits inline, and names it "More actions" when not told', () => {
+    render(<Table {...base} rowActions={(r) => actions(r).slice(0, 2)} />);
+    expect(within(inline(0)).queryByRole('button', { name: 'More actions' })).toBeNull();
+    const gathered = document.querySelector('tbody tr [data-actions="gathered"]') as HTMLElement;
+    expect(within(gathered).getByRole('button', { name: 'More actions', hidden: true })).toBeInTheDocument();
+  });
+
+  it('gathers every action into one "⋯", hidden until the Table is narrow', () => {
+    render(<Table {...base} rowActions={actions} />);
+    expect(document.querySelectorAll('tbody [data-actions="gathered"]')).toHaveLength(2);
+    expect(rules()).toMatch(/\[data-actions="gathered"\] \{ display: none; \}/);
+    expect(rules()).toMatch(/@container \(width < \d+px\) \{\n[^}]*\[data-actions="inline"\] \{ display: none; \}/);
+  });
+
+  it('counts the most buttons any row shows for the column’s width, and at least one', () => {
+    render(<Table {...base} rowActions={actions} />);
+    expect(rules()).toContain('th[data-actions="column"] { width: 160px; }'); // Edit, Delete, "⋯"
+  });
+
+  it('gives an empty Table’s action column one button, and leaves a row with no actions empty', () => {
+    const { container, rerender } = render(<Table {...base} rows={[]} rowActions={actions} />);
+    expect(container.querySelector('style')!.textContent).toContain('th[data-actions="column"] { width: 72px; }');
+    rerender(<Table {...base} rowActions={() => []} />);
+    const cell = container.querySelector('tbody tr')!.lastElementChild!;
+    expect(cell).toBeEmptyDOMElement();
+  });
+
+  it('takes rowAction or rowActions, not both', () => {
+    // @ts-expect-error — one action column, filled one way
+    render(<Table {...base} rowAction={() => null} rowActions={() => []} />);
+  });
+});

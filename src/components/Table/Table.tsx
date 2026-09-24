@@ -4,6 +4,8 @@ import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Loader } from '../Loader/Loader';
 import { columnCss } from './columns';
+import type { DropdownMenuAction } from '../DropdownMenu/rows';
+import { RowActions, inlineButtonCount } from './RowActions';
 import styles from './Table.module.css';
 
 export type SortDirection = 'asc' | 'desc';
@@ -67,7 +69,7 @@ export type Column<Row> = {
   primary?: boolean;
 };
 
-export type TableProps<Row> = {
+export type TableBaseProps<Row> = {
   /** Required. Rendered as a visually hidden <caption> unless captionVisible. */
   caption: string;
   captionVisible?: boolean;
@@ -84,8 +86,6 @@ export type TableProps<Row> = {
   onSelectionChange?: (next: Set<string>) => void;
   /** Accessible name for a row's checkbox. Defaults to `Select row {n}`. */
   selectionLabel?: (row: Row) => string;
-  /** The trailing action column from the drawing. */
-  rowAction?: (row: Row) => ReactNode;
   loading?: boolean;
   /**
    * Pins the header while the region scrolls. The region scrolls vertically
@@ -118,7 +118,28 @@ export type TableProps<Row> = {
    * interactive of its own, or a button would sit inside a button.
    */
   onCurrentChange?: (id: string) => void;
-} & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
+};
+
+/** One action column, filled one way: actions for a menu, or a render prop for what a menu cannot hold. */
+type RowActionProps<Row> =
+  | {
+      /** The trailing action column as a render prop: counted as one 40 button wide. */
+      rowAction?: (row: Row) => ReactNode;
+      rowActions?: never;
+      rowActionsInline?: never;
+      rowActionsLabel?: never;
+    }
+  | {
+      rowAction?: never;
+      /** The row's actions: the first `rowActionsInline` with an icon as buttons, the rest in "⋯". */
+      rowActions?: (row: Row) => DropdownMenuAction[];
+      /** How many actions with an icon show as buttons while there is room. Defaults to 2. */
+      rowActionsInline?: number;
+      /** The "⋯" button's name. Defaults to "More actions". */
+      rowActionsLabel?: (row: Row) => string;
+    };
+
+export type TableProps<Row> = TableBaseProps<Row> & RowActionProps<Row> & Omit<HTMLAttributes<HTMLDivElement>, 'children'>;
 
 export type BulkActionsApi = { selected: ReadonlySet<string>; clear: () => void };
 
@@ -148,6 +169,9 @@ export function Table<Row>({
   onSelectionChange,
   selectionLabel,
   rowAction,
+  rowActions,
+  rowActionsInline = 2,
+  rowActionsLabel,
   loading,
   stickyHeader = false,
   maxHeight,
@@ -172,7 +196,15 @@ export function Table<Row>({
     ids.filter((id) => selectedIds.has(id)).length,
     ids.length,
   );
-  const columnCount = columns.length + (onSelect ? 1 : 0) + (action ? 1 : 0);
+  // Asked for once a render: the buttons the rows show set the action
+  // column's width, and the cells draw the same lists.
+  const actionsOf = rowActions ? rows.map(rowActions) : undefined;
+  const hasActions = action !== undefined || actionsOf !== undefined;
+  const inlineButtons = actionsOf
+    ? Math.max(1, ...actionsOf.map((list) => inlineButtonCount(list, rowActionsInline)))
+    : action ? 1 : 0;
+  const gatheredButtons = hasActions ? 1 : 0;
+  const columnCount = columns.length + (onSelect ? 1 : 0) + (hasActions ? 1 : 0);
 
   // First in source order wins. Zero is the common case for a table with no
   // column that must be kept from leaving, so it is not an error.
@@ -185,8 +217,8 @@ export function Table<Row>({
     primaryKey,
     sortKey: sort?.key,
     selection: onSelect !== undefined,
-    inlineButtons: action ? 1 : 0,
-    gatheredButtons: action ? 1 : 0,
+    inlineButtons,
+    gatheredButtons,
   });
 
   const toggleRow = onSelect
@@ -301,7 +333,7 @@ export function Table<Row>({
                 </th>
               );
             })}
-            {action && (
+            {hasActions && (
               <th scope="col" className={`${styles.th} ${styles.actionCell}`} data-actions="column">
                 <span className="ap-sr-only">Actions</span>
               </th>
@@ -369,8 +401,19 @@ export function Table<Row>({
                       )}
                     </td>
                   ))}
-                  {action && (
-                    <td className={`${styles.td} ${styles.actionCell}`}>{action(row)}</td>
+                  {hasActions && (
+                    <td className={`${styles.td} ${styles.actionCell}`}>
+                      {actionsOf ? (
+                        <RowActions
+                          actions={actionsOf[index]!}
+                          inline={rowActionsInline}
+                          label={rowActionsLabel?.(row) ?? 'More actions'}
+                          gather={inlineButtons > gatheredButtons}
+                        />
+                      ) : (
+                        action?.(row)
+                      )}
+                    </td>
                   )}
                 </tr>
               );
