@@ -688,8 +688,9 @@ Claimed components (add a line before starting; one per session and branch):
   columns give way as its space shrinks** — its own spec, next; at `xl`
   with the SideNav expanded the screen's Table has about 260.
 - **Table responsive columns** (wave 4, third piece) — built 2026-09-24 on
-  branch `table-responsive-columns` (`f595b9a^..3afb34b`, 11 commits, the
-  first three the spec, its amendment and the plan), not on main. Spec
+  branch `table-responsive-columns` (`f595b9a^..fe7f08e`, 22 commits, the
+  first three the spec, its amendment and the plan, the last nine a final
+  review's fixes), not on main. Spec
   `docs/superpowers/specs/2026-09-24-table-responsive-columns-design.md`,
   plan `docs/superpowers/plans/2026-09-24-table-responsive-columns.md`.
   Columns shrink to their minimum (96; 160 for the primary) and then
@@ -698,7 +699,12 @@ Claimed components (add a line before starting; one per session and branch):
   collapse to a list; the primary, selection and action columns never
   leave, the sorted column is raised to stay, and the row's own actions
   gather into "⋯" before any column does. The Button gained a square,
-  icon-only form for the actions that need one.
+  icon-only form for the actions that need one. The final review's fixes:
+  a header now clips with an ellipsis instead of overflowing its fixed
+  column, and `.truncate` reaches the primary cell's own button under
+  `onCurrentChange`, which its own `text-overflow` could not; the dense
+  screen's Client and Practitioner minimums moved to `spacing[1200]` and
+  Status to a literal 136, dropping its floor from 290 to 258.
 - **The dense screen** (wave 4, first piece) — built 2026-09-23 on branch
   `feat/dense-screen` (`ac2a4f9^..cb3f95f`, 26 commits, the first the
   spec and plan, the last four the final review's fixes), on main and
