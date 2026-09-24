@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { Edit, TrashCan } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
+import { SegmentedControl } from '@/components/SegmentedControl';
 import { Table } from '@/components/Table';
 import type { Column, Sort } from '@/components/Table';
+import type { DropdownMenuAction } from '@/components/DropdownMenu';
 import { resolve } from '@/tokens/contrast';
 import { Dense } from './Dense';
 
@@ -25,7 +28,10 @@ const PROPS: PropRow[] = [
   { prop: 'selected', type: 'ReadonlySet<string>', default: '—' },
   { prop: 'onSelectionChange', type: '(next: Set<string>) => void', default: '—' },
   { prop: 'selectionLabel', type: '(row: Row) => string', default: 'Select row {n}' },
-  { prop: 'rowAction', type: '(row: Row) => ReactNode', default: '—' },
+  { prop: 'rowAction', type: '(row: Row) => ReactNode — one 40 button wide', default: '—' },
+  { prop: 'rowActions', type: '(row: Row) => DropdownMenuAction[]', default: '—' },
+  { prop: 'rowActionsInline', type: 'number', default: '2' },
+  { prop: 'rowActionsLabel', type: '(row: Row) => string', default: "'More actions'" },
   { prop: 'empty', type: 'ReactNode', default: "'No rows'" },
   { prop: 'loading', type: 'boolean', default: 'false' },
   { prop: 'stickyHeader', type: 'boolean', default: 'false' },
@@ -44,8 +50,11 @@ const COLUMN_PROPS: PropRow[] = [
   { prop: 'cell', type: '(row: Row) => ReactNode', default: 'required' },
   { prop: 'align', type: "'start' | 'center' | 'end'", default: "'start'" },
   { prop: 'sortable', type: 'boolean', default: 'false' },
-  { prop: 'width', type: 'string (CSS)', default: 'auto' },
-  { prop: 'primary', type: 'boolean', default: 'false' },
+  { prop: 'width', type: 'number (px) — fixed, leaves whole', default: 'flexible' },
+  { prop: 'minWidth', type: 'number (px), padding included', default: '96; 160 primary' },
+  { prop: 'priority', type: 'number, 1 the most important', default: 'source order' },
+  { prop: 'truncate', type: 'boolean', default: 'false' },
+  { prop: 'primary', type: 'boolean — never leaves', default: 'false' },
 ];
 
 const propColumns: Column<PropRow>[] = [
@@ -54,9 +63,8 @@ const propColumns: Column<PropRow>[] = [
   { key: 'default', header: 'Default', cell: (r) => <span className="alias">{r.default}</span> },
 ];
 
-/** The two drawn row heights, and the container width below which the table becomes a list. */
+/** The two drawn row heights. */
 const ROW = { comfortable: 72, compact: 48 };
-const COLLAPSE = '40rem';
 
 type Client = {
   id: string;
@@ -76,9 +84,24 @@ const CLIENTS: Client[] = [
 
 const TONE = { active: 'success', pending: 'warning', lapsed: 'neutral' } as const;
 
+/** The Try it's frame: every column, then the actions gathered and Last seen gone, then Visits too, then the client alone. */
+const FRAMES = [
+  { value: '800', label: '800' },
+  { value: '560', label: '560' },
+  { value: '400', label: '400' },
+  { value: '320', label: '320' },
+];
+
+const clientActions = (c: Client): DropdownMenuAction[] => [
+  { id: 'edit', label: 'Edit', icon: <Edit size={16} /> },
+  { id: 'delete', label: 'Delete', icon: <TrashCan size={16} />, tone: 'danger' },
+  { id: 'archive', label: `Archive ${c.name}`, textValue: 'Archive' },
+];
+
 export default function Page() {
   const [sort, setSort] = useState<Sort | null>({ key: 'name', direction: 'asc' });
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set(['3']));
+  const [frame, setFrame] = useState('800');
 
   // Sorting is the caller's job — the table reports intent and draws the
   // state. This is the whole point of the controlled API.
@@ -105,9 +128,9 @@ export default function Page() {
         </div>
       ),
     },
-    { key: 'status', header: 'Status', cell: (c) => <Badge tone={TONE[c.status]}>{c.status}</Badge> },
-    { key: 'visits', header: 'Visits', align: 'end', sortable: true, cell: (c) => c.visits },
-    { key: 'seen', header: 'Last seen', cell: (c) => c.seen },
+    { key: 'status', header: 'Status', priority: 1, cell: (c) => <Badge tone={TONE[c.status]}>{c.status}</Badge> },
+    { key: 'visits', header: 'Visits', align: 'end', sortable: true, width: 96, priority: 2, cell: (c) => c.visits },
+    { key: 'seen', header: 'Last seen', priority: 3, cell: (c) => c.seen },
   ];
 
   // The compact and state specimens drop the avatar cell deliberately: a 48px
@@ -160,24 +183,28 @@ export default function Page() {
       </p>
 
       <h2>Try it</h2>
+      <SegmentedControl label="Table width" options={FRAMES} value={frame} onChange={setFrame} />
       <div className="specimen">
-        <Table
-          caption="Clients"
-          columns={columns}
-          rows={rows}
-          getRowId={(c) => c.id}
-          sort={sort}
-          onSortChange={setSort}
-          selected={selected}
-          onSelectionChange={setSelected}
-          selectionLabel={(c) => `Select ${c.name}`}
-          rowAction={(c) => (
-            <button type="button" className="rowAction" aria-label={`Actions for ${c.name}`}>
-              &#8943;
-            </button>
-          )}
-        />
+        <div style={{ inlineSize: `${frame}px`, maxInlineSize: '100%' }}>
+          <Table
+            caption="Clients"
+            columns={columns}
+            rows={rows}
+            getRowId={(c) => c.id}
+            sort={sort}
+            onSortChange={setSort}
+            selected={selected}
+            onSelectionChange={setSelected}
+            selectionLabel={(c) => `Select ${c.name}`}
+            rowActions={clientActions}
+            rowActionsLabel={(c) => `More actions for ${c.name}`}
+          />
+        </div>
       </div>
+      <p className="alias">
+        At 800 everything fits. At 560 the actions have gathered into &ldquo;&#8943;&rdquo; and Last seen has
+        left; at 400 Visits has too, unless it is the column sorted by; at 320 the client and the actions stay.
+      </p>
       <p className="alias">
         Sort by Client or Visits — three activations return to the natural order.
       </p>
@@ -193,10 +220,32 @@ export default function Page() {
       </p>
       <p>
         Selection is for acting on several rows at once, and it costs a column; leave it off a
-        table with nothing to do to a set. The trailing action is for the things done to one
-        row, in a <a href="/dropdown-menu">dropdown menu</a>, so a list of records is not a
-        list of buttons. A table that would need to scroll sideways on a laptop has too many
-        columns: the ones nobody compares on belong in the row&rsquo;s own page.
+        table with nothing to do to a set. The trailing actions are the things done to one row:
+        two at most as buttons, the rest in a <a href="/dropdown-menu">dropdown menu</a>, so a
+        list of records is not a list of buttons.
+      </p>
+
+      <h2>Columns that give way</h2>
+      <p>
+        A table measures its own width, not the screen&rsquo;s, so a side panel narrows it the way a phone does.
+        A column with a <code>width</code> keeps it and leaves whole. One without shares what the fixed columns
+        leave, in proportion to its <code>minWidth</code> — 96 unless told, 160 for the primary — and shrinks to it.
+        Past that it leaves, the lowest <code>priority</code> first; left out, the last column in the source
+        leaves first. It comes back only when it fits whole.
+      </p>
+      <p>
+        The primary column, the selection and the actions never leave, and the column the reader sorted by is
+        raised to stay. Before any column goes, the row&rsquo;s actions gather into one &ldquo;&#8943;&rdquo;:
+        the first two with an icon are buttons while there is room, and an action without an icon is always in
+        the menu. Nothing that leaves is moved elsewhere: it is gone until there is room, so the columns nobody
+        compares on belong on the row&rsquo;s own page.
+      </p>
+      <p>
+        Text wraps and the row grows; <code>truncate</code> keeps a column to one line with an ellipsis, for a
+        dense column of names. A header does not wrap: give a long one a larger <code>minWidth</code>. The
+        rules are written into the page with the table, so they hold before any script runs.{' '}
+        <code>rowActions</code> hands the menu functions, so the table that uses it is rendered by a client
+        component.
       </p>
 
       <h2>Anatomy and density</h2>
@@ -206,9 +255,7 @@ export default function Page() {
         than dense; <code>compact</code>, at {ROW.compact}px, is an addition: a system sold on
         dense, data-heavy interfaces cannot have the table be the component that proves it
         least. A {ROW.compact}px row is for one line of content; an avatar beside two lines is
-        what the {ROW.comfortable}px row exists for. Below {COLLAPSE} of container width the
-        table becomes a list — the container&rsquo;s width, not the screen&rsquo;s, so a table
-        in a narrow panel collapses on a wide screen too.
+        what the {ROW.comfortable}px row exists for.
       </p>
       <div className="specimen">
         <Table
@@ -318,14 +365,11 @@ export default function Page() {
         reads as correct.
       </p>
       <p>
-        The table sits in a focusable, labelled region, so a keyboard can scroll it
-        sideways. Below 40rem of container width it collapses to a list: the header
-        and the secondary columns go, and the primary cell, the selection checkbox
-        and the row action stay. The drawing keeps only the first and the last of
-        those — dropping the checkbox would remove selection on a phone rather
-        than lay it out differently. The empty and loading cells are spared by the
-        same rule, for the same reason: they are the only content those two states
-        have.
+        The table sits in a focusable, labelled region, so a keyboard can scroll it sideways when even the columns
+        that never leave do not fit. A column that leaves is <code>display: none</code>, header and cells, so a
+        screen reader is told the columns a sighted reader sees, and nothing is announced: a width changing is not
+        an event in the content. An inline action is an icon button named by its tooltip; the &ldquo;&#8943;&rdquo;
+        is named per row by <code>rowActionsLabel</code>.
       </p>
       <p>
         The select-all checkbox in the header is <code>disabled</code> while{' '}
