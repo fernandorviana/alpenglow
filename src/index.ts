@@ -70,11 +70,14 @@ export type {
 
 export { primitives, alphaPrimitives } from './tokens/primitives';
 export { theme } from './tokens/theme';
-export { spacing, radius, borderWidth, focusRingOffset } from './tokens/scale';
+export { spacing, radius, borderWidth, focusRingOffset, breakpoint, minViewport, media } from './tokens/scale';
+export type { BreakpointName } from './tokens/scale';
 export { fontFamily, fontWeight, textStyle } from './tokens/typography';
 export { motion } from './tokens/motion';
 export { density, densityModes } from './tokens/density';
 export type { Density } from './tokens/density';
+export { layout, layoutModes } from './tokens/layout';
+export type { LayoutMode } from './tokens/layout';
 export { elevation, shadowCss } from './tokens/elevation';
 export type { ElevationName, ShadowLayer } from './tokens/elevation';
 export { contrast, resolve, tokenContrast } from './tokens/contrast';

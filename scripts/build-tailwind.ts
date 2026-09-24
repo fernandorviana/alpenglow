@@ -15,9 +15,10 @@
 
 import { writeFileSync } from 'node:fs';
 import { theme } from '../src/tokens/theme.js';
-import { spacing, radius, borderWidth } from '../src/tokens/scale.js';
+import { spacing, radius, borderWidth, breakpoint } from '../src/tokens/scale.js';
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
 import { density } from '../src/tokens/density.js';
+import { layout } from '../src/tokens/layout.js';
 
 const flat = (name: string) => name.replace(/\//g, '-');
 
@@ -59,6 +60,12 @@ for (const [name, px] of Object.entries(borderWidth)) {
 }
 
 lines.push('');
+lines.push("  /* Breakpoints — Tailwind's five restated, so they stay put if its defaults move, and xs. */");
+for (const [name, px] of Object.entries(breakpoint)) {
+  lines.push(`  --breakpoint-${name}: ${px / 16}rem;`);
+}
+
+lines.push('');
 lines.push('  /* Type */');
 for (const [name, value] of Object.entries(fontFamily)) {
   lines.push(`  --font-${name}: ${value};`);
@@ -87,6 +94,10 @@ lines.push('@theme inline {');
 lines.push('  /* Density — resolves through tokens.css where it is used, so these follow data-density. */');
 for (const name of Object.keys(density)) {
   lines.push(`  --spacing-density-${name}: var(--ap-density-${name});`);
+}
+lines.push('  /* Layout — resolves through tokens.css, whose values step up at lg and xl. */');
+for (const name of Object.keys(layout)) {
+  lines.push(`  --spacing-layout-${name}: var(--ap-layout-${name});`);
 }
 lines.push('}');
 lines.push('');

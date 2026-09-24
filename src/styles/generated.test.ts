@@ -1,13 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { theme } from '../tokens/theme';
-import { spacing, radius, borderWidth } from '../tokens/scale';
+import { spacing, radius, borderWidth, breakpoint, media } from '../tokens/scale';
 import { textStyle } from '../tokens/typography';
 import { elevation, shadowCss } from '../tokens/elevation';
 import { motion } from '../tokens/motion';
 import { alphaPrimitives } from '../tokens/primitives';
 import { hexToRgb } from '../tokens/contrast';
 import { density } from '../tokens/density';
+import { layout } from '../tokens/layout';
 import { block } from '@/test/css';
 
 /**
@@ -228,5 +229,56 @@ describe('the Tailwind theme carries density where it is used', () => {
     expect(block(out, '.h-density-row')).toContain('height: var(--ap-density-row);');
     expect(block(out, '.min-h-density-control')).toContain('min-height: var(--ap-density-control);');
     expect(out).not.toMatch(/--(spacing-)?density-row:\s*var\(--ap-density-row\)/);
+  });
+});
+
+describe('tokens.css carries the breakpoints and the layout', () => {
+  it('declares each breakpoint in rem, for JS and for reading', () => {
+    const root = block(tokensCss, 'Layer 3 — breakpoints');
+    for (const [name, px] of Object.entries(breakpoint)) {
+      expect(root, name).toContain(`--ap-breakpoint-${name}: ${px / 16}rem;`);
+    }
+  });
+
+  it('gives margin and gap their narrow values on :root and steps them at lg and xl', () => {
+    const narrow = block(tokensCss, 'Layer 3 — layout');
+    expect(narrow).toContain(`--ap-layout-margin: ${layout.margin.narrow}px;`);
+    expect(narrow).toContain(`--ap-layout-gap: ${layout.gap.narrow}px;`);
+    const medium = block(tokensCss, `@media ${media.up.lg}`);
+    expect(medium).toContain(`--ap-layout-margin: ${layout.margin.medium}px;`);
+    expect(medium).toContain(`--ap-layout-gap: ${layout.gap.medium}px;`);
+    const wide = block(tokensCss, `@media ${media.up.xl}`);
+    expect(wide).toContain(`--ap-layout-margin: ${layout.margin.wide}px;`);
+    expect(wide).toContain(`--ap-layout-gap: ${layout.gap.wide}px;`);
+    // Medium comes before wide, so at 1280 and up the wide block wins by order.
+    expect(tokensCss.indexOf(`@media ${media.up.lg}`)).toBeLessThan(tokensCss.indexOf(`@media ${media.up.xl}`));
+  });
+});
+
+describe('the Tailwind theme carries the breakpoints and the layout', () => {
+  it('restates the six breakpoints and writes the layout spacing inline', () => {
+    const theme = block(tailwindCss, '@theme {');
+    for (const [name, px] of Object.entries(breakpoint)) {
+      expect(theme, name).toContain(`--breakpoint-${name}: ${px / 16}rem;`);
+    }
+    const inline = block(tailwindCss, '@theme inline {');
+    expect(inline).toContain('--spacing-layout-margin: var(--ap-layout-margin);');
+    expect(inline).toContain('--spacing-layout-gap: var(--ap-layout-gap);');
+  });
+
+  it("compiles xs: at 30rem, keeps Tailwind's md: at 48rem, and reads the layout where it is used", async () => {
+    const { compile } = await import('tailwindcss');
+    const compiler = await compile(`@import "tailwindcss/theme.css";\n@import "tailwindcss/utilities.css";\n${tailwindCss}`, {
+      base: process.cwd(),
+      loadStylesheet: async (id: string) => {
+        const path = `${process.cwd()}/node_modules/${id}`;
+        return { path, base: process.cwd(), content: readFileSync(path, 'utf8') };
+      },
+    });
+    const out = compiler.build(['xs:hidden', 'md:hidden', 'px-layout-margin', 'gap-layout-gap']);
+    expect(out).toContain('@media (width >= 30rem)');
+    expect(out).toContain('@media (width >= 48rem)');
+    expect(block(out, '.px-layout-margin')).toContain('padding-inline: var(--ap-layout-margin);');
+    expect(block(out, '.gap-layout-gap')).toContain('gap: var(--ap-layout-gap);');
   });
 });

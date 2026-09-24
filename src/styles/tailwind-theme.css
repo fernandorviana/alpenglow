@@ -146,6 +146,14 @@
   --border-width-control: 1.5px;
   --border-width-ring: 2px;
 
+  /* Breakpoints — Tailwind's five restated, so they stay put if its defaults move, and xs. */
+  --breakpoint-xs: 30rem;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
   /* Type */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
@@ -201,6 +209,9 @@
   --spacing-density-row-header: var(--ap-density-row-header);
   --spacing-density-hour: var(--ap-density-hour);
   --spacing-density-nav-item: var(--ap-density-nav-item);
+  /* Layout — resolves through tokens.css, whose values step up at lg and xl. */
+  --spacing-layout-margin: var(--ap-layout-margin);
+  --spacing-layout-gap: var(--ap-layout-gap);
 }
 
 @custom-variant dark {

@@ -69,6 +69,41 @@ export const borderWidth = {
 /** The focus ring sits this far outside the control. */
 export const focusRingOffset = 2;
 
+/**
+ * Breakpoints. Tailwind's five, so `md:` means the same in a product and in
+ * the package, and `xs` below them, where a phone's layout ends: every phone
+ * width in use (360–440) is under 480, and the Toast and the CommandPalette
+ * turn there. `sm` and `2xl` have no reader yet; they ship because the scale
+ * is a known one.
+ *
+ * A media query cannot read a custom property. Write the query in rem and in
+ * range syntax — `@media (width < 48rem)` — or take it from `media`; the rem
+ * follows a reader's default font size. `src/styles/breakpoints.test.ts`
+ * fails on any width outside this scale.
+ */
+export const breakpoint = {
+  xs: 480,
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  '2xl': 1536,
+} as const;
+
+/** The narrowest width the system is built and tested at: WCAG 1.4.10's reflow. Not a breakpoint. */
+export const minViewport = 320;
+
+export type BreakpointName = keyof typeof breakpoint;
+
+const queries = (op: '>=' | '<') =>
+  Object.fromEntries(Object.entries(breakpoint).map(([name, px]) => [name, `(width ${op} ${px / 16}rem)`])) as Record<
+    BreakpointName,
+    string
+  >;
+
+/** `media.up.md` is `(width >= 48rem)`, `media.down.md` is `(width < 48rem)`: for `useMediaQuery` and `matchMedia`. */
+export const media = { up: queries('>='), down: queries('<') } as const;
+
 export type SpacingName = keyof typeof spacing;
 export type RadiusName = keyof typeof radius;
 export type BorderWidthName = keyof typeof borderWidth;

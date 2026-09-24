@@ -13,11 +13,12 @@ import { writeFileSync } from 'node:fs';
 import { primitives, alphaPrimitives } from '../src/tokens/primitives.js';
 import { hexToRgb } from '../src/tokens/contrast.js';
 import { theme } from '../src/tokens/theme.js';
-import { spacing, radius, borderWidth, focusRingOffset } from '../src/tokens/scale.js';
+import { spacing, radius, borderWidth, focusRingOffset, breakpoint, media } from '../src/tokens/scale.js';
 import { fontFamily, fontWeight, textStyle } from '../src/tokens/typography.js';
 import { elevation, shadowCss } from '../src/tokens/elevation.js';
 import { motion } from '../src/tokens/motion.js';
 import { density } from '../src/tokens/density.js';
+import { layout, layoutModeStart } from '../src/tokens/layout.js';
 
 const PREFIX = 'ap';
 
@@ -75,6 +76,18 @@ function motionBlock(): string {
 function densityBlock(mode: 'comfortable' | 'compact', indent = '  '): string {
   return Object.entries(density)
     .map(([k, v]) => `${indent}${cssName(`density/${k}`)}: ${v[mode]}px;`)
+    .join('\n');
+}
+
+function breakpointBlock(): string {
+  return Object.entries(breakpoint)
+    .map(([k, px]) => `  ${cssName(`breakpoint/${k}`)}: ${px / 16}rem;`)
+    .join('\n');
+}
+
+function layoutBlock(mode: 'narrow' | 'medium' | 'wide', indent = '  '): string {
+  return Object.entries(layout)
+    .map(([k, v]) => `${indent}${cssName(`layout/${k}`)}: ${v[mode]}px;`)
     .join('\n');
 }
 
@@ -160,6 +173,38 @@ ${scaleBlock()}
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — breakpoints. For JS and for reading: a media query cannot read a
+   custom property, so write the query in rem — @media (width < 48rem) — or
+   take it from \`media\` in the package.
+   --------------------------------------------------------------------------- */
+
+:root {
+${breakpointBlock()}
+}
+
+/* ---------------------------------------------------------------------------
+   Layer 3 — layout. Margin around the content region and gap between its
+   panes, narrow on :root and stepped up at lg and xl. The navigation is
+   outside it.
+   --------------------------------------------------------------------------- */
+
+:root {
+${layoutBlock('narrow')}
+}
+
+@media ${media.up[layoutModeStart.medium]} {
+  :root {
+${layoutBlock('medium', '    ')}
+  }
+}
+
+@media ${media.up[layoutModeStart.wide]} {
+  :root {
+${layoutBlock('wide', '    ')}
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Layer 3 — density. Comfortable by default; compact on any element that
    asks, so a region can be dense while the page is not. Comfortable is also
    an attribute, so a region inside a compact one can ask for the room back.
@@ -234,5 +279,6 @@ console.log(
     `${Object.keys(spacing).length + Object.keys(radius).length + Object.keys(borderWidth).length} scale values, ` +
     `${Object.keys(textStyle).length} text styles, ` +
     `${Object.keys(motion.duration).length + Object.keys(motion.easing).length} motion tokens, ` +
-    `${Object.keys(density).length} density tokens`,
+    `${Object.keys(density).length} density tokens, ` +
+    `${Object.keys(breakpoint).length} breakpoints, ${Object.keys(layout).length} layout tokens`,
 );

@@ -525,6 +525,46 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Layer 3 — breakpoints. For JS and for reading: a media query cannot read a
+   custom property, so write the query in rem — @media (width < 48rem) — or
+   take it from `media` in the package.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ap-breakpoint-xs: 30rem;
+  --ap-breakpoint-sm: 40rem;
+  --ap-breakpoint-md: 48rem;
+  --ap-breakpoint-lg: 64rem;
+  --ap-breakpoint-xl: 80rem;
+  --ap-breakpoint-2xl: 96rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Layer 3 — layout. Margin around the content region and gap between its
+   panes, narrow on :root and stepped up at lg and xl. The navigation is
+   outside it.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ap-layout-margin: 16px;
+  --ap-layout-gap: 16px;
+}
+
+@media (width >= 64rem) {
+  :root {
+    --ap-layout-margin: 24px;
+    --ap-layout-gap: 20px;
+  }
+}
+
+@media (width >= 80rem) {
+  :root {
+    --ap-layout-margin: 40px;
+    --ap-layout-gap: 20px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Layer 3 — density. Comfortable by default; compact on any element that
    asks, so a region can be dense while the page is not. Comfortable is also
    an attribute, so a region inside a compact one can ask for the room back.

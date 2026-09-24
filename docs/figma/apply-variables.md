@@ -2,9 +2,9 @@
 
 `alpenglow-variables.json` beside this file is generated from `src/tokens` by
 `npx tsx scripts/export-figma.ts`. It is the only input: nothing here is typed
-by hand, so the four Figma collections cannot drift from the two stylesheets.
+by hand, so the five Figma collections cannot drift from the two stylesheets.
 
-Two ways to apply it. Either one ends with the same four collections.
+Two ways to apply it. Either one ends with the same five collections.
 
 ## A — hand the prompt to an agent with the Figma MCP
 
@@ -12,7 +12,7 @@ Open the Alpenglow file, then give the agent this, with the JSON attached or
 pasted:
 
 > Read the attached `alpenglow-variables.json`. In the open Figma file, make the
-> four variable collections it describes, in this order, one `use_figma` call
+> five variable collections it describes, in this order, one `use_figma` call
 > per step, validating between steps:
 >
 > 1. **Alpenglow Primitives** — one mode, renamed `Value`. One COLOR variable
@@ -32,6 +32,13 @@ pasted:
 >    `values.Comfortable` and `values.Compact` — literal numbers, not
 >    aliases, since density has nothing to alias. Set `scopes` from the entry
 >    and put `description` on the variable.
+> 5. **Alpenglow Layout** — modes `Narrow`, `Medium`, `Wide`, in that order.
+>    One FLOAT variable per entry, each mode set from `values`. Set `scopes`
+>    and `description` from the entry. Then one grid style, **Alpenglow / 12
+>    columns**: a COLUMNS layout grid, `STRETCH`, count 12, with `gutterSize`
+>    bound to `layout/gap` and `offset` bound to `layout/margin` through
+>    `figma.variables.setBoundVariableForLayoutGrid`, so a frame's Layout mode
+>    sets both. The grid is a designer's guide; the code ships no column grid.
 >
 > If a collection with the same name already exists, update its variables in
 > place by name — add what is missing, set every value, and delete variables
@@ -113,7 +120,25 @@ for (const v of DATA.collections['Alpenglow Density'].variables) {
   it.description = v.description;
 }
 
-// 5 — retire primitives the JSON no longer names, now that no alias points at them
+// 5 — layout, three modes, and the 12-column grid style bound to it
+const ly = await collection('Alpenglow Layout', ['Narrow', 'Medium', 'Wide']);
+const lyVar = {};
+for (const v of DATA.collections['Alpenglow Layout'].variables) {
+  const it = ly.byName.get(v.name) ?? figma.variables.createVariable(v.name, ly.col, 'FLOAT');
+  for (const mode of ['Narrow', 'Medium', 'Wide']) it.setValueForMode(ly.ids[mode], v.values[mode]);
+  it.scopes = v.scopes;
+  it.description = v.description;
+  lyVar[v.name] = it;
+}
+const gridName = 'Alpenglow / 12 columns';
+const grid = (await figma.getLocalGridStylesAsync()).find((s) => s.name === gridName) ?? figma.createGridStyle();
+grid.name = gridName;
+let columns = { pattern: 'COLUMNS', alignment: 'STRETCH', count: 12, gutterSize: 20, offset: 40, visible: true, color: { r: 0.9, g: 0.3, b: 0.3, a: 0.1 } };
+columns = figma.variables.setBoundVariableForLayoutGrid(columns, 'gutterSize', lyVar['layout/gap']);
+columns = figma.variables.setBoundVariableForLayoutGrid(columns, 'offset', lyVar['layout/margin']);
+grid.layoutGrids = [columns];
+
+// 6 — retire primitives the JSON no longer names, now that no alias points at them
 const keep = new Set(DATA.collections['Alpenglow Primitives'].variables.map((v) => v.name));
 for (const [name, v] of prim.byName) if (!keep.has(name)) v.remove();
 
