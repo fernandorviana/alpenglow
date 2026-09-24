@@ -118,9 +118,9 @@ export default function Page() {
         </li>
         <li>
           <strong>The Table&rsquo;s columns give way.</strong> It no longer becomes a list under 40rem: a column
-          shrinks to its minimum and then leaves, the lowest priority first ({commit('d2eb1f6')}); the row&rsquo;s
-          actions gather into &ldquo;&#8943;&rdquo; before any column does ({commit('3845c2f')}). The screen says which
-          of its columns stay, confirms from the row, and drops the meta line it had added ({commit('abd81a0')}).
+          shrinks to its minimum and then leaves, the lowest priority first ({commit('8261f98')}); the row&rsquo;s
+          actions gather into &ldquo;&#8943;&rdquo; before any column does ({commit('b31c046')}). The screen says which
+          of its columns stay, confirms from the row, and drops the meta line it had added ({commit('3e5ccbb')}).
         </li>
         <li>
           <strong>The Button&rsquo;s icon-only form.</strong> Square, the icon alone, its name required (

@@ -688,7 +688,7 @@ Claimed components (add a line before starting; one per session and branch):
   columns give way as its space shrinks** — its own spec, next; at `xl`
   with the SideNav expanded the screen's Table has about 260.
 - **Table responsive columns** (wave 4, third piece) — built 2026-09-24 on
-  branch `table-responsive-columns` (`f595b9a^..fe7f08e`, 22 commits, the
+  branch `table-responsive-columns` (`f595b9a^..e7c9ebc`, 22 commits, the
   first three the spec, its amendment and the plan, the last nine a final
   review's fixes), not on main. Spec
   `docs/superpowers/specs/2026-09-24-table-responsive-columns-design.md`,
