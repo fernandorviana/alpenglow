@@ -82,4 +82,8 @@ describe('Textarea.module.css', () => {
     expect(css).toMatch(/\.textarea::placeholder\s*\{[^}]*color:\s*var\(--ap-color-text-placeholder\)/);
     expect(block(css, '.textarea::placeholder {')).toMatch(/opacity:\s*1/);
   });
+
+  it('keeps Safari painting the token colour on disabled text, not its own grey — .field:disabled used to carry this for the same element and is gone along with .field', () => {
+    expect(css).toMatch(/\.textarea:disabled\s*\{[^}]*-webkit-text-fill-color:\s*var\(--ap-color-text-disabled\)/);
+  });
 });

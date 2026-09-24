@@ -24,7 +24,13 @@
 
   min-height: 144px;
   padding: var(--ap-spacing-150) var(--ap-spacing-200);
-  /* Text starts at the top; the box does not centre a paragraph. */
+  /* Text starts at the top; the box does not centre a paragraph. This ties
+     with .control's align-items: center at equal specificity — the same
+     load-order hazard described above — but it is inert either way: a
+     textarea has no flex children for align-items to position. Left as a
+     statement of intent rather than removed, since a future change that
+     gives this element real flex children would need the tie resolved for
+     real. */
   align-items: flex-start;
   resize: vertical;
 
@@ -36,4 +42,15 @@
 .textarea::placeholder {
   color: var(--ap-color-text-placeholder);
   opacity: 1; /* Firefox dims placeholders by default. */
+}
+
+/* .field:disabled in control.module.css carries this same override for
+   Input's inner element — Safari/WebKit paints disabled form-control text in
+   its own grey regardless of `color` unless told otherwise. .textarea no
+   longer carries .field, so this element needs its own copy. Only the
+   WebKit-specific part: .disabled already sets `color` and `cursor` on the
+   same element, and -webkit-text-fill-color is a property neither .control
+   nor .disabled declares, so this cannot tie with either of them. */
+.textarea:disabled {
+  -webkit-text-fill-color: var(--ap-color-text-disabled);
 }
