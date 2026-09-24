@@ -9,6 +9,7 @@ import { Scheduler } from '@/components/Scheduler';
 import type { SchedulerEvent } from '@/components/Scheduler';
 import { density, densityModes } from '@/tokens/density';
 import type { DensityTokenName } from '@/tokens/density';
+import { spacing } from '@/tokens/scale';
 
 /**
  * The Density page: the five tokens, how to choose between the two modes,
@@ -24,7 +25,9 @@ const ROWS: Row[] = (Object.entries(density) as [DensityTokenName, (typeof densi
 
 const COLUMNS: Column<Row>[] = [
   { key: 'token', header: 'Token', primary: true, cell: (r) => <span className="tokenName">density/{r.name}</span> },
-  { key: 'comfortable', header: 'Comfortable', align: 'end', cell: (r) => `${r.entry.comfortable}px` },
+  // minWidth said: at its default 96 the header "Comfortable" overflowed its
+  // own end-aligned column once the Table narrowed past its Type column.
+  { key: 'comfortable', header: 'Comfortable', align: 'end', minWidth: spacing[1200], cell: (r) => `${r.entry.comfortable}px` },
   { key: 'compact', header: 'Compact', align: 'end', cell: (r) => `${r.entry.compact}px` },
   { key: 'use', header: 'Read by', cell: (r) => r.entry.use },
 ];

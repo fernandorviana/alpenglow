@@ -23,12 +23,13 @@ import styles from '../screen.module.css';
 const COLUMNS: Column<Appointment>[] = [
   // 8.5rem before, as px: the arithmetic adds it up. "09:00 – 09:45" and padding.
   { key: 'time', header: 'Time', cell: (a) => timeRange(a), width: 136, priority: 2 },
-  { key: 'client', header: 'Client', primary: true, truncate: true, cell: (a) => a.client },
+  { key: 'client', header: 'Client', primary: true, truncate: true, minWidth: spacing[1200], cell: (a) => a.client },
   {
     key: 'practitioner',
     header: 'Practitioner',
     priority: 3,
     truncate: true,
+    minWidth: spacing[1200],
     cell: (a) => practitionerName(a.practitionerId),
   },
   { key: 'type', header: 'Type', priority: 4, truncate: true, cell: (a) => typeOf(a.typeId)?.label ?? a.typeId },
@@ -36,8 +37,9 @@ const COLUMNS: Column<Appointment>[] = [
     key: 'status',
     header: 'Status',
     priority: 1,
-    // A badge does not wrap; the widest, "Cancelled", needs more than 96.
-    minWidth: spacing[1200],
+    // A badge does not wrap; the widest, "Confirmed", is 97px of label plus
+    // the cell's 32 of padding — not a spacing step, so it is said in px.
+    minWidth: 136,
     cell: (a) => <Badge tone={STATUS_TONE[a.status]}>{STATUS_LABEL[a.status]}</Badge>,
   },
 ];
