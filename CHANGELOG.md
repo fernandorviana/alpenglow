@@ -18,6 +18,10 @@ the Table's `Column.width`, under Breaking.
 - **Table** — `Column.width` is a number of px, no longer any CSS string:
   the Table adds widths up to decide which columns fit. `'8.5rem'` is
   `136`.
+- **Table** — the action column is fixed at 72px, one 40 button plus its
+  padding, for `rowActions` and for `rowAction`'s render prop alike. A
+  `rowAction` that used to size to its content — a text button, two icons —
+  now overflows that width instead of widening the column.
 
 ### Added
 
