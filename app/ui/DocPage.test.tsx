@@ -12,12 +12,14 @@ vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
  * stylesheet the way `ThemeToggle.test.tsx` does.
  *
  * The widest thing a specimen holds is the Calendar, 280px of drawn geometry.
- * On a narrow screen the page's padding, the specimen's padding and its
- * hairline leave less than that below 370px: a Calendar ran into its
- * specimen's padding from 369 down, through its border by 340, and below 325
- * pushed the Date picker page sideways.
- * Below `xs` a specimen goes edge to edge. The breakpoint is the scale's,
- * checked against the numbers it was measured from.
+ * On a narrow screen the page's margin, the specimen's padding and its
+ * hairline leave less than that below 280 + 2 × (16 margin + 24 specimen + 1
+ * hairline) = 362, with the narrow layout margin, 16. (Measured on the Date
+ * picker page before the layout tokens, with the old 20px page padding: a
+ * Calendar ran into its specimen's padding from 369 down, through its border
+ * by 340, and below 325 pushed the page sideways.)
+ * Below `xs`, 480, the safe step above 362, a specimen goes edge to edge. The
+ * breakpoint is the scale's, checked against the numbers it was measured from.
  */
 
 const css = readCss('app/docs.css');

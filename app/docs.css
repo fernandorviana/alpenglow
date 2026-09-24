@@ -296,9 +296,9 @@ html[data-nav-open] { overflow: hidden; }
   max-width: 1120px;
 }
 
-/* Below 1496 there is no room for a column of its own beside the prose —
+/* Below `2xl` there is no room for a column of its own beside the prose —
    see the wide block — so the list sits at the head of the evidence column,
-   above the measurements, and only from 1496 does it cross to the left. On
+   above the measurements, and only from `2xl` does it cross to the left. On
    the narrowest tier the evidence column is gone and the list with it. */
 .onThisPage {
   grid-column: 2;
@@ -1642,21 +1642,22 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* The narrowest phones: specimens run edge to edge. The widest thing one holds
-   is the Calendar, 280px of drawn geometry, and a bordered specimen leaves
-   less than that below 280 + 2 × (20 page + 24 specimen + 1 hairline) = 370px.
-   Measured on the Date picker page without this rule: at 360, the common
-   Android width, a Calendar runs into the specimen's right padding and the
-   one in a flex row is squeezed to 270; at 340 it crosses the border; below
-   325 it pushes the page sideways. Out by the page's padding and in by the
-   same amount, the content lines up with the text and holds 280 at 320.
+   is the Calendar, 280px of drawn geometry. With the narrow layout margin, 16,
+   a bordered specimen holds it down to 280 + 2 × (16 margin + 24 specimen + 1
+   hairline) = 362; `xs`, 480, is the safe step above it. (Measured on the Date
+   picker page before the layout tokens, with the old 20px page padding: at
+   360, the common Android width, a Calendar ran into the specimen's right
+   padding and the one in a flex row was squeezed to 270; at 340 it crossed the
+   border; below 325 it pushed the page sideways.) Out by the page's margin and
+   in by the same amount, the content lines up with the text and holds 280 at
+   320, the narrowest viewport the system is built for.
 
    Not a scroll inside the specimen: it would hide part of an interactive grid
    at the size where it is hardest to use. Not a smaller Calendar: its 40px
    cell is what the focus ring was measured in. Thinner padding alone cannot
-   get there — the page's 20px leaves no specimen padding to take away.
-   Measured, a bordered specimen stops holding it at 362 with the narrow
-   margin; `xs` is the safe step, so every phone gets the specimen edge to
-   edge. `DocPage.test.tsx` checks it. */
+   get there — the narrow margin already leaves no specimen padding to take
+   away. `xs` is the safe step, so every phone gets the specimen edge to edge.
+   `DocPage.test.tsx` checks it. */
 @media (width < 30rem) {
   .prose > .specimen {
     margin-inline: calc(-1 * var(--ap-layout-margin));
