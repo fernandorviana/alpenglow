@@ -32,6 +32,11 @@
    is sticky to the viewport, which an overflowing ancestor would hold. */
 .root {
   display: grid;
+  /* One track, the container's width. The implicit track is `auto`, as wide
+     as its widest item's minimum, and a footer's minimum is its content's:
+     a Pagination's eight places of 40 made it 320 in a phone's 288, and the
+     frame and the page went sideways with it. */
+  grid-template-columns: minmax(0, 1fr);
   container-type: inline-size;
   /* The sticky header's z-index stays inside the Table. container-type holds
      it in today through layout containment; this says so, and keeps saying
@@ -533,6 +538,10 @@
 
 /* --- footer -------------------------------------------------------------- */
 
+/* min-width: 0, so what the footer holds gives way inside the track rather
+   than widening it: the Pagination's places shrink toward 24, as it means
+   them to. */
 .footer {
+  min-width: 0;
   padding-block-start: var(--ap-spacing-150);
 }

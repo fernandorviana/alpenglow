@@ -737,6 +737,17 @@ describe('Table dense: a bounded region, the selection bar and the footer', () =
     expect(sheet).toMatch(/\.region \{[^}]*padding-block-end: var\(--table-foot-room, 0\)/);
   });
 
+  it('holds its one track to the container, so a footer’s least width cannot push the Table past it', () => {
+    // An implicit `auto` track is as wide as its widest item's minimum, and
+    // a grid item's minimum is its content's: a Pagination of eight places
+    // of 40 made the track 320 in a phone's 288, and the frame stretched to
+    // match. minmax(0, 1fr) takes the container's width, and the footer's
+    // min-width lets its content give way inside it.
+    const sheet = css();
+    expect(block(sheet, '.root {')).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+    expect(block(sheet, '\n.footer {')).toMatch(/min-width:\s*0/);
+  });
+
   it('renders the footer under the frame, outside the region', () => {
     render(<Table {...base} footer={<nav aria-label="Pages">pages</nav>} />);
     const footer = screen.getByRole('navigation', { name: 'Pages' });

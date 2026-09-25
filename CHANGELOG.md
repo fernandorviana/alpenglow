@@ -132,6 +132,12 @@ the Table's `Column.width`, under Breaking.
 
 ### Fixed
 
+- **Table** — the Table and its `footer` fit their container. Its one grid
+  track was `auto`, as wide as the footer's least width, and a Pagination of
+  eight places made it 320 in a phone's 288: the frame and the page went
+  16px sideways. The track is `minmax(0, 1fr)` and the footer takes
+  `min-width: 0`, so the Pagination's places give way toward 24 as it
+  means them to, and the footer wraps under the summary.
 - **Link** — a `target="_blank"` link now says it opens a new tab whether
   or not it is `external`; before, an internal link opened in a new tab was
   not announced. The icon is still drawn only with `external`. **The
