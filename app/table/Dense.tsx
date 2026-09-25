@@ -9,7 +9,6 @@ import { Filters } from '@/components/Filters';
 import type { FilterField, FilterValue } from '@/components/Filters';
 import { Input } from '@/components/Input';
 import { Pagination } from '@/components/Pagination';
-import { Switch } from '@/components/Switch';
 import { Table } from '@/components/Table';
 import type { Column, Sort } from '@/components/Table';
 import { toast } from '@/components/Toast';
@@ -97,7 +96,7 @@ export function Dense() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // The Switch lives in the bar, which goes with the selection: so does its state.
+  // "Show only selected" lives in the bar, which goes with the selection: so does its state.
   const showOnlySelected = onlySelected && selected.size > 0;
   const q = query.trim().toLowerCase();
   const matching = STAFF.filter(
@@ -157,37 +156,22 @@ export function Dense() {
         stickyHeader
         maxHeight={392}
         empty="Nobody matches these filters."
-        bulkActions={({ selected: chosen }) => (
-          <>
-            <Button
-              variant="ghost"
-              tone="neutral"
-              size="sm"
-              iconStart={<Download size={16} />}
-              onClick={() => toast(`Exported ${chosen.size} staff`)}
-            >
-              Export
-            </Button>
-            <Button
-              variant="ghost"
-              tone="neutral"
-              size="sm"
-              iconStart={<Archive size={16} />}
-              onClick={() => toast(`Archived ${chosen.size} staff`)}
-            >
-              Archive
-            </Button>
-            <Switch
-              checked={onlySelected}
-              onChange={(e) => {
-                setOnlySelected(e.target.checked);
-                setPage(1);
-              }}
-            >
-              Show only selected
-            </Switch>
-          </>
-        )}
+        // A menu's actions, so the bar keeps to one row and gathers them into
+        // "⋯" when it is narrow. The drawn Switch cannot go into a menu: the
+        // view it changes is an action here, with no icon, so it always sits
+        // in "⋯" and says what it will do.
+        bulkActions={({ selected: chosen }) => [
+          { id: 'export', label: 'Export', icon: <Download size={16} />, onSelect: () => toast(`Exported ${chosen.size} staff`) },
+          { id: 'archive', label: 'Archive', icon: <Archive size={16} />, onSelect: () => toast(`Archived ${chosen.size} staff`) },
+          {
+            id: 'only',
+            label: showOnlySelected ? 'Show all staff' : 'Show only selected',
+            onSelect: () => {
+              setOnlySelected(!showOnlySelected);
+              setPage(1);
+            },
+          },
+        ]}
         footer={
           <Pagination
             page={current}

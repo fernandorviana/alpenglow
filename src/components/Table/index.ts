@@ -1,6 +1,7 @@
 export { Table } from './Table';
 export type {
   TableProps,
+  BulkActions,
   BulkActionsApi,
   Column,
   ColumnAlign,

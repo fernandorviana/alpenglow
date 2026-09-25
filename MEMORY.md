@@ -761,8 +761,10 @@ Claimed components (add a line before starting; one per session and branch):
   line in the collapsed list), and a collapsed row stays 77 tall in both
   densities~~ (closed 2026-09-24: columns leave by rank); the TopBar has
   no phone layout; a compact 30-minute card clips its time line; ~~the
-  Button has no square icon-only shape~~ (closed 2026-09-24: `icon`); the
-  bulk bar wraps in a narrow Table; below 1280 the SideNav animates 200 → 80 on
+  Button has no square icon-only shape~~ (closed 2026-09-24: `icon`); ~~the
+  bulk bar wraps in a narrow Table~~ (closed 2026-09-25: one row, a list of
+  actions gathers into "⋯" by its slot's width, Clear a ✕ under 25rem; the
+  drawn Switch is a menu action in the demo, Fernando's to overturn); below 1280 the SideNav animates 200 → 80 on
   load; at 1440 the first paint is the Tabs layout until hydration
   (`useMediaQuery`'s server snapshot); below 1280 the current row is not
   scrolled into view on switching to Appointments; the **Filters** bar is
@@ -1085,7 +1087,7 @@ Claimed components (add a line before starting; one per session and branch):
   changes the words. The toolbar's filter icon is not composed: it repeated
   the "+". From the browser and the review: the dock stretched the bar to
   its zero height (18px) — `align-items: flex-start`; the bar ran past a
-  phone's viewport — it wraps; the last rows lay under the bar with no way
+  phone's viewport — it wrapped (one row since 2026-09-25); the last rows lay under the bar with no way
   out — `--table-foot-room` pads the region while the bar is shown, measured
   clear; Filters dropped a value it did not know — kept after the known
   ones; the docs' "show only selected" survived Clear selection with its

@@ -103,6 +103,15 @@ the Table's `Column.width`, under Breaking.
   `rowActionsInline` (default 2) and `rowActionsLabel` (default "More
   actions"): the first actions with an icon are buttons, the rest in "⋯",
   and all of them gather into "⋯" before any column leaves.
+- **Table** — `bulkActions` takes a menu's actions, `DropdownMenuAction[]`
+  or a function of `{ selected, clear }` returning them, beside the nodes it
+  took before. They are drawn as the rows' are: those with an icon as `sm`
+  buttons named by a tooltip, the rest in "⋯", and all of them gathered
+  into one "⋯" when the bar has no room for the buttons — by the width of
+  their own slot, the only part of the bar that gives way, since the count
+  and Clear are words nothing counts. `bulkActionsInline` (5, as drawn) and
+  `bulkActionsLabel` ("More actions"), as for rows. The `BulkActions` type
+  is exported.
 - **Button** — `icon`, an icon-only form: square, the icon alone, and
   `aria-label` required by the types.
 - **Scheduler** — `scrollToDay`: a week wider than its region opens with a
@@ -134,6 +143,13 @@ the Table's `Column.width`, under Breaking.
   bar's last child but the last child of that box, after the "+". The bar
   takes `min-width: 0`, and a chip's words end in an ellipsis when the chip
   is wider than the bar, where two long chips pushed a page sideways.
+- **The Table's selection bar keeps to one row.** It wrapped: at 375 the
+  dense demo's bar was four lines, 311×147, with dividers left hanging. It
+  does not wrap now; the count and Clear keep their size and always show,
+  and under 25rem of Table Clear is drawn as a ✕ (its name is still the
+  words) and the gaps close to 8. Nodes given to `bulkActions` cannot
+  gather: they scroll inside their slot rather than wrap. **The DOM
+  changes:** Clear's words are in a span beside a hidden ✕.
 - **A disabled Slider keeps its filled part the stronger.** The line is
   `interactive/disabled` and the fill and the thumb's edge
   `interactive/on-disabled`; the fill was `interactive/disabled` on a

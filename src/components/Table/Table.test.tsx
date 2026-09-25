@@ -634,7 +634,11 @@ describe('Table columns giving way', () => {
   it('lays the table out fixed, and no longer collapses it to a list', () => {
     const css = readCss('src/components/Table/Table.module.css');
     expect(block(css, '.table {')).toMatch(/table-layout:\s*fixed/);
-    expect(css).not.toMatch(/@container/);
+    // The stylesheet's one container query is the selection bar's, under
+    // 25rem; nothing in it reaches the table.
+    const queries = [...css.matchAll(/@container[^{]*\{/g)].map((m) => block(css.slice(m.index), '@container'));
+    expect(queries).toHaveLength(1);
+    for (const body of queries) expect(body).not.toMatch(/\.(table|thead|tr|th|td|region|frame)\b/);
     expect(css).not.toContain('40rem');
   });
 
@@ -935,5 +939,126 @@ describe('Table row actions', () => {
   it('takes rowAction or rowActions, not both', () => {
     // @ts-expect-error — one action column, filled one way
     render(<Table {...base} rowAction={() => null} rowActions={() => []} />);
+  });
+});
+
+describe('Table bulk actions as a menu’s', () => {
+  const Down = () => <svg data-testid="export-glyph" />;
+  const Box = () => <svg />;
+  const exported = vi.fn();
+  const list = [
+    { id: 'export', label: 'Export', icon: <Down />, onSelect: exported },
+    { id: 'archive', label: 'Archive', icon: <Box /> },
+    { id: 'only', label: 'Show only selected' },
+  ];
+  const chosen = { selected: new Set(['a', 'b']), onSelectionChange: () => {} };
+  const bar = () => screen.getByRole('group', { name: '2 selected' });
+  const rules = () => document.querySelector('[data-table] > style')!.textContent!;
+  const sheet = () => readCss('src/components/Table/Table.module.css');
+
+  it('shows the actions with an icon as buttons named by their label, the rest in "⋯", and all of them gathered in one "⋯" beside', () => {
+    render(<Table {...base} {...chosen} bulkActions={list} />);
+    const inline = bar().querySelector('[data-bulk="inline"]') as HTMLElement;
+    expect(within(inline).getByRole('button', { name: 'Export' })).toBeInTheDocument();
+    expect(within(inline).getByRole('button', { name: 'Archive' })).toBeInTheDocument();
+    expect(within(inline).getByRole('button', { name: 'More actions' })).toHaveAttribute('aria-haspopup', 'menu');
+    expect(within(inline).queryByRole('button', { name: 'Show only selected' })).toBeNull();
+    const gathered = bar().querySelector('[data-bulk="gathered"]') as HTMLElement;
+    expect(within(gathered).getAllByRole('button', { hidden: true })).toHaveLength(1);
+    // The count and Clear are the bar's own, and stay out of the menu.
+    expect(within(bar()).getByRole('status')).toHaveTextContent('2 selected');
+    expect(within(bar()).getByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+  });
+
+  it('takes a function that returns the list, handed the selection and a way to clear it, and calls an action from its button', async () => {
+    const seen = vi.fn();
+    render(
+      <Table
+        {...base}
+        {...chosen}
+        bulkActions={({ selected }) => {
+          seen(selected.size);
+          return list;
+        }}
+        bulkActionsInline={1}
+        bulkActionsLabel="Other actions"
+      />,
+    );
+    expect(seen).toHaveBeenCalledWith(2);
+    const inline = bar().querySelector('[data-bulk="inline"]') as HTMLElement;
+    expect(within(inline).getAllByRole('button').map((b) => b.getAttribute('aria-label') ?? b.textContent)).toHaveLength(2);
+    expect(within(inline).getByRole('button', { name: 'Other actions' })).toBeInTheDocument();
+    await userEvent.click(within(inline).getByRole('button', { name: 'Export' }));
+    expect(exported).toHaveBeenCalledTimes(1);
+  });
+
+  it('sizes its slot to the buttons in the rules, and gathers them when the slot is narrower', () => {
+    render(<Table {...base} {...chosen} bulkActions={list} />);
+    const slot = bar().querySelector('[data-bulk="slot"]')!;
+    expect(slot).toHaveClass(styles.bulk!, styles.gathers!);
+    // Export, Archive and "⋯": 3 × 32 + 2 × 4.
+    expect(rules()).toContain('[data-bulk="slot"] { width: 104px; min-width: 32px; }');
+    expect(rules()).toMatch(/@container \(width < 104px\) \{\n[^}]*\[data-bulk="inline"\] \{ display: none; \}/);
+    const gathers = block(sheet(), '\n.gathers {');
+    expect(gathers).toMatch(/container-type:\s*inline-size/);
+    expect(gathers).toMatch(/justify-content:\s*center/);
+  });
+
+  it('keeps its buttons out of the row actions’ rules, and theirs out of its own', () => {
+    render(<Table {...base} {...chosen} bulkActions={list} rowActions={() => list} />);
+    expect(bar().querySelectorAll('[data-actions]')).toHaveLength(0);
+    expect(document.querySelectorAll('tbody [data-bulk]')).toHaveLength(0);
+  });
+
+  it('never wraps: one row, where only the slot gives way, and the count and Clear always show', () => {
+    const css = sheet();
+    const row = block(css, '\n.bar {');
+    expect(row).toMatch(/flex-wrap:\s*nowrap/);
+    expect(row).toMatch(/min-width:\s*0/);
+    for (const part of ['\n.count {', '\n.divider {', '\n.clear {']) {
+      expect(block(css, part), part).toMatch(/flex:\s*none/);
+    }
+    expect(block(css, '\n.gathers {')).toMatch(/flex:\s*0 1 auto/);
+    // A slot of the caller's own nodes cannot gather: it scrolls inside
+    // itself rather than wrap, with room for a focus ring.
+    const scrolls = block(css, '\n.scrolls {');
+    expect(scrolls).toMatch(/overflow-x:\s*auto/);
+    expect(scrolls).toMatch(/padding:\s*calc\(var\(--ap-border-width-ring\) \+ var\(--ap-focus-ring-offset\)\)/);
+  });
+
+  it('keeps the caller’s nodes in a slot that scrolls, as before', () => {
+    render(<Table {...base} {...chosen} bulkActions={<button type="button">Export</button>} />);
+    const slot = screen.getByRole('button', { name: 'Export' }).parentElement!;
+    expect(slot).toHaveClass(styles.bulk!, styles.scrolls!);
+    expect(slot).not.toHaveAttribute('data-bulk');
+    expect(document.querySelector('[data-table] > style')!.textContent).not.toContain('data-bulk');
+  });
+
+  it('keeps Clear’s name, and under 25rem of Table draws it as a ✕ so the count, the "⋯" and it fit a phone', () => {
+    render(<Table {...base} {...chosen} bulkActions={list} />);
+    const clear = within(bar()).getByRole('button', { name: 'Clear selection' });
+    expect(clear).toHaveClass(styles.clear!);
+    expect(clear.querySelector(`.${styles.clearIcon} svg`)).not.toBeNull();
+    const css = sheet();
+    expect(block(css, '\n.clearIcon {')).toMatch(/display:\s*none/);
+    const narrow = block(css, '@container (width < 25rem) {');
+    expect(narrow).toMatch(/\.bar \.clear \{[^}]*aspect-ratio:\s*1/);
+    expect(narrow).toMatch(/\.bar \.clear \{[^}]*padding-inline:\s*0/);
+    expect(narrow).toMatch(/\.clearIcon \{[^}]*display:\s*inline-flex/);
+    expect(narrow).toMatch(/\.clearLabel \{[^}]*clip-path:\s*inset\(50%\)/);
+    expect(narrow).toMatch(/\.bar \{[^}]*gap:\s*var\(--ap-spacing-100\)/);
+  });
+
+  it('passes axe with the list rendered both ways', async () => {
+    const { container } = render(<Table {...base} {...chosen} bulkActions={list} />);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('takes a list, a node or a function returning either, in its types', () => {
+    const nodes = <Table {...base} {...chosen} bulkActions={({ clear }) => <button type="button" onClick={clear}>x</button>} />;
+    const actions = <Table {...base} {...chosen} bulkActions={() => list} />;
+    // @ts-expect-error — an action needs an id
+    const wrong = <Table {...base} {...chosen} bulkActions={[{ label: 'Export' }]} />;
+    expect([nodes, actions, wrong]).toHaveLength(3);
   });
 });

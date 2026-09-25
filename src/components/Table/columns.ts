@@ -24,6 +24,8 @@ export const ACTION_BUTTON = 40;
 export const ACTION_GAP = 4;
 /** The action cell's inline padding at comfortable, `spacing/200` on each side. */
 export const ACTION_PADDING = 32;
+/** A button in the selection bar: `sm`, the size of the bar's own Clear. */
+export const BULK_BUTTON = 32;
 
 export type ColumnSizing = {
   key: string;
@@ -175,5 +177,36 @@ export function columnCss(scope: string, layout: ColumnLayout): string {
     const shown = [...stay, ...ranked.slice(0, ranked.length - index - 1)];
     rules.push(query(below, [`${cells(key)} { display: none; }`, ...widths(shown, gatheredButtons)]));
   });
+  return rules.join('\n');
+}
+
+/** The selection bar's buttons in a row, 4 apart, with no cell around them. */
+export function bulkWidth(buttons: number): number {
+  return buttons > 0 ? buttons * BULK_BUTTON + (buttons - 1) * ACTION_GAP : 0;
+}
+
+/**
+ * The selection bar's actions, gathered the way a row's are: drawn twice, the
+ * rules showing one. The row's gather by the Table's width, since everything
+ * else in a row is counted; the bar holds words — the count, Clear — whose
+ * width nothing here knows, so its actions gather by the width of their own
+ * slot. The slot is as wide as the buttons inline and a container; it is the
+ * only part of the bar that shrinks, and below that width it holds one "⋯".
+ * `data-bulk`, not the rows' `data-actions`, so neither set of rules reaches
+ * the other.
+ */
+export function bulkCss(scope: string, inlineButtons: number): string {
+  const root = `[data-table=${quoted(scope)}]`;
+  const inline = bulkWidth(inlineButtons);
+  const rules = [`${root} [data-bulk="slot"] { width: ${inline}px; min-width: ${bulkWidth(1)}px; }`];
+  if (inlineButtons > 1) {
+    rules.push(
+      `${root} [data-bulk="gathered"] { display: none; }`,
+      query(inline, [
+        `${root} [data-bulk="inline"] { display: none; }`,
+        `${root} [data-bulk="gathered"] { display: inline-flex; }`,
+      ]),
+    );
+  }
   return rules.join('\n');
 }

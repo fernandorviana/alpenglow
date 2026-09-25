@@ -50,6 +50,7 @@ export type { RadioProps } from './components/Radio/index';
 export { Table, columnThresholds, inlineButtonCount } from './components/Table/index';
 export type {
   TableProps,
+  BulkActions,
   BulkActionsApi,
   Column,
   ColumnAlign,

@@ -1,9 +1,10 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
-import { useId } from 'react';
+import { isValidElement, useId } from 'react';
 import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Loader } from '../Loader/Loader';
-import { columnCss } from './columns';
+import { StatusGlyph } from '../statusGlyphs';
+import { bulkCss, columnCss } from './columns';
 import type { DropdownMenuAction } from '../DropdownMenu/rows';
 import { RowActions, inlineButtonCount } from './RowActions';
 import styles from './Table.module.css';
@@ -98,9 +99,17 @@ export type TableBaseProps<Row> = {
   maxHeight?: number | string;
   /**
    * With a selection, a bar floats at the foot with the count, this, and
-   * "Clear selection". Only with `onSelectionChange`.
+   * "Clear selection", on one row. Only with `onSelectionChange`. A list of
+   * menu actions is drawn as a row's: those with an icon as buttons while
+   * the bar has room, the rest in "⋯", and all of them in one "⋯" when it
+   * has not. Nodes are the caller's and cannot gather: they scroll inside
+   * their slot rather than wrap.
    */
-  bulkActions?: ReactNode | ((api: BulkActionsApi) => ReactNode);
+  bulkActions?: BulkActions | ((api: BulkActionsApi) => BulkActions);
+  /** With a list: how many actions with an icon show as buttons while there is room. Defaults to 5, as drawn. */
+  bulkActionsInline?: number;
+  /** With a list: the bar's "⋯" button's name. Defaults to "More actions". */
+  bulkActionsLabel?: string;
   /** The count in words. */
   bulkLabel?: (count: number) => string;
   clearSelectionLabel?: string;
@@ -143,6 +152,22 @@ export type TableProps<Row> = TableBaseProps<Row> & RowActionProps<Row> & Omit<H
 
 export type BulkActionsApi = { selected: ReadonlySet<string>; clear: () => void };
 
+/** What the selection bar holds: a menu's actions, which gather into "⋯", or the caller's own nodes. */
+export type BulkActions = DropdownMenuAction[] | ReactNode;
+
+/**
+ * A list of menu actions rather than nodes: an array of plain objects, each
+ * with an id. React renders no plain object, so a node is never one, and an
+ * empty list is nothing either way.
+ */
+function isActions(value: unknown): value is DropdownMenuAction[] {
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((item) => typeof item === 'object' && item !== null && !Array.isArray(item) && !isValidElement(item) && 'id' in item)
+  );
+}
+
 /**
  * A real table, named, with scoped headers and fixed-layout columns that
  * give way by rank as the Table's own width shrinks, plus controlled
@@ -177,6 +202,8 @@ export function Table<Row>({
   stickyHeader = false,
   maxHeight,
   bulkActions,
+  bulkActionsInline = 5,
+  bulkActionsLabel = 'More actions',
   bulkLabel = (count) => `${count} selected`,
   clearSelectionLabel = 'Clear selection',
   footer,
@@ -214,16 +241,31 @@ export function Table<Row>({
   // column that must be kept from leaving, so it is not an error.
   const primaryKey = columns.find((column) => column.primary)?.key;
 
+  // The bar only with a selection and someone to act on it. Clear is the
+  // bar's own: the Table owns the selection, so emptying it is not a thing
+  // every caller should write.
+  const clear = onSelect ? () => onSelect(new Set()) : undefined;
+  const bar = clear && bulkActions !== undefined && selectedIds.size > 0 ? bulkLabel(selectedIds.size) : undefined;
+  // Asked once a render, while the bar is shown: a list's buttons size its
+  // slot in the rules, as a row's size the action column.
+  const given = bar && clear ? (typeof bulkActions === 'function' ? bulkActions({ selected: selectedIds, clear }) : bulkActions) : undefined;
+  const bulkList = isActions(given) ? given : undefined;
+  const bulkNodes = isActions(given) ? undefined : given;
+  const bulkButtons = bulkList ? inlineButtonCount(bulkList, bulkActionsInline) : 0;
+
   // One scope per Table, so its rules touch no other Table on the page.
   const scope = useId();
-  const css = columnCss(scope, {
-    columns,
-    primaryKey,
-    sortKey: sort?.key,
-    selection: onSelect !== undefined,
-    inlineButtons,
-    gatheredButtons,
-  });
+  const css = [
+    columnCss(scope, {
+      columns,
+      primaryKey,
+      sortKey: sort?.key,
+      selection: onSelect !== undefined,
+      inlineButtons,
+      gatheredButtons,
+    }),
+    ...(bulkList ? [bulkCss(scope, bulkButtons)] : []),
+  ].join('\n');
 
   const toggleRow = onSelect
     ? (id: string) => {
@@ -248,12 +290,6 @@ export function Table<Row>({
         onSelect(next);
       }
     : undefined;
-
-  // The bar only with a selection and someone to act on it. Clear is the
-  // bar's own: the Table owns the selection, so emptying it is not a thing
-  // every caller should write.
-  const clear = onSelect ? () => onSelect(new Set()) : undefined;
-  const bar = clear && bulkActions !== undefined && selectedIds.size > 0 ? bulkLabel(selectedIds.size) : undefined;
 
   return (
     <div
@@ -436,12 +472,31 @@ export function Table<Row>({
               {bar}
             </span>
             <span className={styles.divider} aria-hidden="true" />
-            <div className={styles.bulk}>
-              {typeof bulkActions === 'function' ? bulkActions({ selected: selectedIds, clear }) : bulkActions}
+            <div
+              className={[styles.bulk, bulkList ? styles.gathers : styles.scrolls].join(' ')}
+              data-bulk={bulkList ? 'slot' : undefined}
+            >
+              {bulkList ? (
+                <RowActions
+                  actions={bulkList}
+                  inline={bulkActionsInline}
+                  label={bulkActionsLabel}
+                  gather={bulkButtons > 1}
+                  size="sm"
+                  part="bulk"
+                />
+              ) : (
+                bulkNodes
+              )}
             </div>
             <span className={styles.divider} aria-hidden="true" />
-            <Button variant="outline" tone="neutral" size="sm" onClick={clear}>
-              {clearSelectionLabel}
+            {/* A ✕ under 25rem of Table, where the words and the count would
+                not both fit a phone beside a "⋯"; the name is the words. */}
+            <Button variant="outline" tone="neutral" size="sm" className={styles.clear} onClick={clear}>
+              <span className={styles.clearIcon} aria-hidden="true">
+                <StatusGlyph name="close" />
+              </span>
+              <span className={styles.clearLabel}>{clearSelectionLabel}</span>
             </Button>
           </div>
         </div>

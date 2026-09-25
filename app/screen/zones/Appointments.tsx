@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import type { Dispatch } from 'react';
 import { Badge } from '@/components/Badge';
-import { Button } from '@/components/Button';
 import { Table } from '@/components/Table';
 import type { Column } from '@/components/Table';
 import { spacing } from '@/tokens/scale';
@@ -108,30 +107,29 @@ export function Appointments({ state, dispatch }: { state: ScreenState; dispatch
           },
         ]}
         rowActionsLabel={(a) => `More actions for ${a.client} at ${timeRange(a)}`}
-        bulkActions={({ selected, clear }) => (
-          <>
-            <Button
-              size="sm"
-              onClick={() => {
-                changeStatus(state, dispatch, selected, 'confirmed');
-                clear();
-              }}
-            >
-              Confirm
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              tone="danger"
-              onClick={() => {
-                changeStatus(state, dispatch, selected, 'cancelled');
-                clear();
-              }}
-            >
-              Cancel
-            </Button>
-          </>
-        )}
+        // A menu's actions, as the rows' are: icon buttons while the bar has
+        // room beside the Scheduler, one "⋯" on a phone, never a second row.
+        bulkActions={({ selected, clear }) => [
+          {
+            id: 'confirm',
+            label: 'Confirm',
+            icon: <Check />,
+            onSelect: () => {
+              changeStatus(state, dispatch, selected, 'confirmed');
+              clear();
+            },
+          },
+          {
+            id: 'cancel',
+            label: 'Cancel',
+            icon: <Cross />,
+            tone: 'danger',
+            onSelect: () => {
+              changeStatus(state, dispatch, selected, 'cancelled');
+              clear();
+            },
+          },
+        ]}
       />
     </div>
   );

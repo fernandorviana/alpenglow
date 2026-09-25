@@ -3,6 +3,7 @@ import { DropdownMenu } from '../DropdownMenu/DropdownMenu';
 import { actionText } from '../DropdownMenu/rows';
 import type { DropdownMenuAction } from '../DropdownMenu/rows';
 import { Tooltip } from '../Tooltip/Tooltip';
+import type { ControlSize } from '../vocabulary';
 import styles from './Table.module.css';
 
 /** The first `inline` actions with an icon, and the rest in their order. An action without an icon is never a button. */
@@ -32,14 +33,18 @@ function More() {
   );
 }
 
-function Menu({ items, label }: { items: DropdownMenuAction[]; label: string }) {
+function Menu({ items, label, size }: { items: DropdownMenuAction[]; label: string; size?: ControlSize }) {
   return (
     <DropdownMenu
       items={items}
-      trigger={(props) => <Button variant="ghost" tone="neutral" icon={<More />} aria-label={label} {...props} />}
+      trigger={(props) => <Button variant="ghost" tone="neutral" size={size} icon={<More />} aria-label={label} {...props} />}
     />
   );
 }
+
+/** The attribute the Table's rules pick a set by: a row's, or the selection bar's. */
+const mark = (part: 'row' | 'bulk', set: 'inline' | 'gathered') =>
+  part === 'bulk' ? { 'data-bulk': set } : { 'data-actions': set };
 
 /**
  * A row's actions, twice: inline, and gathered into one "⋯". The Table's
@@ -53,28 +58,38 @@ function Menu({ items, label }: { items: DropdownMenuAction[]; label: string }) 
  * only if the Tooltip is ever taken away — `actionText` is what it falls back
  * to, which is `label` when that is a plain string and otherwise the
  * action's `id`, unless the caller gave a `textValue`.
+ *
+ * The selection bar draws its actions with this too, `part="bulk"`: its
+ * buttons `sm` beside its Clear, and marked `data-bulk` so the rows' rules
+ * never reach them.
  */
 export function RowActions({
   actions,
   inline,
   label,
   gather,
+  size,
+  part = 'row',
 }: {
   actions: readonly DropdownMenuAction[];
   inline: number;
   label: string;
   gather: boolean;
+  /** Left out, the density's, as a row's. */
+  size?: ControlSize;
+  part?: 'row' | 'bulk';
 }) {
   if (actions.length === 0) return null;
   const { shown, rest } = splitActions(actions, inline);
   return (
     <>
-      <span className={styles.actions} data-actions="inline">
+      <span className={styles.actions} {...mark(part, 'inline')}>
         {shown.map((action) => (
           <Tooltip key={action.id} content={action.label} purpose="label">
             <Button
               variant="ghost"
               tone={action.tone ?? 'neutral'}
+              size={size}
               icon={action.icon}
               aria-label={actionText(action)}
               disabled={action.disabled}
@@ -82,11 +97,11 @@ export function RowActions({
             />
           </Tooltip>
         ))}
-        {rest.length > 0 && <Menu items={rest} label={label} />}
+        {rest.length > 0 && <Menu items={rest} label={label} size={size} />}
       </span>
       {gather && (
-        <span className={styles.actions} data-actions="gathered">
-          <Menu items={[...actions]} label={label} />
+        <span className={styles.actions} {...mark(part, 'gathered')}>
+          <Menu items={[...actions]} label={label} size={size} />
         </span>
       )}
     </>

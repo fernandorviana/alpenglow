@@ -37,7 +37,13 @@ const PROPS: PropRow[] = [
   { prop: 'loading', type: 'boolean', default: 'false' },
   { prop: 'stickyHeader', type: 'boolean', default: 'false' },
   { prop: 'maxHeight', type: 'number | string', default: '—' },
-  { prop: 'bulkActions', type: 'ReactNode | ({ selected, clear }) => ReactNode', default: '—' },
+  {
+    prop: 'bulkActions',
+    type: 'DropdownMenuAction[] | ReactNode, or ({ selected, clear }) => either',
+    default: '—',
+  },
+  { prop: 'bulkActionsInline', type: 'number', default: '5' },
+  { prop: 'bulkActionsLabel', type: 'string', default: "'More actions'" },
   { prop: 'bulkLabel', type: '(count: number) => string', default: '{n} selected' },
   { prop: 'clearSelectionLabel', type: 'string', default: "'Clear selection'" },
   { prop: 'footer', type: 'ReactNode', default: '—' },
@@ -328,6 +334,17 @@ export default function Page() {
         tokens, which on accent are illegible, and the theme has no tokens yet for controls on an inverse surface.
         Decided 2026-09-22, recorded as waiting on those tokens. The drawn stripe at the start of a selected row is
         kept.
+      </p>
+      <p>
+        The bar keeps to one row at every width. Give <code>bulkActions</code> a menu&rsquo;s actions and they are
+        drawn as a row&rsquo;s are: those with an icon as buttons, named by a tooltip, the rest in &ldquo;⋯&rdquo;,
+        and all of them gathered into one &ldquo;⋯&rdquo; when the bar has no room for the buttons. The count and
+        Clear always show; below 25rem of table Clear is drawn as a ✕ and keeps its name. The row&rsquo;s actions
+        gather by the table&rsquo;s width, since everything in a row is counted; the bar holds words whose width
+        nothing counts, so its actions gather by the width of their own slot, the one part of the bar that gives
+        way. Nodes of your own cannot gather, and scroll inside their slot rather than wrap. The drawn Switch,
+        &ldquo;Show only selected&rdquo;, has no place in a menu, so here it is an action without an icon, in
+        &ldquo;⋯&rdquo;, that says what it will do.
       </p>
       <p>
         <code>footer</code> is a slot under the frame: the Pagination with <code>total</code> and{' '}

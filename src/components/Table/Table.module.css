@@ -23,7 +23,7 @@
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
 .root, .frame, .region, .bounded, .table, .caption, .th, .td, .sortButton, .sortLabel, .sortMark, .selectCell,
-.dock, .bar, .count, .divider, .bulk, .footer {
+.dock, .bar, .count, .divider, .bulk, .gathers, .scrolls, .clear, .clearIcon, .clearLabel, .footer {
   box-sizing: border-box;
 }
 
@@ -491,11 +491,15 @@
   pointer-events: none;
 }
 
+/* One row, never two: the count and Clear keep their size, and the actions'
+   slot is what gives way. min-width: 0, or the bar's least width would be
+   all of its content and outrank the max-width. */
 .bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: var(--ap-spacing-100) var(--ap-spacing-200);
+  gap: var(--ap-spacing-200);
+  min-width: 0;
   max-width: calc(100% - var(--ap-spacing-400));
   padding: var(--ap-spacing-100) var(--ap-spacing-200);
   transform: translateY(calc(-100% - var(--ap-spacing-200)));
@@ -513,6 +517,7 @@
 }
 
 .count {
+  flex: none;
   color: var(--ap-color-text-secondary);
   font-size: var(--ap-text-caption-sm-size);
   line-height: var(--ap-text-caption-sm-line-height);
@@ -523,6 +528,7 @@
 }
 
 .divider {
+  flex: none;
   align-self: stretch;
   width: var(--ap-border-width-hairline);
   background: var(--ap-color-border-subtle);
@@ -530,10 +536,73 @@
 
 .bulk {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--ap-spacing-100);
   min-width: 0;
+}
+
+/* A list of actions, gathered as a row's are (columns.ts, bulkCss): the slot
+   is a container as wide as its buttons inline, and gives way to one "⋯"
+   when the bar has no room for them. The width and the query are the
+   Table's own rules, counted from the buttons. */
+.gathers {
+  container-type: inline-size;
+  flex: 0 1 auto;
+  /* Inline, the buttons fill the slot exactly; gathered in a wider slot, the
+     one "⋯" stands between the dividers rather than at one of them. */
+  justify-content: center;
+}
+
+/* The caller's own nodes cannot gather, and do not wrap: what the bar has no
+   room for scrolls inside the slot. Padded by a focus ring and its offset,
+   and pulled back by as much, so a ring is not clipped by the scroll. */
+.scrolls {
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: calc(var(--ap-border-width-ring) + var(--ap-focus-ring-offset));
+  margin: calc(-1 * (var(--ap-border-width-ring) + var(--ap-focus-ring-offset)));
+}
+
+.clear {
+  flex: none;
+}
+
+.clearIcon {
+  display: none;
+  width: var(--ap-spacing-200);
+  height: var(--ap-spacing-200);
+}
+
+/* A phone's Table. The count, a "⋯" and "Clear selection" in words do not
+   fit 256 (a 288 Table less the bar's inset) beside each other, and the
+   count and Clear always show: Clear keeps its name and is drawn as a ✕,
+   the Button's icon-only shape — two classes, so the Button's own padding
+   yields whatever order the stylesheets load in — and the bar closes its
+   gaps to 8. Measured in words, the bar needs 340 (count 74, "⋯" 32, Clear
+   134, gaps, dividers and padding) and its inset 32: a Table of 372, 23.25rem.
+   25rem leaves room for a count of three digits. */
+@container (width < 25rem) {
+  .bar {
+    gap: var(--ap-spacing-100);
+  }
+
+  .bar .clear {
+    aspect-ratio: 1;
+    padding-inline: 0;
+  }
+
+  .clearIcon {
+    display: inline-flex;
+  }
+
+  .clearLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 /* --- footer -------------------------------------------------------------- */

@@ -72,10 +72,13 @@ div.root[.comfortable|.compact][aria-busy] (className, rest)
     div.region[role=region][tabindex=0][.bounded]  overflow auto, max-block-size
       table  (unchanged; thead.sticky when stickyHeader)
   div.dock                             sticky bottom, height 0
-    div.bar[aria-label]                surface/overlay, elevation/lg
+    div.bar[aria-label]                surface/overlay, elevation/lg, one row
       span.count[role=status]          "2 selected"
-      slot
-      Button "Clear selection"
+      div.bulk.gathers[data-bulk=slot] a list: span[data-bulk=inline] and
+                                       span[data-bulk=gathered] ("⋯")
+      div.bulk.scrolls                 or the caller's nodes
+      Button.clear                     span.clearIcon (✕ under 25rem),
+                                       span.clearLabel "Clear selection"
   div.footer                           slot
 ```
 
@@ -101,7 +104,9 @@ the scheduling screen's day bar no longer push the page sideways at 320.
 ## API
 
 Table: `stickyHeader?: boolean`, `maxHeight?: number | string`,
-`bulkActions?: ReactNode | ((api: { selected, clear }) => ReactNode)`,
+`bulkActions?: BulkActions | ((api: { selected, clear }) => BulkActions)`
+where `BulkActions` is `DropdownMenuAction[] | ReactNode` (the list since
+2026-09-25, with `bulkActionsInline`, 5, and `bulkActionsLabel`),
 `bulkLabel?: (count) => string` ("N selected"), `clearSelectionLabel?`,
 `footer?: ReactNode`.
 
@@ -117,7 +122,7 @@ their surfaces, AA; the chip's secondary words on `surface/sunken`, AA.
 
 - The dock stretched the bar to its zero height (18px, measured); it is
   `align-items: flex-start`. At a phone width the bar ran past the viewport;
-  it wraps.
+  it wraps. (2026-09-25: it no longer wraps — see below.)
 - The bar lay over the last rows with no way out from under it: while it is
   shown the root sets `--table-foot-room` and the region pads its foot by
   it, so the last row scrolls clear.
@@ -127,6 +132,30 @@ their surfaces, AA; the chip's secondary words on `surface/sunken`, AA.
   Switch gone; it follows the selection.
 - Recorded, not solved: the count is a `role="status"` inserted with the
   bar, so the first selection is not announced; a reader hears the second.
+
+## At a narrow width, 2026-09-25
+
+Wrapped, the bar was four lines at 375 (311×147) over two and a half rows,
+its dividers hanging. It keeps to one row now. `bulkActions` also takes a
+menu's actions, drawn as the rows' are (b31c046): those with an icon as
+`sm` buttons named by a tooltip, the rest in "⋯", and every one in one "⋯"
+beside them, the rules showing one set. The rows gather by the Table's
+width, since everything in a row is counted; the bar holds words, the count
+and Clear, whose width nothing counts, so its actions gather by the width of
+their slot: a container as wide as the buttons inline, the only item in the
+bar that shrinks, holding one "⋯" when it is narrower. `data-bulk`, not the
+rows' `data-actions`, so neither set of rules reaches the other. The count
+and Clear always show; under 25rem of Table, where "Clear selection" in
+words, the count and a "⋯" do not fit a phone (340 in 256), Clear is drawn
+as a ✕ and keeps its name, and the gaps close to 8. The caller's own nodes
+cannot gather and scroll inside their slot.
+
+The drawn Switch, "Show only selected", has no place in a menu. The dense
+demo makes it an action with no icon, so it sits in "⋯" and says what it
+will do ("Show all staff" once on). Fernando's to overturn: the Switch back
+in the bar needs a slot beside the actions that the bar gives up first on a
+phone. The scheduling screen's bar takes Confirm and Cancel as actions, the
+icons its rows use.
 
 ## Not here
 

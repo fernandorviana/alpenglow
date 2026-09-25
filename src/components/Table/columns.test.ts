@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   actionWidth,
+  bulkCss,
+  bulkWidth,
   columnCss,
   columnThresholds,
   minimumOf,
@@ -162,5 +164,42 @@ describe('columnCss', () => {
   it('escapes a newline in a key as the CSS escape \\a, since a literal one would break the string token', () => {
     const odd = columnCss('t', { ...tryIt, columns: [{ key: 'name' }, { key: 'a\nb' }] });
     expect(odd).toContain('[data-col="a\\a b"]');
+  });
+});
+
+describe('bulkWidth', () => {
+  it("is 32 a button, the bar's sm, and 4 between, and nothing without buttons", () => {
+    expect(bulkWidth(0)).toBe(0);
+    expect(bulkWidth(1)).toBe(32);
+    expect(bulkWidth(3)).toBe(104);
+  });
+});
+
+describe('bulkCss', () => {
+  const root = '[data-table="t"]';
+
+  it('sizes the slot to its inline buttons, and lets it give way to one "⋯"', () => {
+    expect(bulkCss('t', 3)).toContain(`${root} [data-bulk="slot"] { width: 104px; min-width: 32px; }`);
+  });
+
+  it('shows the inline actions until the slot is narrower than they are, then the one "⋯"', () => {
+    const css = bulkCss('t', 3);
+    expect(css).toContain(`${root} [data-bulk="gathered"] { display: none; }`);
+    const gather = css.slice(css.indexOf('@container (width < 104px) {'));
+    expect(gather.length).toBeLessThan(css.length);
+    expect(gather).toContain(`${root} [data-bulk="inline"] { display: none; }`);
+    expect(gather).toContain(`${root} [data-bulk="gathered"] { display: inline-flex; }`);
+  });
+
+  it('writes no gathering for one button, which is already as few as there can be', () => {
+    const css = bulkCss('t', 1);
+    expect(css).toContain(`${root} [data-bulk="slot"] { width: 32px; min-width: 32px; }`);
+    expect(css).not.toContain('@container');
+    expect(css).not.toContain('gathered');
+  });
+
+  it("never names the row actions' attribute, so neither set of rules reaches the other", () => {
+    expect(bulkCss('t', 3)).not.toContain('data-actions');
+    expect(columnCss('t', tryIt)).not.toContain('data-bulk');
   });
 });
