@@ -471,6 +471,38 @@ describe('the dark elevation ladder is ordered and every step is perceptible', (
   });
 });
 
+describe('the site’s theme toggle track separates from the rail it stands on', () => {
+  // The rail is surface/raised. The toggle used to alias the same token for
+  // its dark track — rgb(18,20,44) on rgb(18,20,44), the pill disappearing
+  // into the rail (fidelity audit, 2026-09-24). Dark now takes
+  // surface/overlay, a step above the rail; light is untouched, and stays
+  // surface/sunken (app/docs.css .themeToggle).
+  it('surface/overlay clears a surface step above surface/raised — dark', () => {
+    const step = lightness(resolve('surface/overlay', 'dark')) - lightness(resolve('surface/raised', 'dark'));
+    expect(step).toBeGreaterThanOrEqual(SURFACE_STEP);
+  });
+
+  it('is not the rail’s own colour', () => {
+    expect(resolve('surface/overlay', 'dark')).not.toBe(resolve('surface/raised', 'dark'));
+  });
+});
+
+describe('inline code’s pill separates from the canvas and from a card it may sit on', () => {
+  // surface/sunken is surface/base in dark (invariant 4) — the prose's
+  // inline code painted the canvas colour and vanished on it, and on a
+  // card (surface/raised, where a Props table's code cells sit) it was
+  // close enough to read as the same fill too (fidelity audit, 2026-09-24).
+  // Dark takes surface/overlay; light is untouched (app/docs.css
+  // :where(.prose) :where(code), stone/100 on stone/050 already separates
+  // there without help). Code blocks keep their own surface/raised and are
+  // untouched (.codeBlock code overrides the pill rule to none).
+  it('surface/overlay clears a surface step above the canvas and above a card — dark', () => {
+    const pill = lightness(resolve('surface/overlay', 'dark'));
+    expect(pill - lightness(resolve('surface/base', 'dark')), 'above the canvas').toBeGreaterThanOrEqual(SURFACE_STEP);
+    expect(pill - lightness(resolve('surface/raised', 'dark')), 'above a card').toBeGreaterThanOrEqual(SURFACE_STEP);
+  });
+});
+
 describe('tabs read in every variant and every state', () => {
   const WASH = ['interactive/wash-hover', 'interactive/wash-pressed'] as const;
 
@@ -526,6 +558,26 @@ describe('tabs read in every variant and every state', () => {
     expect(resolve('surface/sunken', 'dark')).toBe(resolve('surface/base', 'dark'));
     expect(tokenContrast('border/default', 'surface/base', 'dark')).toBeGreaterThanOrEqual(NON_TEXT);
     expect(tokenContrast('border/default', 'surface/raised', 'dark')).toBeGreaterThanOrEqual(NON_TEXT);
+  });
+
+  it('the thumb takes a border in dark, where overlay has no lighter step left to move to', () => {
+    // surface/overlay is already the ladder's lightest colour step (see "the
+    // dark elevation ladder" above) — there is no fourth level to move the
+    // thumb to. Its margin above surface/raised, a card the control may
+    // stand on, is exactly one step (.0427), the thinnest in the system, and
+    // a screenshot of it read as nearly invisible (fidelity audit,
+    // 2026-09-24, "SegmentedControl, dark: thumb nearly invisible"). Dark
+    // gives the thumb a border/strong hairline instead of a fill it does not
+    // have room for — the one token proven to clear 3:1 against every
+    // surface — the same "separate with a border" move the track's own edge
+    // already makes against the canvas (Tabs spec deviation 1; invariant 4).
+    // Changed: the thumb, not the track — the well already reads correctly
+    // as a recess, and reworking it would only move the thin margin
+    // somewhere else in the ladder. Light is untouched: the shadow still
+    // lifts the thumb where overlay and raised are both white.
+    for (const ground of ['surface/sunken', 'surface/overlay', 'surface/raised'] as const) {
+      expect(tokenContrast('border/strong', ground, 'dark'), ground).toBeGreaterThanOrEqual(NON_TEXT);
+    }
   });
 });
 

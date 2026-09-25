@@ -132,8 +132,34 @@
      track (.085). Seen in the browser on 2026-09-18. */
   background: var(--ap-color-surface-overlay);
   box-shadow: var(--ap-elevation-sm);
+  /* The width is held at rest so dark does not resize the thumb; only the
+     colour arrives in dark (the same trick floating.module.css uses). */
+  border: var(--ap-border-width-hairline) solid transparent;
   transform: translateX(calc(var(--segmented-index) * (100% + var(--ap-spacing-025))));
   transition: transform var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
+}
+
+/* overlay is already the ladder's lightest colour step (invariant 4) — a
+   further fill step does not exist, so the .04 margin above the card above
+   is the thinnest in the system, and read as nearly invisible on the live
+   site (fidelity audit, 2026-09-24, "SegmentedControl, dark: thumb nearly
+   invisible"). The thumb takes a border/strong hairline in dark instead of a
+   fill it has no room for — the one token proven to clear 3:1 against every
+   surface — the same "separate with a border" move the track's own edge
+   already makes against the canvas (Tabs spec deviation 1; invariant 4).
+   Changed here, not the track: the well already reads correctly as a
+   recess, and reworking it would only relocate the thin margin. Written
+   twice, once for the system and once for the choice. Light is untouched:
+   the shadow still lifts the thumb where overlay and raised are both
+   white. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .thumb {
+    border-color: var(--ap-color-border-strong);
+  }
+}
+
+:root[data-theme='dark'] .thumb {
+  border-color: var(--ap-color-border-strong);
 }
 
 .thumb:dir(rtl) {

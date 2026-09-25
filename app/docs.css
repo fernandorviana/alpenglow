@@ -485,13 +485,18 @@ html[data-nav-open] { overflow: hidden; }
    slots, the sun above the moon. The track carries no border, so 48x84 is
    the whole control and not the box inside a hairline.
 
-   The colours take a per-mode block. The design file has no dark mode, so its
-   dark variant was drawn straight from primitives, and no single semantic
-   token lands on both the light and the dark drawn value.
+   The colours take a per-mode block. The design file draws only a light
+   variant (`160:10078`, confirmed 2026-09-25) — no single semantic token
+   lands on both the light and the dark value, because there is no dark
+   drawing to hold one to.
 
-   Dark is the drawn variant exactly: #262733 track, #1A1B25 knob, #2F303D
-   edge, #868F9F resting icon. It is drawn on a dark page and it sits on one
-   here, so nothing has to move.
+   Dark took the two surface levels nearest the light relationship without
+   checking what the track would sit on: `surface/raised`, the same token as
+   the rail underneath — rgb(18,20,44) on rgb(18,20,44), the pill
+   disappearing into the rail (fidelity audit, 2026-09-24). The track now
+   takes `surface/overlay` instead, a surface step above the rail (ΔL .0426,
+   contrast.test.ts); the knob keeps `surface/base`, still two steps below
+   the track (ΔL .0856), and the resting icon's edge is unchanged.
 
    Light does move, by one step of the neutral ramp, and this is the part worth
    reading. The drawn light variant assumes a white card: its #F6F8FA track is
@@ -580,7 +585,11 @@ html[data-nav-open] { overflow: hidden; }
    `data-theme` is the whole state; the component keeps none of its own. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .themeToggle {
-    --toggle-track: var(--ap-color-surface-raised);
+    /* The rail is surface/raised. Aliasing it here put the track and the
+       rail at the same colour — rgb(18,20,44) on rgb(18,20,44), the pill
+       disappearing (fidelity audit, 2026-09-24). surface/overlay is a
+       surface step above it (ΔL .0426, contrast.test.ts). */
+    --toggle-track: var(--ap-color-surface-overlay);
     --toggle-knob: var(--ap-color-surface-base);
     --toggle-knob-edge: var(--ap-night-700);
     --toggle-knob-shadow: var(--ap-alpha-black-16);
@@ -592,7 +601,7 @@ html[data-nav-open] { overflow: hidden; }
 }
 
 :root[data-theme='dark'] .themeToggle {
-  --toggle-track: var(--ap-color-surface-raised);
+  --toggle-track: var(--ap-color-surface-overlay);
   --toggle-knob: var(--ap-color-surface-base);
   --toggle-knob-edge: var(--ap-night-700);
   --toggle-knob-shadow: var(--ap-alpha-black-16);
@@ -699,6 +708,26 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   padding: 1px 4px;
   border-radius: var(--ap-radius-xs);
   background: var(--ap-color-surface-sunken);
+}
+
+/* In dark, surface/sunken is surface/base — the canvas (invariant 4) — so
+   the pill painted the canvas colour and vanished on it, and on a card
+   (surface/raised, where a Props table's code cells sit) it read close
+   enough to the same fill too (fidelity audit, 2026-09-24). Dark takes
+   surface/overlay, clearing a surface step above both (contrast.test.ts).
+   Both halves stay zero-specificity like every other prose rule
+   (ProseScope.test.tsx), so they win here only on source order — after the
+   rule above — and a code block's own `.codeBlock code` (a real class,
+   below) still overrides them regardless of order. Written twice, the same
+   shape as the theme toggle and the floating surface (invariant 9). */
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme='light'])) :where(.prose) :where(code) {
+    background: var(--ap-color-surface-overlay);
+  }
+}
+
+:where(:root[data-theme='dark']) :where(.prose) :where(code) {
+  background: var(--ap-color-surface-overlay);
 }
 
 /* --- code block ----------------------------------------------------------- */

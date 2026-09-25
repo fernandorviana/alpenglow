@@ -298,6 +298,20 @@ describe('the toggle stylesheet', () => {
     }
   });
 
+  it('tracks the rail with a step above it in dark, not the rail’s own colour', () => {
+    // The rail is surface/raised. The track used to alias the same token in
+    // dark — the pill disappearing into the rail (fidelity audit,
+    // 2026-09-24) — so both dark halves take surface/overlay instead.
+    const media = block(css, '@media (prefers-color-scheme: dark)');
+    expect(block(media, '.themeToggle {')).toContain('--toggle-track: var(--ap-color-surface-overlay)');
+    const attrIndex = css.indexOf(":root[data-theme='dark'] .themeToggle {");
+    expect(attrIndex).toBeGreaterThan(-1);
+    expect(block(css, ":root[data-theme='dark'] .themeToggle {")).toContain(
+      '--toggle-track: var(--ap-color-surface-overlay)',
+    );
+    expect(css).not.toContain('--toggle-track: var(--ap-color-surface-raised)');
+  });
+
   it('never animates the knob’s position away', () => {
     // Position is the state signal that survives when colour does not, so
     // reduced motion drops the transition and nothing else. A `transform` in

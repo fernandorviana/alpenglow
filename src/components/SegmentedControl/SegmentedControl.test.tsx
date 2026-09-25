@@ -144,6 +144,31 @@ describe('SegmentedControl — the shared stylesheet', () => {
       /\.(?:track|segment|ghost|thumb|selected|disabled|fullWidth)\s+\.(?:track|segment|ghost|thumb)\b/,
     );
   });
+
+  it('holds the thumb’s border width at rest so dark does not resize it', () => {
+    // The same trick floating.module.css uses: the width is always there,
+    // only the colour arrives in dark.
+    const thumb = block(css, '\n.thumb {');
+    expect(thumb).toMatch(/border:\s*var\(--ap-border-width-hairline\)\s+solid\s+transparent/);
+  });
+
+  it('gives the thumb a border/strong edge in dark, under both dark selectors, not one', () => {
+    // surface/overlay — the thumb's fill — is already the ladder's lightest
+    // colour step (contrast.test.ts, "the dark elevation ladder"), so a
+    // further fill step does not exist. Its margin above surface/raised, a
+    // card the control may stand on, is exactly one step, the thinnest in
+    // the system, and read as nearly invisible on the live site (fidelity
+    // audit, 2026-09-24). border/strong is the one token proven to clear
+    // 3:1 against every surface; the track's own edge already takes this
+    // "separate with a border" route against the canvas (Tabs spec
+    // deviation 1). Light is untouched: the shadow still lifts the thumb
+    // there.
+    const media = css.includes('@media (prefers-color-scheme: dark)');
+    const attr = css.includes(":root[data-theme='dark']");
+    expect(media && attr).toBe(true);
+    const borderColour = css.split('border-color: var(--ap-color-border-strong)').length - 1;
+    expect(borderColour).toBe(2);
+  });
 });
 
 describe('SegmentedControl — axe', () => {

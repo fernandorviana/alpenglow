@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { readCss } from '@/test/css';
+import { readCss, block } from '@/test/css';
 
 /** A selector list's selectors: split at its own commas, not at those inside `:where(p, h1)`. */
 const selectorsOf = (list: string) => {
@@ -76,5 +76,36 @@ describe('the prose rules', () => {
       (r) => r !== measure[0] && r.selectors.some((s) => /\.prose\b/.test(s)) && /max-width/.test(r.body),
     );
     expect(others.map((r) => r.selectors.join(', '))).toEqual([]);
+  });
+});
+
+/**
+ * `surface/sunken` is `surface/base` in dark (invariant 4) — the inline
+ * code pill painted the canvas colour and vanished on it (fidelity audit,
+ * 2026-09-24). Dark takes `surface/overlay` instead; the override has to
+ * stay zero-specificity like every other prose rule above, so it wins on
+ * source order alone and a code block's own `.codeBlock code` (a real
+ * class, `background: none`) still overrides it there regardless of order.
+ */
+describe('inline code’s pill in dark', () => {
+  const css = readCss('app/docs.css');
+  const restIndex = css.indexOf(':where(.prose) :where(code) {');
+  const after = css.slice(restIndex + 1);
+
+  it('is surface/sunken at rest', () => {
+    expect(restIndex).toBeGreaterThan(-1);
+    expect(block(css, ':where(.prose) :where(code) {')).toContain('--ap-color-surface-sunken');
+  });
+
+  it('takes surface/overlay in dark, written twice, once for the system and once for the choice', () => {
+    const media = block(after, '@media (prefers-color-scheme: dark)');
+    expect(block(media, ':where(.prose) :where(code)')).toContain('--ap-color-surface-overlay');
+    expect(block(after, ":where(:root[data-theme='dark']) :where(.prose) :where(code)")).toContain(
+      '--ap-color-surface-overlay',
+    );
+  });
+
+  it('never reaches into a code block: `.codeBlock code` keeps a real class, ahead of any zero-specificity dark rule', () => {
+    expect(block(css, '.codeBlock code {')).toContain('background: none');
   });
 });
