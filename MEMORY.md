@@ -573,13 +573,13 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2491 tests across 113 files (fidelity-part-1, 2026-09-25)
+npm test            # 2552 tests across 115 files (fidelity-part-1, 2026-09-25)
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
 npm run check:package   # publint, attw, and what the build must never lose
 npm run audit:responsive  # the built site (out/), every route at 320, 375, 768, 1024, 1440; dark at 375 and 1440
-npm run audit:css-order -- --a <dev url> --b <built url>  # element boxes, dev against the build
+npm run audit:css-order -- --a <dev url> --b <built url>  # element boxes, dev against the build; skips /screen
 ```
 
 **Done means seen in the production build** (the fidelity audit's rule,
@@ -588,9 +588,19 @@ dark, with `npm run audit:responsive` on `out/` after `npm run build:docs`
 and exit 0 — no route scrolling sideways. The script takes dark at 375 and
 1440 only; dark at the other widths is by eye. `next dev` loads CSS in
 import order and the build in chunk order, and the two disagreed on the
-Slider and the Switch's description: a check in dev at desktop width is
-not a check. Both scripts drive a headless Chrome over CDP and write to
-`.audit/` (git-ignored). `npm run check` does not build the docs.
+Slider, the Switch's description and the Combobox's text input (squeezed
+to 20px after the tags in the build): a check in dev at desktop width is
+not a check. The fix each time is a custom property the shared rule reads,
+under the package's name (`--alpenglow-*`), never a second rule on the
+same property. Both scripts drive a headless Chrome over CDP (Google
+Chrome at its macOS path, or `CHROME=`; Node 22 or later) and write to
+`.audit/` (git-ignored); both exit 1 when a run errored and 2 when
+`--only` names no route, and `--only` takes `/drawer/` as `/drawer`.
+`audit:css-order` skips `/screen`, the page that frames `/screen/full` in
+an iframe: its diffs came and went with CPU load while dev measured alone
+matched the build, a measurement of contention and not of CSS order
+(ruling, 2026-09-25); it prints the skip and why, and `/screen/full` is
+still compared. `npm run check` does not build the docs.
 
 CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
@@ -693,10 +703,11 @@ drawn or the drawing left a choice; proposals, not settled:
 - In dark, the SegmentedControl thumb's `border/strong` hairline
   (`border/default` measured 2.975 against the thumb). It reaches the Tabs'
   segmented variant too. No dark drawing.
-- /scheduler on a phone: the side column (mini-calendar, people, filters)
-  as an overlay Drawer from a toolbar button; a new or pressed event opens
-  it with the focus on the event; from `md` to where the week and the
-  column fit side by side, the column goes under the grid.
+- /scheduler on a phone: the side column — the draft, Availability and its
+  slots, the mini-calendar, the event types and the selected event — as an
+  overlay Drawer from a toolbar button; a new or pressed event opens it
+  with the focus on the event; from `md` to where the week and the column
+  fit side by side, the column goes under the grid.
 - The dense demo's bulk bar: the drawn "Show only selected" Switch stays in
   the bar while it fits and gathers into "⋯" as a checkbox row when it does
   not; under 25rem of Table, Clear is a ✕ named by its Tooltip; /screen's
@@ -709,9 +720,22 @@ drawn or the drawing left a choice; proposals, not settled:
   drawn 48, until the token moves.
 - The Scheduler's quarter-hour floor, 20 built against 24 drawn; and
   `scrollToDay` off by default, so a 0.5.0 consumer sees no change.
-- An overlay Drawer is not modal: at 320, where it covers the screen, Tab
-  and a screen reader still reach the page under it. To raise with the
-  phones rule.
+- Below `md` a Drawer is now modal (ruling of 2026-09-25, on the phones
+  rule): the page outside is `inert`, the panel `aria-modal`, Tab goes
+  round inside it and the focus comes back on close — before, at 320,
+  where it covers the screen, Tab and a screen reader reached the page it
+  hid. By `inert` rather than `showModal()`, so the element stays one
+  popover across the line and Esc stays the Drawer's; a `<dialog>` outside
+  stays alive for the "leave without saving?" Dialog. No scrim. From `md`
+  up it is not modal, as the drawer spec says. The cost if Fernando wants
+  the page behind a phone's Drawer reachable: one condition.
+- /accessibility's exceptions table loses its Why column below about
+  580px, as its columns leave by rank.
+- /dark-mode shows only Dark below 426, its Light leaving by rank.
+- /layout's mode headers wrap to two lines, where /table says a header
+  does not wrap (the alternative was clipping at every width).
+- The dense demo's bulk bar keeps the widest set's slot width, so at 768,
+  with the Switch tucked into "⋯", about 160px stand empty before Clear.
 
 ### -6. The roadmap to a more complete system (2026-09-18)
 
