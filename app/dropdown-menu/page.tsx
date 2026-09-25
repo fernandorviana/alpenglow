@@ -28,6 +28,7 @@ const ENTRY_PROPS: PropRow[] = [
   { prop: 'iconEnd', type: 'ReactNode', default: '—' },
   { prop: 'disabled', type: 'boolean', default: 'false' },
   { prop: 'textValue', type: 'string', default: 'the label, when it is a string' },
+  { prop: 'checked', type: 'boolean', default: '— (a plain row); set, a menuitemcheckbox' },
 ];
 
 const propColumns = [
