@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { DocPage } from '@ui/DocPage';
+import { TypeText } from '@ui/TypeText';
 import { Table, type Column } from '@/components/Table';
 import type { ThemeTokenName, Mode } from '@/tokens/theme';
 import { resolve, contrast } from '@/tokens/contrast';
@@ -40,17 +41,13 @@ const MODE_LABEL = { light: 'Light', dark: 'Dark' } as const;
 
 /**
  * A token's name that may break after its slash and nowhere else:
- * `interactive/` over `on-accent`, never `interactive/on-` over `accent`.
- * Each part keeps to one line, and the `<wbr>` is the one place between
- * them a line may end; the search index reads the name as one word.
+ * `interactive/` over `on-accent`, never `interactive/on-` over `accent`
+ * (TypeText's `token`); the search index reads the name as one word.
  */
 function Name({ token }: { token: string }) {
-  const cut = token.indexOf('/') + 1;
   return (
     <span className="tokenName wraps">
-      <span className="unbroken">{token.slice(0, cut)}</span>
-      <wbr />
-      <span className="unbroken">{token.slice(cut)}</span>
+      <TypeText kind="token">{token}</TypeText>
     </span>
   );
 }

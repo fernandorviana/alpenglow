@@ -4,6 +4,7 @@ import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
 import { ToastSpecimen } from '@ui/ToastSpecimen';
+import { TypeText } from '@ui/TypeText';
 import { CheckmarkOutline, Error as ErrorIcon, Information, Warning } from '@carbon/icons-react';
 import { toast, TOAST_DURATION, TOAST_DURATION_WITH_ACTION, TOAST_LIMIT } from '@/components/Toast';
 import { Button } from '@/components/Button';
@@ -81,7 +82,7 @@ const PROPS: PropRow[] = [
 
 const propColumns = (first: string) => [
   { key: 'prop', header: first, primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
   { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
 ];
 

@@ -1386,8 +1386,9 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 .tokenName.wraps { white-space: normal; }
 
 /* A name in a Props table's type (app/ui/TypeText.tsx), with a break offered
-   at each hump. As a block it moves to the next line whole, as a word does,
-   and breaks at its humps only when it is wider than the column. */
+   at each hump, dot and slash. As a block it moves to the next line whole,
+   as a word does, and breaks there only when it is wider than the column.
+   A path or a token's name is not a block: it is a cell's whole content. */
 .typeName { display: inline-block; }
 
 .alias {

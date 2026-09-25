@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
+import { TypeText } from '@ui/TypeText';
 import { Alert, alertTones, ALERT_NARROW } from '@/components/Alert';
 import type { AlertTone } from '@/components/Alert';
 import { toast } from '@/components/Toast';
@@ -226,7 +227,7 @@ export default function Page() {
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
             { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
           ]}
           rows={PROPS}

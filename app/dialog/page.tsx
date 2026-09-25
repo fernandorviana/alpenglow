@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
+import { TypeText } from '@ui/TypeText';
 import { Button } from '@/components/Button/index';
 import { Dialog, type DialogSize } from '@/components/Dialog/index';
 import { Field } from '@/components/Field/index';
@@ -368,7 +369,7 @@ export default function Page() {
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
             { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
           ]}
           rows={PROPS}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
+import { TypeText } from '@ui/TypeText';
 import { Checkbox } from '@/components/Checkbox/index';
 import { Radio } from '@/components/Radio/index';
 import { Switch } from '@/components/Switch/index';
@@ -23,7 +24,7 @@ const SWITCH_PROPS: PropRow[] = [{ prop: 'description', type: 'ReactNode', defau
 
 const propColumns = [
   { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
   { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
 ];
 

@@ -5,6 +5,7 @@ import { Location as LocationIcon } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
+import { TypeText } from '@ui/TypeText';
 import { Avatar } from '@/components/Avatar';
 import { Field } from '@/components/Field/index';
 import { NativeSelect } from '@/components/NativeSelect/index';
@@ -125,7 +126,7 @@ const OPTION: PropRow[] = [
 
 const propColumns = (first: string) => [
   { key: 'prop', header: first, primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
   { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
 ];
 

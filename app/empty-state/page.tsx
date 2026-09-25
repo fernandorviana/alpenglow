@@ -5,6 +5,7 @@ import { Add, Location, Map as MapIcon, Search, UserMultiple } from '@carbon/ico
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
+import { TypeText } from '@ui/TypeText';
 import { Button } from '@/components/Button';
 import { Card, CardBody, CardTitle } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
@@ -306,7 +307,7 @@ export default function Page() {
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
             { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
           ]}
           rows={PROPS}

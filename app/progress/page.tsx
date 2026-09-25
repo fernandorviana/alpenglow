@@ -5,6 +5,7 @@ import { Document } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
+import { TypeText } from '@ui/TypeText';
 import { Button } from '@/components/Button';
 import { Card, CardBody } from '@/components/Card';
 import { Progress, progressTones } from '@/components/Progress';
@@ -93,7 +94,7 @@ const propColumns = [
   {
     key: 'type',
     header: 'Type',
-    cell: (r: PropRow) => <span className="alias">{r.type}</span>,
+    cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span>,
   },
   {
     key: 'default',

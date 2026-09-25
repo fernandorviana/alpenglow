@@ -330,7 +330,10 @@ system is read, and the audit found most of its faults there.
   in reading order below `xs`, as the xs Dialog does; /navigation's Try it
   scrolls sideways with a fade instead of clipping the top bar; the
   /components Navigation card draws its side nav at every width; the
-  /layout and /density table headers fit; the home Developers card shows
+  /layout and /density table headers fit; every Props table breaks a type
+  at the humps of its names, after a dot or a slash, never inside a word,
+  and /install's imports and /accessibility's token names break after
+  their slash by the same helper; the home Developers card shows
   `npm i alpenglow` alone.
 - **The Foundations data-visualisation card shows its ramp**, a long icon
   name no longer shrinks its icon, and the Table page's row actions each

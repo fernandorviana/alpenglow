@@ -185,30 +185,42 @@ describe.each(['layout', 'density'] as const)('the headers on /%s', (page) => {
  * hump is an inline block: it moves to the next line whole, as a word does,
  * and breaks at its humps only when it is wider than the column.
  */
-describe.each(['dropdown-menu', 'date-picker'] as const)('the Props tables on /%s', (page) => {
-  it('offer a type a break at every hump of its names, and at nothing else', async () => {
+/**
+ * Every page with a Props table, from the source: a table whose caption
+ * names its props. A page that adds one is held to the same rule without
+ * being listed.
+ */
+const PROPS_PAGES = readdirSync('app', { recursive: true, encoding: 'utf8' })
+  .filter((file) => file.endsWith('page.tsx') && /caption="[^"]*\bprops\b/i.test(readFileSync(join('app', file), 'utf8')))
+  .map((file) => file.replace(/\/?page\.tsx$/, ''))
+  .sort();
+
+it('finds the Props tables on the component pages', () => {
+  expect(PROPS_PAGES.length).toBeGreaterThanOrEqual(30);
+  expect(PROPS_PAGES).toEqual(expect.arrayContaining(['dropdown-menu', 'date-picker', 'drawer', 'card', 'table']));
+});
+
+describe.each(PROPS_PAGES)('the Props tables on /%s', (page) => {
+  it('offer a type a break at every hump of its names, after a dot or a slash, and at nothing else', async () => {
     const { default: Page }: { default: ComponentType } = await import(/* @vite-ignore */ resolve(`app/${page}/page.tsx`));
     const { container } = render(<Page />);
     const cells = [...container.querySelectorAll('[data-table]')]
-      .filter((table) => /props$/i.test(table.querySelector('caption')?.textContent ?? ''))
+      .filter((table) => /\bprops\b/i.test(table.querySelector('caption')?.textContent ?? ''))
       .flatMap((table) => [...table.querySelectorAll('td[data-col="type"]')]);
     expect(cells.length).toBeGreaterThan(0);
-    let offered = 0;
     for (const cell of cells) {
       const html = cell.innerHTML.replace(/<(?!wbr)[^>]*>/g, '');
       // A lower-case letter or digit then a capital, or a capital run then a
       // word, with no break between them, is a hump left closed.
       expect(html, cell.textContent ?? '').not.toMatch(/[a-z0-9][A-Z]|[A-Z][A-Z][a-z]/);
-      // A break sits only at a hump or after a dot.
+      // A break sits only at a hump, after a dot or after a slash.
       for (const [, before, after] of html.matchAll(/(.)<wbr>(.)/g)) {
-        expect(`${before}|${after}`).toMatch(/^([a-z0-9]\|[A-Z]|[A-Z]\|[A-Z]|\.\|[A-Za-z_])$/);
-        offered++;
+        expect(`${before}|${after}`).toMatch(/^([a-z0-9]\|[A-Z]|[A-Z]\|[A-Z]|\.\|[A-Za-z_]|\/\|[^\s/])$/);
       }
       // Every break is inside a word's own block, and a block is one word.
       for (const wbr of cell.querySelectorAll('wbr')) expect(wbr.parentElement).toHaveClass('typeName');
       for (const word of cell.querySelectorAll('.typeName')) expect(word.textContent).not.toMatch(/\s/);
     }
-    expect(offered).toBeGreaterThan(0);
     expect(block(readCss('app/docs.css'), '.typeName {')).toMatch(/display: inline-block/);
   });
 });

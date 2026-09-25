@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
+import { TypeText } from '@ui/TypeText';
 import { Scheduler, formatSlots } from '@/components/Scheduler';
 import type {
   ISODateTime,
@@ -293,7 +294,7 @@ const PROPS: PropRow[] = [
 ];
 const propColumns = [
   { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+  { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
   { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
 ];
 

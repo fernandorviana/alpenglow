@@ -82,6 +82,13 @@ describe('buildIndex', () => {
     // The names on /accessibility break after their slash the same way.
     const labels = index.entries.find((e) => e.kind === 'section' && e.href === '/accessibility#worst-case-not-best-case');
     expect(labels?.body).toContain('interactive/on-accent');
+    // And a Props table's types, each offered a break at every hump
+    // (TypeText, on every Props table since 2026-09-25).
+    const trigger = index.entries.find((e) => e.kind === 'prop' && e.href === '/dropdown-menu#props' && e.title === 'trigger');
+    expect(trigger?.body).toContain('(props: DropdownMenuTriggerProps) => ReactNode');
+    expect(search(index, 'DropdownMenuTriggerProps').map((h) => h.entry.href)).toContain('/dropdown-menu#props');
+    const focus = index.entries.find((e) => e.kind === 'prop' && e.href === '/dialog#props' && e.title === 'initialFocus');
+    expect(focus?.body).toMatch(/RefObject<HTML\w*Element/);
   });
 
   it('leaves a picture\'s text out', () => {

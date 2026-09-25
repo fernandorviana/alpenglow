@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Edit, TrashCan } from '@carbon/icons-react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
+import { TypeText } from '@ui/TypeText';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
@@ -66,7 +67,7 @@ const COLUMN_PROPS: PropRow[] = [
 
 const propColumns: Column<PropRow>[] = [
   { key: 'prop', header: 'Prop', primary: true, cell: (r) => <code>{r.prop}</code> },
-  { key: 'type', header: 'Type', cell: (r) => <span className="alias">{r.type}</span> },
+  { key: 'type', header: 'Type', cell: (r) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
   { key: 'default', header: 'Default', cell: (r) => <span className="alias">{r.default}</span> },
 ];
 
