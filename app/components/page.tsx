@@ -341,8 +341,12 @@ export default function Page() {
           description="The top bar, the side nav that collapses to icons or opens as a drawer, and the second level under captions."
           visual={
             <div style={{ display: 'flex', height: 132, width: '100%', maxWidth: 200 }}>
+              {/* A media query that never matches: below md a SideNav is a
+                  sheet, closed until the TopBar opens it, and the picture
+                  was an empty well on a phone. The picture is the rail. */}
               <SideNav
                 aria-label="Example"
+                narrow="not all"
                 items={[
                   { href: '#', label: 'Home', icon: <HomeIcon size={24} /> },
                   { href: '#', label: 'Calendar', icon: <CalendarIcon size={24} />, current: true },
