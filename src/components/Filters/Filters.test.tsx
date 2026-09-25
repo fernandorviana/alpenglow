@@ -201,6 +201,36 @@ describe('Filters — stylesheet', () => {
     expect(words).toMatch(/white-space:\s*nowrap/);
   });
 
+  it('says a chip’s whole words in a Tooltip while they are cut short, and draws no Tooltip while they are not', () => {
+    // The words are a focusable button, so the system's Tooltip is how the
+    // rest of them is seen: on hover and on keyboard focus. It names the
+    // button with the same words, so the name does not change. Measured:
+    // cut short is the button's scroll width past its own.
+    // jsdom has no layout: its widths are Element's, and these shadow them.
+    let cut = true;
+    Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, get() { return cut ? 300 : 120; } });
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get() { return 120; } });
+    try {
+      const { rerender } = render(<Filters fields={fields} value={value} onChange={() => {}} />);
+      const chip = screen.getByRole('button', { name: 'Status is Active or Invite pending' });
+      expect(chip).toHaveAttribute('data-truncated', 'true');
+      const tip = document.getElementById(chip.getAttribute('aria-labelledby')!.split(' ').pop()!)!;
+      expect(tip).toHaveAttribute('role', 'tooltip');
+      expect(tip).toHaveTextContent('Status is Active or Invite pending');
+      cut = false;
+      rerender(<Filters fields={fields} value={[{ key: 'status', values: ['active'] }]} onChange={() => {}} />);
+      const whole = screen.getByRole('button', { name: 'Status is Active' });
+      expect(whole).not.toHaveAttribute('data-truncated');
+      // The Tooltip stays in the tree, so the button is never remounted
+      // under the focus; the rules keep its panel from showing.
+      const quiet = block(css, '.tip:has(> .words:not([data-truncated])) > [role=\'tooltip\'] {');
+      expect(quiet).toMatch(/display:\s*none/);
+    } finally {
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+      Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+    }
+  });
+
   it('makes the words a button that looks like words, with a ring of its own', () => {
     const words = block(css, '.words {');
     expect(words).toContain('font: inherit');

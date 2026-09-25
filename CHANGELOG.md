@@ -157,7 +157,9 @@ the Table's `Column.width`, under Breaking.
   three where it was four. **The DOM changes:** Clear is no longer the
   bar's last child but the last child of that box, after the "+". The bar
   takes `min-width: 0`, and a chip's words end in an ellipsis when the chip
-  is wider than the bar, where two long chips pushed a page sideways.
+  is wider than the bar, where two long chips pushed a page sideways; while
+  they are cut short, the system's Tooltip says them whole on hover and on
+  keyboard focus, and the button's name is the same words.
 - **The Table's selection bar keeps to one row.** It wrapped: at 375 the
   dense demo's bar was four lines, 311×147, with dividers left hanging. It
   does not wrap now. The actions give way first; then the count, to an

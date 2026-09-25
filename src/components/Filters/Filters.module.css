@@ -8,7 +8,7 @@
  * caption/md is kept, one chip in the system and not two.
  */
 
-.filters, .label, .chips, .controls, .words, .add, .fields, .field, .options, .legend {
+.filters, .label, .chips, .controls, .tip, .words, .add, .fields, .field, .options, .legend {
   box-sizing: border-box;
 }
 
@@ -82,6 +82,17 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: top;
+}
+
+/* The Tooltip that says the words whole: always there, and shown only while
+   they are cut short (ChipWords). Its wrapper holds to the chip as the words
+   do, so the ellipsis is the button's. */
+.tip {
+  min-width: 0;
+}
+
+.tip:has(> .words:not([data-truncated])) > [role='tooltip'] {
+  display: none;
 }
 
 .words:hover { text-decoration: underline; }
