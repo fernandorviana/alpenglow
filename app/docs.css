@@ -1824,6 +1824,19 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   }
 }
 
+/* /button's dialog footer. Wrapped at 320 and 375 it left "Confirm booking",
+   the action the footer is for, alone on a second row. Below xs the three
+   stack full width and 8 apart, as the xs Dialog's footer does: in reading
+   order, the first on top (Modals, Size=xs, 608:10569, draws Cancel over
+   Save). */
+@media (width < 30rem) {
+  .footerExample {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ap-spacing-100);
+  }
+}
+
 /* The key cap on the Command palette card: the palette's own, in miniature. */
 .cardKbd {
   padding: 0 var(--ap-spacing-050);

@@ -121,7 +121,7 @@ export default function Page() {
       </p>
 
       <div className="specimen">
-        <div className="specimenRow">
+        <div className="specimenRow footerExample">
           <Button variant="ghost" tone="neutral">
             Keep editing
           </Button>
