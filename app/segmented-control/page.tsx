@@ -66,7 +66,7 @@ const MEASURES: Measure[] = [
   { part: 'Radius', value: `track ${radius.lg}, thumb ${radius.md}` },
   { part: 'Label, Semibold', value: type('caption/md') },
   { part: 'Track', value: 'surface/sunken, a border/subtle hairline' },
-  { part: 'Thumb', value: 'surface/overlay on elevation/sm' },
+  { part: 'Thumb', value: 'surface/overlay on elevation/sm; a border/strong hairline in dark' },
 ];
 
 const measureColumns = [
@@ -237,10 +237,13 @@ export default function Page() {
 
       <h2>The boundary</h2>
       <p>
-        The roadmap had this control take the Checkbox&rsquo;s rule for the unmarked boundary, border/strong at 3:1. It
-        does not, and this is the decision: on an unchecked checkbox the border is the whole control, and here the
-        options are visible text, the chosen one has a shape, the thumb a surface step above the track with the sm
-        shadow, and a colour, and the radio announces the state. The track keeps the Tabs&rsquo; hairline.
+        The roadmap had this control take the Checkbox&rsquo;s rule for every option&rsquo;s unmarked boundary,
+        border/strong at 3:1. It does not, and this is the decision: on an unchecked checkbox the border is the whole
+        control, and here the options are visible text, the chosen one has a shape, and a colour, and the radio
+        announces the state. The track keeps the Tabs&rsquo; hairline. The thumb itself is the one exception, in dark
+        only: its surface step above a card (fidelity audit, 2026-09-24) is the thinnest in the system, and it now
+        takes a border/strong hairline of its own there, the same &ldquo;separate with a border&rdquo; move the
+        track&rsquo;s edge already makes against the canvas.
       </p>
 
       <h2>Accessibility</h2>
