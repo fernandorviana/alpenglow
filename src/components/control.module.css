@@ -133,7 +133,12 @@
    inside it without a nested outline. */
 .field {
   flex: 1;
-  min-width: 0;
+  /* A caller sharing this element — Combobox's .input is the case — sets
+     --field-min-width instead of overriding min-width directly: two rules
+     declaring the same property at equal specificity would be decided by
+     stylesheet load order, which differs between next dev and the
+     production build (the same reasoning as --control-width above). */
+  min-width: var(--field-min-width, 0);
   border: none;
   outline: none;
   background: none;

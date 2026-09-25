@@ -42,9 +42,12 @@
 }
 
 /* Room for a few characters after the last tag before it wraps to a line of
-   its own. */
+   its own. Set through control.module.css's --field-min-width rather than
+   min-width itself, for the same reason Slider hands control.module.css
+   --control-width instead of setting width: two rules on the same property
+   at equal specificity would be decided by stylesheet load order. */
 .input {
-  min-width: var(--ap-spacing-800);
+  --field-min-width: var(--ap-spacing-800);
   font-weight: var(--ap-font-weight-medium);
 }
 
