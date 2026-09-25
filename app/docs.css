@@ -1978,3 +1978,135 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   font-size: var(--ap-text-caption-md-size);
   line-height: var(--ap-text-caption-md-line-height);
 }
+
+/* --- why: the layers, at any width ---------------------------------------- */
+
+/* The landscape (app/ui/Layers.tsx) is drawn 640 wide and scales with its
+   figure: at 320 it stood at 0.4, its labels 4 to 6px. So below 30rem of the
+   figure's own width — the drawing under 0.75 — the figure shows the same
+   six bands as a stack instead: top to bottom as the landscape stands, each
+   name and file at the page's own sizes, and beside each the mark the
+   drawing gives that band. One ray from the corner crosses them all, as the
+   light does. One of the two is displayed at a time, so a reader meets one
+   picture under one name. A container query, not a breakpoint: the figure
+   answers the width it has. */
+.layers { container-type: inline-size; }
+
+.layersDrawing {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.layersStack {
+  display: none;
+  position: relative;
+  gap: var(--ap-spacing-050);
+}
+
+@container (width < 30rem) {
+  .layersDrawing { display: none; }
+  .layersStack { display: grid; }
+}
+
+/* Name over file, and the mark in a column of its own: 80, as wide as the
+   ray needs to read as one line across six bands. */
+.layersBand {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ap-spacing-1000);
+  column-gap: var(--ap-spacing-200);
+  align-items: center;
+  padding-block: var(--ap-spacing-075);
+}
+
+.layersName {
+  font-size: var(--ap-text-body-md-size);
+  line-height: var(--ap-text-body-md-line-height);
+  letter-spacing: var(--ap-text-body-md-tracking);
+  font-weight: var(--ap-font-weight-semibold);
+  color: var(--ap-color-text-primary);
+}
+
+.layersCode {
+  grid-column: 1;
+  font-family: var(--ap-font-mono);
+  font-size: var(--ap-text-caption-md-size);
+  line-height: var(--ap-text-caption-md-line-height);
+  color: var(--ap-color-text-secondary);
+}
+
+/* Each mark in the drawing's paint for its band: the crest the 2px ink
+   line, the paths dashed, the terrain the ground outlined, the contours
+   three lines with no fill, the outcrop and the bedrock the rock — the
+   outcrop only where it breaks the surface, at the end, as drawn. */
+.layersMark {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  box-sizing: border-box;
+  height: var(--ap-spacing-200);
+}
+
+.layersBand[data-band='crest'] .layersMark {
+  height: 0;
+  border-top: 2px solid var(--ap-color-text-primary);
+}
+
+.layersBand[data-band='paths'] .layersMark {
+  height: 0;
+  border-top: var(--ap-border-width-hairline) dashed var(--ap-color-text-tertiary);
+}
+
+.layersBand[data-band='terrain'] .layersMark {
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
+  background: var(--ap-color-surface-raised);
+}
+
+.layersBand[data-band='contours'] .layersMark {
+  background: repeating-linear-gradient(
+    var(--ap-color-border-strong) 0 1px,
+    transparent 1px var(--ap-spacing-075)
+  );
+  height: 13px;
+}
+
+.layersBand[data-band='outcrop'] .layersMark,
+.layersBand[data-band='bedrock'] .layersMark {
+  border: var(--ap-border-width-hairline) solid var(--ap-color-border-strong);
+  background: var(--ap-color-surface-sunken);
+}
+
+.layersBand[data-band='outcrop'] .layersMark {
+  justify-self: end;
+  width: 50%;
+}
+
+/* The light: a source in the corner, and a ray from it across the marks'
+   column to the foot of the stack. On top, so it crosses the filled bands
+   rather than passing behind them. */
+.layersStack::before,
+.layersStack::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.layersStack::before {
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: var(--ap-spacing-1000);
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.5px),
+    var(--ap-color-text-tertiary) calc(50% - 0.5px) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+
+.layersStack::after {
+  top: calc(-1 * var(--ap-spacing-050));
+  inset-inline-end: calc(-1 * var(--ap-spacing-050));
+  width: 10px;
+  height: 10px;
+  border-radius: var(--ap-radius-full);
+  background: var(--ap-color-text-primary);
+}

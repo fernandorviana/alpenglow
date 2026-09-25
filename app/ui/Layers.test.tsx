@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import { readCss, block } from '@/test/css';
 import { Layers, LAYERS } from './Layers';
 import { resolve, contrast } from '@/tokens/contrast';
 import type { ThemeTokenName } from '@/tokens/theme';
@@ -19,6 +20,11 @@ const TOKEN = /^var\(--ap-color-(surface|border|text)-[a-z0-9-]+\)$/;
 // `var(--ap-color-surface-sunken)` → `surface/sunken`
 const tokenOf = (paint: string): ThemeTokenName =>
   paint.replace(/^var\(--ap-color-/, '').replace(/\)$/, '').replace('-', '/') as ThemeTokenName;
+
+/** The picture as drawn: the one `role="img"` that is an SVG. */
+const drawing = () => screen.getAllByRole('img').find((el) => el.tagName.toLowerCase() === 'svg')!;
+/** The same six bands as HTML, for a figure narrower than 30rem. */
+const stack = () => screen.getAllByRole('img').find((el) => el.tagName.toLowerCase() !== 'svg')!;
 
 describe('Layers', () => {
   it('paints every fill and stroke with a theme token, never a literal', () => {
@@ -43,7 +49,7 @@ describe('Layers', () => {
 
   it('names the six layers bottom to top for a reader who cannot see it', () => {
     render(<Layers />);
-    const label = (screen.getByRole('img').getAttribute('aria-label') ?? '').toLowerCase();
+    const label = (drawing().getAttribute('aria-label') ?? '').toLowerCase();
     // The array is drawn top-down; the label reads the landscape up from the
     // bedrock, the way the page explains it.
     const positions = [...LAYERS].reverse().map((l) => label.indexOf(l.name.toLowerCase()));
@@ -61,7 +67,7 @@ describe('Layers', () => {
   it('labels every band in visible text, not only in the drawing', () => {
     render(<Layers />);
     for (const layer of LAYERS) {
-      expect(screen.getByText(layer.name)).toBeInTheDocument();
+      expect(within(drawing()).getByText(layer.name)).toBeInTheDocument();
     }
   });
 
@@ -88,5 +94,64 @@ describe('Layers', () => {
         expect(contrast(resolve(tokenOf(paint), mode), card), `${paint} on surface/raised, ${mode}`).toBeGreaterThanOrEqual(3);
       }
     }
+  });
+
+  it('is also a stack of the six bands in HTML, named as the drawing is', () => {
+    // At 320 the 640-wide drawing is scaled to 0.4 and its labels are 4–6px.
+    // Below 30rem of its own width the figure shows the same bands as text at
+    // its own size instead: one picture or the other, never both, so a screen
+    // reader meets the same name at every width.
+    render(<Layers />);
+    expect(drawing()).toBeInTheDocument();
+    expect(stack()).toBeInTheDocument();
+    expect(stack().tagName.toLowerCase()).not.toBe('svg');
+    expect(stack().querySelector('svg')).toBeNull();
+    expect(stack().getAttribute('aria-label')).toBe(drawing().getAttribute('aria-label'));
+    // Top to bottom, as the landscape stands: crest first, bedrock last, each
+    // with the file it maps to.
+    const bands = [...stack().querySelectorAll('[data-band]')];
+    expect(bands.map((b) => b.getAttribute('data-band'))).toEqual(LAYERS.map((l) => l.id));
+    LAYERS.forEach((layer, i) => {
+      expect(bands[i]).toHaveTextContent(layer.name);
+      expect(bands[i]).toHaveTextContent(layer.code);
+    });
+  });
+
+  it('shows the stack instead of the drawing below 30rem of its own width', () => {
+    const { container } = render(<Layers />);
+    const figure = container.querySelector('figure')!;
+    expect(figure).toHaveClass('layers');
+    expect(drawing()).toHaveClass('layersDrawing');
+    expect(stack()).toHaveClass('layersStack');
+
+    const css = readCss('app/docs.css');
+    // A container query, not a media query: the figure answers its own width.
+    expect(block(css, '.layers {')).toMatch(/container-type: inline-size/);
+    expect(block(css, '.layersStack {')).toMatch(/display: none/);
+    const narrow = block(css, '@container (width < 30rem)');
+    expect(block(narrow, '.layersDrawing')).toMatch(/display: none/);
+    expect(block(narrow, '.layersStack')).toMatch(/display: (grid|flex|block)/);
+  });
+
+  it('paints the stack in neutral theme tokens, its text at 3:1 or better on the card', () => {
+    // The stack is painted by the stylesheet, not by attributes, so the
+    // attribute guards above cannot see it: the same two lines, read from
+    // the rules instead.
+    const rules = [...readCss('app/docs.css').matchAll(/([^{}]*\.layers[A-Z][^{}]*)\{([^{}]*)\}/g)].map(
+      ([, selector, body]) => ({ selector: selector!.trim(), body: body! }),
+    );
+    expect(rules.length).toBeGreaterThan(0);
+    let texts = 0;
+    for (const { selector, body } of rules) {
+      expect(body, selector).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
+      for (const [paint] of body.matchAll(/var\(--ap-color-[a-z0-9-]+\)/g)) expect(paint, selector).toMatch(TOKEN);
+      const color = body.match(/(?:^|[;{\s])color: (var\([^)]+\))/)?.[1];
+      if (!color) continue;
+      texts++;
+      for (const mode of ['light', 'dark'] as const) {
+        expect(contrast(resolve(tokenOf(color), mode), resolve('surface/raised', mode)), `${selector} ${mode}`).toBeGreaterThanOrEqual(3);
+      }
+    }
+    expect(texts).toBeGreaterThan(0);
   });
 });

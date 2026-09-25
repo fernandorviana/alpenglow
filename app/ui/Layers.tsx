@@ -18,6 +18,13 @@
  * on (`surface/raised`), it is 1.72:1 in Light and 2.97:1 in Dark. The
  * strokes are what make the picture, so they carry `border/strong` or a
  * text token instead — see `Layers.test.tsx`'s contrast guard.
+ *
+ * The drawing is 640 wide and scales with the figure: at 320 its labels were
+ * 4 to 6px. So the figure carries the same six bands twice — the drawing,
+ * and a stack in HTML whose text is the page's own size — and a container
+ * query in `app/docs.css` (`.layers`) shows the stack below 30rem of the
+ * figure's width and the drawing above it. Both are `role="img"` under one
+ * name, and only one is ever displayed, so a reader meets one picture.
  */
 
 export const LAYERS = [
@@ -48,15 +55,14 @@ const LABEL = [...LAYERS]
   .map((l) => l.name.toLowerCase())
   .join(', ');
 
+const NAME = `${LAYERS.length} layers, bottom to top: ${LABEL}. Light crosses every layer from one corner.`;
+
 export function Layers() {
   return (
-    <figure className="specimen" style={{ margin: '0 0 var(--ap-spacing-300)' }}>
-      <svg
-        role="img"
-        aria-label={`${LAYERS.length} layers, bottom to top: ${LABEL}. Light crosses every layer from one corner.`}
-        viewBox="0 0 640 360"
-        style={{ display: 'block', width: '100%', height: 'auto' }}
-      >
+    <figure className="specimen layers" style={{ margin: '0 0 var(--ap-spacing-300)' }}>
+      {/* Its size is the stylesheet's (`.layersDrawing`): an inline display
+          would beat the container query that hides it. */}
+      <svg className="layersDrawing" role="img" aria-label={NAME} viewBox="0 0 640 360">
         {/* Bedrock: the raw mass. Nothing above touches it directly. */}
         <g data-layer="bedrock">
           <rect x="200" y={bandTop(5)} width="424" height={BAND} fill={rock} stroke={edgeStrong} />
@@ -136,6 +142,17 @@ export function Layers() {
           </g>
         ))}
       </svg>
+      {/* The narrow figure: the bands top to bottom as the landscape stands,
+          each with the mark the drawing gives it, painted in docs.css. */}
+      <div className="layersStack" role="img" aria-label={NAME}>
+        {LAYERS.map((layer) => (
+          <div key={layer.id} className="layersBand" data-band={layer.id}>
+            <span className="layersName">{layer.name}</span>
+            <span className="layersCode">{layer.code}</span>
+            <span className="layersMark" />
+          </div>
+        ))}
+      </div>
       <figcaption style={{ marginTop: 'var(--ap-spacing-200)', color: 'var(--ap-color-text-secondary)' }}>
         Clarity, layer by layer.
       </figcaption>
