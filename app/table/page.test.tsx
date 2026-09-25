@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { readCss } from '@/test/css';
@@ -35,6 +35,24 @@ describe('the Table page’s Try it', () => {
 
     await userEvent.click(edits[0]!);
     expect(toast).toHaveBeenCalledWith(expect.stringContaining('Aoife Byrne'));
+  });
+
+  it('takes a deleted row out of the list, and its toast’s Undo puts it back where it was', async () => {
+    // "Deleted Aoife Byrne" with Aoife Byrne still in the table was a toast
+    // saying what had not happened.
+    vi.mocked(toast).mockClear();
+    render(<Page />);
+    const table = () => screen.getAllByRole('region', { name: 'Clients' })[0]!;
+    const names = () => within(table()).getAllByRole('checkbox', { name: /^Select (?!all)/ }).map((c) => c.getAttribute('aria-label'));
+    expect(names()).toEqual(['Select Aoife Byrne', 'Select Gary Martin', 'Select Lisa Roberts', 'Select Sanjay Choudhary']);
+
+    await userEvent.click(within(table()).getAllByRole('button', { name: 'Delete' })[0]!);
+    expect(names()).toEqual(['Select Gary Martin', 'Select Lisa Roberts', 'Select Sanjay Choudhary']);
+    expect(toast).toHaveBeenLastCalledWith('Deleted Aoife Byrne', { action: { label: 'Undo', onClick: expect.any(Function) } });
+
+    const [, options] = vi.mocked(toast).mock.lastCall!;
+    act(() => options!.action!.onClick());
+    expect(names()).toEqual(['Select Aoife Byrne', 'Select Gary Martin', 'Select Lisa Roberts', 'Select Sanjay Choudhary']);
   });
 
   it('keeps no docs button of its own for a row, and no rule for one', () => {

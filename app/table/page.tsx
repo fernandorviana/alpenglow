@@ -93,28 +93,49 @@ const FRAMES = [
   { value: '320', label: '320' },
 ];
 
-/**
- * The row's actions, through the Table's own `rowActions`: Edit and Delete as
- * icon buttons while there is room, Archive in the menu, and all three in
- * "⋯" once they gather. Each one answers, as the Dense demo's bar does, with
- * a toast.
- */
-const clientActions = (c: Client): DropdownMenuAction[] => [
-  { id: 'edit', label: 'Edit', icon: <Edit size={16} />, onSelect: () => toast(`Editing ${c.name}`) },
-  {
-    id: 'delete',
-    label: 'Delete',
-    icon: <TrashCan size={16} />,
-    tone: 'danger',
-    onSelect: () => toast(`Deleted ${c.name}`),
-  },
-  { id: 'archive', label: `Archive ${c.name}`, textValue: 'Archive', onSelect: () => toast(`Archived ${c.name}`) },
-];
-
 export default function Page() {
   const [sort, setSort] = useState<Sort | null>({ key: 'name', direction: 'asc' });
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set(['3']));
   const [frame, setFrame] = useState('800');
+  const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
+
+  /**
+   * Delete and Archive take the row out of the list, and the toast says so
+   * with an Undo that puts it back: a toast that said "Deleted" over a row
+   * still there was saying what had not happened. The selection is left as
+   * it was, so an undone row comes back as it left.
+   */
+  const takeOut = (c: Client, done: string) => {
+    setGone((ids) => new Set(ids).add(c.id));
+    toast(`${done} ${c.name}`, {
+      action: {
+        label: 'Undo',
+        onClick: () =>
+          setGone((ids) => {
+            const next = new Set(ids);
+            next.delete(c.id);
+            return next;
+          }),
+      },
+    });
+  };
+
+  /**
+   * The row's actions, through the Table's own `rowActions`: Edit and Delete
+   * as icon buttons while there is room, Archive in the menu, and all three
+   * in "⋯" once they gather.
+   */
+  const clientActions = (c: Client): DropdownMenuAction[] => [
+    { id: 'edit', label: 'Edit', icon: <Edit size={16} />, onSelect: () => toast(`Editing ${c.name}`) },
+    {
+      id: 'delete',
+      label: 'Delete',
+      icon: <TrashCan size={16} />,
+      tone: 'danger',
+      onSelect: () => takeOut(c, 'Deleted'),
+    },
+    { id: 'archive', label: `Archive ${c.name}`, textValue: 'Archive', onSelect: () => takeOut(c, 'Archived') },
+  ];
 
   // Sorting is the caller's job — the table reports intent and draws the
   // state. This is the whole point of the controlled API.
@@ -124,6 +145,8 @@ export default function Page() {
     if (sort.key === 'visits') return (a.visits - b.visits) * dir;
     return String(a[sort.key as keyof Client]).localeCompare(String(b[sort.key as keyof Client])) * dir;
   });
+  // What the Try it's own actions have taken out stays out of it alone.
+  const kept = rows.filter((c) => !gone.has(c.id));
 
   const columns: Column<Client>[] = [
     {
@@ -203,7 +226,7 @@ export default function Page() {
           <Table
             caption="Clients"
             columns={columns}
-            rows={rows}
+            rows={kept}
             getRowId={(c) => c.id}
             sort={sort}
             onSortChange={setSort}
