@@ -89,5 +89,5 @@
    there directly — a rule that only wins by loading after choice.module.css,
    which next dev and the production build do not agree on. */
 .root {
-  --choice-indent: 40px;
+  --alpenglow-choice-indent: 40px;
 }

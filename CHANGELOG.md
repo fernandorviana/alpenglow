@@ -236,14 +236,21 @@ their type, under Breaking: the Table's `Column.width` and `bulkActions`.
   now ends with "(opens in a new tab)", or its `externalLabel`. A test that
   matches the exact name will need the words, and a link whose text
   already says them will say them twice.
-- **Slider and Switch** — in a build whose chunk order put the shared
-  stylesheets after the component's, the Slider's field took the whole
-  row and its track was 0 wide, so the page scrolled sideways, and the
-  Switch's description lost its 40 indent. The docs' production build was
-  such a build; `next dev` is not. The component's value now reaches the
-  shared rule as a custom property (`--control-width`, `--choice-indent`)
-  instead of competing with it, so no order undoes it. The Switch's root
-  takes a class of its own.
+- **Slider, Switch and Combobox** — in a build whose chunk order put the
+  shared stylesheets after the component's, the Slider's field took the
+  whole row and its track was 0 wide, so the page scrolled sideways; the
+  Switch's description lost its 40 indent; and the Combobox's text input
+  squeezed to 20px after the tags, where it should take a line of its own.
+  The docs' production build was such a build; `next dev` is not. The
+  component's value now reaches the shared rule as a custom property
+  (`--alpenglow-control-width`, `--alpenglow-choice-indent`,
+  `--alpenglow-field-min-width`) instead of competing with it, so no order
+  undoes it. The width and the least width are set and read on one element
+  and registered with `@property` not to inherit, so a page's own custom
+  property of the name on an ancestor cannot reach a control; the indent
+  inherits, from the Switch's root to its description, and the package's
+  name keeps a page out of it. **`styles.css` now holds two `@property`
+  rules**, for those two names. The Switch's root takes a class of its own.
 - **Filters** — Esc on a chip whose words are whole reaches what is around
   the bar again: in a Drawer the first Esc closes it, in a Dialog it is the
   close request. The chip's Tooltip opened on every hover and keyboard focus

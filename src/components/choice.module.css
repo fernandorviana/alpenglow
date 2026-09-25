@@ -182,12 +182,16 @@
 .description {
   display: block;
   /* Aligned under the label text, past the control and its gap. The switch is
-     wider than a box, so it sets --choice-indent on its own root, an
-     ancestor of this element: a rule from Switch.module.css overriding
+     wider than a box, so it sets --alpenglow-choice-indent on its own root,
+     an ancestor of this element: a rule from Switch.module.css overriding
      margin-left directly here would be at equal specificity, decided by
      stylesheet load order, which differs between next dev and the
-     production build. */
-  margin-left: calc(var(--choice-indent, 20px) + var(--ap-spacing-100));
+     production build. The value has to inherit, root to description, so it
+     cannot be registered not to; and a default on every choice root would
+     tie with the Switch's on its one element. Only the Switch declares it,
+     under the package's name, so a page setting its own `--choice-indent`
+     cannot reach a description by accident. */
+  margin-left: calc(var(--alpenglow-choice-indent, 20px) + var(--ap-spacing-100));
   margin-top: var(--ap-spacing-025);
   color: var(--ap-color-text-tertiary);
   font-size: var(--ap-text-caption-md-size);

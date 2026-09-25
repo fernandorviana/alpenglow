@@ -410,7 +410,7 @@ describe('Combobox — stylesheet', () => {
     expect(block(css, '.clear:focus-visible {')).toContain('var(--ap-color-border-focus)');
   });
 
-  it('sets --field-min-width on .input instead of overriding min-width, so control.module.css cannot outrank it when chunk order differs in production', () => {
+  it('sets --alpenglow-field-min-width on .input instead of overriding min-width, so control.module.css cannot outrank it when chunk order differs in production', () => {
     // .input's element also carries control.module.css's .field, which
     // sets flex: 1 for every caller. Overriding min-width from
     // Combobox.module.css at equal specificity is decided by whichever
@@ -422,10 +422,10 @@ describe('Combobox — stylesheet', () => {
     // to its own).
     const input = block(css, '.input {');
     expect(input).not.toMatch(/(?:^|[\s;])min-width\s*:/);
-    expect(input).toMatch(/--field-min-width:\s*var\(--ap-spacing-800\)/);
+    expect(input).toMatch(/--alpenglow-field-min-width:\s*var\(--ap-spacing-800\)/);
 
     const controlCss = readCss('src/components/control.module.css');
-    expect(block(controlCss, '.field {')).toMatch(/min-width:\s*var\(--field-min-width,\s*0\)/);
+    expect(block(controlCss, '.field {')).toMatch(/min-width:\s*var\(--alpenglow-field-min-width,\s*0\)/);
   });
 });
 

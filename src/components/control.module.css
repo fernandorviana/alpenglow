@@ -15,6 +15,23 @@
  * because it can hold icons, and the textarea itself for Textarea.
  */
 
+/* The two values a component sharing an element with `.control` or `.field`
+   hands to them (below). Set and read on that one element, and never meant
+   to arrive from above: registered not to inherit, so a page's own custom
+   property of the name on an ancestor cannot reach a control, and named for
+   the package, so the registration cannot change a page's property of a
+   common name. Kept intact by the production build and the package's
+   (checked in the emitted CSS, 2026-09-25). */
+@property --alpenglow-control-width {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --alpenglow-field-min-width {
+  syntax: '*';
+  inherits: false;
+}
+
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
 .control, .auto, .sm, .md, .lg, .field, .icon, .icon svg, .fullWidth {
@@ -26,11 +43,11 @@
   align-items: center;
   gap: var(--ap-spacing-150);
   /* A caller sharing this element — Slider's .field is the case — sets
-     --control-width instead of overriding width directly: two rules
-     declaring the same property at equal specificity would be decided by
-     stylesheet load order, which differs between next dev and the
+     --alpenglow-control-width instead of overriding width directly: two
+     rules declaring the same property at equal specificity would be decided
+     by stylesheet load order, which differs between next dev and the
      production build. */
-  width: var(--control-width, 100%);
+  width: var(--alpenglow-control-width, 100%);
 
   border: var(--ap-border-width-hairline) solid transparent;
   border-radius: var(--ap-radius-xl);
@@ -134,11 +151,11 @@
 .field {
   flex: 1;
   /* A caller sharing this element — Combobox's .input is the case — sets
-     --field-min-width instead of overriding min-width directly: two rules
-     declaring the same property at equal specificity would be decided by
-     stylesheet load order, which differs between next dev and the
-     production build (the same reasoning as --control-width above). */
-  min-width: var(--field-min-width, 0);
+     --alpenglow-field-min-width instead of overriding min-width directly:
+     two rules declaring the same property at equal specificity would be
+     decided by stylesheet load order, which differs between next dev and the
+     production build (the same reasoning as the width above). */
+  min-width: var(--alpenglow-field-min-width, 0);
   border: none;
   outline: none;
   background: none;

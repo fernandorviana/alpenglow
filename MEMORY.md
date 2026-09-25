@@ -1111,7 +1111,8 @@ Claimed components (add a line before starting; one per session and branch):
   the field 802 wide at every width and the page scrolled sideways, the
   shared `.control { width: 100% }` winning on chunk order (corrected
   2026-09-24, fidelity audit; fixed 2026-09-24 on `fidelity-part-1`: the
-  field's width reaches the shared rule as `--control-width`). Two
+  field's width reaches the shared rule as `--alpenglow-control-width`,
+  registered not to inherit). Two
   contrast cases (221). `/slider` page with every
   drawn usage and "Best practice, and the alternatives"; nav entry
   (thirty); section card. Not built, recorded: the tag-like balloon; a
