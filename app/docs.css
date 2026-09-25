@@ -803,7 +803,8 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* A ghost control: the wash as its background, as on every ghost button.
-   Centred in the 40px header, which every block has. */
+   Centred in the 40px header, which every block has: the block places it,
+   since it is the figure's and not the caption's (CodeBlock.tsx). */
 .codeCopy {
   position: absolute;
   top: var(--ap-spacing-050);

@@ -31,14 +31,32 @@ describe('CodeBlock', () => {
     expect(container.querySelector('.codeNumbered')).toBeNull();
   });
 
-  it('puts the copy button on the bar, not floating over the code, whether or not there is a title', () => {
-    for (const el of [
-      render(<CodeBlock code={code} lang="tsx" />).container,
-      render(<CodeBlock code={code} lang="tsx" title="app/page.tsx" />).container,
-    ]) {
-      const header = el.querySelector('.codeHeader');
-      expect(header?.querySelector('.codeCopy')).not.toBeNull();
+  it('keeps the copy button out of the caption, which names the figure: "TSX", not "TSX Copy code"', () => {
+    // The caption is the figure's name (HTML-AAM), and a button inside it
+    // adds its own name to it. The button is the figure's, after the bar.
+    for (const [el, words] of [
+      [render(<CodeBlock code={code} lang="tsx" />).container, ['TSX']],
+      [render(<CodeBlock code={code} lang="tsx" title="app/page.tsx" />).container, ['TSX', 'app/page.tsx']],
+    ] as const) {
+      const caption = el.querySelector('figcaption')!;
+      expect(caption.querySelector('button, [aria-live]')).toBeNull();
+      expect([...caption.children].map((child) => child.textContent)).toEqual(words);
+      const button = el.querySelector('.codeCopy')!;
+      expect(button.parentElement).toBe(el.querySelector('figure'));
+      expect(button.previousElementSibling).toBe(caption);
     }
+  });
+
+  it('puts the copy button on the bar, not floating over the code: placed in the block, inside the bar’s height', () => {
+    const css = readCss('app/docs.css');
+    expect(block(css, '.codeBlock {')).toMatch(/position: relative/);
+    const bar = Number(block(css, '.codeHeader {').match(/\bheight: (\d+)px/)![1]);
+    const copy = block(css, '.codeCopy {');
+    expect(copy).toMatch(/position: absolute/);
+    // top is spacing/050, 4.
+    expect(copy).toMatch(/top: var\(--ap-spacing-050\)/);
+    const height = Number(copy.match(/\bheight: (\d+)px/)![1]);
+    expect(4 + height).toBeLessThanOrEqual(bar);
   });
 
   it('names a file in its caption, with the language, and numbers the lines', () => {

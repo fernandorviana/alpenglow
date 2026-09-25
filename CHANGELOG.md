@@ -313,7 +313,8 @@ system is read, and the audit found most of its faults there.
   one 110-character use line made them 1119 wide in 852.
 - **Every code block has its header bar**, the language alone when there
   is no file name, so the copy button sits on the bar and never over the
-  code.
+  code. The button is not in the caption, which names the figure: a block
+  is "TSX", not "TSX Copy code".
 - **In dark, the theme toggle's track and inline code take
   `surface/overlay`**, a surface step above the rail and the canvas they
   had matched.
