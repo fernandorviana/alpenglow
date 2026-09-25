@@ -5,6 +5,14 @@ import { Scheduler, type SchedulerEvent, type SchedulerResource } from './Schedu
 import styles from './Scheduler.module.css';
 import { readCss, block } from '../../test/css';
 import { axeViolations } from '../../test/axe';
+import { borderWidth, spacing } from '../../tokens/scale';
+import { textStyle } from '../../tokens/typography';
+
+/** Every value `prop` is given in a rule whose selector list names `.cls` on its own. */
+const declared = (css: string, cls: string, prop: string) =>
+  [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(([, selectors]) => selectors!.split(',').some((s) => s.trim() === `.${cls}`))
+    .flatMap(([, , body]) => [...body!.matchAll(new RegExp(`(?:^|;)\\s*${prop}:\\s*([^;]+)`, 'g'))].map(([, value]) => value!.trim()));
 
 /** ICU puts a narrow no-break space before AM; the tests read plain spaces. */
 const name = (el: HTMLElement) => (el.getAttribute('aria-label') ?? '').replace(/\s/g, ' ');
@@ -73,6 +81,37 @@ describe('Scheduler — the columns', () => {
     expect(within(sections[0]!).getByRole('button', { name: /^Event a,/ })).toHaveClass(styles.moss!);
     expect(within(sections[1]!).getByRole('button', { name: /^Event b,/ })).toHaveClass(styles.glow!);
     expect(screen.queryByRole('button', { name: /^Event c,/ })).toBeNull();
+  });
+
+  it('lays each person’s head on the same track as the person’s column', () => {
+    // jsdom lays nothing out: what holds a head over its column is that the
+    // head and the body are one scroll box's two grids with one template and
+    // one floor, neither sized by what is in it. A long name in a 900 box.
+    const five: SchedulerResource[] = ['Julia Roberts', 'Elizabeth Hall', 'Laura Lee', 'Anthony Jackson', 'Léa Martin'].map(
+      (person, i) => ({ id: `p${i}`, name: person }),
+    );
+    render(
+      <div style={{ inlineSize: 900 }}>
+        <Scheduler label="Agenda" view="day" date="2023-04-21" resources={five} events={[]} now={null} />
+      </div>,
+    );
+    const region = screen.getByRole('region', { name: 'Agenda' });
+    const head = region.querySelector<HTMLElement>(`.${styles.head}`)!;
+    const body = region.querySelector<HTMLElement>(`.${styles.body}`)!;
+    expect(region.style.getPropertyValue('--scheduler-columns')).toBe('5');
+    expect(head.parentElement).toBe(region);
+    expect(body.parentElement).toBe(region);
+    // The corner and five heads, then the All-day label and five lists: two rows of 1 + 5.
+    expect(head.children).toHaveLength(12);
+    expect(head.querySelectorAll(`.${styles.person}`)).toHaveLength(5);
+    // The hours and five columns.
+    expect(body.children).toHaveLength(6);
+
+    const css = readCss('src/components/Scheduler/Scheduler.module.css');
+    expect(declared(css, 'head', 'grid-template-columns')).toEqual(declared(css, 'body', 'grid-template-columns'));
+    expect(declared(css, 'head', 'grid-template-columns')).toHaveLength(1);
+    expect(declared(css, 'head', 'min-inline-size')).toEqual(declared(css, 'body', 'min-inline-size'));
+    expect(declared(css, 'head', 'min-inline-size')).toHaveLength(1);
   });
 });
 
@@ -425,6 +464,100 @@ describe('Scheduler — the stylesheet', () => {
   it('draws the now line and the dot in the danger edge', () => {
     expect(block(css, '\n.now {')).toContain('var(--ap-color-border-danger)');
     expect(block(css, '\n.nowDot {')).toContain('var(--ap-color-border-danger)');
+  });
+
+  it('sizes the head and the body from the columns, never from what is in them', () => {
+    // At max-content the head's unbroken names widened its tracks past the
+    // body's: 165 over 144 at 1440, Léa Martin's cards under Anthony Jackson.
+    const grids = block(css, '\n.head,\n.body {');
+    expect(grids).toContain(
+      'min-inline-size: calc(var(--scheduler-hours-width) + var(--scheduler-columns) * var(--scheduler-column))',
+    );
+    expect(css).not.toContain('max-content');
+  });
+
+  it('gives the all-day chip the drawn row, its line inside it', () => {
+    // Drawn 170 × 29 in a 28 row, radius 8, 12 SemiBold, the words 10 in.
+    expect(block(css, '\n.root {')).toContain('--scheduler-all-day: calc(var(--ap-spacing-300) + var(--ap-spacing-050))');
+    const chip = block(css, '\n.allDaySlot > .event {');
+    expect(chip).toContain('min-block-size: var(--scheduler-all-day)');
+    expect(chip).toContain('block-size: auto');
+    expect(chip).toContain('justify-content: center');
+    expect(chip).toContain('padding-block: 0');
+    // 8 and the hairline edge: the words 9 in, for the drawn 10.
+    expect(chip).toContain('padding-inline: var(--ap-spacing-100)');
+    expect(block(css, '\n.event {')).toContain('border-radius: var(--ap-radius-lg)');
+    expect(block(css, '\n.title {')).toContain('font-size: var(--ap-text-caption-md-size)');
+    expect(block(css, '\n.title {')).toContain('font-weight: var(--ap-font-weight-semibold)');
+    // The row is the chip: nothing above or below it, 2 at the sides.
+    const row = block(css, '\n.allDayList {');
+    expect(row).toContain('min-block-size: var(--scheduler-all-day)');
+    expect(row).toContain('padding: 0 var(--ap-spacing-025)');
+    // Nothing holds the slot to the 20 of a quarter-hour card any more.
+    expect(declared(css, 'allDaySlot', 'block-size')).toEqual([]);
+    // 28, less the edge above and below, holds the title's 16 line.
+    expect(spacing[300] + spacing['050'] - 2 * borderWidth.hairline).toBeGreaterThanOrEqual(textStyle['caption/md'].lineHeight);
+  });
+});
+
+describe('Scheduler — opening at today', () => {
+  /**
+   * A week of seven 128 columns after the 80 hours in a region 400 wide:
+   * column n runs from 80 + 128n, and the hours cover 0 to 80.
+   */
+  const region = () => screen.getByRole('region', { name: 'Agenda' });
+  const rect = (left: number, width: number) =>
+    ({ x: left, y: 0, left, top: 0, right: left + width, bottom: 100, width, height: 100, toJSON: () => ({}) }) as DOMRect;
+
+  afterEach(() => vi.restoreAllMocks());
+
+  const lay = (scrollWidth: number) => {
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.getAttribute('role') === 'region') return rect(0, 400);
+      if (this.classList.contains(styles.hours!)) return rect(0, 80);
+      if (this.matches('section[data-column]')) return rect(80 + 128 * Number(this.dataset.column), 128);
+      return rect(0, 0);
+    });
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
+      return this.getAttribute('role') === 'region' ? 400 : 0;
+    });
+    vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockImplementation(function (this: Element) {
+      return this.getAttribute('role') === 'region' ? scrollWidth : 0;
+    });
+  };
+
+  it('scrolls a week wider than the region to put today in the middle of what the hours leave', () => {
+    lay(976);
+    render(<Scheduler label="Agenda" date="2023-04-20" events={[]} now="2023-04-20T11:16" />);
+    // Thursday, column 4: 592 to 720, its middle 656; the middle of 80 to 400 is 240.
+    expect(region().scrollLeft).toBe(416);
+  });
+
+  it('goes to the day asked for when today is not in the week, and stays put when the week fits', () => {
+    lay(976);
+    const { unmount } = render(<Scheduler label="Agenda" date="2023-04-25" events={[]} now="2023-04-20T11:16" />);
+    // Tuesday the 25th, column 2: 336 to 464, its middle 400.
+    expect(region().scrollLeft).toBe(160);
+    unmount();
+
+    lay(400);
+    render(<Scheduler label="Agenda" date="2023-04-20" events={[]} now="2023-04-20T11:16" />);
+    expect(region().scrollLeft).toBe(0);
+  });
+
+  it('leaves a day of people where it starts', () => {
+    lay(976);
+    render(
+      <Scheduler
+        label="Agenda"
+        view="day"
+        date="2023-04-20"
+        resources={[{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }]}
+        events={[]}
+        now="2023-04-20T11:16"
+      />,
+    );
+    expect(region().scrollLeft).toBe(0);
   });
 });
 

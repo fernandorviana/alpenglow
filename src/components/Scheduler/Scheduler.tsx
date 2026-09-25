@@ -687,6 +687,30 @@ export function Scheduler({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, date, resources?.length]);
 
+  // And, when a week is wider than the region, at today's column, or the
+  // day's when today is not in the week: in the middle of what the sticky
+  // hours leave, so the days either side show. Measured rather than
+  // computed, so a right-to-left page, whose hours sit on the right, works
+  // the same. A day of people stays at its first person. Also when the clock
+  // arrives after hydration, which is when today is first known.
+  useEffect(() => {
+    const el = region.current;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const at = columns.findIndex((c) => !c.resource && c.date === todayDate);
+    const target = at !== -1 ? at : columns.findIndex((c) => !c.resource && c.date === date);
+    const column = el.querySelector<HTMLElement>(`section[data-column="${target}"]`);
+    const hoursColumn = el.querySelector<HTMLElement>(`.${styles.hours}`);
+    if (target === -1 || !column || !hoursColumn) return;
+    const box = el.getBoundingClientRect();
+    const start = box.left + el.clientLeft;
+    const end = start + el.clientWidth;
+    const hoursBox = hoursColumn.getBoundingClientRect();
+    const [from, to] = hoursBox.left - start <= end - hoursBox.right ? [hoursBox.right, end] : [start, hoursBox.left];
+    const c = column.getBoundingClientRect();
+    el.scrollLeft += (c.left + c.right) / 2 - (from + to) / 2;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, date, resources?.length, todayDate]);
+
   const labels = useMemo(() => hourLabels(locale, hours), [locale, hours.start, hours.end]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The dot sits at the start of the first column of today: one in a week,

@@ -21,12 +21,12 @@ import styles from '../screen.module.css';
 const HOURS = { start: 7, end: 20 };
 
 /**
- * First names over the columns. The Scheduler's head is laid out at its
- * max-content, so a full name wider than the column's 128 floor widens the
- * head's tracks and not the body's, and the heads slide off their columns —
- * at 1440 "Sofia Marques" makes the head 855 over a 720 body. Recorded on
- * the page as moved up the list; the Avatar keeps the full name for a
- * screen reader, and the Table and the Drawer say it in full.
+ * First names over the columns. The Scheduler's heads share the body's
+ * tracks, so a full name no longer moves a head off its column, but at the
+ * 128 floor a head leaves a name 79 — at 1280 and 1440 the day's column is
+ * that narrow — and "Kwame Mensah" needs 106: four of the five full names
+ * would end in an ellipsis. The Avatar keeps the full name for a screen
+ * reader, and the Table and the Drawer say it in full.
  */
 const RESOURCES: SchedulerResource[] = practitioners.map((p) => ({
   id: p.id,

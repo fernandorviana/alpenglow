@@ -143,8 +143,8 @@ describe('the dense screen', () => {
 
   it('names the columns by first name and keeps the full name in the Avatar', () => {
     render(<Screen />);
-    // The Scheduler lays its head out at max-content: a full name wider than
-    // the 128 floor widened the head and not the body at 1440.
+    // At the 128 floor a head leaves a name 79: four of the five full names
+    // would end in an ellipsis at 1280 and 1440.
     for (const first of ['Ana', 'Kwame', 'Lin', 'Sofia', 'Omar']) expect(within(scheduler()).getByText(first)).toBeInTheDocument();
     expect(within(scheduler()).getByText('Sofia Marques')).toHaveClass('ap-sr-only');
   });
