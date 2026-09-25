@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { afterEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
@@ -1023,6 +1023,11 @@ describe('Table bulk actions as a menu’s', () => {
       { id: 'only', label: 'Show only selected', checked, onSelect: toggled },
     ];
     const bounds = HTMLElement.prototype.getBoundingClientRect;
+    // One spy for the describe, so each test starts it at nought itself
+    // rather than leaning on the runner's clearMocks default.
+    beforeEach(() => {
+      toggled.mockClear();
+    });
     afterEach(() => {
       HTMLElement.prototype.getBoundingClientRect = bounds;
     });
@@ -1050,8 +1055,10 @@ describe('Table bulk actions as a menu’s', () => {
       await userEvent.click(within(tucked).getByRole('button', { name: 'More actions', ...hidden }));
       const row = within(tucked).getByRole('menuitemcheckbox', { name: 'Show only selected', ...hidden });
       expect(row).toHaveAttribute('aria-checked', 'true');
+      // Nothing so far has toggled it: the count after the press is the row's.
+      expect(toggled).not.toHaveBeenCalled();
       await userEvent.click(row);
-      expect(toggled).toHaveBeenCalled();
+      expect(toggled).toHaveBeenCalledTimes(1);
       // And in the one "⋯" that holds everything.
       expect(set('gathered')).not.toBeNull();
     });
