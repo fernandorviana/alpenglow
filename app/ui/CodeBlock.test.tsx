@@ -18,11 +18,27 @@ describe('CodeBlock', () => {
     expect(container.querySelector('pre code')!.textContent).toBe(code);
   });
 
-  it('is a figure with no caption and no line numbers when it has no title', () => {
+  it('still bars the code with its language and no line numbers when it has no title', () => {
+    // No file name to show, but the language is never optional (`lang` is a
+    // required prop) — the bar shows it alone, so the button always has a
+    // bar to sit on instead of floating over the first line.
     const { container } = render(<CodeBlock code={code} lang="tsx" />);
     expect(screen.getByRole('figure')).toBeInTheDocument();
-    expect(container.querySelector('figcaption')).toBeNull();
+    const header = container.querySelector('.codeHeader');
+    expect(header).not.toBeNull();
+    expect(header).toHaveTextContent('TSX');
+    expect(container.querySelector('.codeTitle')).toBeNull();
     expect(container.querySelector('.codeNumbered')).toBeNull();
+  });
+
+  it('puts the copy button on the bar, not floating over the code, whether or not there is a title', () => {
+    for (const el of [
+      render(<CodeBlock code={code} lang="tsx" />).container,
+      render(<CodeBlock code={code} lang="tsx" title="app/page.tsx" />).container,
+    ]) {
+      const header = el.querySelector('.codeHeader');
+      expect(header?.querySelector('.codeCopy')).not.toBeNull();
+    }
   });
 
   it('names a file in its caption, with the language, and numbers the lines', () => {
@@ -97,6 +113,10 @@ describe('the code block stylesheet', () => {
 
   it('scrolls a long line inside the block', () => {
     expect(block(css, '.codeBlock pre {')).toMatch(/overflow-x: auto/);
+  });
+
+  it('has no bare-pre padding hack: every block has its header bar now, so the button never needs the pre to make room for it', () => {
+    expect(css).not.toContain(':not(:has(.codeHeader))');
   });
 
   it('draws the line numbers from CSS and keeps them out of a selection', () => {

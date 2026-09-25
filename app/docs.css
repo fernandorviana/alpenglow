@@ -756,10 +756,6 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   color: var(--ap-color-text-primary);
 }
 
-/* Without a header the copy button floats over the first line, which keeps
-   clear of it. */
-.codeBlock:not(:has(.codeHeader)) pre { padding-right: var(--ap-spacing-700); }
-
 /* The prose's inline code is a pill; inside the block the code is the block. */
 .codeBlock code {
   padding: 0;
@@ -769,7 +765,11 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   counter-reset: line;
 }
 
-/* The file's name and its language, on a bar the copy button shares. */
+/* The bar every block has: the language always, the file's name too when
+   there is one, and the copy button. Always present — even a snippet with
+   neither a title nor line numbers gets the bar for its language — so the
+   button always has a bar to sit on and never floats over the first line
+   of code (fidelity audit, 2026-09-24). */
 .codeHeader {
   display: flex;
   align-items: center;
@@ -803,7 +803,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* A ghost control: the wash as its background, as on every ghost button.
-   Centred in the 40px header; a header-less block sets it in its padding. */
+   Centred in the 40px header, which every block has. */
 .codeCopy {
   position: absolute;
   top: var(--ap-spacing-050);
@@ -821,8 +821,6 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   cursor: pointer;
   transition: background-color var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
 }
-
-.codeBlock:not(:has(.codeHeader)) .codeCopy { top: var(--ap-spacing-100); }
 
 .codeCopy:hover { background: var(--ap-color-interactive-wash-hover); }
 

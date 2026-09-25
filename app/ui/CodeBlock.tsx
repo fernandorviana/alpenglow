@@ -11,25 +11,25 @@ const TOKEN_CLASS: Record<Exclude<TokenKind, 'plain'>, string> = {
 };
 
 /**
- * A code window: the code, coloured by the tokenizer and copied by the
- * button; over it, when the code is a file, the file's name and its
- * language, and then the lines are numbered — from CSS, so the numbers are
- * neither in the text nor in a selection. A snippet or a shell line has
- * neither. The text inside the pre is the code exactly; a plain token is a
- * text node, so the tree stays small.
+ * A code window: the code, coloured by the tokenizer, under a bar that
+ * always carries the language (the file's name too, when the code is a
+ * file) and the copy button — every block has one, so the button always
+ * has a bar to sit on and never floats over the first line of code. When
+ * the code is a file, the lines are also numbered — from CSS, so the
+ * numbers are neither in the text nor in a selection. The text inside the
+ * pre is the code exactly; a plain token is a text node, so the tree stays
+ * small.
  */
 export function CodeBlock({ code, lang, title }: { code: string; lang: Lang; title?: string }) {
   const lines = highlight(code, lang);
 
   return (
     <figure className={title ? 'codeBlock codeNumbered' : 'codeBlock'}>
-      {title && (
-        <figcaption className="codeHeader">
-          <span className="codeLang">{LANG_LABEL[lang]}</span>
-          <span className="codeTitle">{title}</span>
-        </figcaption>
-      )}
-      <CopyButton text={code} />
+      <figcaption className="codeHeader">
+        <span className="codeLang">{LANG_LABEL[lang]}</span>
+        {title && <span className="codeTitle">{title}</span>}
+        <CopyButton text={code} />
+      </figcaption>
       <pre>
         <code>
           {lines.map((line, i) => (
