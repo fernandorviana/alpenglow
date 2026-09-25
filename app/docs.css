@@ -1219,6 +1219,61 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .specimenRow + .specimenRow { margin-top: var(--ap-spacing-250); }
 
+/* A specimen wider than the screen, app/ui/Sideways.tsx: it scrolls inside
+   its own box and keeps its content's width, so a phone scrolls to the top
+   bar's actions instead of losing them. The fades are the frame's, laid over
+   the scroller, so they stay put while the content moves under them; each
+   shows while its side has more, as the component measures. The frame clips
+   to its radius. */
+.sideways {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.sidewaysScroll {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.sidewaysContent { min-inline-size: max-content; }
+
+.sideways::before,
+.sideways::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  z-index: 1;
+  inline-size: var(--ap-spacing-500);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--ap-motion-duration-fade) var(--ap-motion-easing-standard);
+}
+
+.sideways::before {
+  inset-inline-start: 0;
+  background: linear-gradient(to right, var(--ap-color-surface-raised), transparent);
+}
+
+.sideways::after {
+  inset-inline-end: 0;
+  background: linear-gradient(to left, var(--ap-color-surface-raised), transparent);
+}
+
+/* Right to left the end is on the left: each fade turns about itself. */
+.sideways:dir(rtl)::before,
+.sideways:dir(rtl)::after { transform: scaleX(-1); }
+
+.sideways[data-more-start]::before,
+.sideways[data-more-end]::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sideways::before,
+  .sideways::after { transition: none; }
+}
+
 /* --- token table ---------------------------------------------------------- */
 
 .tokens { width: 100%; border-collapse: collapse; }

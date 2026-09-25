@@ -26,6 +26,7 @@ import {
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
+import { Sideways } from '@ui/Sideways';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
@@ -235,10 +236,9 @@ export default function Page() {
           Preview the narrow screen
         </Checkbox>
       </div>
-      <div
-        className="specimen"
-        style={{ padding: 0, overflow: 'hidden', background: 'var(--ap-color-surface-base)' }}
-      >
+      {/* The bar with its five actions is 636 wide and has no phone shape in the
+          drawing: on a screen narrower than that the specimen scrolls. */}
+      <Sideways className="specimen" style={{ padding: 0, background: 'var(--ap-color-surface-base)' }}>
         <TopBar
           brand={<strong style={{ fontSize: 'var(--ap-text-body-lg-size)' }}>Alpenglow</strong>}
           onMenu={() => (narrow ? setOpen(true) : setCollapsed((c) => !c))}
@@ -287,7 +287,7 @@ export default function Page() {
             </p>
           </main>
         </div>
-      </div>
+      </Sideways>
       <p className="alias">
         The menu button collapses the side nav; with the narrow preview on, it opens the nav as a drawer over
         the page. Press a page to move there.
