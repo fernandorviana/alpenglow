@@ -638,10 +638,10 @@ dark: spec `docs/superpowers/specs/2026-09-24-fidelity-audit.md` — the
 method, why it drifted (six causes), and about 150 findings, each marked
 **fix** (a bug), **drawing** (an unrecorded departure; the drawing wins),
 **decide** (a departure an agent recorded; Fernando rules) or **owner**
-(recorded as Fernando's). Part 1, the fixes, is branch `fidelity-part-1` (plan
-`docs/superpowers/plans/2026-09-24-fidelity-part-1.md`), not yet on main;
-its last task runs the whole built site at the five widths and the CSS
-order against dev. Part 2, the drawing's rows, and the decide rows wait on
+(recorded as Fernando's). Part 1, the fixes, is on main, pushed 2026-09-25
+(43e7436; plan `docs/superpowers/plans/2026-09-24-fidelity-part-1.md`); its
+last task ran the whole built site at the five widths and the CSS order
+against dev. Part 2, the drawing's rows, and the decide rows wait on
 Fernando.
 
 **The rule, from 2026-09-24:**
