@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   actionWidth,
+  TOGGLE_SEPARATION,
   bulkCss,
   bulkWidth,
   columnCss,
@@ -177,29 +178,57 @@ describe('bulkWidth', () => {
 
 describe('bulkCss', () => {
   const root = '[data-table="t"]';
+  const buttons = (n: number) => ({ inlineButtons: n, toggleWidth: 0, tuckedButtons: 0 });
 
   it('sizes the slot to its inline buttons, and lets it give way to one "⋯"', () => {
-    expect(bulkCss('t', 3)).toContain(`${root} [data-bulk="slot"] { width: 104px; min-width: 32px; }`);
+    expect(bulkCss('t', buttons(3))).toContain(`${root} [data-bulk="slot"] { width: 104px; min-width: 32px; }`);
   });
 
   it('shows the inline actions until the slot is narrower than they are, then the one "⋯"', () => {
-    const css = bulkCss('t', 3);
+    const css = bulkCss('t', buttons(3));
     expect(css).toContain(`${root} [data-bulk="gathered"] { display: none; }`);
     const gather = css.slice(css.indexOf('@container (width < 104px) {'));
     expect(gather.length).toBeLessThan(css.length);
     expect(gather).toContain(`${root} [data-bulk="inline"] { display: none; }`);
     expect(gather).toContain(`${root} [data-bulk="gathered"] { display: inline-flex; }`);
+    expect(css).not.toContain('tucked');
   });
 
   it('writes no gathering for one button, which is already as few as there can be', () => {
-    const css = bulkCss('t', 1);
+    const css = bulkCss('t', buttons(1));
     expect(css).toContain(`${root} [data-bulk="slot"] { width: 32px; min-width: 32px; }`);
     expect(css).not.toContain('@container');
     expect(css).not.toContain('gathered');
   });
 
+  it('holds the Switches beside the buttons while the slot has room for both, then tucks them into "⋯", then gathers', () => {
+    // Export and Archive inline; "Show only selected" measured at 177; tucked,
+    // the two buttons and a "⋯" that holds the Switch as a checkbox row.
+    const css = bulkCss('t', { inlineButtons: 2, toggleWidth: 177, tuckedButtons: 3 });
+    const widest = bulkWidth(2) + TOGGLE_SEPARATION + 177;
+    expect(TOGGLE_SEPARATION).toBe(33);
+    expect(css).toContain(`${root} [data-bulk="slot"] { width: ${widest}px; min-width: 32px; }`);
+    expect(css).toContain(`${root} [data-bulk="tucked"] { display: none; }`);
+    const at = (n: number) => css.indexOf(`@container (width < ${n}px) {`);
+    expect(at(widest)).toBeGreaterThan(-1);
+    expect(at(104)).toBeGreaterThan(at(widest));
+    const tuck = css.slice(at(widest), at(104));
+    expect(tuck).toContain(`${root} [data-bulk="inline"] { display: none; }`);
+    expect(tuck).toContain(`${root} [data-bulk="tucked"] { display: inline-flex; }`);
+    const gather = css.slice(at(104));
+    expect(gather).toContain(`${root} [data-bulk="tucked"] { display: none; }`);
+    expect(gather).toContain(`${root} [data-bulk="gathered"] { display: inline-flex; }`);
+  });
+
+  it('tucks a Switch that stands alone into a "⋯" of its own, with nothing further to gather', () => {
+    const css = bulkCss('t', { inlineButtons: 0, toggleWidth: 150, tuckedButtons: 1 });
+    expect(css).toContain(`${root} [data-bulk="slot"] { width: 150px; min-width: 32px; }`);
+    expect(css).toContain('@container (width < 150px)');
+    expect(css).not.toContain('gathered');
+  });
+
   it("never names the row actions' attribute, so neither set of rules reaches the other", () => {
-    expect(bulkCss('t', 3)).not.toContain('data-actions');
+    expect(bulkCss('t', buttons(3))).not.toContain('data-actions');
     expect(columnCss('t', tryIt)).not.toContain('data-bulk');
   });
 });

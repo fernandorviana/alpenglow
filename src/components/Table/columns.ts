@@ -186,26 +186,46 @@ export function bulkWidth(buttons: number): number {
 }
 
 /**
- * The selection bar's actions, gathered the way a row's are: drawn twice, the
- * rules showing one. The row's gather by the Table's width, since everything
- * else in a row is counted; the bar holds words — the count, Clear — whose
- * width nothing here knows, so its actions gather by the width of their own
- * slot. The slot is as wide as the buttons inline and a container; it is the
- * only part of the bar that shrinks, and below that width it holds one "⋯".
- * `data-bulk`, not the rows' `data-actions`, so neither set of rules reaches
- * the other.
+ * Between the bar's buttons and its Switches while both are inline: a hairline
+ * divider with 16 on each side, as the bar's own dividers have — 4 of the
+ * buttons' gap and `spacing/150` of margin.
  */
-export function bulkCss(scope: string, inlineButtons: number): string {
+export const TOGGLE_SEPARATION = 2 * ACTION_GAP + 2 * 12 + 1;
+
+export type BulkLayout = {
+  /** Buttons while everything is inline: the actions with an icon, and "⋯" for the rest. */
+  inlineButtons: number;
+  /** The Switches' width, measured in the page (they hold words); 0 with none. */
+  toggleWidth: number;
+  /** Buttons once the Switches are tucked into "⋯": the actions with an icon, and that "⋯". 0 with none. */
+  tuckedButtons: number;
+};
+
+/**
+ * The selection bar's actions, gathered the way a row's are: drawn more than
+ * once, the rules showing one. The row's gather by the Table's width, since
+ * everything else in a row is counted; the bar holds words — the count,
+ * Clear, a Switch's label — whose width nothing here knows, so its actions
+ * gather by the width of their own slot. The slot is as wide as the widest
+ * set and a container; it is the only part of the bar that gives way.
+ * Narrower than everything inline, the Switches are tucked into "⋯" as
+ * checkbox rows and the buttons stay; narrower than those, one "⋯" holds
+ * all. `data-bulk`, not the rows' `data-actions`, so neither set of rules
+ * reaches the other.
+ */
+export function bulkCss(scope: string, { inlineButtons, toggleWidth, tuckedButtons }: BulkLayout): string {
   const root = `[data-table=${quoted(scope)}]`;
-  const inline = bulkWidth(inlineButtons);
-  const rules = [`${root} [data-bulk="slot"] { width: ${inline}px; min-width: ${bulkWidth(1)}px; }`];
-  if (inlineButtons > 1) {
+  const hide = (set: string) => `${root} [data-bulk="${set}"] { display: none; }`;
+  const show = (set: string) => `${root} [data-bulk="${set}"] { display: inline-flex; }`;
+  const toggles = toggleWidth > 0;
+  const widest = bulkWidth(inlineButtons) + (toggles ? (inlineButtons > 0 ? TOGGLE_SEPARATION : 0) + toggleWidth : 0);
+  const rules = [`${root} [data-bulk="slot"] { width: ${widest}px; min-width: ${bulkWidth(1)}px; }`];
+  if (toggles) rules.push(hide('tucked'), query(widest, [hide('inline'), show('tucked')]));
+  const least = toggles ? tuckedButtons : inlineButtons;
+  if (least > 1) {
     rules.push(
-      `${root} [data-bulk="gathered"] { display: none; }`,
-      query(inline, [
-        `${root} [data-bulk="inline"] { display: none; }`,
-        `${root} [data-bulk="gathered"] { display: inline-flex; }`,
-      ]),
+      hide('gathered'),
+      query(bulkWidth(least), [hide('inline'), ...(toggles ? [hide('tucked')] : []), show('gathered')]),
     );
   }
   return rules.join('\n');

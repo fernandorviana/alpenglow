@@ -22,6 +22,12 @@ the Table's `Column.width`, under Breaking.
   padding, for `rowActions` and for `rowAction`'s render prop alike. A
   `rowAction` that used to size to its content — a text button, two icons —
   now overflows that width instead of widening the column.
+- **Table** — the `BulkActions` type that `bulkActions` takes (or returns)
+  is `DropdownMenuAction[] | ReactNode`, no longer `ReactNode` alone. Code
+  that passes the Table's props along keeps working, but a wrapper that
+  reads `TableProps['bulkActions']` and renders it as a React node — or
+  types its own prop as `ReactNode` and hands it on — no longer compiles:
+  widen it to `BulkActions`, or narrow the list out before rendering.
 
 ### Added
 
@@ -111,7 +117,16 @@ the Table's `Column.width`, under Breaking.
   their own slot, the only part of the bar that gives way, since the count
   and Clear are words nothing counts. `bulkActionsInline` (5, as drawn) and
   `bulkActionsLabel` ("More actions"), as for rows. The `BulkActions` type
-  is exported.
+  is exported. An action with `checked` is drawn as the Switch while the
+  bar has room for it — its words measured in the page — and tucked into
+  "⋯" as a checkbox row when it has not, the buttons staying.
+- **DropdownMenu** — `checked` on an action makes its row a
+  `menuitemcheckbox` with `aria-checked`, the Checkbox's box before the
+  words (the Select's picture of it), filled with the check while checked.
+  `onSelect` toggles it; Space changes it and leaves the menu open, Enter
+  and a click change it and close, as the APG has it. Its label says what
+  it is and stays the same. Left out, a row is what it was. A checkable
+  action is never one of a Table's inline buttons: it goes to "⋯".
 - **Button** — `icon`, an icon-only form: square, the icon alone, and
   `aria-label` required by the types.
 - **Scheduler** — `scrollToDay`: a week wider than its region opens with a
@@ -145,11 +160,15 @@ the Table's `Column.width`, under Breaking.
   is wider than the bar, where two long chips pushed a page sideways.
 - **The Table's selection bar keeps to one row.** It wrapped: at 375 the
   dense demo's bar was four lines, 311×147, with dividers left hanging. It
-  does not wrap now; the count and Clear keep their size and always show,
-  and under 25rem of Table Clear is drawn as a ✕ (its name is still the
-  words) and the gaps close to 8. Nodes given to `bulkActions` cannot
-  gather: they scroll inside their slot rather than wrap. **The DOM
-  changes:** Clear's words are in a span beside a hidden ✕.
+  does not wrap now. The actions give way first; then the count, to an
+  ellipsis, its `title` saying it whole; Clear never. Under 25rem of Table
+  Clear is a ✕ named by its Tooltip, and the gaps close to 8. **Content you
+  put in the bar yourself** — nodes given to `bulkActions` rather than a
+  list — cannot gather: at a narrow width it scrolls sideways inside its
+  slot, with a thin scrollbar, instead of wrapping onto a second line.
+  **The DOM changes:** Clear is drawn twice, in words and as the ✕, each in
+  a span of the bar's, and the rules show one; a test that gets the one
+  button named "Clear selection" finds two.
 - **A disabled Slider keeps its filled part the stronger.** The line is
   `interactive/disabled` and the fill and the thumb's edge
   `interactive/on-disabled`; the fill was `interactive/disabled` on a

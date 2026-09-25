@@ -342,9 +342,11 @@ export default function Page() {
         Clear always show; below 25rem of table Clear is drawn as a ✕ and keeps its name. The row&rsquo;s actions
         gather by the table&rsquo;s width, since everything in a row is counted; the bar holds words whose width
         nothing counts, so its actions gather by the width of their own slot, the one part of the bar that gives
-        way. Nodes of your own cannot gather, and scroll inside their slot rather than wrap. The drawn Switch,
-        &ldquo;Show only selected&rdquo;, has no place in a menu, so here it is an action without an icon, in
-        &ldquo;⋯&rdquo;, that says what it will do.
+        way. Nodes of your own cannot gather: they scroll sideways inside their slot, with a thin scrollbar,
+        rather than wrap. An action with <code>checked</code> is the drawn Switch, &ldquo;Show only selected&rdquo;,
+        while the bar has room for it, measured in the page since its words have a width only the page knows;
+        when it has not, it is tucked into &ldquo;⋯&rdquo; as a checkbox row, the buttons staying, and the
+        label stays the same either way.
       </p>
       <p>
         <code>footer</code> is a slot under the frame: the Pagination with <code>total</code> and{' '}

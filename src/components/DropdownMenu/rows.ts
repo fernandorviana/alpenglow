@@ -17,8 +17,17 @@ export type DropdownMenuAction = {
   disabled?: boolean;
   /** Typeahead reads this when `label` is not a plain string. */
   textValue?: string;
+  /**
+   * Makes the row a checkbox: `menuitemcheckbox` with `aria-checked`, the
+   * Checkbox's box before the words. `onSelect` toggles it; the label says
+   * what it is and stays the same either way. Left out, a plain row.
+   */
+  checked?: boolean;
   onSelect?: () => void;
 };
+
+/** A row that holds a state, not a command. */
+export const isCheckable = (action: DropdownMenuAction): boolean => action.checked !== undefined;
 
 export type DropdownMenuGroup = { label: string; items: DropdownMenuAction[] };
 

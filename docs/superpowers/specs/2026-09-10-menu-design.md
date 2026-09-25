@@ -29,7 +29,17 @@ labels; separators; keyboard and pointer behaviour; the elevation token the
 surface needs.
 
 **Out, deliberately.** The selection listbox (checkbox / radio / switch /
-avatar rows, and the Apply/Cancel footer) gets its own spec. Submenus, which
+avatar rows, and the Apply/Cancel footer) gets its own spec.
+
+**Added 2026-09-25: a checkable row.** `checked` on an action makes the row
+a `menuitemcheckbox` with `aria-checked` — a state inside a menu of
+commands, the APG's menu pattern, not the listbox. It draws the drawing's
+checkbox row (variant set `628:10566`) as the Select's many-valued list
+does: the Checkbox's box as a picture before the words, in the leading
+icon's place, filled with the check while checked. Space changes it and
+leaves the menu open; Enter and a click change it and close. The label is
+constant. First use: the Table's selection bar, where the drawn "Show only
+selected" Switch goes when the bar has no room. Submenus, which
 are not drawn. Menu items that navigate (`<a role="menuitem">`), which are not
 drawn either and are cheap to add when something needs one.
 

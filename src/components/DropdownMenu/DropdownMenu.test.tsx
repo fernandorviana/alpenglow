@@ -3,7 +3,10 @@ import { renderToString } from 'react-dom/server';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
+import { useState } from 'react';
 import { DropdownMenu } from './DropdownMenu';
+import option from '../listbox/OptionList.module.css';
+import { CHECK } from '../listbox/OptionList';
 import type { DropdownMenuEntry } from './rows';
 import floating from '../floating.module.css';
 import { NATIVE_POPOVER, installPopoverStub } from '../../test/popover';
@@ -435,6 +438,103 @@ describe('DropdownMenu, open, to axe', () => {
     await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
 
     expect(screen.getByRole('menuitem', { name: 'Copy link' })).toBeVisible();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe('DropdownMenu checkable rows', () => {
+  // A row with `checked` is a menuitemcheckbox: a state, said by the role and
+  // aria-checked and drawn as the Checkbox's box before the words, as the
+  // drawing's checkbox rows are. Its label says what it is, not what a press
+  // would do, so it does not change with the state.
+  function Only({ initial = false, onToggle = () => {} }: { initial?: boolean; onToggle?: (next: boolean) => void }) {
+    const [on, setOn] = useState(initial);
+    return (
+      <Actions
+        items={[
+          { id: 'export', label: 'Export' },
+          {
+            id: 'only',
+            label: 'Show only selected',
+            checked: on,
+            onSelect: () => {
+              onToggle(!on);
+              setOn(!on);
+            },
+          },
+        ]}
+      />
+    );
+  }
+
+  it('is a menuitemcheckbox with aria-checked, beside the plain rows, and keeps its label', async () => {
+    const user = userEvent.setup();
+    render(<Only />);
+    await open(user);
+    const row = screen.getByRole('menuitemcheckbox', { name: 'Show only selected' });
+    expect(row).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('menuitem', { name: 'Export' })).not.toHaveAttribute('aria-checked');
+    await user.click(row);
+    await open(user);
+    const again = screen.getByRole('menuitemcheckbox', { name: 'Show only selected' });
+    expect(again).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('draws the Checkbox’s box before the words, filled with the check while checked', async () => {
+    const user = userEvent.setup();
+    render(<Only initial />);
+    await open(user);
+    const row = screen.getByRole('menuitemcheckbox', { name: 'Show only selected' });
+    const box = row.querySelector(`.${option.box}`)!;
+    expect(box).toHaveAttribute('aria-hidden', 'true');
+    expect(box).toHaveClass(option.boxOn!);
+    expect(box.querySelector('path')).toHaveAttribute('d', CHECK);
+    expect(row.firstElementChild).toBe(box);
+  });
+
+  it('toggles on Space and stays open, toggles on Enter and closes, as the APG’s menuitemcheckbox', async () => {
+    const user = userEvent.setup();
+    const onToggle = vi.fn();
+    render(<Only onToggle={onToggle} />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    trigger.focus();
+    await user.keyboard('{ArrowDown}{ArrowDown}');
+    const row = screen.getByRole('menuitemcheckbox', { name: 'Show only selected' });
+    expect(row).toHaveFocus();
+    await user.keyboard(' ');
+    expect(onToggle).toHaveBeenLastCalledWith(true);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(row).toHaveAttribute('aria-checked', 'true');
+    await user.keyboard('{Enter}');
+    expect(onToggle).toHaveBeenLastCalledWith(false);
+    expect(onToggle).toHaveBeenCalledTimes(2);
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('is reached by the arrows like any row, and skipped when disabled', async () => {
+    const user = userEvent.setup();
+    render(
+      <Actions
+        items={[
+          { id: 'a', label: 'Alpha' },
+          { id: 'b', label: 'Beta', checked: true },
+          { id: 'c', label: 'Gamma', checked: false, disabled: true },
+        ]}
+      />,
+    );
+    screen.getByRole('button', { name: 'Actions' }).focus();
+    await user.keyboard('{ArrowDown}{ArrowDown}');
+    expect(screen.getByRole('menuitemcheckbox', { name: 'Beta' })).toHaveFocus();
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Alpha' })).toHaveFocus();
+  });
+
+  it('has no axe violation open', async () => {
+    const { container } = render(<Only initial />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    await userEvent.click(trigger);
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
     expect(await axeViolations(container)).toEqual([]);
   });
 });

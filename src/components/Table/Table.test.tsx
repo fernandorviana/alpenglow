@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +8,10 @@ import type { Column } from './Table';
 import styles from './Table.module.css';
 import { readCss, block } from '@/test/css';
 import { axeViolations } from '../../test/axe';
+import { installPopoverStub } from '../../test/popover';
+
+// The bar's "⋯" menus are popovers, and jsdom has none.
+installPopoverStub();
 
 type Row = { id: string; name: string; seen: string };
 
@@ -690,7 +694,8 @@ describe('Table dense: a bounded region, the selection bar and the footer', () =
     rerender(<Table {...base} selected={new Set(['a', 'b'])} onSelectionChange={() => {}} bulkActions={<button type="button">Export</button>} />);
     expect(screen.getByRole('status')).toHaveTextContent('2 selected');
     expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+    // Twice: in words, and as a ✕ for a narrow Table; the rules show one.
+    expect(screen.getAllByRole('button', { name: 'Clear selection' })).toHaveLength(2);
   });
 
   it('hands the slot the selection and a way to clear it, and clears from its own button', async () => {
@@ -710,7 +715,7 @@ describe('Table dense: a bounded region, the selection bar and the footer', () =
     );
     await user.click(screen.getByRole('button', { name: 'Archive 1' }));
     expect(onChange).toHaveBeenLastCalledWith(new Set());
-    await user.click(screen.getByRole('button', { name: 'Clear selection' }));
+    await user.click(screen.getAllByRole('button', { name: 'Clear selection' })[0]!);
     expect(onChange).toHaveBeenCalledTimes(2);
     expect(onChange).toHaveBeenLastCalledWith(new Set());
   });
@@ -727,7 +732,7 @@ describe('Table dense: a bounded region, the selection bar and the footer', () =
       />,
     );
     expect(screen.getByRole('status')).toHaveTextContent('1 selecionados');
-    expect(screen.getByRole('button', { name: 'Limpar' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Limpar' })).toHaveLength(2);
     expect(screen.getByRole('group', { name: '1 selecionados' })).toBeInTheDocument();
   });
 
@@ -949,25 +954,26 @@ describe('Table bulk actions as a menu’s', () => {
   const list = [
     { id: 'export', label: 'Export', icon: <Down />, onSelect: exported },
     { id: 'archive', label: 'Archive', icon: <Box /> },
-    { id: 'only', label: 'Show only selected' },
+    { id: 'print', label: 'Print' },
   ];
   const chosen = { selected: new Set(['a', 'b']), onSelectionChange: () => {} };
   const bar = () => screen.getByRole('group', { name: '2 selected' });
-  const rules = () => document.querySelector('[data-table] > style')!.textContent!;
+  const set = (name: string) => bar().querySelector(`[data-bulk="${name}"]`) as HTMLElement;
+  const rules = () => [...document.querySelectorAll('[data-table] style')].map((s) => s.textContent).join('\n');
   const sheet = () => readCss('src/components/Table/Table.module.css');
 
   it('shows the actions with an icon as buttons named by their label, the rest in "⋯", and all of them gathered in one "⋯" beside', () => {
     render(<Table {...base} {...chosen} bulkActions={list} />);
-    const inline = bar().querySelector('[data-bulk="inline"]') as HTMLElement;
+    const inline = set('inline');
     expect(within(inline).getByRole('button', { name: 'Export' })).toBeInTheDocument();
     expect(within(inline).getByRole('button', { name: 'Archive' })).toBeInTheDocument();
     expect(within(inline).getByRole('button', { name: 'More actions' })).toHaveAttribute('aria-haspopup', 'menu');
-    expect(within(inline).queryByRole('button', { name: 'Show only selected' })).toBeNull();
-    const gathered = bar().querySelector('[data-bulk="gathered"]') as HTMLElement;
-    expect(within(gathered).getAllByRole('button', { hidden: true })).toHaveLength(1);
+    expect(within(inline).queryByRole('button', { name: 'Print' })).toBeNull();
+    expect(within(set('gathered')).getAllByRole('button', { hidden: true })).toHaveLength(1);
+    expect(set('tucked')).toBeNull();
     // The count and Clear are the bar's own, and stay out of the menu.
     expect(within(bar()).getByRole('status')).toHaveTextContent('2 selected');
-    expect(within(bar()).getByRole('button', { name: 'Clear selection' })).toBeInTheDocument();
+    expect(within(bar()).getAllByRole('button', { name: 'Clear selection' })).toHaveLength(2);
   });
 
   it('takes a function that returns the list, handed the selection and a way to clear it, and calls an action from its button', async () => {
@@ -985,14 +991,14 @@ describe('Table bulk actions as a menu’s', () => {
       />,
     );
     expect(seen).toHaveBeenCalledWith(2);
-    const inline = bar().querySelector('[data-bulk="inline"]') as HTMLElement;
-    expect(within(inline).getAllByRole('button').map((b) => b.getAttribute('aria-label') ?? b.textContent)).toHaveLength(2);
+    const inline = set('inline');
+    expect(within(inline).getAllByRole('button')).toHaveLength(2);
     expect(within(inline).getByRole('button', { name: 'Other actions' })).toBeInTheDocument();
     await userEvent.click(within(inline).getByRole('button', { name: 'Export' }));
     expect(exported).toHaveBeenCalledTimes(1);
   });
 
-  it('sizes its slot to the buttons in the rules, and gathers them when the slot is narrower', () => {
+  it('sizes its slot to the buttons in its own rules, and gathers them when the slot is narrower', () => {
     render(<Table {...base} {...chosen} bulkActions={list} />);
     const slot = bar().querySelector('[data-bulk="slot"]')!;
     expect(slot).toHaveClass(styles.bulk!, styles.gathers!);
@@ -1001,7 +1007,7 @@ describe('Table bulk actions as a menu’s', () => {
     expect(rules()).toMatch(/@container \(width < 104px\) \{\n[^}]*\[data-bulk="inline"\] \{ display: none; \}/);
     const gathers = block(sheet(), '\n.gathers {');
     expect(gathers).toMatch(/container-type:\s*inline-size/);
-    expect(gathers).toMatch(/justify-content:\s*center/);
+    expect(gathers).toMatch(/justify-content:\s*flex-start/);
   });
 
   it('keeps its buttons out of the row actions’ rules, and theirs out of its own', () => {
@@ -1010,46 +1016,138 @@ describe('Table bulk actions as a menu’s', () => {
     expect(document.querySelectorAll('tbody [data-bulk]')).toHaveLength(0);
   });
 
-  it('never wraps: one row, where only the slot gives way, and the count and Clear always show', () => {
+  describe('a checkable action', () => {
+    const toggled = vi.fn();
+    const withSwitch = (checked = false) => [
+      ...list.slice(0, 2),
+      { id: 'only', label: 'Show only selected', checked, onSelect: toggled },
+    ];
+    const bounds = HTMLElement.prototype.getBoundingClientRect;
+    afterEach(() => {
+      HTMLElement.prototype.getBoundingClientRect = bounds;
+    });
+
+    it('is the drawn Switch in the bar while there is room, after a divider, and changes the state from there', async () => {
+      render(<Table {...base} {...chosen} bulkActions={withSwitch()} />);
+      const inline = set('inline');
+      const toggle = within(inline).getByRole('switch', { name: 'Show only selected' });
+      expect(toggle).not.toBeChecked();
+      expect(inline.querySelector(`.${styles.toggleDivider}`)).not.toBeNull();
+      // Buttons before it, and no "⋯": nothing is left over.
+      expect(within(inline).getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual(['Export', 'Archive']);
+      await userEvent.click(toggle);
+      expect(toggled).toHaveBeenCalledTimes(1);
+    });
+
+    it('is tucked into "⋯" as a checkbox row with its state when the bar has no room, the buttons staying', async () => {
+      render(<Table {...base} {...chosen} bulkActions={withSwitch(true)} />);
+      // The rules hide this set until the slot is narrow, and jsdom reads
+      // the base rules and no container query: hidden, as far as it knows.
+      const tucked = set('tucked');
+      const hidden = { hidden: true };
+      expect(within(tucked).getByRole('button', { name: 'Export', ...hidden })).toBeInTheDocument();
+      expect(within(tucked).queryByRole('switch', hidden)).toBeNull();
+      await userEvent.click(within(tucked).getByRole('button', { name: 'More actions', ...hidden }));
+      const row = within(tucked).getByRole('menuitemcheckbox', { name: 'Show only selected', ...hidden });
+      expect(row).toHaveAttribute('aria-checked', 'true');
+      await userEvent.click(row);
+      expect(toggled).toHaveBeenCalled();
+      // And in the one "⋯" that holds everything.
+      expect(set('gathered')).not.toBeNull();
+    });
+
+    it('measures the Switch in a copy no one can reach, and holds it in the bar from that width', () => {
+      const measure = styles.measure!;
+      HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+        const width = this.classList.contains(measure) ? 176.4 : 0;
+        return { width, height: 0, x: 0, y: 0, top: 0, left: 0, right: width, bottom: 0, toJSON: () => ({}) } as DOMRect;
+      };
+      render(<Table {...base} {...chosen} bulkActions={withSwitch()} />);
+      const copy = bar().querySelector(`.${measure}`)!;
+      expect(copy.closest('[aria-hidden="true"]')).not.toBeNull();
+      expect(copy.closest('[inert]')).not.toBeNull();
+      expect(within(bar()).getAllByRole('switch')).toHaveLength(1);
+      // Export and Archive, the divider, and the Switch at its measured 177.
+      expect(rules()).toContain(`[data-bulk="slot"] { width: ${68 + 33 + 177}px; min-width: 32px; }`);
+      expect(rules()).toContain(`@container (width < ${68 + 33 + 177}px)`);
+      const box = block(sheet(), '\n.measureBox {');
+      expect(box).toMatch(/position:\s*absolute/);
+      expect(box).toMatch(/overflow:\s*hidden/);
+      expect(block(sheet(), '\n.measure {')).toMatch(/visibility:\s*hidden/);
+    });
+
+    it('passes axe with the Switch inline, tucked and gathered all in the DOM', async () => {
+      const { container } = render(<Table {...base} {...chosen} bulkActions={withSwitch()} />);
+      expect(await axeViolations(container)).toEqual([]);
+    });
+  });
+
+  it('never wraps: one row, where the slot gives way first and the count last, and Clear never', () => {
     const css = sheet();
     const row = block(css, '\n.bar {');
     expect(row).toMatch(/flex-wrap:\s*nowrap/);
     expect(row).toMatch(/min-width:\s*0/);
-    for (const part of ['\n.count {', '\n.divider {', '\n.clear {']) {
+    for (const part of ['\n.divider {', '\n.clearWords, .clearIcon {']) {
       expect(block(css, part), part).toMatch(/flex:\s*none/);
     }
+    // The count and the actions give way as one item beside Clear; inside
+    // it the slot shrinks and the count does not, held instead to what the
+    // slot leaves at its least, so it ends in an ellipsis only once the
+    // slot is down to its "⋯". A shrink factor took a sliver off it first
+    // (1/32 px at 375, measured) and a sliver is enough for an ellipsis.
+    const lead = block(css, '\n.lead {');
+    expect(lead).toMatch(/flex:\s*0 1 auto/);
+    expect(lead).toMatch(/min-width:\s*0/);
+    const count = block(css, '\n.count {');
+    expect(count).toMatch(/flex:\s*none/);
+    expect(count).toMatch(/max-width:\s*calc\(100% - var\(--ap-spacing-400\) - var\(--ap-border-width-hairline\) - 2 \* var\(--bar-gap\)\)/);
+    expect(count).toMatch(/text-overflow:\s*ellipsis/);
     expect(block(css, '\n.gathers {')).toMatch(/flex:\s*0 1 auto/);
-    // A slot of the caller's own nodes cannot gather: it scrolls inside
-    // itself rather than wrap, with room for a focus ring.
-    const scrolls = block(css, '\n.scrolls {');
-    expect(scrolls).toMatch(/overflow-x:\s*auto/);
-    expect(scrolls).toMatch(/padding:\s*calc\(var\(--ap-border-width-ring\) \+ var\(--ap-focus-ring-offset\)\)/);
+    expect(block(css, '\n.scrolls {')).toMatch(/flex:\s*0 1 auto/);
+    render(<Table {...base} {...chosen} bulkActions={list} />);
+    const parts = bar().querySelector(`.${styles.lead}`)!;
+    expect(parts).toContainElement(screen.getByRole('status'));
+    expect(parts).toContainElement(bar().querySelector('[data-bulk="slot"]') as HTMLElement);
+    expect(parts).not.toContainElement(bar().querySelector(`.${styles.clearWords}`) as HTMLElement);
   });
 
-  it('keeps the caller’s nodes in a slot that scrolls, as before', () => {
+  it('says the whole count on hover when it is cut short', () => {
+    render(<Table {...base} {...chosen} bulkActions={list} bulkLabel={(n) => `${n} registos selecionados nesta página`} />);
+    expect(screen.getByRole('status')).toHaveAttribute('title', '2 registos selecionados nesta página');
+  });
+
+  it('keeps the caller’s nodes in a slot that scrolls, with a thin scrollbar so what is cut off shows it is there', () => {
     render(<Table {...base} {...chosen} bulkActions={<button type="button">Export</button>} />);
     const slot = screen.getByRole('button', { name: 'Export' }).parentElement!;
     expect(slot).toHaveClass(styles.bulk!, styles.scrolls!);
     expect(slot).not.toHaveAttribute('data-bulk');
-    expect(document.querySelector('[data-table] > style')!.textContent).not.toContain('data-bulk');
+    expect(rules()).not.toContain('data-bulk');
+    const scrolls = block(sheet(), '\n.scrolls {');
+    expect(scrolls).toMatch(/overflow-x:\s*auto/);
+    expect(scrolls).toMatch(/scrollbar-width:\s*thin/);
+    expect(scrolls).toMatch(/padding:\s*calc\(var\(--ap-border-width-ring\) \+ var\(--ap-focus-ring-offset\)\)/);
   });
 
-  it('keeps Clear’s name, and under 25rem of Table draws it as a ✕ so the count, the "⋯" and it fit a phone', () => {
+  it('draws Clear twice, in words and as a ✕ named by its Tooltip, and under 25rem of Table the rules show the ✕', () => {
     render(<Table {...base} {...chosen} bulkActions={list} />);
-    const clear = within(bar()).getByRole('button', { name: 'Clear selection' });
-    expect(clear).toHaveClass(styles.clear!);
-    expect(clear.querySelector(`.${styles.clearIcon} svg`)).not.toBeNull();
+    const words = bar().querySelector(`.${styles.clearWords}`) as HTMLElement;
+    const icon = bar().querySelector(`.${styles.clearIcon}`) as HTMLElement;
+    expect(within(words).getByRole('button', { name: 'Clear selection' })).toHaveTextContent('Clear selection');
+    const cross = within(icon).getByRole('button', { name: 'Clear selection' });
+    expect(cross.getAttribute('aria-labelledby')).toBeTruthy();
+    expect(document.getElementById(cross.getAttribute('aria-labelledby')!)).toHaveAttribute('role', 'tooltip');
+    expect(cross.querySelector('svg')).not.toBeNull();
     const css = sheet();
     expect(block(css, '\n.clearIcon {')).toMatch(/display:\s*none/);
     const narrow = block(css, '@container (width < 25rem) {');
-    expect(narrow).toMatch(/\.bar \.clear \{[^}]*aspect-ratio:\s*1/);
-    expect(narrow).toMatch(/\.bar \.clear \{[^}]*padding-inline:\s*0/);
+    expect(narrow).toMatch(/\.clearWords \{[^}]*display:\s*none/);
     expect(narrow).toMatch(/\.clearIcon \{[^}]*display:\s*inline-flex/);
-    expect(narrow).toMatch(/\.clearLabel \{[^}]*clip-path:\s*inset\(50%\)/);
-    expect(narrow).toMatch(/\.bar \{[^}]*gap:\s*var\(--ap-spacing-100\)/);
+    expect(narrow).toMatch(/\.bar \{[^}]*--bar-gap:\s*var\(--ap-spacing-100\)/);
+    // No reach into the Button's own padding: the ✕ is the Button's own icon shape.
+    expect(css).not.toMatch(/\.bar \.clear\b/);
   });
 
-  it('passes axe with the list rendered both ways', async () => {
+  it('passes axe with the list rendered every way', async () => {
     const { container } = render(<Table {...base} {...chosen} bulkActions={list} />);
     expect(await axeViolations(container)).toEqual([]);
   });

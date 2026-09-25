@@ -3,8 +3,8 @@ import { isValidElement, useId } from 'react';
 import { Button } from '../Button/Button';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Loader } from '../Loader/Loader';
-import { StatusGlyph } from '../statusGlyphs';
-import { bulkCss, columnCss } from './columns';
+import { BulkBar } from './BulkBar';
+import { columnCss } from './columns';
 import type { DropdownMenuAction } from '../DropdownMenu/rows';
 import { RowActions, inlineButtonCount } from './RowActions';
 import styles from './Table.module.css';
@@ -102,8 +102,9 @@ export type TableBaseProps<Row> = {
    * "Clear selection", on one row. Only with `onSelectionChange`. A list of
    * menu actions is drawn as a row's: those with an icon as buttons while
    * the bar has room, the rest in "⋯", and all of them in one "⋯" when it
-   * has not. Nodes are the caller's and cannot gather: they scroll inside
-   * their slot rather than wrap.
+   * has not; a checkable one (`checked`) is a Switch while it fits and a
+   * checkbox row in "⋯" when it does not. Nodes are the caller's and cannot
+   * gather: they scroll sideways inside their slot rather than wrap.
    */
   bulkActions?: BulkActions | ((api: BulkActionsApi) => BulkActions);
   /** With a list: how many actions with an icon show as buttons while there is room. Defaults to 5, as drawn. */
@@ -246,26 +247,20 @@ export function Table<Row>({
   // every caller should write.
   const clear = onSelect ? () => onSelect(new Set()) : undefined;
   const bar = clear && bulkActions !== undefined && selectedIds.size > 0 ? bulkLabel(selectedIds.size) : undefined;
-  // Asked once a render, while the bar is shown: a list's buttons size its
-  // slot in the rules, as a row's size the action column.
+  // Asked once a render, while the bar is shown.
   const given = bar && clear ? (typeof bulkActions === 'function' ? bulkActions({ selected: selectedIds, clear }) : bulkActions) : undefined;
   const bulkList = isActions(given) ? given : undefined;
-  const bulkNodes = isActions(given) ? undefined : given;
-  const bulkButtons = bulkList ? inlineButtonCount(bulkList, bulkActionsInline) : 0;
 
   // One scope per Table, so its rules touch no other Table on the page.
   const scope = useId();
-  const css = [
-    columnCss(scope, {
-      columns,
-      primaryKey,
-      sortKey: sort?.key,
-      selection: onSelect !== undefined,
-      inlineButtons,
-      gatheredButtons,
-    }),
-    ...(bulkList ? [bulkCss(scope, bulkButtons)] : []),
-  ].join('\n');
+  const css = columnCss(scope, {
+    columns,
+    primaryKey,
+    sortKey: sort?.key,
+    selection: onSelect !== undefined,
+    inlineButtons,
+    gatheredButtons,
+  });
 
   const toggleRow = onSelect
     ? (id: string) => {
@@ -466,40 +461,16 @@ export function Table<Row>({
       </div>
       </div>
       {bar && clear && (
-        <div className={styles.dock}>
-          <div className={styles.bar} role="group" aria-label={bar}>
-            <span className={styles.count} role="status">
-              {bar}
-            </span>
-            <span className={styles.divider} aria-hidden="true" />
-            <div
-              className={[styles.bulk, bulkList ? styles.gathers : styles.scrolls].join(' ')}
-              data-bulk={bulkList ? 'slot' : undefined}
-            >
-              {bulkList ? (
-                <RowActions
-                  actions={bulkList}
-                  inline={bulkActionsInline}
-                  label={bulkActionsLabel}
-                  gather={bulkButtons > 1}
-                  size="sm"
-                  part="bulk"
-                />
-              ) : (
-                bulkNodes
-              )}
-            </div>
-            <span className={styles.divider} aria-hidden="true" />
-            {/* A ✕ under 25rem of Table, where the words and the count would
-                not both fit a phone beside a "⋯"; the name is the words. */}
-            <Button variant="outline" tone="neutral" size="sm" className={styles.clear} onClick={clear}>
-              <span className={styles.clearIcon} aria-hidden="true">
-                <StatusGlyph name="close" />
-              </span>
-              <span className={styles.clearLabel}>{clearSelectionLabel}</span>
-            </Button>
-          </div>
-        </div>
+        <BulkBar
+          scope={scope}
+          label={bar}
+          actions={bulkList}
+          nodes={isActions(given) ? undefined : given}
+          inline={bulkActionsInline}
+          moreLabel={bulkActionsLabel}
+          clearLabel={clearSelectionLabel}
+          onClear={clear}
+        />
       )}
       {footer !== undefined && <div className={styles.footer}>{footer}</div>}
     </div>

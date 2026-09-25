@@ -4,6 +4,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { readCss } from '@/test/css';
+import { installPopoverStub } from '@/test/popover';
 import { toast } from '@/components/Toast';
 import Page from './page';
 
@@ -59,5 +60,48 @@ describe('the Table page’s Try it', () => {
     expect(readCss('app/docs.css')).not.toMatch(/\.rowAction\b/);
     const pages = readdirSync('app', { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx'));
     expect(pages.filter((f) => /className="rowAction"/.test(readFileSync(join('app', f), 'utf8')))).toEqual([]);
+  });
+});
+
+/**
+ * The dense demo's selection bar. The drawn Switch, "Show only selected", is
+ * a checkable action: the Switch in the bar while it fits, and a checkbox row
+ * in "⋯" when the bar has no room. Which one shows is the rules' (jsdom reads
+ * no container query); both are there, and both change the same state.
+ */
+describe('the Table page’s dense demo', () => {
+  installPopoverStub();
+
+  const staff = () => screen.getByRole('region', { name: 'Staff' });
+  const bar = () => screen.getByRole('group', { name: /selected$/ });
+
+  async function pickTwo() {
+    const boxes = within(staff()).getAllByRole('checkbox', { name: /^Select (?!all)/ });
+    await userEvent.click(boxes[0]!);
+    await userEvent.click(boxes[1]!);
+  }
+
+  it('draws Show only selected as the Switch in the bar, and it narrows the rows to the selection', async () => {
+    render(<Page />);
+    await pickTwo();
+    const inline = bar().querySelector('[data-bulk="inline"]') as HTMLElement;
+    const toggle = within(inline).getByRole('switch', { name: 'Show only selected' });
+    expect(toggle).not.toBeChecked();
+    await userEvent.click(toggle);
+    expect(within(staff()).getAllByRole('checkbox', { name: /^Select (?!all)/ })).toHaveLength(2);
+    expect(within(bar().querySelector('[data-bulk="inline"]') as HTMLElement).getByRole('switch', { name: 'Show only selected' })).toBeChecked();
+  });
+
+  it('tucks it into "⋯" as a checkbox row with the same state and the same words', async () => {
+    render(<Page />);
+    await pickTwo();
+    const hidden = { hidden: true };
+    const tucked = () => bar().querySelector('[data-bulk="tucked"]') as HTMLElement;
+    await userEvent.click(within(tucked()).getByRole('button', { name: 'More actions', ...hidden }));
+    const row = within(tucked()).getByRole('menuitemcheckbox', { name: 'Show only selected', ...hidden });
+    expect(row).toHaveAttribute('aria-checked', 'false');
+    await userEvent.click(row);
+    expect(within(staff()).getAllByRole('checkbox', { name: /^Select (?!all)/ })).toHaveLength(2);
+    expect(within(tucked()).getByRole('menuitemcheckbox', { name: 'Show only selected', ...hidden })).toHaveAttribute('aria-checked', 'true');
   });
 });

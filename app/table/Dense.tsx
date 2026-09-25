@@ -156,16 +156,16 @@ export function Dense() {
         stickyHeader
         maxHeight={392}
         empty="Nobody matches these filters."
-        // A menu's actions, so the bar keeps to one row and gathers them into
-        // "⋯" when it is narrow. The drawn Switch cannot go into a menu: the
-        // view it changes is an action here, with no icon, so it always sits
-        // in "⋯" and says what it will do.
+        // A menu's actions, so the bar keeps to one row. The drawn Switch is
+        // a checkable action: the Switch in the bar while it fits, a checkbox
+        // row in "⋯" when it does not.
         bulkActions={({ selected: chosen }) => [
           { id: 'export', label: 'Export', icon: <Download size={16} />, onSelect: () => toast(`Exported ${chosen.size} staff`) },
           { id: 'archive', label: 'Archive', icon: <Archive size={16} />, onSelect: () => toast(`Archived ${chosen.size} staff`) },
           {
             id: 'only',
-            label: showOnlySelected ? 'Show all staff' : 'Show only selected',
+            label: 'Show only selected',
+            checked: showOnlySelected,
             onSelect: () => {
               setOnlySelected(!showOnlySelected);
               setPage(1);

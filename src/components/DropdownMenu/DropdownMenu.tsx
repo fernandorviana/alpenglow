@@ -10,8 +10,10 @@ import type {
 } from 'react';
 import { useHydrated } from '../useHydrated';
 import floating from '../floating.module.css';
+import { CHECK } from '../listbox/OptionList';
+import option from '../listbox/OptionList.module.css';
 import styles from './DropdownMenu.module.css';
-import { actionText, isGroup, isSeparator, matchIndex, nextIndex } from './rows';
+import { actionText, isCheckable, isGroup, isSeparator, matchIndex, nextIndex } from './rows';
 import type { DropdownMenuAction, DropdownMenuEntry } from './rows';
 
 export type DropdownMenuTriggerProps = {
@@ -31,10 +33,12 @@ export type DropdownMenuProps = {
 };
 
 function Row({ action, onClose }: { action: DropdownMenuAction; onClose: () => void }) {
+  const checkable = isCheckable(action);
   return (
     <button
       type="button"
-      role="menuitem"
+      role={checkable ? 'menuitemcheckbox' : 'menuitem'}
+      aria-checked={checkable ? action.checked : undefined}
       // Disabled rows take no tabindex and no focus at all — not even the APG's
       // focusable-but-inert. See the disabled block in the stylesheet.
       aria-disabled={action.disabled || undefined}
@@ -46,6 +50,18 @@ function Row({ action, onClose }: { action: DropdownMenuAction; onClose: () => v
         action.onSelect?.();
         onClose();
       }}
+      // A checkbox row takes Space as the APG has it: the state changes and
+      // the menu stays, so several can be set in one visit. Enter is the
+      // button's click, which changes it and closes. The keyup is cancelled
+      // too, since that is where a button turns Space into a click.
+      onKeyDown={(event) => {
+        if (!checkable || event.key !== ' ') return;
+        event.preventDefault();
+        if (!action.disabled) action.onSelect?.();
+      }}
+      onKeyUp={(event) => {
+        if (checkable && event.key === ' ') event.preventDefault();
+      }}
       // The pointer moves focus, so the highlight has one owner. See the
       // :focus rule in DropdownMenu.module.css.
       onMouseEnter={(event) => {
@@ -53,6 +69,24 @@ function Row({ action, onClose }: { action: DropdownMenuAction; onClose: () => v
         event.currentTarget.focus();
       }}
     >
+      {checkable && (
+        // The drawing's checkbox row: the Checkbox's box before the words, the
+        // picture the Select's many-valued list draws (listbox/OptionList), in
+        // the leading icon's place and gap. A picture, not a Checkbox: an
+        // input inside a menu item is a control inside a control.
+        <span
+          aria-hidden="true"
+          className={[option.box, action.checked && option.boxOn, action.disabled && option.boxDisabled, styles.iconStart]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {action.checked && (
+            <svg viewBox="0 0 32 32" fill="currentColor" focusable="false">
+              <path d={CHECK} />
+            </svg>
+          )}
+        </span>
+      )}
       {action.icon && (
         <span className={`${styles.icon} ${styles.iconStart}`} aria-hidden="true">
           {action.icon}
@@ -93,7 +127,11 @@ export function DropdownMenu({ trigger, items }: DropdownMenuProps) {
    */
   const focusables = (): HTMLElement[] => {
     if (!menu) return [];
-    return [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')];
+    return [
+      ...menu.querySelectorAll<HTMLElement>(
+        '[role="menuitem"]:not([aria-disabled="true"]), [role="menuitemcheckbox"]:not([aria-disabled="true"])',
+      ),
+    ];
   };
 
   const focusAt = (index: number) => {

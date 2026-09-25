@@ -23,7 +23,8 @@
 /* Every size here includes padding and border. Declared, not left to the
    app's CSS reset, which a consumer of the package may not have. */
 .root, .frame, .region, .bounded, .table, .caption, .th, .td, .sortButton, .sortLabel, .sortMark, .selectCell,
-.dock, .bar, .count, .divider, .bulk, .gathers, .scrolls, .clear, .clearIcon, .clearLabel, .footer {
+.dock, .bar, .lead, .count, .divider, .bulk, .gathers, .toggleDivider, .toggles, .measureBox, .measure, .scrolls,
+.clearWords, .clearIcon, .footer {
   box-sizing: border-box;
 }
 
@@ -491,14 +492,15 @@
   pointer-events: none;
 }
 
-/* One row, never two: the count and Clear keep their size, and the actions'
-   slot is what gives way. min-width: 0, or the bar's least width would be
-   all of its content and outrank the max-width. */
+/* One row, never two. The actions' slot gives way first, down to its "⋯";
+   then the count, to an ellipsis; Clear never. min-width: 0, or the bar's
+   least width would be all of its content and outrank the max-width. */
 .bar {
+  --bar-gap: var(--ap-spacing-200);
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--ap-spacing-200);
+  gap: var(--bar-gap);
   min-width: 0;
   max-width: calc(100% - var(--ap-spacing-400));
   padding: var(--ap-spacing-100) var(--ap-spacing-200);
@@ -516,8 +518,28 @@
   border-color: var(--ap-color-border-default);
 }
 
+/* The count, its divider and the actions: the part of the bar that gives
+   way, as one item beside Clear. Inside it the slot shrinks and the count
+   does not; the count is held instead to what the slot leaves at its least
+   (a "⋯", its divider and two gaps), so it is cut short only once the slot
+   is down to its "⋯" — a long count in another language, or a long Clear.
+   A shrink factor would take a sliver off the count first, and a sliver is
+   enough for an ellipsis. */
+.lead {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--bar-gap);
+  min-width: 0;
+  align-self: stretch;
+}
+
+/* Its title says it whole. */
 .count {
   flex: none;
+  max-width: calc(100% - var(--ap-spacing-400) - var(--ap-border-width-hairline) - 2 * var(--bar-gap));
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--ap-color-text-secondary);
   font-size: var(--ap-text-caption-sm-size);
   line-height: var(--ap-text-caption-sm-line-height);
@@ -542,66 +564,93 @@
 }
 
 /* A list of actions, gathered as a row's are (columns.ts, bulkCss): the slot
-   is a container as wide as its buttons inline, and gives way to one "⋯"
-   when the bar has no room for them. The width and the query are the
-   Table's own rules, counted from the buttons. */
+   is a container as wide as its widest set, and gives way — the Switches
+   into "⋯", then everything into one — when the bar has no room. The width
+   and the queries are the bar's own rules, from the buttons it counts and
+   the Switches it measures. */
 .gathers {
   container-type: inline-size;
   flex: 0 1 auto;
-  /* Inline, the buttons fill the slot exactly; gathered in a wider slot, the
-     one "⋯" stands between the dividers rather than at one of them. */
-  justify-content: center;
+  /* Inline, the set fills the slot exactly. Tucked or gathered, the slot can
+     be wider than its set — it is sized to hold everything, and gives way
+     only as far as the bar needs — so the set keeps to its start, where the
+     buttons stood inline: crossing a threshold swaps the Switch for "⋯" and
+     moves nothing else, and the room left over falls before Clear. */
+  justify-content: flex-start;
+}
+
+/* Between the buttons and the Switches, as the bar's own dividers: 16 each
+   side, 4 of the buttons' gap and 12 here (columns.ts, TOGGLE_SEPARATION). */
+.toggleDivider {
+  margin-inline: var(--ap-spacing-150);
+}
+
+.toggles {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ap-spacing-200);
+  white-space: nowrap;
+}
+
+/* The copy of the Switches that is measured. The box is nothing and clips,
+   so the copy never adds to what the page can scroll; the copy is laid out
+   at its own width, and hidden. */
+.measureBox {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.measure {
+  width: max-content;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* The caller's own nodes cannot gather, and do not wrap: what the bar has no
-   room for scrolls inside the slot. Padded by a focus ring and its offset,
-   and pulled back by as much, so a ring is not clipped by the scroll. */
+   room for scrolls sideways inside the slot, and a thin scrollbar says there
+   is more. Padded by a focus ring and its offset, and pulled back by as
+   much, so a ring is not clipped by the scroll. */
 .scrolls {
+  flex: 0 1 auto;
   overflow-x: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
   padding: calc(var(--ap-border-width-ring) + var(--ap-focus-ring-offset));
   margin: calc(-1 * (var(--ap-border-width-ring) + var(--ap-focus-ring-offset)));
 }
 
-.clear {
+/* Clear, drawn twice (BulkBar): in words, and as the Button's own icon-only
+   shape, a ✕ named by its Tooltip. Wrapped in spans of the bar's own, so
+   display is never decided against the Button's stylesheet. */
+.clearWords, .clearIcon {
+  display: inline-flex;
   flex: none;
 }
 
 .clearIcon {
   display: none;
-  width: var(--ap-spacing-200);
-  height: var(--ap-spacing-200);
 }
 
 /* A phone's Table. The count, a "⋯" and "Clear selection" in words do not
    fit 256 (a 288 Table less the bar's inset) beside each other, and the
-   count and Clear always show: Clear keeps its name and is drawn as a ✕,
-   the Button's icon-only shape — two classes, so the Button's own padding
-   yields whatever order the stylesheets load in — and the bar closes its
-   gaps to 8. Measured in words, the bar needs 340 (count 74, "⋯" 32, Clear
-   134, gaps, dividers and padding) and its inset 32: a Table of 372, 23.25rem.
+   count and Clear always show: Clear is the ✕, and the bar closes its gaps
+   to 8. Measured in words, the bar needs 340 (count 74, "⋯" 32, Clear 134,
+   gaps, dividers and padding) and its inset 32: a Table of 372, 23.25rem.
    25rem leaves room for a count of three digits. */
 @container (width < 25rem) {
   .bar {
-    gap: var(--ap-spacing-100);
+    --bar-gap: var(--ap-spacing-100);
   }
 
-  .bar .clear {
-    aspect-ratio: 1;
-    padding-inline: 0;
+  .clearWords {
+    display: none;
   }
 
   .clearIcon {
     display: inline-flex;
-  }
-
-  .clearLabel {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 }
 

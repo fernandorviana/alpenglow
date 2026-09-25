@@ -22,7 +22,7 @@
  *
  * Each test file gets its own jsdom, so nothing here leaks into other suites.
  *
- * Two consumers: `DropdownMenu.test.tsx` and `DatePicker.test.tsx`.
+ * Consumers: `DropdownMenu.test.tsx`, `DatePicker.test.tsx`, and `Table.test.tsx` for the selection bar's menus.
  */
 export const NATIVE_POPOVER = 'showPopover' in HTMLElement.prototype;
 

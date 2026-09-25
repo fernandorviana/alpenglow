@@ -764,7 +764,8 @@ Claimed components (add a line before starting; one per session and branch):
   Button has no square icon-only shape~~ (closed 2026-09-24: `icon`); ~~the
   bulk bar wraps in a narrow Table~~ (closed 2026-09-25: one row, a list of
   actions gathers into "⋯" by its slot's width, Clear a ✕ under 25rem; the
-  drawn Switch is a menu action in the demo, Fernando's to overturn); below 1280 the SideNav animates 200 → 80 on
+  drawn Switch is a `checked` action, the Switch while it fits and a
+  menuitemcheckbox in "⋯" when not, its width measured in BulkBar); below 1280 the SideNav animates 200 → 80 on
   load; at 1440 the first paint is the Tabs layout until hydration
   (`useMediaQuery`'s server snapshot); below 1280 the current row is not
   scrolled into view on switching to Appointments; the **Filters** bar is

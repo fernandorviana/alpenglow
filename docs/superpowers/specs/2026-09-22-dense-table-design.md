@@ -74,11 +74,14 @@ div.root[.comfortable|.compact][aria-busy] (className, rest)
   div.dock                             sticky bottom, height 0
     div.bar[aria-label]                surface/overlay, elevation/lg, one row
       span.count[role=status]          "2 selected"
-      div.bulk.gathers[data-bulk=slot] a list: span[data-bulk=inline] and
-                                       span[data-bulk=gathered] ("⋯")
+      div.bulk.gathers[data-bulk=slot] a list: span[data-bulk=inline]
+                                       (buttons, "⋯", divider, Switches),
+                                       span[data-bulk=tucked] (buttons, "⋯"),
+                                       span[data-bulk=gathered] ("⋯"),
+                                       span.measureBox > the Switches' copy
       div.bulk.scrolls                 or the caller's nodes
-      Button.clear                     span.clearIcon (✕ under 25rem),
-                                       span.clearLabel "Clear selection"
+      span.clearWords > Button         "Clear selection"
+      span.clearIcon > Tooltip > Button  ✕, under 25rem
   div.footer                           slot
 ```
 
@@ -150,12 +153,21 @@ words, the count and a "⋯" do not fit a phone (340 in 256), Clear is drawn
 as a ✕ and keeps its name, and the gaps close to 8. The caller's own nodes
 cannot gather and scroll inside their slot.
 
-The drawn Switch, "Show only selected", has no place in a menu. The dense
-demo makes it an action with no icon, so it sits in "⋯" and says what it
-will do ("Show all staff" once on). Fernando's to overturn: the Switch back
-in the bar needs a slot beside the actions that the bar gives up first on a
-phone. The scheduling screen's bar takes Confirm and Cancel as actions, the
-icons its rows use.
+The drawn Switch, "Show only selected", stays in the bar wherever it fits
+(the controller's ruling, 2026-09-25: the drawing wins). It is an action
+with `checked`: drawn as the Switch after a divider while the slot has room,
+and tucked into "⋯" as a `menuitemcheckbox` with the same words when it has
+not, the icon buttons staying; narrower still, one "⋯" holds everything.
+A Switch holds words, so its width is measured in the page — a copy laid
+out at its own width in a clipped box of none, hidden and inert — and goes
+into the same rules; until then, a guess on the wide side. That measuring
+is why the bar is a client component of its own (BulkBar). The scheduling
+screen's bar takes Confirm and Cancel as actions, the icons its rows use.
+
+Clear is drawn twice, in words and as the Button's icon-only ✕ named by its
+Tooltip, and the Table's 25rem rule shows one, as a row's actions are drawn
+twice. The count gives way last, to an ellipsis, with a `title`; the
+caller's own nodes scroll sideways with a thin scrollbar.
 
 ## Not here
 
