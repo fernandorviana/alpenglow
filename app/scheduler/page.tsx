@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { CodeBlock } from '@ui/CodeBlock';
@@ -22,6 +23,7 @@ import { Button } from '@/components/Button';
 import { Calendar } from '@/components/Calendar';
 import { Card, CardBody } from '@/components/Card';
 import { Checkbox } from '@/components/Checkbox';
+import { Drawer } from '@/components/Drawer';
 import { Field } from '@/components/Field';
 import { Input } from '@/components/Input';
 import { Switch } from '@/components/Switch';
@@ -30,7 +32,7 @@ import { Select } from '@/components/Select';
 import { Table } from '@/components/Table';
 import { useMediaQuery } from '@/components/useMediaQuery';
 import { resolve } from '@/tokens/contrast';
-import { media, spacing, radius } from '@/tokens/scale';
+import { borderWidth, media, spacing, radius } from '@/tokens/scale';
 import { textStyle } from '@/tokens/typography';
 import { density } from '@/tokens/density';
 import type { Mode, ThemeTokenName } from '@/tokens/theme';
@@ -170,6 +172,19 @@ const VIEWS = [
   { value: 'day', label: 'Day' },
   { value: 'staff', label: 'Day, by person' },
 ];
+/** Below md there is no week: the phone drawing has a day. */
+const PHONE_VIEWS = VIEWS.filter((v) => v.value !== 'week');
+
+/** The mini-calendar, the switch and the filters. */
+const SIDE = 280;
+/**
+ * Where the week and the side column fit side by side, in the specimen: the
+ * hours and seven column floors, the region's hairline edges, the gap and
+ * the column. In px, as the tracks it adds up are. On this page the doc
+ * column is narrower than this at every width, so the side column sits under
+ * the grid from md up; a wider specimen would bring it beside.
+ */
+const BESIDE = spacing[1000] + 7 * spacing[1200] + 2 * borderWidth.hairline + spacing[300] + SIDE;
 
 const USAGE = `import { Scheduler } from 'alpenglow';
 import type { SchedulerEvent } from 'alpenglow';
@@ -233,7 +248,7 @@ const MEASURES: Measure[] = [
   { part: 'Column floor', value: `${spacing[1200]} (--scheduler-column), for the drawn 129; a share of the rest above it` },
   { part: 'Hours column', value: `${spacing[1000]} wide, the labels caption/md in text/tertiary on their line` },
   { part: 'Header', value: `${spacing[800]} tall; weekday caption/sm uppercase, day body/md Medium, today in a ${spacing[400]} accent circle` },
-  { part: 'All-day row', value: `min ${spacing[300] + spacing['050']}, one ${spacing[300]} card a line` },
+  { part: 'All-day row', value: `${spacing[300] + spacing['050']} (--scheduler-all-day), the chip filling it, for the drawn 28 and 29; its words caption/md Semibold, centred, ${spacing[100]} and the hairline in` },
   { part: 'Card', value: `${spacing['050']} ${spacing[100]}, radius ${radius.lg}, ${spacing['075']} in from the column; min ${spacing[300]} tall` },
   { part: 'Card text', value: `title ${type('caption/md')} Semibold, time ${type('caption/sm')} Medium; the icon in a ${spacing[300]} circle from an hour up` },
   { part: 'Now line', value: `a border/danger hairline with a ${spacing[150]} dot at today’s column; its time in text/danger` },
@@ -293,6 +308,19 @@ export default function Page() {
   const [title, setTitle] = useState('');
   const [availability, setAvailability] = useState(false);
   const counter = useRef(100);
+  // Below md the side column is a Drawer over the grid, opened by the
+  // toolbar's button, a draft or a pressed event; what opened it is what it
+  // focuses.
+  const [sideOpen, setSideOpen] = useState(false);
+  const [opener, setOpener] = useState<'button' | 'draft' | 'selected'>('button');
+  const titleField = useRef<HTMLInputElement>(null);
+  const closeSelected = useRef<HTMLButtonElement>(null);
+  const openSide = (by: typeof opener) => {
+    if (!narrow) return;
+    setOpener(by);
+    setSideOpen(true);
+  };
+  const doneSide = () => setSideOpen(false);
 
   const effective: SchedulerView = narrow || view !== 'week' ? 'day' : 'week';
   const byPerson = view === 'staff';
@@ -313,6 +341,7 @@ export default function Page() {
     }
     setDraft(proposed);
     setTitle(proposed.title ?? proposed.from?.title ?? '');
+    openSide('draft');
   };
   const change = (word: string) => (event: SchedulerEvent, next: SchedulerChange) => {
     setPool((list) => list.map((x) => (x.id === event.id ? { ...x, ...next } : x)));
@@ -328,7 +357,116 @@ export default function Page() {
     }
   };
   const step = effective === 'week' ? 7 : 1;
+  // The view shown: below md a week is a day, and the Select says so.
+  const shownView = narrow && view === 'week' ? 'day' : view;
   const heading = effective === 'week' ? monthName.format(Date.UTC(2023, 3, 1)) : dayName.format(new Date(`${date}T00:00:00Z`));
+
+  const side: ReactNode = (
+    <>
+      {draft && (
+        <Card>
+          <CardBody>
+            <strong>New event</strong>
+            <p className="alias" style={{ margin: `${spacing['050']}px 0 ${spacing[150]}px` }}>
+              {draft.start.slice(0, 10)} · {draft.start.slice(11)} – {draft.end.slice(11)}
+              {draft.resourceId ? ` · ${PEOPLE.find((r) => r.id === draft.resourceId)?.name}` : ''}
+            </p>
+            <Field label="Title">
+              <Input ref={titleField} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="(No title)" />
+            </Field>
+            <div className="specimenRow" style={{ marginTop: spacing[150] }}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  add({ ...draft, title: title || '(No title)', icon: draft.from?.icon, kind: draft.from?.kind });
+                  setDraft(null);
+                  doneSide();
+                }}
+              >
+                Create
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setDraft(null);
+                  doneSide();
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+      <Switch checked={availability} onChange={(e) => setAvailability(e.target.checked)} description="A press or a drag makes a slot; the × removes it.">
+        Availability
+      </Switch>
+      {availability && (
+        <Card>
+          <CardBody>
+            <strong>Time slots selected</strong>
+            <pre className="alias" style={{ margin: `${spacing[100]}px 0`, whiteSpace: 'pre-wrap' }}>
+              {slots.length ? formatSlots(slots) : 'No time slots selected yet. Click and drag on the calendar.'}
+            </pre>
+            <Button size="sm" onClick={copySlots} disabled={slots.length === 0}>
+              Copy to clipboard
+            </Button>
+          </CardBody>
+        </Card>
+      )}
+      <Calendar
+        label="Go to a day"
+        headingLevel={3}
+        weekStartsOn={1}
+        defaultMonth="2023-04-01"
+        value={date}
+        onSelect={(next) => {
+          if (!next) return;
+          setDate(next as ISODate);
+          doneSide();
+        }}
+      />
+      <fieldset>
+        <legend>Event type</legend>
+        {KINDS.map((kind) => (
+          <Checkbox
+            key={kind}
+            checked={shown.includes(kind)}
+            onChange={(e) =>
+              setShown((s) => (e.target.checked ? [...s, kind] : s.filter((k) => k !== kind)))
+            }
+          >
+            {KIND_WORDS[kind]}
+          </Checkbox>
+        ))}
+      </fieldset>
+      {selected && (
+        <Card>
+          <CardBody>
+            <strong>{selected.title}</strong>
+            <p className="alias" style={{ margin: `${spacing['050']}px 0 ${spacing[150]}px` }}>
+              {selected.start.slice(11)} – {selected.end.slice(11)}
+              {selected.kind ? ` · ${KIND_WORDS[selected.kind]}` : ''}
+              {selected.resourceId ? ` · ${PEOPLE.find((r) => r.id === selected.resourceId)?.name}` : ''}
+            </p>
+            <Button
+              ref={closeSelected}
+              variant="outline"
+              size="sm"
+              aria-label={`Close ${selected.title}`}
+              onClick={() => {
+                setSelected(null);
+                doneSide();
+              }}
+            >
+              Close
+            </Button>
+          </CardBody>
+        </Card>
+      )}
+    </>
+  );
 
   return (
     <DocPage
@@ -354,9 +492,10 @@ export default function Page() {
       </p>
 
       <h2>Try it</h2>
-      <div className="specimen">
+      <div className="specimen schedulerFrame">
         <style>{`
-          .schedulerScreen { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: ${spacing[300]}px; align-items: start; }
+          .schedulerFrame { container-type: inline-size; }
+          .schedulerScreen { display: grid; grid-template-columns: minmax(0, 1fr); gap: ${spacing[300]}px; align-items: start; }
           .schedulerScreen > * { min-width: 0; }
           .schedulerToolbar { display: flex; flex-wrap: wrap; align-items: center; gap: ${spacing[150]}px; margin-bottom: ${spacing[200]}px; }
           .schedulerToolbar h3 { margin: 0; flex: 1 1 auto; }
@@ -364,7 +503,9 @@ export default function Page() {
           .schedulerSide { display: grid; gap: ${spacing[300]}px; }
           .schedulerSide fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: ${spacing[100]}px; }
           .schedulerSide legend { padding: 0; margin-bottom: ${spacing[100]}px; font-weight: 600; }
-          @media (width < 64rem) { .schedulerScreen { grid-template-columns: 1fr; } .schedulerSide { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
+          .schedulerScreen > .schedulerSide { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+          @container (width >= ${BESIDE}px) { .schedulerScreen { grid-template-columns: minmax(0, 1fr) ${SIDE}px; } .schedulerScreen > .schedulerSide { grid-template-columns: none; } }
+          @media (width < 48rem) { .schedulerScreen > .schedulerSide { display: none; } }
         `}</style>
         <div className="schedulerToolbar">
           <h3>{heading}</h3>
@@ -380,8 +521,13 @@ export default function Page() {
             <span className="ap-sr-only">Next {effective}</span>
           </Button>
           <Field label="View" className="schedulerView">
-            <Select options={VIEWS} value={view} onChange={setView} />
+            <Select options={narrow ? PHONE_VIEWS : VIEWS} value={shownView} onChange={setView} />
           </Field>
+          {narrow && (
+            <Button variant="outline" aria-haspopup="dialog" aria-expanded={sideOpen} onClick={() => openSide('button')}>
+              Calendar and filters
+            </Button>
+          )}
         </div>
         <div className="schedulerScreen">
           <Scheduler
@@ -398,7 +544,10 @@ export default function Page() {
             zoneLabel="WET"
             maxHeight={600}
             selectedId={selected?.id ?? null}
-            onSelect={setSelected}
+            onSelect={(event) => {
+              setSelected(event);
+              openSide('selected');
+            }}
             draft={draft}
             createKind={availability ? 'availability' : 'confirmed'}
             onCreate={onCreate}
@@ -406,94 +555,25 @@ export default function Page() {
             onResize={change('resized')}
             onRemove={onRemove}
           />
-          <div className="schedulerSide">
-            {draft && (
-              <Card>
-                <CardBody>
-                  <strong>New event</strong>
-                  <p className="alias" style={{ margin: `${spacing['050']}px 0 ${spacing[150]}px` }}>
-                    {draft.start.slice(0, 10)} · {draft.start.slice(11)} – {draft.end.slice(11)}
-                    {draft.resourceId ? ` · ${PEOPLE.find((r) => r.id === draft.resourceId)?.name}` : ''}
-                  </p>
-                  <Field label="Title">
-                    <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="(No title)" />
-                  </Field>
-                  <div className="specimenRow" style={{ marginTop: spacing[150] }}>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        add({ ...draft, title: title || '(No title)', icon: draft.from?.icon, kind: draft.from?.kind });
-                        setDraft(null);
-                      }}
-                    >
-                      Create
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setDraft(null)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </CardBody>
-              </Card>
-            )}
-            <Switch checked={availability} onChange={(e) => setAvailability(e.target.checked)} description="A press or a drag makes a slot; the × removes it.">
-              Availability
-            </Switch>
-            {availability && (
-              <Card>
-                <CardBody>
-                  <strong>Time slots selected</strong>
-                  <pre className="alias" style={{ margin: `${spacing[100]}px 0`, whiteSpace: 'pre-wrap' }}>
-                    {slots.length ? formatSlots(slots) : 'No time slots selected yet. Click and drag on the calendar.'}
-                  </pre>
-                  <Button size="sm" onClick={copySlots} disabled={slots.length === 0}>
-                    Copy to clipboard
-                  </Button>
-                </CardBody>
-              </Card>
-            )}
-            <Calendar
-              label="Go to a day"
-              headingLevel={3}
-              weekStartsOn={1}
-              defaultMonth="2023-04-01"
-              value={date}
-              onSelect={(next) => next && setDate(next as ISODate)}
-            />
-            <fieldset>
-              <legend>Event type</legend>
-              {KINDS.map((kind) => (
-                <Checkbox
-                  key={kind}
-                  checked={shown.includes(kind)}
-                  onChange={(e) =>
-                    setShown((s) => (e.target.checked ? [...s, kind] : s.filter((k) => k !== kind)))
-                  }
-                >
-                  {KIND_WORDS[kind]}
-                </Checkbox>
-              ))}
-            </fieldset>
-            {selected && (
-              <Card>
-                <CardBody>
-                  <strong>{selected.title}</strong>
-                  <p className="alias" style={{ margin: `${spacing['050']}px 0 ${spacing[150]}px` }}>
-                    {selected.start.slice(11)} – {selected.end.slice(11)}
-                    {selected.kind ? ` · ${KIND_WORDS[selected.kind]}` : ''}
-                    {selected.resourceId ? ` · ${PEOPLE.find((r) => r.id === selected.resourceId)?.name}` : ''}
-                  </p>
-                  <Button variant="outline" size="sm" onClick={() => setSelected(null)}>
-                    Close
-                  </Button>
-                </CardBody>
-              </Card>
-            )}
-          </div>
+          {!narrow && <div className="schedulerSide">{side}</div>}
         </div>
+        <Drawer
+          open={narrow && sideOpen}
+          onClose={doneSide}
+          mode="overlay"
+          title="Calendar and filters"
+          initialFocus={opener === 'draft' ? titleField : opener === 'selected' ? closeSelected : undefined}
+        >
+          <div className="schedulerSide">{side}</div>
+        </Drawer>
       </div>
       <p className="alias">
         The now line is pinned to the drawn 11:16 on the 20th of April 2023 so the page holds still; left out, the
-        component reads the clock. Below <code>md</code>, 768, the week gives way to the day, as the phone drawing has it.
+        component reads the clock, and a week wider than its region opens with today in the middle. Below{' '}
+        <code>md</code>, 768, the week gives way to the day, as the phone drawing has it, and the grid has the width:
+        the calendar and the filters open over it from a button, as a <a href="/drawer">Drawer</a>, and so do a new
+        event and a pressed one. From <code>md</code> they sit under the grid, and beside it only where the
+        week&rsquo;s {spacing[1000] + 7 * spacing[1200]} and their {SIDE} both fit, which this column never is.
       </p>
       <h2>Creating, moving and the keyboard</h2>
       <p>
