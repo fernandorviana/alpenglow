@@ -25,11 +25,17 @@ const READERS: Record<BreakpointName, string> = {
 
 type BreakpointRow = { name: BreakpointName; px: number };
 const BREAKPOINT_ROWS: BreakpointRow[] = (Object.entries(breakpoint) as [BreakpointName, number][]).map(([name, px]) => ({ name, px }));
+/**
+ * A header keeps to one line and truncates, so each column's minimum holds
+ * its header with the cell's 24 (`DocTables.test.tsx` has the measures):
+ * "What turns there" is 126, and at its default 96 it read "WHAT TURNS T…"
+ * at 768.
+ */
 const BREAKPOINT_COLUMNS: Column<BreakpointRow>[] = [
   { key: 'name', header: 'Name', primary: true, cell: (r) => <span className="tokenName">{r.name}</span> },
   { key: 'rem', header: 'rem', align: 'end', cell: (r) => `${r.px / 16}rem` },
   { key: 'px', header: 'px', align: 'end', cell: (r) => `${r.px}px` },
-  { key: 'reads', header: 'What turns there', cell: (r) => READERS[r.name] },
+  { key: 'reads', header: 'What turns there', minWidth: 160, cell: (r) => READERS[r.name] },
 ];
 
 const MODE_LABEL = { narrow: 'Narrow', medium: 'Medium', wide: 'Wide' } as const;
@@ -42,12 +48,40 @@ const since = (m: (typeof layoutModes)[number]) => {
 
 type LayoutRow = { name: LayoutTokenName };
 const LAYOUT_ROWS: LayoutRow[] = (Object.keys(layout) as LayoutTokenName[]).map((name) => ({ name }));
+/**
+ * Each mode's header on two lines, the mode over where it starts: on one,
+ * "Narrow (below lg, 1024)" is 168 and read "NARROW (BEL…" in its 96 column
+ * at every width, and a column that held it whole could not sit beside the
+ * token at 320. On two the widest line is 109, so each takes 136 with the
+ * cell's 24, and the token 128 — `layout/margin` is 97 — which puts the
+ * token and Narrow, a phone's own value, side by side at 320, and all three
+ * modes at 768. Where is a sentence: at its default 96 it took the smallest
+ * share and ran to seven lines, so it asks for 144, which still sits beside
+ * the modes in the 690 the table has on the wide page, and from 1024.
+ */
 const LAYOUT_COLUMNS: Column<LayoutRow>[] = [
-  { key: 'token', header: 'Token', primary: true, cell: (r) => <span className="tokenName">layout/{r.name}</span> },
+  {
+    key: 'token',
+    header: 'Token',
+    primary: true,
+    minWidth: 128,
+    cell: (r) => <span className="tokenName">layout/{r.name}</span>,
+  },
   ...layoutModes.map(
-    (m): Column<LayoutRow> => ({ key: m, header: `${MODE_LABEL[m]} (${since(m)})`, align: 'end', cell: (r) => `${layout[r.name][m]}px` }),
+    (m): Column<LayoutRow> => ({
+      key: m,
+      header: (
+        <>
+          {MODE_LABEL[m]}
+          <br />({since(m)})
+        </>
+      ),
+      align: 'end',
+      minWidth: 136,
+      cell: (r) => `${layout[r.name][m]}px`,
+    }),
   ),
-  { key: 'use', header: 'Where', cell: (r) => layout[r.name].use },
+  { key: 'use', header: 'Where', minWidth: 144, cell: (r) => layout[r.name].use },
 ];
 
 export default function LayoutPage() {

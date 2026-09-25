@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { DocPage } from '@ui/DocPage';
+import { TypeText } from '@ui/TypeText';
 import { Ratio } from '@ui/Ratio';
 import { Field } from '@/components/Field';
 import { Table } from '@/components/Table';
@@ -519,7 +520,7 @@ export default function Page() {
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
             { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
           ]}
           rows={CALENDAR_PROPS}
@@ -545,7 +546,7 @@ export default function Page() {
           density="compact"
           columns={[
             { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
-            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
+            { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias"><TypeText>{r.type}</TypeText></span> },
             { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
           ]}
           rows={DATE_PICKER_PROPS}

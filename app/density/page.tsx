@@ -29,8 +29,11 @@ const COLUMNS: Column<Row>[] = [
   // the primary's 160, said here so the two stay together.
   { key: 'token', header: 'Token', primary: true, minWidth: spacing[1300], cell: (r) => <span className="tokenName">density/{r.name}</span> },
   // minWidth said: at its default 96 the header "Comfortable" overflowed its
-  // own end-aligned column once the Table narrowed past its Type column.
-  { key: 'comfortable', header: 'Comfortable', align: 'end', minWidth: spacing[1200], cell: (r) => `${r.entry.comfortable}px` },
+  // own end-aligned column once the Table narrowed past its Type column. It
+  // is 92, so 120 with the cell's 24 holds it — and leaves room beside the
+  // token's 160 at 320, where 128 put the pair 2px past the phone's 288 and
+  // the table showed its names alone.
+  { key: 'comfortable', header: 'Comfortable', align: 'end', minWidth: 120, cell: (r) => `${r.entry.comfortable}px` },
   { key: 'compact', header: 'Compact', align: 'end', cell: (r) => `${r.entry.compact}px` },
   { key: 'use', header: 'Read by', cell: (r) => r.entry.use },
 ];
@@ -43,9 +46,12 @@ const CLIENTS: ClientRow[] = [
   { id: '2', client: 'Joaquim Okafor', appointment: 'Follow-up' },
   { id: '3', client: 'Aisha Nguyen', appointment: 'Sports massage' },
 ];
+// "Appointment" is 91, and 123 with a comfortable cell's 32: at its default
+// 96 it read "APPOINTM…" at 320. The client gives up the primary's 160 for
+// 128 — a name wraps at its space — so the pair still fits the phone's 288.
 const CLIENT_COLUMNS: Column<ClientRow>[] = [
-  { key: 'client', header: 'Client', primary: true, cell: (r) => r.client },
-  { key: 'appointment', header: 'Appointment', cell: (r) => r.appointment },
+  { key: 'client', header: 'Client', primary: true, minWidth: spacing[1200], cell: (r) => r.client },
+  { key: 'appointment', header: 'Appointment', minWidth: spacing[1200], cell: (r) => r.appointment },
 ];
 
 // A two-hour slice of the fixed day, 09:00–11:00, three events — enough to
