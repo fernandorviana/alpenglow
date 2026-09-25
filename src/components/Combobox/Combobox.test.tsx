@@ -409,6 +409,24 @@ describe('Combobox — stylesheet', () => {
     expect(block(css, '\n.clear {')).toContain('width: var(--ap-spacing-300)');
     expect(block(css, '.clear:focus-visible {')).toContain('var(--ap-color-border-focus)');
   });
+
+  it('sets --field-min-width on .input instead of overriding min-width, so control.module.css cannot outrank it when chunk order differs in production', () => {
+    // .input's element also carries control.module.css's .field, which
+    // sets flex: 1 for every caller. Overriding min-width from
+    // Combobox.module.css at equal specificity is decided by whichever
+    // stylesheet's chunk loads last — which next dev and the production
+    // build do not agree on. Bridging the value through a custom property
+    // that only .field declares removes the conflict instead of winning
+    // it (the audit's step-3 css-order check caught this: the input
+    // squeezed onto the tags' last line in production instead of wrapping
+    // to its own).
+    const input = block(css, '.input {');
+    expect(input).not.toMatch(/(?:^|[\s;])min-width\s*:/);
+    expect(input).toMatch(/--field-min-width:\s*var\(--ap-spacing-800\)/);
+
+    const controlCss = readCss('src/components/control.module.css');
+    expect(block(controlCss, '.field {')).toMatch(/min-width:\s*var\(--field-min-width,\s*0\)/);
+  });
 });
 
 describe('Combobox — axe', () => {
