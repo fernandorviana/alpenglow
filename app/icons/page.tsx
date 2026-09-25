@@ -82,7 +82,10 @@ function Grid({ group }: { group: 'ui' | 'domain' }) {
       >
         {CUSTOM.filter((i) => i.group === group).map(({ Component, name }) => (
           <div key={name} style={{ display: 'flex', alignItems: 'center', gap: spacing[100] }}>
-            <Component size={20} />
+            {/* Flex items shrink by default; a name longer than the row's
+                leftover width (`UserVerifiedOutline`, measured at ~8px
+                instead of 20) took the icon down with it. */}
+            <Component size={20} style={{ flexShrink: 0 }} />
             <span className="alias">{name}</span>
           </div>
         ))}

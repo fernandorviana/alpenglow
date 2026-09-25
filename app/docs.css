@@ -1849,13 +1849,28 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   border-radius: var(--ap-radius-xs);
 }
 
+/* An explicit size: on /data-vis this is a block child and was already full
+   width, but the same markup on the Foundations card sits in `.cardVisual`,
+   `place-items: center` — a grid item there is centered at its own content
+   size rather than stretched, and empty `<span>`s have none, so the ramp
+   measured 0 wide at every width and in both modes. `max-inline-size: 100%`
+   keeps it from ever asking for more than the card's picture has to give. */
 .chartRamp {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
+  inline-size: 100%;
+  max-inline-size: 100%;
   height: 32px;
   border-radius: var(--ap-radius-xs);
   overflow: hidden;
+}
+
+/* The card's own `place-items: center` sizes a grid item to its content
+   instead of stretching it to the track; this one child overrides that so
+   the 100% above resolves against something other than zero. */
+.cardVisual > .chartRamp {
+  justify-self: stretch;
 }
 
 @media (width < 48rem) {
