@@ -3,6 +3,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent, PointerEvent, ReactNode, RefObject } from 'react';
 import { Button } from '../Button/index';
+import { useMediaQuery } from '../useMediaQuery';
+import { media } from '../../tokens/scale';
 import styles from './Drawer.module.css';
 
 export const drawerModes = ['overlay', 'inline'] as const;
@@ -17,6 +19,13 @@ export type DrawerSize = (typeof drawerSizes)[number];
 /** The drawn widths, which a resize starts from and a double click goes back to. */
 export const DRAWER_WIDTH: Record<DrawerSize, number> = { md: 480, lg: 768 };
 
+/**
+ * Below `md` there is no panel beside the content: the content is what shows,
+ * and an inline Drawer opens over it, as `overlay` does. The line the SideNav
+ * becomes a sheet at.
+ */
+export const DRAWER_NARROW = media.down.md;
+
 /** What a resize leaves the content beside the panel, and the least the panel is. */
 const LEAST = 320;
 const STEP = 16;
@@ -29,7 +38,7 @@ export type DrawerProps = {
    * left half-way opens a Dialog that says so.
    */
   onClose: () => void;
-  /** `overlay` grows over the content; `inline` is a sibling the content makes room for. */
+  /** `overlay` grows over the content; `inline` is a sibling the content makes room for — from `md` up, and over the content below it. */
   mode?: DrawerMode;
   side?: DrawerSide;
   /** 480 or 768 wide. */
@@ -70,8 +79,8 @@ const ICON = { width: 20, height: 20, viewBox: '0 0 20 20', fill: 'none', 'aria-
 const STROKE = { stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
 
 /** The widest the panel may be: the caller's most, and what leaves the content beside it 320. */
-function limit(panel: HTMLElement, mode: DrawerMode, minWidth: number, maxWidth: number | undefined) {
-  const room = (mode === 'inline' ? (panel.parentElement?.clientWidth ?? 0) : window.innerWidth) - LEAST;
+function limit(panel: HTMLElement, layered: boolean, minWidth: number, maxWidth: number | undefined) {
+  const room = (layered ? window.innerWidth : (panel.parentElement?.clientWidth ?? 0)) - LEAST;
   return Math.max(minWidth, Math.min(maxWidth ?? Infinity, room));
 }
 
@@ -132,7 +141,10 @@ export function Drawer({
   const before = useRef<Element | null>(null);
   const drag = useRef<{ x: number; width: number } | null>(null);
 
-  const layered = mode === 'overlay' || expanded;
+  // False on the server and in the hydration pass, as the SideNav's: an inline
+  // panel open at load is beside the content first and over it a moment later.
+  const narrow = useMediaQuery(DRAWER_NARROW);
+  const layered = mode === 'overlay' || expanded || narrow;
   const current = width ?? own;
   const start = defaultWidth ?? DRAWER_WIDTH[size];
 
@@ -173,16 +185,16 @@ export function Drawer({
   // room beside an inline panel is its parent's and changes with no event.
   useEffect(() => {
     if (!panel || !resizable) return;
-    const measure = () => setMost(limit(panel, mode, minWidth, maxWidth));
+    const measure = () => setMost(limit(panel, layered, minWidth, maxWidth));
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [panel, resizable, mode, minWidth, maxWidth]);
+  }, [panel, resizable, layered, minWidth, maxWidth]);
 
   if (!open) return null;
 
   const resize = (next: number) => {
-    const ceiling = panel ? limit(panel, mode, minWidth, maxWidth) : most;
+    const ceiling = panel ? limit(panel, layered, minWidth, maxWidth) : most;
     if (ceiling !== most) setMost(ceiling);
     const clamped = Math.round(Math.max(minWidth, Math.min(ceiling, next)));
     if (clamped === current) return;
@@ -244,13 +256,7 @@ export function Drawer({
       aria-label={title && !header ? undefined : (ariaLabel ?? title)}
       tabIndex={-1}
       className={classes.filter(Boolean).join(' ')}
-      style={
-        {
-          ...(current !== undefined && { '--drawer-width': `${current}px` }),
-          // The stylesheet's least is 320; a resize to a caller's lower one must not stop there.
-          ...(minWidth !== LEAST && { '--drawer-min': `${minWidth}px` }),
-        } as CSSProperties
-      }
+      style={current === undefined ? undefined : ({ '--drawer-width': `${current}px` } as CSSProperties)}
       onKeyDown={(event) => {
         if (event.key !== 'Escape' || event.defaultPrevented || hasOpenPopover(event.currentTarget)) return;
         event.preventDefault();

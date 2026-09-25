@@ -1,8 +1,8 @@
 import { createRef, useState } from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
-import { Drawer, DRAWER_WIDTH } from './Drawer';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { Drawer, DRAWER_WIDTH, DRAWER_NARROW } from './Drawer';
 import type { DrawerProps } from './Drawer';
 import styles from './Drawer.module.css';
 import { NATIVE_POPOVER, installPopoverStub } from '../../test/popover';
@@ -90,14 +90,6 @@ describe('Drawer — structure', () => {
     expect(css).not.toMatch(/(^|[\s;{-])(left|right)\s*:/);
   });
 
-  it('carries a least other than 320 to the stylesheet, which holds the panel to it in the flow', () => {
-    const { rerender } = render(<Appointment mode="inline" />);
-    const panel = screen.getByRole('region', { name: 'New appointment' });
-    expect(panel.style.getPropertyValue('--drawer-min')).toBe('');
-    rerender(<Appointment mode="inline" minWidth={240} />);
-    expect(panel.style.getPropertyValue('--drawer-min')).toBe('240px');
-  });
-
   it('expanded, either kind is over the page', () => {
     render(<Appointment mode="inline" expanded onExpandedChange={() => {}} />);
     const panel = screen.getByRole('dialog', { name: 'New appointment' });
@@ -128,6 +120,92 @@ describe('Drawer — structure', () => {
     unmount();
     const inline = render(<Appointment mode="inline" resizable />);
     expect(await axeViolations(inline.container)).toEqual([]);
+  });
+});
+
+/** A window that says whether it is narrower than `md`, as the SideNav's tests do. */
+function mockMedia(matches: boolean) {
+  const listeners = new Set<() => void>();
+  const state = { matches };
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    get matches() {
+      return query === DRAWER_NARROW && state.matches;
+    },
+    media: query,
+    addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+    removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+  }));
+  return {
+    set(next: boolean) {
+      state.matches = next;
+      act(() => listeners.forEach((fn) => fn()));
+    },
+  };
+}
+
+function Beside(props: Partial<DrawerProps>) {
+  return (
+    <div style={{ display: 'flex' }}>
+      <main aria-label="Calendar">The week</main>
+      <Appointment mode="inline" {...props} />
+    </div>
+  );
+}
+
+describe('Drawer — inline, on a phone', () => {
+  // jsdom has no matchMedia; the tests above run as a wide window does.
+  afterEach(() => {
+    delete (window as { matchMedia?: unknown }).matchMedia;
+  });
+
+  it('asks at md, the line the SideNav becomes a sheet at', () => {
+    expect(DRAWER_NARROW).toBe('(width < 48rem)');
+    mockMedia(false);
+    render(<Beside />);
+    expect(window.matchMedia).toHaveBeenCalledWith(DRAWER_NARROW);
+  });
+
+  it('below md is over the content, as overlay is, and the content is not narrowed', () => {
+    mockMedia(true);
+    render(<Beside onExpandedChange={() => {}} />);
+    const panel = screen.getByRole('dialog', { name: 'New appointment' });
+    expect(panel).toHaveAttribute('popover', 'manual');
+    expect(panel).toHaveClass(styles.drawer!, styles.layered!, styles.end!, styles.md!);
+    // `.flow` is the only class that takes room in the row; `.layered` is
+    // fixed in the top layer, so the content keeps the whole row.
+    expect(panel).not.toHaveClass(styles.flow!);
+    expect(block(css, '\n.layered {')).toContain('position: fixed');
+    expect(panel.style.display).toBe('block');
+    expect(panel).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
+    expect(screen.queryByRole('region')).toBeNull();
+  });
+
+  it('from md up is beside the content, as before', () => {
+    mockMedia(false);
+    render(<Beside />);
+    const panel = screen.getByRole('region', { name: 'New appointment' });
+    expect(panel).not.toHaveAttribute('popover');
+    expect(panel).toHaveClass(styles.flow!);
+    expect(panel).not.toHaveClass(styles.layered!);
+  });
+
+  it('follows the window across md while it is open', () => {
+    const media = mockMedia(false);
+    render(<Beside />);
+    expect(screen.getByRole('region', { name: 'New appointment' })).toHaveClass(styles.flow!);
+    media.set(true);
+    const over = screen.getByRole('dialog', { name: 'New appointment' });
+    expect(over).toHaveClass(styles.layered!);
+    expect(over.style.display).toBe('block');
+    media.set(false);
+    expect(screen.getByRole('region', { name: 'New appointment' })).toHaveClass(styles.flow!);
+  });
+
+  it('leaves the overlay Drawer as it is, at any width', () => {
+    mockMedia(false);
+    render(<Appointment />);
+    expect(screen.getByRole('dialog', { name: 'New appointment' })).toHaveClass(styles.layered!);
   });
 });
 
@@ -396,18 +474,10 @@ describe('Drawer — stylesheet', () => {
     expect(own).toContain('flex: 0 1 auto');
   });
 
-  it('beside the content keeps its least, or the whole row where that is less, and does not squeeze under it', () => {
-    // With a least of 0 the panel gave way to a list with a least of its own,
-    // down to 160 at 320 and 215 at 375, and set its title a letter to a line.
-    const own = block(css, '\n.flow {');
-    expect(own).toContain('min-inline-size: min(var(--drawer-min, 320px), 100%)');
-    expect(own).not.toMatch(/min-inline-size:\s*0/);
-  });
-
   it('breaks the title between words, and inside one only as a last resort', () => {
-    // `anywhere` also lowers the title's least width to one letter, so a
-    // narrow header broke every word; break-word waits for a word that
-    // cannot fit on a line of its own.
+    // `anywhere` also lowers the title's least width to one letter: an inline
+    // panel narrowed to 160 set "Justin Anderson" on 14 lines. break-word
+    // waits for a word that cannot fit on a line of its own.
     const title = block(css, '.title.title {');
     expect(title).toContain('overflow-wrap: break-word');
     expect(title).not.toContain('anywhere');

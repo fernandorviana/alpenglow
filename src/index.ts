@@ -156,7 +156,7 @@ export type { FiltersProps, FilterField, FilterOption, FilterValue } from './com
 export { Progress, progressSizes, progressTones } from './components/Progress/index';
 export type { ProgressProps, ProgressSize, ProgressTone } from './components/Progress/index';
 
-export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH } from './components/Drawer/index';
+export { Drawer, drawerModes, drawerSides, drawerSizes, DRAWER_WIDTH, DRAWER_NARROW } from './components/Drawer/index';
 export type { DrawerProps, DrawerMode, DrawerSide, DrawerSize } from './components/Drawer/index';
 
 export { Pagination, pageItems, PAGE_SIZE_OPTIONS } from './components/Pagination/index';
