@@ -6,7 +6,7 @@ import { theme } from '@/tokens/theme';
 import { NAV, PAGES, neighbours } from '../contents';
 import { buildIndex, pageFile, type Loader } from './extract';
 import { tokenId } from '../slug';
-import type { Index } from './index';
+import { search, type Index } from './index';
 
 // The renderer sets the route before each page, and the page's Pager reads it
 // back through this stub. The mock hands `next/navigation` the very same
@@ -66,6 +66,22 @@ describe('buildIndex', () => {
     const home = index.entries.find((e) => e.kind === 'section' && e.href === '/#the-sections');
     expect(home?.body).toContain('Developers The package');
     expect(home?.body).not.toMatch(/DevelopersThe/);
+  });
+
+  it('keeps a word whole across a <wbr>', () => {
+    // /install offers a line break after the slash of an import with <wbr>,
+    // which splits the path into two text nodes. A space between them would
+    // index "alpenglow/ tokens.css", and the path would find nothing.
+    const holds = index.entries.find((e) => e.kind === 'section' && e.href === '/install#what-the-package-holds');
+    expect(holds?.body).toContain('alpenglow/tokens.css');
+    expect(holds?.body).toContain('alpenglow/tailwind-theme.css');
+    expect(holds?.body).not.toContain('alpenglow/ ');
+    for (const path of ['alpenglow/tokens.css', 'alpenglow/tailwind-theme.css']) {
+      expect(search(index, path).map((h) => h.entry.href), path).toContain('/install#what-the-package-holds');
+    }
+    // The names on /accessibility break after their slash the same way.
+    const labels = index.entries.find((e) => e.kind === 'section' && e.href === '/accessibility#worst-case-not-best-case');
+    expect(labels?.body).toContain('interactive/on-accent');
   });
 
   it('leaves a picture\'s text out', () => {

@@ -39,36 +39,51 @@ const MODES: Mode[] = ['light', 'dark'];
 const MODE_LABEL = { light: 'Light', dark: 'Dark' } as const;
 
 /**
+ * A token's name that may break after its slash and nowhere else:
+ * `interactive/` over `on-accent`, never `interactive/on-` over `accent`.
+ * Each part keeps to one line, and the `<wbr>` is the one place between
+ * them a line may end; the search index reads the name as one word.
+ */
+function Name({ token }: { token: string }) {
+  const cut = token.indexOf('/') + 1;
+  return (
+    <span className="tokenName wraps">
+      <span className="unbroken">{token.slice(0, cut)}</span>
+      <wbr />
+      <span className="unbroken">{token.slice(cut)}</span>
+    </span>
+  );
+}
+
+/**
  * A token's worst case in each mode. The name never leaves; the modes leave
  * by rank as the table narrows, dark first, so a phone keeps the name and its
- * light figure. A mode column holds its header, 150 with the cell's padding,
- * unless a name as long as `interactive/on-accent` (180) sits beside it: the
- * two would not fit a 320 screen's 288, so there the column takes its
- * figure's width, 104, and the header truncates.
+ * light figure. A mode column holds its header, "Light, worst case", 126
+ * and the cell's 24. Beside it a name as long as `interactive/on-accent`,
+ * 156, would not fit a 320 screen's 288, so the name breaks after its
+ * slash: `interactive/`, 89, is the widest part. The name's column is 132,
+ * not the 113 that part needs, because the columns share the width in
+ * proportion to their minimums: at 132 the name is whole again from 768.
  */
 function WorstCaseTable({
   caption,
   tokens,
   grounds,
   threshold,
-  nameWidth,
-  modeWidth = 152,
 }: {
   caption: string;
   tokens: readonly ThemeTokenName[];
   grounds: readonly ThemeTokenName[];
   threshold: number;
-  nameWidth: number;
-  modeWidth?: number;
 }) {
   const columns: Column<ThemeTokenName>[] = [
-    { key: 'token', header: 'Token', primary: true, minWidth: nameWidth, cell: (token) => <span className="tokenName">{token}</span> },
+    { key: 'token', header: 'Token', primary: true, minWidth: 132, cell: (token) => <Name token={token} /> },
     ...MODES.map(
       (mode, i): Column<ThemeTokenName> => ({
         key: mode,
         header: `${MODE_LABEL[mode]}, worst case`,
         priority: i + 1,
-        minWidth: modeWidth,
+        minWidth: 152,
         cell: (token) => {
           const low = worst(token, grounds, mode);
           return (
@@ -226,7 +241,7 @@ export default function Page() {
 
       <h3>Text</h3>
       <p>Against all four surfaces, in both themes. The threshold is 4.5:1.</p>
-      <WorstCaseTable caption="Text" tokens={BODY_TEXT} grounds={SURFACES} threshold={4.5} nameWidth={124} />
+      <WorstCaseTable caption="Text" tokens={BODY_TEXT} grounds={SURFACES} threshold={4.5} />
 
       <h3>Control borders</h3>
       <p>
@@ -240,7 +255,6 @@ export default function Page() {
         tokens={['border/strong', 'border/focus', 'border/danger'] as const}
         grounds={SURFACES}
         threshold={3}
-        nameWidth={124}
       />
 
       <h3>Button labels</h3>
@@ -254,16 +268,12 @@ export default function Page() {
         tokens={['interactive/on-accent'] as const}
         grounds={ACCENT_FILLS}
         threshold={4.5}
-        nameWidth={180}
-        modeWidth={104}
       />
       <WorstCaseTable
         caption="Button labels, on the danger fills"
         tokens={['interactive/on-danger'] as const}
         grounds={DANGER_FILLS}
         threshold={4.5}
-        nameWidth={180}
-        modeWidth={104}
       />
 
       <h2>Where the system falls short, on purpose</h2>

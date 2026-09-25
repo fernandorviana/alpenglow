@@ -24,7 +24,10 @@ const ROWS: Row[] = (Object.entries(density) as [DensityTokenName, (typeof densi
 );
 
 const COLUMNS: Column<Row>[] = [
-  { key: 'token', header: 'Token', primary: true, cell: (r) => <span className="tokenName">density/{r.name}</span> },
+  // A token's name keeps to one line (`.tokenName` in docs.css): the
+  // longest, `density/row-header`, is 134, and with the cell's 24 it fits
+  // the primary's 160, said here so the two stay together.
+  { key: 'token', header: 'Token', primary: true, minWidth: spacing[1300], cell: (r) => <span className="tokenName">density/{r.name}</span> },
   // minWidth said: at its default 96 the header "Comfortable" overflowed its
   // own end-aligned column once the Table narrowed past its Type column.
   { key: 'comfortable', header: 'Comfortable', align: 'end', minWidth: spacing[1200], cell: (r) => `${r.entry.comfortable}px` },

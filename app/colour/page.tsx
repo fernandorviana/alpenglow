@@ -162,18 +162,20 @@ const STOP_ROWS: StopRow[] = STEPS.filter((step) => step !== '925').map((step) =
 }));
 
 /**
- * The stop names the row. The tightest pair is the claim tested, so it ranks
- * next, then what the stop carries; the lightness, the same in every family,
- * leaves first. On a 320 screen the stop, the pair and the job fit.
+ * The stop names the row. Its lightness ranks next: the one figure every
+ * row has, and the claim the heading makes. Then the tightest pair, which
+ * tests what the stop carries, and what it carries leaves first — six of
+ * the eleven stops carry nothing named. On a 320 screen the stop, its
+ * lightness and its pair fit; on a 375 all four.
  */
 const STOP_COLUMNS: Column<StopRow>[] = [
   { key: 'stop', header: 'Stop', primary: true, minWidth: 60, cell: ({ step }) => <span className="tokenName">{step}</span> },
-  { key: 'l', header: 'L', priority: 3, minWidth: 64, cell: ({ step }) => <span className="alias">{lightness(p[`stone/${step}`]!).toFixed(3)}</span> },
-  { key: 'carries', header: 'Carries', priority: 2, minWidth: 112, cell: ({ guarantee }) => guarantee?.carries ?? <span className="alias">—</span> },
+  { key: 'l', header: 'L', priority: 1, minWidth: 64, cell: ({ step }) => <span className="alias">{lightness(p[`stone/${step}`]!).toFixed(3)}</span> },
+  { key: 'carries', header: 'Carries', priority: 3, minWidth: 112, cell: ({ guarantee }) => guarantee?.carries ?? <span className="alias">—</span> },
   {
     key: 'tightest',
     header: 'Tightest',
-    priority: 1,
+    priority: 2,
     minWidth: 104,
     cell: ({ step, guarantee }) => {
       const pair = guarantee && tightest(guarantee);
