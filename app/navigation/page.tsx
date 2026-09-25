@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import {
   Add,
   Calendar,
@@ -242,7 +242,7 @@ export default function Page() {
       <Sideways
         label="Try it: the top bar and the side nav"
         className="specimen"
-        style={{ padding: 0, background: 'var(--ap-color-surface-base)' }}
+        style={{ padding: 0, background: 'var(--ap-color-surface-base)', '--sideways-fade': 'var(--ap-color-surface-base)' } as CSSProperties}
       >
         <TopBar
           brand={<strong style={{ fontSize: 'var(--ap-text-body-lg-size)' }}>Alpenglow</strong>}

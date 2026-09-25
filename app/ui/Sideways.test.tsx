@@ -163,6 +163,14 @@ describe('Sideways — stylesheet', () => {
     );
   });
 
+  it('paints its fades in the colour the specimen gives it, surface/raised when it gives none', () => {
+    // A fade is the specimen's background running out; on a specimen that
+    // paints surface/base, a surface/raised fade was a pale band in light.
+    const fades = [...css.matchAll(/background: linear-gradient\(to (right|left), ([^;]*)\);/g)].filter(([rule]) => /sideways|surface-raised/.test(rule));
+    expect(fades.map(([, to]) => to).sort()).toEqual(['left', 'right']);
+    for (const [, , stops] of fades) expect(stops).toBe('var(--sideways-fade, var(--ap-color-surface-raised)), transparent');
+  });
+
   it('lays the fades over the scroller, hidden until a side has more, and never in the pointer’s way', () => {
     const fades = block(css, '.sideways::before,\n.sideways::after {');
     expect(fades).toContain('position: absolute;');

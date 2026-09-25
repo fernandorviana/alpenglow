@@ -1297,7 +1297,9 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
    bar's actions instead of losing them. The fades are the frame's, laid over
    the scroller, so they stay put while the content moves under them; each
    shows while its side has more, as the component measures. The frame clips
-   to its radius. */
+   to its radius. A fade is the specimen's background running out, so a
+   specimen that paints its own sets `--sideways-fade` to match; the default
+   is a specimen's surface/raised. */
 .sideways {
   position: relative;
   isolation: isolate;
@@ -1333,12 +1335,12 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .sideways::before {
   inset-inline-start: 0;
-  background: linear-gradient(to right, var(--ap-color-surface-raised), transparent);
+  background: linear-gradient(to right, var(--sideways-fade, var(--ap-color-surface-raised)), transparent);
 }
 
 .sideways::after {
   inset-inline-end: 0;
-  background: linear-gradient(to left, var(--ap-color-surface-raised), transparent);
+  background: linear-gradient(to left, var(--sideways-fade, var(--ap-color-surface-raised)), transparent);
 }
 
 /* Right to left the end is on the left: each fade turns about itself. */

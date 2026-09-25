@@ -19,4 +19,11 @@ describe('the Navigation page', () => {
     expect(scroller!.parentElement).toHaveClass('sideways', 'specimen');
     expect(scroller).toContainElement(screen.getByRole('navigation', { name: 'Main' }));
   });
+
+  it('fades the specimen’s sides into its own surface/base, not the raised default', () => {
+    const { container } = render(<Page />);
+    const frame = container.querySelector<HTMLElement>('.sideways')!;
+    expect(frame.style.background).toBe('var(--ap-color-surface-base)');
+    expect(frame.style.getPropertyValue('--sideways-fade')).toBe('var(--ap-color-surface-base)');
+  });
 });
