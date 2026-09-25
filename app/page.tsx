@@ -15,11 +15,17 @@ import { resolve } from '@/tokens/contrast';
 import { theme } from '@/tokens/theme';
 import { primitives } from '@/tokens/primitives';
 
-/** The section cards' pictures, keyed by the section's route. */
+/**
+ * The section cards' pictures, keyed by the section's route. The install
+ * line is the short form: a line of code never wraps, and the card is 128
+ * of text at its narrowest, three across at 40rem — `npm install
+ * alpenglow` is 140 and the stylesheet's import 200, so the well cut them.
+ * `Card.test.tsx` holds every line to that room.
+ */
 const PICTURES: Record<string, ReactNode> = {
   '/develop': (
     <pre className="miniCode">
-      <code>{'npm install alpenglow\nimport "alpenglow/styles.css";'}</code>
+      <code>npm i alpenglow</code>
     </pre>
   ),
   '/foundations': <Ramp />,

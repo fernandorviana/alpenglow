@@ -990,10 +990,12 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
    One across below two cards of 232 and their gap (30rem); two across below
    three (45.5rem), where the last of an odd count takes the row; three
-   across from there and never four, on six tracks so what the last row
-   holds shares it — two take half each, one takes it all. Three cards and
-   no more make one row of three from 40rem, each at least 202, rather than
-   two and one. The frame carries the margin: a container keeps its
+   across from there, on six tracks so what the last row holds shares it —
+   two take half each, one takes it all. Four across only where it fills
+   every row: a count of four, eight, twelve, once four cards fit (61rem) —
+   /foundations' eight, two rows of four between 1104 and 1279. Three cards
+   and no more make one row of three from 40rem, each at least 202, rather
+   than two and one. The frame carries the margin: a container keeps its
    children's margins inside it. */
 .cardsFrame {
   container-type: inline-size;
@@ -1022,6 +1024,12 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   .cards > :last-child:nth-child(3n + 2) { grid-column: span 3; }
 
   .cards > :last-child:nth-child(3n + 1) { grid-column: span 6; }
+}
+
+/* After the three-across block: its children's rules weigh the same. */
+@container (width >= 61rem) {
+  .cards:has(> :last-child:nth-child(4n)) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cards:has(> :last-child:nth-child(4n)) > * { grid-column: auto; }
 }
 
 @container (40rem <= width < 45.5rem) {
@@ -1111,7 +1119,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 }
 
 /* The pictures that are not a component: drawn from the same tokens. */
-/* Two lines of code on a card: the prose's code block, smaller, and never
+/* A line of code on a card: the prose's code block, smaller, and never
    wider than the well. */
 .miniCode {
   max-width: 100%;

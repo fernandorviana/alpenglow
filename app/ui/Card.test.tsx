@@ -154,7 +154,7 @@ describe('the card grid', () => {
     expect(block(two, '.cards > :last-child:nth-child(odd)')).toMatch(/grid-column: 1 \/ -1/);
   });
 
-  it('goes three across at three, never four, and the last row is shared by what is left', () => {
+  it('goes three across at three, and the last row is shared by what is left', () => {
     // Six tracks, two to a card: a last row of two takes three each, a last
     // card alone takes all six.
     const three = block(css, `@container (width >= ${rem(3 * CARD + 2 * GAP)})`);
@@ -163,6 +163,20 @@ describe('the card grid', () => {
     expect(block(three, '.cards > :nth-last-child(2):nth-child(3n + 1)')).toMatch(/grid-column: span 3/);
     expect(three).toMatch(/\.cards > :last-child:nth-child\(3n \+ 2\)[^{]*\{[^}]*grid-column: span 3/);
     expect(block(three, '.cards > :last-child:nth-child(3n + 1) {')).toMatch(/grid-column: span 6/);
+  });
+
+  it('keeps a count of four, eight, twelve four across once four cards of 232 fit (61rem)', () => {
+    // /foundations' eight stood as two rows of four from 1104 to 1279 under
+    // auto-fill, where the column is 976 to 1032; three across left them
+    // 3, 3, 2. Four across is kept only where it fills every row.
+    const four = block(css, `@container (width >= ${rem(4 * CARD + 3 * GAP)})`);
+    expect(block(four, '.cards:has(> :last-child:nth-child(4n)) {')).toMatch(/grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+    expect(block(four, '.cards:has(> :last-child:nth-child(4n)) > * {')).toMatch(/grid-column: auto/);
+    // After the three-across block, which its children's rule has to beat at
+    // the same weight.
+    expect(css.indexOf(`@container (width >= ${rem(4 * CARD + 3 * GAP)})`)).toBeGreaterThan(
+      css.indexOf(`@container (width >= ${rem(3 * CARD + 2 * GAP)})`),
+    );
   });
 
   it('puts three cards alone in one row of three from 40rem, rather than two and one', () => {
@@ -182,6 +196,7 @@ describe('the card grid', () => {
       let tracks = 1;
       let span = (_: number) => 1;
       if (count === 3 && width >= 640 && width < 3 * CARD + 2 * GAP) tracks = 3;
+      else if (count % 4 === 0 && width >= 4 * CARD + 3 * GAP) tracks = 4;
       else if (width >= 3 * CARD + 2 * GAP) {
         tracks = 6;
         span = (i) => (count % 3 === 1 && i === count - 1 ? 6 : count % 3 === 2 && i >= count - 2 ? 3 : 2);
@@ -207,5 +222,42 @@ describe('the card grid', () => {
         expect(used.every((u) => u === tracks), `${count} cards at ${width}: ${used.join(', ')} of ${tracks}`).toBe(true);
       }
     }
+    // /foundations at 1160, the column 1032: two rows of four, as before.
+    expect(rows(8, 1032)).toEqual({ tracks: 4, used: [4, 4] });
+    // The three-card grids and /components' 33 keep three across there.
+    expect(rows(3, 1032).tracks).toBe(6);
+    expect(rows(33, 1032).used).toHaveLength(11);
+  });
+});
+
+/**
+ * The home page's Developers card draws two lines of code, and a line never
+ * wraps — a wrapped shell line is a different command — so the well clipped
+ * `import "alpenglow/styles.css";` (200 wide) at 768, and its install line
+ * (140) where the card is narrowest. The narrowest card is three across at
+ * 40rem of grid: (640 − 2 × 16) / 3. Inside it, the card's padding, the
+ * well's, the code box's and its hairline leave 128. A line has to fit at
+ * 0.6em a character, the widest of the fallback monospace faces (SF Mono
+ * measures 6.68 at 12px; Menlo and Consolas 7.2).
+ */
+describe('the home page’s Developers picture', () => {
+  it('fits the narrowest card whole, line by line', async () => {
+    const { default: Page }: { default: ComponentType } = await import(/* @vite-ignore */ resolve('app/page.tsx'));
+    const { container } = render(<Page />);
+    const code = [...container.querySelectorAll('.card')]
+      .find((card) => card.querySelector('.cardTitle')?.textContent === 'Developers')
+      ?.querySelector('.miniCode');
+    expect(code).toBeTruthy();
+    const css = readCss('app/docs.css');
+    const pad = (selector: string) => {
+      const name = block(css, `${selector} {`).match(/padding: (?:var\(--ap-spacing-\w+\) )?var\(--ap-spacing-(\w+)\)/)?.[1];
+      return spacing[name as unknown as keyof typeof spacing];
+    };
+    expect(block(css, '.miniCode {')).toMatch(/font-size: var\(--ap-text-caption-md-size\)/);
+    const card = (640 - 2 * spacing[200]) / 3;
+    const room = card - 2 * pad('.card') - 2 * pad('.cardVisual') - 2 * pad('.miniCode') - 2 * 1;
+    expect(room).toBeCloseTo(128.67, 1);
+    const advance = 0.6 * textStyle['caption/md'].size;
+    for (const line of code!.textContent!.split('\n')) expect(line.length * advance, line).toBeLessThanOrEqual(room);
   });
 });
