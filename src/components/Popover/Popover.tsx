@@ -17,6 +17,14 @@ const AREA: Record<PopoverPlacement, string> = {
   'top-end': 'block-start span-inline-start',
 };
 
+/** The 8 kept from the screen, as `margin-inline`: on the side away from the trigger's edge the panel lines up with. */
+const EDGE: Record<PopoverPlacement, string> = {
+  'bottom-start': '0 var(--ap-spacing-100)',
+  'bottom-end': 'var(--ap-spacing-100) 0',
+  'top-start': '0 var(--ap-spacing-100)',
+  'top-end': 'var(--ap-spacing-100) 0',
+};
+
 /** Spread on the trigger, which has to be a `button`: `popovertarget` is a button's. */
 export type PopoverTriggerProps = {
   id: string;
@@ -125,6 +133,7 @@ export function Popover({
           {
             '--floating-anchor': anchor,
             '--floating-area': AREA[placement],
+            '--floating-edge': EDGE[placement],
             '--popover-width': typeof width === 'number' ? `${width}px` : width,
           } as CSSProperties
         }

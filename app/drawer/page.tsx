@@ -238,10 +238,12 @@ export default function Page() {
         <div style={{ display: 'flex', height: 420 }}>
           <ul
             aria-label="Thursday"
-            style={{ flex: '1 0 160px', minWidth: 0, margin: 0, padding: spacing[200], listStyle: 'none', display: 'grid', gap: spacing[100], alignContent: 'start', overflowY: 'auto' }}
+            style={{ flex: '1 1 160px', minWidth: 0, margin: 0, paddingBlock: spacing[200], paddingInline: 0, listStyle: 'none', display: 'grid', gap: spacing[100], alignContent: 'start', overflowY: 'auto' }}
           >
+            {/* The inline padding on the rows, not the list: a list's own padding is a least width,
+                and beside a panel that keeps 320 the list has to be able to give all of it. */}
             {DAY.map((s) => (
-              <li key={s.id}>
+              <li key={s.id} style={{ paddingInline: spacing[200] }}>
                 <Button
                   variant={slot?.id === s.id ? 'solid' : 'outline'}
                   tone="neutral"
@@ -291,7 +293,8 @@ export default function Page() {
       </div>
       <p>
         <code>mode=&quot;inline&quot;</code> is a sibling of the content and not a layer over it: the caller puts the
-        two in a flex row, the panel keeps its width and the content takes what is left. It is for content that has to
+        two in a flex row, the panel keeps its width and the content takes what is left. The panel gives way only down
+        to 320, or the whole of a row narrower than that; past there the content scrolls. It is for content that has to
         stay whole — a calendar whose last column must not be under a panel. It is part of the page, so it is a
         card&rsquo;s surface with a line where it meets the content, and no shadow. Expanded, either kind covers the
         page.

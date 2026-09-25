@@ -62,6 +62,42 @@ describe('Drawer — structure', () => {
     expect(panel).not.toHaveClass(styles.layered!);
   });
 
+  it('takes its side from the writing direction: under dir="rtl" the start is still the start', () => {
+    // The classes name the logical side, and the stylesheet places each with a
+    // logical inset, so in a right-to-left page the start panel is on the right
+    // without a class or a rule of its own.
+    const { unmount } = render(
+      <div dir="rtl">
+        <Appointment side="start" />
+      </div>,
+    );
+    const start = screen.getByRole('dialog', { name: 'New appointment' });
+    expect(start).toHaveClass(styles.layered!, styles.start!);
+    expect(start).not.toHaveClass(styles.end!);
+    unmount();
+
+    render(
+      <div dir="rtl">
+        <Appointment side="end" />
+      </div>,
+    );
+    const end = screen.getByRole('dialog', { name: 'New appointment' });
+    expect(end).toHaveClass(styles.layered!, styles.end!);
+    expect(end).not.toHaveClass(styles.start!);
+
+    expect(block(css, '.layered.start {')).toContain('inset-inline-start: 0');
+    expect(block(css, '.layered.end {')).toContain('inset-inline-end: 0');
+    expect(css).not.toMatch(/(^|[\s;{-])(left|right)\s*:/);
+  });
+
+  it('carries a least other than 320 to the stylesheet, which holds the panel to it in the flow', () => {
+    const { rerender } = render(<Appointment mode="inline" />);
+    const panel = screen.getByRole('region', { name: 'New appointment' });
+    expect(panel.style.getPropertyValue('--drawer-min')).toBe('');
+    rerender(<Appointment mode="inline" minWidth={240} />);
+    expect(panel.style.getPropertyValue('--drawer-min')).toBe('240px');
+  });
+
   it('expanded, either kind is over the page', () => {
     render(<Appointment mode="inline" expanded onExpandedChange={() => {}} />);
     const panel = screen.getByRole('dialog', { name: 'New appointment' });
@@ -358,6 +394,23 @@ describe('Drawer — stylesheet', () => {
     expect(own).toContain('--drawer-edge: var(--ap-color-border-subtle)');
     expect(own).not.toContain('box-shadow');
     expect(own).toContain('flex: 0 1 auto');
+  });
+
+  it('beside the content keeps its least, or the whole row where that is less, and does not squeeze under it', () => {
+    // With a least of 0 the panel gave way to a list with a least of its own,
+    // down to 160 at 320 and 215 at 375, and set its title a letter to a line.
+    const own = block(css, '\n.flow {');
+    expect(own).toContain('min-inline-size: min(var(--drawer-min, 320px), 100%)');
+    expect(own).not.toMatch(/min-inline-size:\s*0/);
+  });
+
+  it('breaks the title between words, and inside one only as a last resort', () => {
+    // `anywhere` also lowers the title's least width to one letter, so a
+    // narrow header broke every word; break-word waits for a word that
+    // cannot fit on a line of its own.
+    const title = block(css, '.title.title {');
+    expect(title).toContain('overflow-wrap: break-word');
+    expect(title).not.toContain('anywhere');
   });
 
   it('is square, at the drawn widths', () => {

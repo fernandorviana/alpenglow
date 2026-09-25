@@ -66,14 +66,17 @@ describe('Popover — structure', () => {
     expect(trigger().style.getPropertyValue('anchor-name') || trigger().getAttribute('style')).toContain(name);
   });
 
+  // The edge is the far side's margin, start then end: the 8 the panel keeps
+  // from the screen on the side away from the trigger's edge it aligns to.
   it.each([
-    ['bottom-start', 'block-end span-inline-end'],
-    ['bottom-end', 'block-end span-inline-start'],
-    ['top-start', 'block-start span-inline-end'],
-    ['top-end', 'block-start span-inline-start'],
-  ] as const)('places %s as %s', (placement, area) => {
+    ['bottom-start', 'block-end span-inline-end', '0 var(--ap-spacing-100)'],
+    ['bottom-end', 'block-end span-inline-start', 'var(--ap-spacing-100) 0'],
+    ['top-start', 'block-start span-inline-end', '0 var(--ap-spacing-100)'],
+    ['top-end', 'block-start span-inline-start', 'var(--ap-spacing-100) 0'],
+  ] as const)('places %s as %s, and keeps its far side off the screen’s edge', (placement, area, edge) => {
     render(<Appointment placement={placement} />);
     expect(panel().style.getPropertyValue('--floating-area')).toBe(area);
+    expect(panel().style.getPropertyValue('--floating-edge')).toBe(edge);
     expect(popoverPlacements).toContain(placement);
   });
 
@@ -212,10 +215,43 @@ describe('Popover — stylesheet', () => {
 
   it('keeps inside the screen, and scrolls its body between a header and a footer that stay', () => {
     const own = block(css, '.popover {');
-    expect(own).toContain('max-inline-size: calc(100vw');
+    expect(own).toContain('max-inline-size: calc(100vw - 2 * var(--ap-spacing-100))');
     expect(own).toMatch(/max-block-size:\s*min\(calc\(100% -/);
     expect(own).toContain('position-try-order: most-block-size');
     expect(block(css, '.body {')).toContain('overflow-y: auto');
+  });
+
+  describe('the floating surface keeps 8 from the screen’s edges', () => {
+    // At 320 and 375 the panel lay flush with the screen's edge: placed at the
+    // trigger's start, it fitted the room to the edge exactly (320: 16 + 304)
+    // or was pushed back by the platform only as far as the edge (375: 23 to
+    // 375). The margin on the far side makes "fits" mean "fits with 8 to
+    // spare"; the last fallback holds a panel that fits beside neither of the
+    // trigger's edges 8 in from the screen's end, below the trigger or else
+    // above it.
+    const floatingCss = readCss('src/components/floating.module.css');
+    const surface = block(floatingCss, '\n.floating {');
+
+    it('asks for 8 on the side away from the trigger, which a consumer that moves the area moves with it', () => {
+      expect(surface).toContain('margin-inline: var(--floating-edge, 0 var(--ap-spacing-100))');
+    });
+
+    it('tries the trigger’s other edge first, and the screen’s inline end last, below and then above', () => {
+      // Both flips together before the last resort: a panel from a trigger low
+      // at the screen's start fits above it at its other edge, and without
+      // that entry the last resort took it above but across the screen.
+      expect(surface).toContain(
+        'position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline, --floating-inside, --floating-inside flip-block',
+      );
+      const inside = block(floatingCss, '@position-try --floating-inside {');
+      expect(inside).toContain('position-area: block-end span-all');
+      expect(inside).toContain('justify-self: end');
+      expect(inside).toContain('margin-inline: 0 var(--ap-spacing-100)');
+    });
+
+    it('gives the margin back to the centred placement where anchor positioning is missing', () => {
+      expect(block(floatingCss, '@supports not (anchor-name: --a) {')).toMatch(/\bmargin: auto/);
+    });
   });
 
   it('draws the divider inset, as drawn', () => {

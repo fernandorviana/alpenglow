@@ -244,7 +244,13 @@ export function Drawer({
       aria-label={title && !header ? undefined : (ariaLabel ?? title)}
       tabIndex={-1}
       className={classes.filter(Boolean).join(' ')}
-      style={current === undefined ? undefined : ({ '--drawer-width': `${current}px` } as CSSProperties)}
+      style={
+        {
+          ...(current !== undefined && { '--drawer-width': `${current}px` }),
+          // The stylesheet's least is 320; a resize to a caller's lower one must not stop there.
+          ...(minWidth !== LEAST && { '--drawer-min': `${minWidth}px` }),
+        } as CSSProperties
+      }
       onKeyDown={(event) => {
         if (event.key !== 'Escape' || event.defaultPrevented || hasOpenPopover(event.currentTarget)) return;
         event.preventDefault();

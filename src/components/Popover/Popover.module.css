@@ -21,7 +21,10 @@
 
   inline-size: var(--popover-width, max-content);
   /* Never wider or taller than the screen it opens on, less the 8 it keeps
-     from each edge. */
+     from each edge. The cap is the width; keeping the 8 is the placement's
+     (../floating.module.css), which stands a panel that fits beside neither
+     of the trigger's edges 8 in from the screen's end — and at the screen
+     less 16, that is 8 from both. */
   max-inline-size: calc(100vw - 2 * var(--ap-spacing-100));
   /* Nor taller than the room beside its trigger: 100% is the area it is placed
      in, less the gap on each side. So it never overflows, and would never flip

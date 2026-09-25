@@ -112,15 +112,19 @@
 /* --- beside the content ----------------------------------------------------- */
 
 /* Part of the page: a card's surface, a line where it meets the content, no
-   shadow. It never grows, and gives way only when the content beside it has
-   a least width of its own and the row has no more to give. */
+   shadow. It never grows, and gives way to the content beside it only down
+   to its least — `minWidth`, 320 unless the caller says otherwise — or to the
+   whole row, where the row is narrower. Past that the content scrolls in what
+   is left, and the panel does not squeeze: with a least of 0 it gave way to a
+   list with a least of its own, down to 160 on a 320 screen, and set its
+   title a letter to a line. */
 .flow {
   --drawer-edge: var(--ap-color-border-subtle);
 
   display: flex;
   flex: 0 1 auto;
   align-self: stretch;
-  min-inline-size: 0;
+  min-inline-size: min(var(--drawer-min, 320px), 100%);
   min-block-size: 0;
   max-inline-size: 100%;
   background: var(--ap-color-surface-raised);
@@ -154,7 +158,10 @@
 }
 
 /* Doubled, so a page's `h2` does not give it a margin or a size. Primary where
-   the drawing has secondary, as the Dialog's title is. */
+   the drawing has secondary, as the Dialog's title is. Between words, and
+   inside one only when it cannot fit a line of its own — an email, say:
+   `anywhere` also brings the title's least width down to a letter, and a
+   narrow header broke every word. */
 .title.title {
   flex: 1;
   min-width: 0;
@@ -164,7 +171,7 @@
   line-height: var(--ap-text-subheading-md-line-height);
   letter-spacing: var(--ap-text-subheading-md-tracking);
   font-weight: var(--ap-font-weight-semibold);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .headerActions {

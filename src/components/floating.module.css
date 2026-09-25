@@ -10,7 +10,8 @@
  * nothing here is a property a consumer also sets. What a consumer may change
  * travels as a custom property with a default.
  *
- * Consumers: DropdownMenu, DatePicker, the Pagination's page size, Popover.
+ * Consumers: DropdownMenu, DatePicker, Select, Combobox, the Pagination's
+ * page size, Popover.
  * Not the Tooltip: its edge is `border/subtle` in both modes and without
  * anchor positioning it is not shown at all, where these centre themselves.
  */
@@ -37,12 +38,42 @@
 
   position-anchor: var(--floating-anchor);
   position-area: var(--floating-area, block-end span-inline-end);
-  position-try-fallbacks: flip-block, flip-inline;
+  /* The 8 it keeps from the screen, on the side away from the trigger's edge
+     it lines up with: the inline end, for the default area. A consumer that
+     moves the area to the trigger's other edge moves this with it. At the
+     trigger it moves nothing; it makes "fits" mean "fits with 8 to spare", so
+     a panel that would reach the screen's edge tries the trigger's other
+     edge, then both flips at once — a trigger low at the screen's start opens
+     above it and still at its edge — and then --floating-inside below. */
+  margin-inline: var(--floating-edge, 0 var(--ap-spacing-100));
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline, --floating-inside, --floating-inside flip-block;
   /* Hide rather than float loose when the anchor scrolls out of view. */
   position-visibility: anchors-visible;
   /* On both sides, so the gap is there whichever way the panel is placed or
      flipped; the far one only takes 4 from the room it has. */
   margin-block: var(--floating-gap, var(--ap-spacing-050));
+}
+
+/**
+ * The last resort, for a panel that fits beside neither of its trigger's
+ * edges: a phone, mostly. It stands 8 in from the screen's inline end, where
+ * the platform pushed it back only as far as the edge itself — at 320 a
+ * Popover from a trigger at 16 lay at 16–320, at 375 one lay at 23–375. The
+ * start's margin is 0, so a panel up to the screen less 8 still takes it; the
+ * Popover's cap of the screen less 16 leaves it 8 from both edges.
+ *
+ * Twice, below and then above: when nothing fits, the platform takes the
+ * first placement, and a panel from a trigger low on the screen squeezed
+ * into the room below it — the Messages Popover, from a trigger 40 above the
+ * foot of a 375 screen, was 44 tall.
+ *
+ * Turbopack's CSS parser does not know @position-try yet: `next build` warns
+ * "Unknown at rule" and keeps the rule as written, which is what Chrome reads.
+ */
+@position-try --floating-inside {
+  position-area: block-end span-all;
+  justify-self: end;
+  margin-inline: 0 var(--ap-spacing-100);
 }
 
 /**
