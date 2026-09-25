@@ -43,7 +43,9 @@ const clientOf = (button: HTMLElement) => button.textContent!;
 /** The selection bar: a group named by its count. Its Confirm and Cancel share their names with every row's. */
 const bar = () => screen.getByRole('group', { name: /selected/ });
 
-describe('the dense screen', () => {
+// The whole screen mounted, and axe over all of it: ~1.3s a test here, 4–6s on
+// the CI runner, past the 5s default. The limit is raised for this block only.
+describe('the dense screen', { timeout: 20_000 }, () => {
   it('opens on Thursday 17 September with the day and the table side by side', async () => {
     render(<Screen />);
     expect(screen.getByRole('heading', { name: /Thursday 17 September/ })).toBeInTheDocument();
