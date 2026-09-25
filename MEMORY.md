@@ -573,21 +573,34 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2224 tests across 93 files
+npm test            # 2486 tests across 112 files (fidelity-part-1, 2026-09-25)
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
 npm run check:package   # publint, attw, and what the build must never lose
+npm run audit:responsive  # the built site (out/), every route at 320, 375, 768, 1024, 1440; dark at 375 and 1440
+npm run audit:css-order -- --a <dev url> --b <built url>  # element boxes, dev against the build
 ```
+
+**Done means seen in the production build** (the fidelity audit's rule,
+2026-09-24, open work item -7): at 320, 375, 768, 1024 and 1440, light and
+dark, with `npm run audit:responsive` on `out/` after `npm run build:docs`
+and exit 0 — no route scrolling sideways. The script takes dark at 375 and
+1440 only; dark at the other widths is by eye. `next dev` loads CSS in
+import order and the build in chunk order, and the two disagreed on the
+Slider and the Switch's description: a check in dev at desktop width is
+not a check. Both scripts drive a headless Chrome over CDP and write to
+`.audit/` (git-ignored). `npm run check` does not build the docs.
 
 CI (`.github/workflows/ci.yml`) runs typecheck, lint and tests, regenerates the
 stylesheets and fails on a diff, then builds the docs. A stale generated
 stylesheet is a silent failure — that gate is the reason it exists.
 
-The contrast suite (`src/tokens/contrast.test.ts`, 219 cases) derives its
-assertions from the theme keys rather than listing pairs, so a new token is
-covered the moment it exists. It caught five real defects on its first run,
-including a divider that resolved to the same colour as the surface beneath it.
+The contrast suite (`src/tokens/contrast.test.ts`, 257 cases on 2026-09-25)
+derives its assertions from the theme keys rather than listing pairs, so a
+new token is covered the moment it exists. It caught five real defects on
+its first run, including a divider that resolved to the same colour as the
+surface beneath it.
 
 ---
 
@@ -605,6 +618,100 @@ including a divider that resolved to the same colour as the surface beneath it.
 
 ## Open work
 
+### -7. The fidelity audit: the drawing is the default (2026-09-24)
+
+On 2026-09-24 Fernando found the system in many places nothing like what
+was drawn, and its responsive behaviour bad in many cases. The audit that
+followed read the Alpenglow file and, for the calendar, the product file
+against the production build at 320, 375, 768, 1024 and 1440, light and
+dark: spec `docs/superpowers/specs/2026-09-24-fidelity-audit.md` — the
+method, why it drifted (six causes), and about 150 findings, each marked
+**fix** (a bug), **drawing** (an unrecorded departure; the drawing wins),
+**decide** (a departure an agent recorded; Fernando rules) or **owner**
+(recorded as his). Part 1, the fixes, is branch `fidelity-part-1` (plan
+`docs/superpowers/plans/2026-09-24-fidelity-part-1.md`), not yet on main;
+its last task runs the whole built site at the five widths and the CSS
+order against dev. Part 2, the drawing's rows, and the decide rows wait on
+Fernando.
+
+**The rule, from 2026-09-24:**
+
+- The drawing is the default. A departure is a proposal to Fernando, named
+  as one, with the drawn value beside it, and it lands only with his yes,
+  recorded in his words with the date.
+- "Not drawn" is written only after searching both Figma files.
+- Done means seen in the production build at 320, 375, 768, 1024 and 1440,
+  light and dark (`npm run audit:responsive`; Verification, above).
+- A global rule in `app/docs.css` never outranks a component's. Every
+  `.prose` rule is `:where(.prose) :where(…)` and weighs nothing
+  (`app/ui/ProseScope.test.tsx`).
+
+**The owner's rule, 2026-09-25**, in his words: "Em telemóveis não há
+drawer ao lado do conteúdo. O conteúdo é o que aparece e abrir drawers ou
+navegação é com overlays." (On phones there is no drawer beside the
+content. The content is what shows, and drawers and navigation open as
+overlays.) Below `md` an inline Drawer opens as the overlay one
+(`DRAWER_NARROW`, `media.down.md`), the SideNav is a sheet, and /scheduler's
+side column is an overlay Drawer.
+
+**Settled:** the drawn inputs have **no border at rest**, a hairline only
+on hover and on focus (`701:12644`, `701:12617`). The code's transparent
+resting border is the drawing; the 2026-09-07 `border/default` note is not
+(item -1 and the Blocked pair, below, corrected). The hover hairline is not
+built.
+
+**Records corrected** — each claim about the drawing or about a check
+marked "corrected 2026-09-24, fidelity audit" where it stood: the Toast is
+drawn, tone-filled notifications with a close (`1219:21015`,
+`1219:20982`), and Fernando's inverse-surface ruling, taken on "not
+drawn", is **reopened, pending his ruling** — the component is unchanged;
+phone and tablet top bars (`116:9367`, `120:9434`, `2787:6033`) and a
+phone bottom bar (`638:10984`) are drawn; the SideNav item is drawn 48
+(`160:9623`), built 40; the Table's cells are not the drawn type (primary
+`body/lg` Medium drawn, `body/md` regular built); a week with several
+people (`4914:35448`) and a phone agenda list (`19848:139575`) are drawn;
+the Loader is one arc since 46bb6ab where two are drawn; the Select is
+drawn 48 at md; the Slider overflowed at every width in the production
+build, and the Pagination footer at 320 pushed the page 16px sideways; the
+Scheduler's quarter-hour card is built 20 and drawn 24 (`4914:36173`); the
+FileUpload card is a full-width row where a 208 × 64 tile is drawn.
+Brought up to date as well: the /input lede, "breakpoints are not tokens
+yet" on /navigation and /screen, /accessibility's "four pairs below 4.5:1"
+(two; the placeholder and the pressed green clear AA), the stale
+`.prose`-outranks comments in five component files, and counts that
+disagreed between pages: primitives 134 everywhere (opaque and alpha),
+spacing 22 (with `0`), and the home card's "thirty-three components"
+against the 48 /components derives from the package — the card no longer
+states a number.
+
+**Waiting on Fernando** — taken on `fidelity-part-1` where nothing is
+drawn or the drawing left a choice; proposals, not settled:
+
+- In dark, the theme toggle's track and inline code on `surface/overlay`.
+  Neither has a dark drawing.
+- In dark, the SegmentedControl thumb's `border/strong` hairline
+  (`border/default` measured 2.975 against the thumb). It reaches the Tabs'
+  segmented variant too. No dark drawing.
+- /scheduler on a phone: the side column (mini-calendar, people, filters)
+  as an overlay Drawer from a toolbar button; a new or pressed event opens
+  it with the focus on the event; from `md` to where the week and the
+  column fit side by side, the column goes under the grid.
+- The dense demo's bulk bar: the drawn "Show only selected" Switch stays in
+  the bar while it fits and gathers into "⋯" as a checkbox row when it does
+  not; under 25rem of Table, Clear is a ✕ named by its Tooltip; /screen's
+  Confirm and Cancel are icon buttons.
+- The home Developers card shows only `npm i alpenglow`: the stylesheet's
+  import line no longer fit a card at 768.
+- The inline Drawer's line is `md`, the SideNav's, not `sm`: the owner's
+  words set the behaviour, not the width.
+- The collapsed SideNav item is a circle at `density/nav-item` (40), not the
+  drawn 48, until the token moves.
+- The Scheduler's quarter-hour floor, 20 built against 24 drawn; and
+  `scrollToDay` off by default, so a 0.5.0 consumer sees no change.
+- An overlay Drawer is not modal: at 320, where it covers the screen, Tab
+  and a screen reader still reach the page under it. To raise with the
+  phones rule.
+
 ### -6. The roadmap to a more complete system (2026-09-18)
 
 Decided with Fernando after the two site surveys: Alpenglow is for
@@ -614,7 +721,10 @@ replaces the earlier priority of six to eight components over broad
 coverage; the bar per component does not drop. No embedded Storybook:
 interactive pieces are built from the system's own components. The roadmap
 is `docs/superpowers/specs/2026-09-18-completeness-roadmap.md`: a "done"
-list of nine steps every component meets; one dense screen built only from
+list of nine steps every component meets (steps 2 and 8 amended 2026-09-24
+by the fidelity audit's rule, item -7: the drawing is the default, and
+"checked" means the production build at five widths in both modes); one
+dense screen built only from
 Alpenglow as the instrument that reorders the list; three waves —
 **wave 1 (`0.3.0`, with the first `CHANGELOG.md`)** Tabs, Tooltip, Toast,
 Alert, Card, Pagination, Link; **wave 2 (`0.4.0`)** Popover (extracted from
@@ -755,12 +865,16 @@ Claimed components (add a line before starting; one per session and branch):
   counts confirmed only** (26 booked · 6 pending · 2 cancelled, ruling
   R8), so the three badges are disjoint — Fernando to choose. Found by
   the screen and **not fixed in the package** (listed under the frame,
-  open): the
+  open): ~~the
   Scheduler's column heads misalign with long names (the screen uses first
-  names); ~~the Table always collapses under a 40rem container (a meta
+  names)~~ (closed 2026-09-25 on `fidelity-part-1`: head and body are sized
+  from the same properties; the screen keeps first names, since four of
+  five full names would end in an ellipsis); ~~the Table always collapses
+  under a 40rem container (a meta
   line in the collapsed list), and a collapsed row stays 77 tall in both
   densities~~ (closed 2026-09-24: columns leave by rank); the TopBar has
-  no phone layout; a compact 30-minute card clips its time line; ~~the
+  no phone layout, though phone and tablet top bars are drawn (`116:9367`,
+  `120:9434`, `2787:6033`); a compact 30-minute card clips its time line; ~~the
   Button has no square icon-only shape~~ (closed 2026-09-24: `icon`); ~~the
   bulk bar wraps in a narrow Table~~ (closed 2026-09-25: one row, a list of
   actions gathers into "⋯" by its slot's width, Clear a ✕ under 25rem; the
@@ -918,7 +1032,9 @@ Claimed components (add a line before starting; one per session and branch):
   the page failed to hydrate until `time.ts` composed ranges from parts
   with plain spaces; an hour label 80 tall with `translateY(-50%)` sat 40
   up, so it is lifted by half a line; the card floor is a quarter of the
-  hour (20), since the drawn 24 in 81 overlaps the next quarter; the search
+  hour (20), since the drawn 24 in 81 overlaps the next quarter — drawn 24
+  (the product file, `4914:36173`), built 20, Fernando's to rule (the spec
+  and the page said 24 until 2026-09-24); the search
   index's per-page cap went 25 → 32 KB for the Colour page at 82 tokens.
   Review fixed all-day past, the floor, the All-day lists' names,
   `renderEvent` documented as seen not read, `startOfWeek` shared; the
@@ -990,7 +1106,11 @@ Claimed components (add a line before starting; one per session and branch):
   the range. Seen in Chromium: fill, thumb centre and balloon at one x;
   both thumbs of a range dragged, a press on the line, 101 refused, arrows
   with the field following, the ring on the thumb, light and dark, no
-  overflow at 375. Two contrast cases (221). `/slider` page with every
+  overflow at 375 — not in the production build, where the track was 0 and
+  the field 802 wide at every width and the page scrolled sideways, the
+  shared `.control { width: 100% }` winning on chunk order (corrected
+  2026-09-24, fidelity audit; fixed on `fidelity-part-1`, 89b3d8c). Two
+  contrast cases (221). `/slider` page with every
   drawn usage and "Best practice, and the alternatives"; nav entry
   (thirty); section card. Not built, recorded: the tag-like balloon; a
   decimal comma in the field; balloons overlap when values meet. Not
@@ -1030,8 +1150,10 @@ Claimed components (add a line before starting; one per session and branch):
 - **SideNav, SideNavSecondary and TopBar** — built 2026-09-22, on main, released in 0.5.0;
   first of wave 3. Spec `docs/superpowers/specs/2026-09-22-navigation-design.md`,
   plan `docs/superpowers/plans/2026-09-22-navigation.md`. **Drawn**: the Side
-  Navigation set (200 open, 80 closed with icons, items 40 in a capsule, the
-  current one on `surface/base` in `text/accent`, Settings at the foot), the
+  Navigation set (200 open, 80 closed with icons, items 48 in a capsule
+  at `160:9623` — this said 40, corrected 2026-09-24, fidelity audit; built
+  40, `density/nav-item` — the current one on `surface/base` in
+  `text/accent`, Settings at the foot), the
   Second Level Navigation set (240 open, 24 closed as a strip with the
   collapse button, sections under caption/sm captions with a chevron, items
   40 at radius md, the current one on `surface/raised`), and the Top Bar (64
@@ -1050,8 +1172,11 @@ Claimed components (add a line before starting; one per session and branch):
   each section reads its default once, with a test; sections keyed by index
   and caption; a press on a link in the drawer does not close it, the caller
   closes on navigation, said in the type and on the page; no phone version
-  of the top bar's actions or the second level is drawn or built, the page
-  says what a caller does. Seen in Chromium: 80 and 24 collapsed, the drawer
+  of the top bar's actions or the second level is built, the page says what
+  a caller does. This said none was drawn: phone and tablet top bars are
+  (`116:9367`, `120:9434`, `2787:6033`), and a phone bottom bar
+  (`638:10984`) (corrected 2026-09-24, fidelity audit). Seen in Chromium:
+  80 and 24 collapsed, the drawer
   with its scrim over the page, light and dark, a phone width. Two contrast
   cases. `/navigation` page with the composed shell and controls; nav entry;
   section card; `useMediaQuery` hook (`src/components/useMediaQuery.ts`,
@@ -1589,7 +1714,12 @@ Claimed components (add a line before starting; one per session and branch):
   draw.
 - **Toast** — built 2026-09-20, on main, in 0.4.0. Spec
   `docs/superpowers/specs/2026-09-20-toast-design.md`, plan
-  `docs/superpowers/plans/2026-09-20-toast.md`. **It is not drawn.** The
+  `docs/superpowers/plans/2026-09-20-toast.md`. **It is drawn**: tone-filled
+  notifications with a close (`1219:21015`, `1219:20982`). This entry said
+  "It is not drawn" (corrected 2026-09-24, fidelity audit), and Fernando's
+  decisions below were taken on that premise, so they are **reopened,
+  pending his ruling**; the component stands as built until he rules. What
+  the 2026-09-20 searches found: the
   published `Notification status` set on the Figma file's *Notifications*
   page is the inline **Alert** (880 by 56, a tinted status surface with a
   border of its tone; Info, Danger, Success, Alert; close, no button, one
@@ -1864,9 +1994,13 @@ Open, each recorded on its page rather than resolved:
 - **The text field at 14px on iOS.** iOS Safari zooms into a field under
   16px. Two fixes, sixteen on a phone or fourteen held by a transform, and
   each looks different (Input, Typography).
-- **The text field's resting border.** The 2026-09-07 decision kept a
+- ~~**The text field's resting border.** The 2026-09-07 decision kept a
   `border/default` hairline; the code draws none. Both versions are on
-  Decisions and Input; neither has been chosen.
+  Decisions and Input; neither has been chosen.~~ Settled 2026-09-24 by the
+  fidelity audit: the drawn inputs have **no border at rest**, a hairline
+  only on hover and on focus (`701:12644`, `701:12617`). The code draws
+  none at rest, as drawn; the 2026-09-07 note described neither. The hover
+  hairline is not built (the audit's "decide").
 - **The menu's radii are not concentric.** `xl` outside, `lg` rows at 8
   padding; concentric wants 16 outside. Drawn numbers, recorded on Space
   and shape and Dropdown menu.
@@ -2135,7 +2269,11 @@ These two are deliberately parked and depend on each other.
 
 **The input's resting-state boundary.** The field has no border at rest; its
 fill is 1.07:1 against a card and identical to the canvas. The decision was
-to leave it and revisit.
+to leave it and revisit. Settled on the drawing's side 2026-09-24 (fidelity
+audit): the drawn inputs have no border at rest, a hairline only on hover
+and on focus (`701:12644`, `701:12617`), so the code matches the drawing and
+the 2026-09-07 `border/default` note does not. What stays open is WCAG
+1.4.11 against a drawing that has no resting border.
 
 **The state colours were one step off the Figma file** — the error and
 success border and fill were drawn lighter than measurement allowed, below

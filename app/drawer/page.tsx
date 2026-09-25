@@ -111,7 +111,11 @@ const MEASURES: Measure[] = [
 type PropRow = { prop: string; type: string; default: string };
 const PROPS: PropRow[] = [
   { prop: 'open, onClose', type: 'boolean, () => void', default: 'required' },
-  { prop: 'mode', type: "'overlay' | 'inline'", default: "'overlay'" },
+  {
+    prop: 'mode',
+    type: `'overlay' | 'inline'; below ${breakpoint.md} (DRAWER_NARROW, exported) inline opens over the content as overlay does`,
+    default: "'overlay'",
+  },
   { prop: 'side', type: "'end' | 'start'", default: "'end'" },
   { prop: 'size', type: "'md' | 'lg'", default: "'md'" },
   { prop: 'title', type: 'string', default: '—' },

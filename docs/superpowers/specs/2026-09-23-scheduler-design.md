@@ -43,8 +43,9 @@ and availability, as a second spec once this one is on main.
    `date`, `weekStartsOn` and `days` (7 as drawn; 5 in the drawing with
    several people). `view="day"` draws the one day, or with `resources` one
    column per person, headed by the avatar and the name. A week with
-   several people is not drawn and is not built; `resources` is ignored in
-   week view and the type says so.
+   several people is drawn (`4914:35448`, listed above) and is not built;
+   `resources` is ignored in week view and the type says so. This said
+   "is not drawn" (corrected 2026-09-24, fidelity audit).
 3. **No `Date` leaves the component, as in the Calendar.** An event's
    `start` and `end` are wall-clock strings, `'2023-04-20T11:00'`, an
    `ISODateTime`; `time.ts` splits one into the Calendar's `ISODate` and
@@ -107,7 +108,12 @@ and availability, as a second spec once this one is on main.
 10. **Sizes by duration, as drawn.** Under 30 minutes the card is one line,
     the title only; from 30 the time under it; from 60 the icon circle. The
     floor is 24, the drawn quarter-hour card, so a five-minute event is
-    still a target.
+    still a target. *Corrected 2026-09-24 (fidelity audit):* the review of
+    2026-09-23 moved the built floor to 20, a quarter of the 80 hour
+    (`--scheduler-event-min`, `spacing/250`), because 24 laid each
+    quarter-hour card over the next by 4; this decision was not updated.
+    Drawn 24 (the product file, `4914:36173`), built 20: which one stands is
+    Fernando's to rule.
 11. **Colours.** The fill and the ring of today's number are
     `interactive/accent`; the now line is `border/danger`, the drawn coral
     as the theme's ember, with its time in `text/danger`; the hours and the

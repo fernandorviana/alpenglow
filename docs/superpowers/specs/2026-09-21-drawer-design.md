@@ -39,6 +39,14 @@ the Accordion, the next piece of the roadmap.
    changes.
 4. **Two kinds.** `overlay` grows over the content. `inline` is a sibling of
    the content, which makes room for it — the calendar. One component, `mode`.
+   *Amended 2026-09-25:* from `md` up. Below `md` an inline Drawer opens over
+   the content as `overlay` does, by the owner's rule of that day — "Em
+   telemóveis não há drawer ao lado do conteúdo. O conteúdo é o que aparece e
+   abrir drawers ou navegação é com overlays." (on phones there is no drawer
+   beside the content; the content is what shows, and drawers and navigation
+   open as overlays). The line is `DRAWER_NARROW`, `media.down.md`, exported
+   from the root (5d00a74). His words set the behaviour; the line is the
+   agent's, chosen to match the SideNav's sheet, and waits on his yes.
 5. **Resizable, both kinds**, off unless asked for.
 
 ## Shape
@@ -48,9 +56,11 @@ One element, `role="dialog"` and never `aria-modal`, rendered only while `open`.
 - **overlay**, and either kind while expanded: `popover="manual"`, shown once
   mounted. The top layer without a z-index, no light dismiss, no inert page.
   Fixed to the side, `100dvh` tall.
-- **inline**: no `popover`; in the flow, `role="region"`. The caller puts it
-  beside the content in a flex row; it stretches to the row's height, and its
-  body scrolls.
+- **inline**, from `md` up: no `popover`; in the flow, `role="region"`. The
+  caller puts it beside the content in a flex row; it stretches to the row's
+  height, and its body scrolls. Below `md` (`DRAWER_NARROW`) it is the
+  overlay above, `popover="manual"` and `role="dialog"` — amended 2026-09-25,
+  decision 4.
 
 `display` is set under `:popover-open` and on the in-flow class only, never on
 a class that can stand on a closed `[popover]`.

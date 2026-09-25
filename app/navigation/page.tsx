@@ -323,13 +323,14 @@ export default function Page() {
         the platform&rsquo;s, as the Dialog&rsquo;s. <code>onClose</code> is called and the caller sets{' '}
         <code>open</code> to false. In the drawer the labels are always shown, whatever <code>collapsed</code> says.
         A press on a link does not close it: the caller closes on navigation, as its router tells it, which is
-        what this page does. Breakpoints are not tokens yet, which is why the query is a prop.
+        what this page does. The query is a prop so a product can move the line; its default is the
+        breakpoint scale&rsquo;s <code>md</code>.
       </p>
       <p>
-        The drawing has no phone version of the top bar&rsquo;s actions or of the second level, and neither
-        component takes one on: on a narrow screen the caller keeps the actions that fit, an overflow menu for
-        the rest, and collapses or leaves out the second level, whose pages are then reached from the page
-        itself.
+        Phone and tablet top bars are drawn, and a phone bottom bar, and the package has built none of them yet
+        (this paragraph said the drawing had no phone version; corrected 2026-09-24, fidelity audit). Until it
+        does, on a narrow screen the caller keeps the actions that fit, an overflow menu for the rest, and
+        collapses or leaves out the second level, whose pages are then reached from the page itself.
       </p>
 
       <h2>Where it departs from the drawing</h2>

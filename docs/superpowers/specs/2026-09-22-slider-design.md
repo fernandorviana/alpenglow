@@ -154,3 +154,10 @@ selectors, reduced motion; axe. Contrast cases as above.
 
 CHANGELOG under Unreleased; README's count; MEMORY.md's claim; the plan;
 nav entry (thirty); section card.
+
+*Corrected 2026-09-24 (fidelity audit):* MEMORY.md recorded the Slider as
+"seen in Chromium … no overflow at 375". The production build did not bear
+it out: the track was 0 wide and the field 802 at every width, and the page
+scrolled sideways, because `control.module.css`'s `.control { width: 100% }`
+beat `.field` on the build's chunk order. The field's width is a custom
+property the shared rule reads since 89b3d8c (branch `fidelity-part-1`).

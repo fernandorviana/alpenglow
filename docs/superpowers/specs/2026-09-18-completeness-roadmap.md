@@ -44,7 +44,11 @@ sessions hold the same line.
 2. Drawn in the Alpenglow Figma file, or the deviation recorded. **Which of
    the components below are already drawn is not known from the
    repository** — the file key is private and Fernando pastes it when a
-   session needs it. First step of each spec: look.
+   session needs it. First step of each spec: look. *Amended 2026-09-24
+   (fidelity audit):* the drawing is the default; a departure is a proposal
+   to Fernando with the drawn value beside it, and lands only with his yes,
+   recorded in his words with the date. "Not drawn" is written only after
+   searching both Figma files.
 3. Native element or platform feature first (`<dialog>`, `popover`, CSS
    anchor positioning, `<details>`, `<progress>`, `<input type=range>`);
    a hand-built widget only with the reason recorded.
@@ -59,6 +63,9 @@ sessions hold the same line.
    accessibility, props), its entry in `contents.ts`, a Props table so the
    search indexes it.
 8. Checked in a real browser, both modes, 800 and 320, focus ring by eye.
+   *Amended 2026-09-24 (fidelity audit):* seen in the production build at
+   320, 375, 768, 1024 and 1440, light and dark (`npm run
+   audit:responsive`), not in `next dev`, whose CSS order differs.
 9. `MEMORY.md`, the README's counts, and the changelog entry.
 
 ## The instrument: one dense screen

@@ -130,14 +130,17 @@ export default function Page() {
 
       <h3>Found, and not fixed in the package</h3>
       <ul>
-        <li>The Scheduler&rsquo;s column heads misalign with long names; the screen uses first names.</li>
-        <li>The TopBar has no phone layout.</li>
+        <li>The TopBar has no phone layout, though phone and tablet top bars are drawn.</li>
         <li>In compact, a 30-minute card clips its time line.</li>
-        <li>The bulk bar wraps in a narrow Table.</li>
         <li>Below 1280 the SideNav animates from 200 to 80 on load.</li>
         <li>At desktop the first paint is the Tabs layout until hydration: <code>useMediaQuery</code>&rsquo;s server snapshot.</li>
-        <li>The SideNav&rsquo;s narrow query and the screen&rsquo;s own breakpoints are literals, waiting on breakpoints as tokens.</li>
       </ul>
+      <p>
+        Fixed since: the Scheduler&rsquo;s column heads stand over their columns whatever the names&rsquo; length
+        (2026-09-25; the screen keeps first names, since four of five full names would end in an ellipsis); the bulk
+        bar keeps to one row in a narrow Table (2026-09-25); the SideNav&rsquo;s narrow query and the screen&rsquo;s
+        own breakpoints are on the breakpoint scale (2026-09-24).
+      </p>
 
       <h2>Composition</h2>
       <div className="specimen">

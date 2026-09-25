@@ -128,8 +128,8 @@ export default function Page() {
     >
       <h1>Density</h1>
       <p className="lead">
-        How much room a row, a control and an hour take. Comfortable is what is drawn; compact
-        is chosen on any element.
+        How much room a row, a control and an hour take: comfortable by default, compact
+        chosen on any element.
       </p>
 
       <h2>The tokens</h2>
@@ -139,6 +139,13 @@ export default function Page() {
         <code>:root</code> — the custom properties inherit, so a part of a page can be compact
         while the rest stays comfortable. A region inside a compact one returns to comfortable
         with <code>data-density=&quot;comfortable&quot;</code>.
+      </p>
+      <p>
+        Comfortable is what is drawn for the row, its header, the hour and the button. The
+        drawn field is 48 at its default size and the drawn navigation item 48, where{' '}
+        <code>density/control</code> and <code>density/nav-item</code> give 40: this page said
+        comfortable was what is drawn (corrected 2026-09-24, fidelity audit), and which height
+        stands is still to be decided.
       </p>
       <div className="specimen">
         <Table

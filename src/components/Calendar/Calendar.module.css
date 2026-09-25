@@ -48,9 +48,10 @@
   height: 40px;
 }
 
-/* Two classes, not one: a page that styles every h2 through a class and an
-   element (the docs' `.prose h2`) would otherwise outrank this and set the
-   month in its own heading size and margins. */
+/* Two classes, not one: a consumer's page that styles every h2 through a
+   class and an element (a `.prose h2`) would otherwise outrank this and set
+   the month in its own heading size and margins. The docs site's own prose
+   rules no longer do: since 2026-09-24 they are `:where()` and weigh nothing. */
 .header .heading {
   flex: 1;
   display: flex;

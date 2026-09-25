@@ -84,9 +84,11 @@ describe('DropdownMenu', () => {
 
   describe('the stylesheet', () => {
     it('keeps a group label flush where a page styles every paragraph', () => {
-      // A docs page's `.prose p` (a class and an element) outranks a lone
-      // `.groupLabel` class, and gave the label a 16px bottom margin inside
-      // the menu. Two classes win on specificity alone.
+      // A page's `.prose p` (a class and an element) outranks a lone
+      // `.groupLabel` class: the docs' own once gave the label a 16px bottom
+      // margin inside the menu. The docs' prose rules weigh nothing since
+      // 2026-09-24, so this guards a consumer's page. Two classes win on
+      // specificity alone.
       expect(css).toMatch(/\.menu\s+\.groupLabel\s*\{[^}]*margin:\s*0;/);
     });
 

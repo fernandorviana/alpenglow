@@ -33,6 +33,13 @@ describe('the package root', () => {
     expect(root.layoutModes).toContain(mode);
   });
 
+  it('exports DRAWER_NARROW, the query below which an inline Drawer opens over the content', () => {
+    // On a phone there is no drawer beside the content (the owner's rule of
+    // 2026-09-25): a caller laying out an inline Drawer's row reads the same
+    // line the Drawer does, the SideNav's md.
+    expect(root.DRAWER_NARROW).toBe(media.down.md);
+  });
+
   it('exports the Table\'s thresholds for a caller who wants the numbers', () => {
     expect(root.columnThresholds).toBeTypeOf('function');
   });

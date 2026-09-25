@@ -98,7 +98,7 @@ export default function Page() {
       </div>
 
       <h2>Checkboxes take the strong border; text fields have none at rest</h2>
-      <Decided on="2026-09-07, and the code has since moved" />
+      <Decided on="2026-09-07; the text field corrected 2026-09-24 from the drawing" />
       <p>
         <code>border/strong</code> is the same primitive in both modes, which is unusual.
         It is the only value in the ramp clearing 3:1 against all four surfaces in light{' '}
@@ -107,13 +107,14 @@ export default function Page() {
         both directions.
       </p>
       <p>
-        The text field is the exception, and it has two records. The decision of 2026-09-07
-        kept a hairline in <code>border/default</code> at rest, 1.40:1 in light and 1.53:1 in
-        dark, failing 1.4.11 to preserve the drawn look. The code today draws no resting border
-        at all — the boundary is the fill, {f2(contrast(resolve('interactive/neutral', 'light'), resolve('surface/raised', 'light')))}:1
-        against a card in light — and the <a href="/input">Input</a> page records that as a
-        known gap. The two have not been reconciled, and this entry says so rather than
-        picking one quietly.
+        The text field is the exception. The decision of 2026-09-07 kept a hairline in{' '}
+        <code>border/default</code> at rest, 1.40:1 in light and 1.53:1 in dark, failing 1.4.11
+        to preserve the drawn look, and this entry called it unreconciled with the code, which
+        draws no resting border. The drawn field has no border at rest, and a hairline on hover
+        and on focus, so at rest the code is the drawn look and the 2026-09-07 note described
+        neither (corrected 2026-09-24, fidelity audit). At rest the boundary is the fill,{' '}
+        {f2(contrast(resolve('interactive/neutral', 'light'), resolve('surface/raised', 'light')))}:1 against a card
+        in light, and the <a href="/input">Input</a> page records that as a known gap.
       </p>
 
       <h2>The dark ramp holds three elevation levels, and sunken shares the canvas</h2>

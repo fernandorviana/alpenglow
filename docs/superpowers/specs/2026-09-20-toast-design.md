@@ -3,8 +3,14 @@
 The third component of wave 1 of the completeness roadmap
 (`2026-09-18-completeness-roadmap.md`).
 
-**It is not drawn.** Five searches of the published library on 2026-09-20
-found no toast or snackbar. The nearest thing, the `Notification status`
+**It is drawn** (corrected 2026-09-24, fidelity audit). This spec said "It is
+not drawn": five searches of the published library on 2026-09-20 found no
+toast or snackbar. The drawing has tone-filled notifications with a
+close (`1219:21015`, `1219:20982`) — a surface filled in the tone, not the
+inverse one built here. Fernando's decisions below were taken on the
+premise that nothing was drawn, so they are **reopened, pending his
+ruling**; the component is unchanged until he rules. As written on
+2026-09-20: the nearest thing the searches found, the `Notification status`
 component set on the *Notifications* page, is the inline **Alert**: 880 wide,
 56 tall, a tinted status surface with a border of its own tone, in four
 states and three shapes (close, no button, one action). It is kept for the
@@ -13,6 +19,9 @@ it are banners, which Fernando will draw with the other bars. So the Toast is
 proposed, as the underline Tabs were.
 
 ## Decisions taken with Fernando, 2026-09-20
+
+*Reopened 2026-09-24 (fidelity audit): taken on the premise "not drawn",
+which was false — see above. They stand in the code until Fernando rules.*
 
 - **The surface is `surface/inverse`.** Shown three — the overlay surface
   with a coloured icon, the drawn Alert floating, and the inverse — and then

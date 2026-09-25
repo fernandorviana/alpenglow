@@ -84,8 +84,13 @@ export default function Page() {
 
       <h2>Loader</h2>
       <p>
-        Two arcs turning in opposite directions, as drawn — 18px and 9px inside a 24px box.
-        The counter-rotation is what stops it reading as one thick ring.
+        One arc on a faint track, 18px across inside a 24px box, that turns at a steady speed
+        while it grows and shrinks, so it never reads as a still shape. It is not what is
+        drawn: the drawing has two arcs, 18px and 9px, turning in opposite directions in the
+        brand&rsquo;s two colours. The single arc has been built since 2026-09-08, and the 16
+        and 32 sizes were added beside the drawn 24; neither departure was recorded as a
+        decision. This paragraph said &ldquo;two arcs, as drawn&rdquo; (corrected 2026-09-24,
+        fidelity audit).
       </p>
       <div className="specimen">
         <div className="specimenRow" style={{ alignItems: 'center' }}>
@@ -127,7 +132,7 @@ export default function Page() {
         said.
       </p>
       <p>
-        Reduced motion slows the arcs rather than stopping them. A frozen spinner reads as a
+        Reduced motion slows the arc rather than stopping it. A frozen spinner reads as a
         hung page, and the preference asks for less motion, not none.
       </p>
       <p>

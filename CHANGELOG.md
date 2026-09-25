@@ -10,8 +10,12 @@ break: a removed token or prop is named here under **Breaking**.
 Wave 4's first piece, the dense screen, its second, breakpoints and layout,
 and its third, the Table's columns giving way, and what it could not be
 finished without: density as a foundation, a current row on the Table, and
-the Link saying a new tab for an internal link. One prop changes its type:
-the Table's `Column.width`, under Breaking.
+the Link saying a new tab for an internal link. Then the first part of the
+fidelity audit of 2026-09-24, which compared the drawing with the
+production build at every width from 320 to 1440 in both modes: the bugs it
+found, in the package and on the site (spec
+`docs/superpowers/specs/2026-09-24-fidelity-audit.md`). Two props change
+their type, under Breaking: the Table's `Column.width` and `bulkActions`.
 
 ### Breaking
 
@@ -22,17 +26,20 @@ the Table's `Column.width`, under Breaking.
   padding, for `rowActions` and for `rowAction`'s render prop alike. A
   `rowAction` that used to size to its content — a text button, two icons —
   now overflows that width instead of widening the column.
-- **Table** — the `BulkActions` type that `bulkActions` takes (or returns)
-  is `DropdownMenuAction[] | ReactNode`, no longer `ReactNode` alone. Code
-  that passes the Table's props along keeps working, but a wrapper that
-  reads `TableProps['bulkActions']` and renders it as a React node — or
-  types its own prop as `ReactNode` and hands it on — no longer compiles:
-  widen it to `BulkActions`, or narrow the list out before rendering.
+- **Table** — `bulkActions` takes (or returns) `DropdownMenuAction[] |
+  ReactNode`, no longer `ReactNode` alone; the union is exported as the new
+  `BulkActions` type. Code that passes the Table's props along keeps
+  working, but a wrapper that reads `TableProps['bulkActions']` and renders
+  it as a React node — or types its own prop as `ReactNode` and hands it
+  on — no longer compiles: widen it to `BulkActions`, or narrow the list
+  out before rendering.
 
 ### Added
 
 - **Density** — a fourth token layer, `density/*`, in two modes:
-  comfortable, what is drawn and the default, and compact, chosen by
+  comfortable, the default (what is drawn for the rows, the hour and the
+  button; the drawn field and navigation item are 48, a decision still
+  open), and compact, chosen by
   `data-density="compact"` on **any element** (custom properties inherit,
   so one region of a page can be compact while the rest is not). Five
   tokens, only what the screen proves: `density/control` 40 / 32,
@@ -126,7 +133,9 @@ the Table's `Column.width`, under Breaking.
   `onSelect` toggles it; Space changes it and leaves the menu open, Enter
   and a click change it and close, as the APG has it. Its label says what
   it is and stays the same. Left out, a row is what it was. A checkable
-  action is never one of a Table's inline buttons: it goes to "⋯".
+  action is never one of a Table's icon buttons: among a row's actions it
+  is a row of the "⋯" menu; in the selection bar it is the Switch while
+  the bar has room for it, and a row of "⋯" when it has not.
 - **Button** — `icon`, an icon-only form: square, the icon alone, and
   `aria-label` required by the types.
 - **Scheduler** — `scrollToDay`: a week wider than its region opens with a
@@ -135,6 +144,9 @@ the Table's `Column.width`, under Breaking.
   so a day picked in the same week is the day shown. Off unless given, so
   nothing moves for a Scheduler that does not ask; a new number does it
   again, for a Today button pressed on today. A day of people stays put.
+- **Drawer** — `DRAWER_NARROW`, `media.down.md`, exported from the root:
+  the query below which an inline Drawer opens over the content (Changed,
+  below), for a caller laying out the row it sits in.
 
 ### Changed
 
@@ -159,7 +171,13 @@ the Table's `Column.width`, under Breaking.
   takes `min-width: 0`, and a chip's words end in an ellipsis when the chip
   is wider than the bar, where two long chips pushed a page sideways; while
   they are cut short, the system's Tooltip says them whole on hover and on
-  keyboard focus, and the button's name is the same words.
+  keyboard focus, and the button's name is the same words. **The DOM
+  changes again:** each chip's words button now sits in the Tooltip's
+  wrapper `span`, beside a `span` with `role="tooltip"`, and takes
+  `aria-labelledby` pointing at it. Its accessible name does not change,
+  but a selector that reached the button by its place finds it one `span`
+  deeper, and every chip carries a tooltip, shown only while its words are
+  cut, so a test that counts `role="tooltip"` counts one more per chip.
 - **The Table's selection bar keeps to one row.** It wrapped: at 375 the
   dense demo's bar was four lines, 311×147, with dividers left hanging. It
   does not wrap now. The actions give way first; then the count, to an
@@ -180,6 +198,18 @@ the Table's `Column.width`, under Breaking.
   columns leave one by one instead, right to left unless priorities say
   otherwise. It lays out fixed, and flexible columns share by their
   minimums where the browser sized them by content.
+- **Below `md` an inline Drawer opens over the content**, as `overlay`
+  does: on a phone there is no panel beside the content, the content is what
+  shows, and drawers open as overlays (a rule of 2026-09-25). There it is a
+  `popover="manual"` with `role="dialog"`; from 768 up it is in the flow
+  with `role="region"`, as before. A caller who put an inline Drawer beside
+  the content at a phone's width now gets the layer. The query is
+  `DRAWER_NARROW`, in rem.
+- **In dark the SegmentedControl's thumb takes a `border/strong`
+  hairline**, and so does the Tabs' segmented variant, which shares its
+  stylesheet: the thumb's `surface/overlay` fill was nearly invisible on
+  its track. Light is unchanged. There is no dark drawing of the thumb, so
+  this is a proposal, not yet ruled on.
 
 ### Fixed
 
@@ -196,6 +226,99 @@ the Table's `Column.width`, under Breaking.
   now ends with "(opens in a new tab)", or its `externalLabel`. A test that
   matches the exact name will need the words, and a link whose text
   already says them will say them twice.
+- **Slider and Switch** — in a build whose chunk order put the shared
+  stylesheets after the component's, the Slider's field took the whole
+  row and its track was 0 wide, so the page scrolled sideways, and the
+  Switch's description lost its 40 indent. The docs' production build was
+  such a build; `next dev` is not. The component's value now reaches the
+  shared rule as a custom property (`--control-width`, `--choice-indent`)
+  instead of competing with it, so no order undoes it. The Switch's root
+  takes a class of its own.
+- **Textarea** — draws its box again: the fill, the border, the padding,
+  the focus border and the invalid state. The bare field class meant for
+  Input's inner `input` sat on the textarea itself and, declared later,
+  cancelled the box, in every release so far. In Safari a disabled
+  textarea keeps `text/disabled`.
+- **Dialog** — at `xs` the stacked footer buttons keep their 40, where
+  `flex: 1 1 0` in the column shared the footer's height and left them 22
+  each; below 480 the header's gap narrows to 8, so a title at 320 breaks
+  between words, where its 112 column broke them ("Reschedul/e"); a word
+  breaks only when nothing else will fit it, as an unbroken email.
+- **Drawer** — the title breaks inside a word only when the word cannot fit
+  a line of its own; `anywhere` had let a narrowed inline panel set its
+  title a letter to a line.
+- **Popover and the other floating panels keep 8px from the screen's
+  edge.** A panel that would reach the viewport's edge tries the other
+  placements, including both flips at once, and last stands 8 in from the
+  inline end (`--floating-inside`); the Popover sets which side takes the 8
+  through `--floating-edge`. At 320 and 375 the Popover's panels had
+  touched an edge; at 768 and 1440 no panel on the floating surface moved.
+- **Calendar** — the month arrows' chevrons are the drawn 4.67 × 9.33 in a
+  16 frame. The arrow button kept the browser's padding, which shrank them
+  to about 2.3 × 4.7, a dot.
+- **SideNav** — collapsed, each item is a circle centred in the 80 rail, at
+  the item's height (`density/nav-item`, 40 comfortable; 48 is drawn and
+  waits for the token), where the Tooltip's wrapper had held it to a
+  24-wide sliver at the rail's edge. In the sheet the nav takes the height
+  left under the close button and scrolls, where the last item fell off a
+  375 × 812 screen. **The DOM changes:** each `li` takes a class.
+- **Scheduler** — the heads stand over their columns: the head and the
+  body were two grids each sized by its content, and a long name widened a
+  head past its column (165 over 144 at 1440). The all-day chip fills the
+  drawn 28 row with its words centred, where it was 20 and cut them. The
+  hours column stays put when a wide week scrolls sideways; since 0.5.0 a
+  `position: relative` after its sticky rule let it scroll away under the
+  corner.
+
+### The site
+
+Nothing here reaches the package. Listed because the site is where the
+system is read, and the audit found most of its faults there.
+
+- **The prose rules weigh nothing.** Every `.prose` rule in `app/docs.css`
+  is `:where(.prose) :where(…)`, and the 37.5rem measure names the text
+  instead of every child, so a component on a docs page is the component:
+  the Drawer fits a phone, the CommandPalette is 343 at 375, the SideNav's
+  links rest in `text/primary`, card titles, ramp names and the pager's
+  Next sit where their own classes say, and code blocks take the column.
+  The docs cards set the drawn Card's title and description.
+- **Every docs table is the package Table, ranked.** The sixteen token
+  tables on nine pages were plain tables in a scroller; at a narrow width
+  their columns now leave, least important first, and each keeps its name
+  and at least one value at 320. /colour's tables fit their column, where
+  one 110-character use line made them 1119 wide in 852.
+- **Every code block has its header bar**, the language alone when there
+  is no file name, so the copy button sits on the bar and never over the
+  code.
+- **In dark, the theme toggle's track and inline code take
+  `surface/overlay`**, a surface step above the rail and the canvas they
+  had matched. No dark drawing exists of either: a proposal, not yet ruled
+  on.
+- **/screen** — from 768 to 1023 the column fills the width when the
+  navigation is a sheet, where it stopped at 754.
+- **/scheduler** gives the week its room: the side column goes under the
+  grid, and on a phone opens as an overlay Drawer from a toolbar button
+  (a proposal); the View select says the view shown.
+- **At a phone's width**: /why's Layers figure is the six bands as an HTML
+  stack below 30rem of its own width, not the drawing scaled to 0.4; card
+  grids fill their rows; /button's dialog-footer example stacks its actions
+  in reading order below `xs`, as the xs Dialog does; /navigation's Try it
+  scrolls sideways with a fade instead of clipping the top bar; the
+  /components Navigation card draws its side nav at every width; the
+  /layout and /density table headers fit; the home Developers card shows
+  `npm i alpenglow` alone (a proposal).
+- **The Foundations data-visualisation card shows its ramp**, a long icon
+  name no longer shrinks its icon, and the Table page's row actions each
+  do something: Edit, Delete and Archive answer with a toast, and Undo puts
+  the row back.
+- **Records.** Claims about the drawing that were false are corrected where
+  they stood, dated 2026-09-24: /avatar's Loader, /navigation's phone bars,
+  /scheduler's week with several people, its phone agenda and its
+  quarter-hour card, /input and /decisions on the resting border. The
+  counts agree between pages: the home page's primitives count the alpha
+  ones, as /foundations and /why do (134), and /space counts `spacing/0`,
+  as /foundations and /tailwind do (22). /accessibility lists the two pairs
+  that are below 4.5:1, not four.
 
 ## 0.5.0 — 2026-09-23
 

@@ -22,7 +22,7 @@ export default function Page() {
       evidence={
         <>
           <p>spacing/100 = {spacing[100]}px</p>
-          <p>{steps.length} steps</p>
+          <p>{Object.keys(spacing).length} steps</p>
           <p>{Object.keys(radius).length} radii</p>
           <p>{Object.keys(borderWidth).length} stroke widths</p>
           <p>{Object.keys(elevation).length} shadow steps, moded</p>

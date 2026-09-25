@@ -13,7 +13,7 @@ import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { resolve } from '@/tokens/contrast';
 import { theme } from '@/tokens/theme';
-import { primitives } from '@/tokens/primitives';
+import { primitives, alphaPrimitives } from '@/tokens/primitives';
 
 /**
  * The section cards' pictures, keyed by the section's route. The install
@@ -48,7 +48,8 @@ const PICTURES: Record<string, ReactNode> = {
 export default function Page() {
   const [start, ...sections] = NAV;
   const counts = {
-    primitives: Object.keys(primitives).length,
+    // Opaque and alpha together, as Foundations and /why count them.
+    primitives: Object.keys(primitives).length + Object.keys(alphaPrimitives).length,
     theme: Object.keys(theme).length,
     // Derived, not typed. A hand-written count is exactly the kind of number
     // this system exists to stop shipping.

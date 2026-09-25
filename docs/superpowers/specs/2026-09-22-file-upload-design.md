@@ -50,7 +50,12 @@ variants of it.**
    `surface/sunken`, the name Semibold cut with an ellipsis, a meta line in
    caption/md `text/tertiary` (the type and size, "Download" as a Link, the
    bar, or the error in `text/danger` with Retry), and the Tag's × to
-   remove, named "Remove `name`".
+   remove, named "Remove `name`". *Corrected 2026-09-24 (fidelity audit):*
+   its contents are the drawn card's, its shape is not. The drawn Uploaded
+   Document (`790:14416`) is a 208 × 64 filled tile with no border; the built
+   card is a row the list's full width on `surface/raised` with a
+   `border/subtle` hairline. An unrecorded departure; the drawing is the
+   default.
 6. **Words are props**: `label` ("Choose a file", or "Choose files" with
    `multiple`), `dropLabel` ("or drag and drop"), `hint`, `removeLabel`,
    `retryLabel`, `downloadLabel`, `uploadingLabel` ("Uploading"), and the

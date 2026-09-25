@@ -10,7 +10,7 @@ product's drawings.
 
 | Piece | Drawn |
 |---|---|
-| Side Navigation | 200 open, 80 closed with icons only; `surface/raised`, a `border/subtle` hairline at the inner edge; items 40 tall in a capsule (radius 24), icon 24, label 14 Semibold, 16 in and 20 out, gap 16; the current one on `surface/base` in `text/accent`; a bottom group for Settings, 40 above it; a collapse button drawn beside, not in the frame |
+| Side Navigation | 200 open, 80 closed with icons only; `surface/raised`, a `border/subtle` hairline at the inner edge; items 48 tall in a capsule (radius 24, `160:9623`), 48 circles when closed (`157:9589`) — this row said "items 40 tall" (corrected 2026-09-24, fidelity audit; built 40, `density/nav-item`); icon 24, label 14 Semibold, 16 in and 20 out, gap 16; the current one on `surface/base` in `text/accent`; a bottom group for Settings, 40 above it; a collapse button drawn beside, not in the frame |
 | Second Level Navigation | 240 open, 24 closed as a strip with the collapse button; `surface/base`, a hairline at the inner edge; sections with a caption in caption/sm uppercase with a chevron to fold them, items 40 tall at radius md with icon 24 and label 14 Semibold; the current one on `surface/raised` in `text/accent` |
 | Top Bar | 64 tall on `surface/raised` with a hairline under; at the start the menu icon and the logo; at the end "Create" as a neutral button, three icon buttons of 40 and the Avatar |
 
@@ -26,8 +26,9 @@ product's drawings.
 3. **On a narrow screen the SideNav is a modal `<dialog>`**: the Dialog's
    mechanics, top layer, scrim, inert page, Esc and focus return from the
    platform, sliding from the start side. `narrow` is a media query, 760px
-   unless told, until breakpoints are tokens. The site's full-screen
-   non-modal overlay does not come to the package.
+   unless told, until breakpoints are tokens — they are since 2026-09-24
+   (`e66bd3c`), and the default is `media.down.md`, below 768. The site's
+   full-screen non-modal overlay does not come to the package.
 4. **Collapsed, a primary item keeps its name in a Tooltip** with
    `purpose="label"`; the label is hidden and the icon is centred.
 5. **A section of the secondary nav is a `<details>`**, as the Accordion:
@@ -88,8 +89,12 @@ AA; its icon, 3:1; the caption in `text/tertiary` on `surface/base`, AA.
   since two captions can match.
 - A press on a link in the drawer does not close it; the caller closes on
   navigation, and the type and the page say so.
-- No phone version of the top bar's actions or of the second level is drawn
-  or built; the page says what a caller does there.
+- No phone version of the top bar's actions or of the second level is
+  built; the page says what a caller does there. This line said none was
+  drawn either: phone and tablet top bars are drawn (`116:9367`,
+  `120:9434`, `2787:6033`), and a phone bottom bar (`638:10984`)
+  (corrected 2026-09-24, fidelity audit). Whether a phone second level is
+  drawn is not recorded.
 - Seen in Chromium: the collapse to 80 and to 24, the drawer over the page
   with its scrim, light and dark, a phone width; the collapsed tooltip is
   covered by the test, not by eye (a synthetic hover does not open it).
@@ -97,7 +102,8 @@ AA; its icon, 3:1; the caption in `text/tertiary` on `surface/base`, AA.
 ## Not here
 
 Nested items beyond two levels; a search in the nav; badges on items (the
-caller's `label` can hold one); the site's rail; breakpoint tokens.
+caller's `label` can hold one); the site's rail; breakpoint tokens (since
+built, 2026-09-24).
 
 ## Tests
 

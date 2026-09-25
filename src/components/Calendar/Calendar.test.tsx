@@ -992,10 +992,11 @@ describe('Calendar range mode', () => {
 
 describe('Calendar stylesheet source', () => {
   it('keeps its month heading at the drawn size where a page styles every h2', () => {
-    // A docs page's `.prose h2` (a class and an element) outranks a lone
-    // `.heading` class, and turned the month into a 24px heading 48px lower
-    // than the chevrons. Two classes win on specificity alone, whatever order
-    // the stylesheets load in.
+    // A page's `.prose h2` (a class and an element) outranks a lone
+    // `.heading` class: the docs' own once turned the month into a 24px
+    // heading 48px lower than the chevrons. The docs' prose rules weigh
+    // nothing since 2026-09-24, so this guards a consumer's page. Two classes
+    // win on specificity alone, whatever order the stylesheets load in.
     expect(stylesheet()).toMatch(
       /\.header\s+\.heading\s*\{[^}]*margin:\s*0;[^}]*font-size:\s*var\(--ap-text-body-md-size\)/,
     );

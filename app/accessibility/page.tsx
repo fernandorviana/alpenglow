@@ -107,8 +107,8 @@ function WorstCaseTable({
  * The pairs under the line on purpose. The pair names the row; the two
  * figures rank next and the reason leaves first, so a phone keeps the name
  * and both figures. A pair of names wraps at its spaces and never inside a
- * name: the longest, `text/placeholder`, is 119 of the column's 144, and the
- * cell pads 24.
+ * name: the longest it has held, `text/placeholder`, is 119 of the column's
+ * 144, and the cell pads 24.
  */
 type Exception = { pair: string; light: number; dark: number; why: ReactNode };
 const EXCEPTION_COLUMNS: Column<Exception>[] = [
@@ -121,29 +121,6 @@ const EXCEPTION_COLUMNS: Column<Exception>[] = [
 const pairOf = (fg: ThemeTokenName, bg: ThemeTokenName, mode: Mode) => contrast(resolve(fg, mode), resolve(bg, mode));
 
 const EXCEPTIONS: Exception[] = [
-  {
-    pair: 'text/placeholder',
-    light: worst('text/placeholder', SURFACES, 'light').ratio,
-    dark: worst('text/placeholder', SURFACES, 'dark').ratio,
-    why: (
-      <>
-        Placeholder text is a hint, never the only copy of a label. Darkening it far
-        enough to clear AA makes an empty field read as a filled one.
-      </>
-    ),
-  },
-  {
-    pair: 'on-success on success-pressed',
-    light: pairOf('interactive/on-success', 'interactive/success-pressed', 'light'),
-    dark: pairOf('interactive/on-success', 'interactive/success-pressed', 'dark'),
-    why: (
-      <>
-        Pressed is feedback after the decision, not information used to make it —
-        nobody reads a label while their finger is down. The green ramp has no third
-        step that keeps a dark label above 4.5, and a light label fails far worse.
-      </>
-    ),
-  },
   {
     pair: 'text/disabled',
     light: worst('text/disabled', SURFACES, 'light').ratio,
@@ -169,6 +146,26 @@ const EXCEPTIONS: Exception[] = [
     ),
   },
 ];
+
+/** Every row above is under the line in at least one mode; a row that clears it does not belong there. */
+const BELOW = EXCEPTIONS.filter((r) => Math.min(r.light, r.dark) < 4.5);
+
+/**
+ * Two pairs the table once held, which clear AA now and are asserted at AA with everything
+ * else: the placeholder among the text tokens, the pressed green among the button labels.
+ */
+const CLEARED = {
+  placeholder: {
+    light: worst('text/placeholder', SURFACES, 'light').ratio,
+    dark: worst('text/placeholder', SURFACES, 'dark').ratio,
+  },
+  successPressed: {
+    light: pairOf('interactive/on-success', 'interactive/success-pressed', 'light'),
+    dark: pairOf('interactive/on-success', 'interactive/success-pressed', 'dark'),
+  },
+};
+
+const NUMBER_WORDS = ['No', 'One', 'Two', 'Three', 'Four'];
 
 const BODY_TEXT = [
   'text/primary',
@@ -278,8 +275,9 @@ export default function Page() {
 
       <h2>Where the system falls short, on purpose</h2>
       <p>
-        Four pairs sit below 4.5:1, all four deliberate. Listing them is the point: a
-        system that reports no exceptions is a system that has not looked.
+        {NUMBER_WORDS[BELOW.length] ?? BELOW.length} {BELOW.length === 1 ? 'pair sits' : 'pairs sit'} below
+        4.5:1, each deliberate. Listing them is the point: a system that reports no exceptions is a
+        system that has not looked.
       </p>
 
       <div className="specimen">
@@ -287,16 +285,27 @@ export default function Page() {
           caption="Where the system falls short, on purpose"
           density="compact"
           columns={EXCEPTION_COLUMNS}
-          rows={EXCEPTIONS}
+          rows={BELOW}
           getRowId={(r) => r.pair}
         />
       </div>
 
       <p>
-        The first three are asserted in the test suite at their recorded figures, so an edit
-        that makes any of them <em>worse</em> still fails the build; <code>text/inert</code>{' '}
-        is asserted as quieter than <code>text/disabled</code> in both themes. An exemption is
-        not a place to stop measuring.
+        <code>text/disabled</code> is asserted in the test suite at its recorded figures, so an
+        edit that makes it <em>worse</em> still fails the build; <code>text/inert</code> is
+        asserted as quieter than <code>text/disabled</code> in both themes. An exemption is not
+        a place to stop measuring.
+      </p>
+      <p>
+        This table held two more, and said four pairs sat below the line (corrected 2026-09-25,
+        fidelity audit). Both clear AA now, and the suite holds them there with everything else.
+        The placeholder, the same stop as tertiary, is{' '}
+        <span className="ratio">{CLEARED.placeholder.light.toFixed(2)}</span> at its worst in
+        light and <span className="ratio">{CLEARED.placeholder.dark.toFixed(2)}</span> in dark,
+        and goes no darker, so an empty field does not read as a filled one. The label on the
+        pressed green is <span className="ratio">{CLEARED.successPressed.light.toFixed(2)}</span>{' '}
+        in light and <span className="ratio">{CLEARED.successPressed.dark.toFixed(2)}</span> in
+        dark, since the ramps share one lightness per stop.
       </p>
 
       <h2>What the suite actually checks</h2>

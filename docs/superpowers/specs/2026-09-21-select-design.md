@@ -29,11 +29,15 @@ again; the two components' props were kept apart so that it can be.
 
 ## What is drawn
 
-The closed field, which is the control box the package already has: 40 tall,
-radius 12, a placeholder in grey, the chevron in the accent, an Avatar before
-the value on Staff. **The open list is not drawn anywhere.** It is the
-DropdownMenu's rows — 40 tall, radius md, 8 inline — on
-`floating.module.css`, so every list in the system is one list.
+The closed field, which is the control box the package already has: drawn
+48 tall at md and 40 at sm — the package's `lg` and `md` — radius 12, a
+placeholder in grey, the chevron in the accent, an Avatar before the value on
+Staff. This said "40 tall" (corrected 2026-09-24, fidelity audit); the
+package's default is 40 (`md`, or `density/control` comfortable since
+2026-09-23), a departure for Fernando to rule on.
+**The open list is not drawn anywhere.** It is the DropdownMenu's rows — 40
+tall, radius md, 8 inline — on `floating.module.css`, so every list in the
+system is one list.
 
 Shown a check at the end with the label in Semibold, against a row filled
 with `interactive/selected`, Fernando chose the check, **and only the check,

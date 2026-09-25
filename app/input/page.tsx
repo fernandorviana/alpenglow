@@ -93,8 +93,8 @@ export default function Page() {
     >
       <h1>Input and Textarea</h1>
       <p className="lead">
-        The two text controls — a line and a block — where the border is doing real work rather
-        than decorating.
+        The two text controls — a line and a block. Filled, as drawn, with a border that
+        arrives with the focus.
       </p>
 
       <h2>Try it</h2>
@@ -199,10 +199,13 @@ export default function Page() {
             threshold={3}
           />
           . WCAG 1.4.11 asks for 3:1 where a border is what identifies a control. The drawn
-          component has no resting border, and this matches it; the label above and the
-          placeholder inside are what say &ldquo;field&rdquo; until focus does. The
-          decision of 2026-09-07 kept a hairline in <code>border/default</code> instead, and
-          the two versions are still to be reconciled.
+          field has no border at rest, and a hairline on hover and on focus; at rest this
+          matches it, and the label above and the placeholder inside are what say
+          &ldquo;field&rdquo; until focus does. The decision of 2026-09-07 kept a hairline in{' '}
+          <code>border/default</code> at rest to preserve the drawn look, and this page called
+          the two versions unreconciled. The drawing has no border at rest, so at rest the code
+          is the drawn look and that decision described neither (corrected 2026-09-24, fidelity
+          audit). The hover hairline is drawn and not built.
         </p>
       </div>
 

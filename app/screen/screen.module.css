@@ -1,8 +1,9 @@
 /*
  * The dense screen's layout: grid, areas, widths. Nothing else — every
  * colour, size of type and space here is a token, and local-values.test.ts
- * fails on anything that is not. The breakpoints are literals waiting on
- * the breakpoints piece of wave 4.
+ * fails on anything that is not. The media queries are on the breakpoint
+ * scale — xs, lg and xl, in rem — since 2026-09-24, and
+ * src/styles/breakpoints.test.ts holds them there.
  */
 .screen {
   display: grid;

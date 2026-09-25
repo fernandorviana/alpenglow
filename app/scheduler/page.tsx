@@ -249,7 +249,10 @@ const MEASURES: Measure[] = [
   { part: 'Hours column', value: `${spacing[1000]} wide, the labels caption/md in text/tertiary on their line` },
   { part: 'Header', value: `${spacing[800]} tall; weekday caption/sm uppercase, day body/md Medium, today in a ${spacing[400]} accent circle` },
   { part: 'All-day row', value: `${spacing[300] + spacing['050']} (--scheduler-all-day), the chip filling it, for the drawn 28 and 29; its words caption/md Semibold, centred, ${spacing[100]} and the hairline in` },
-  { part: 'Card', value: `${spacing['050']} ${spacing[100]}, radius ${radius.lg}, ${spacing['075']} in from the column; min ${spacing[300]} tall` },
+  {
+    part: 'Card',
+    value: `${spacing['050']} ${spacing[100]}, radius ${radius.lg}, ${spacing['075']} in from the column; min ${spacing[250]} tall (--scheduler-event-min), a quarter of the ${density.hour.comfortable} hour; drawn ${spacing[300]}, which would lay each quarter-hour card over the next by ${spacing[300] - spacing[250]} — a decision still open`,
+  },
   { part: 'Card text', value: `title ${type('caption/md')} Semibold, time ${type('caption/sm')} Medium; the icon in a ${spacing[300]} circle from an hour up` },
   { part: 'Now line', value: `a border/danger hairline with a ${spacing[150]} dot at today’s column; its time in text/danger` },
   { part: 'Off hours', value: 'surface/sunken bands outside workingHours' },
@@ -658,8 +661,9 @@ export default function Page() {
         grid keeps its scroll.
       </p>
       <p>
-        Drawn as the product&rsquo;s calendar: the weekly view, the daily view with several people, the daily view on a
-        phone, and a sheet of the appointment&rsquo;s states. The package takes the grid; the toolbar, the
+        Drawn as the product&rsquo;s calendar: the weekly view, the daily view with several people, the week with
+        several people, the daily view on a phone, an agenda list for a phone, and a sheet of the appointment&rsquo;s
+        states. The package takes the grid; the toolbar, the
         mini-calendar, the filters and the panel of the selected event are the screen&rsquo;s, and here they are the{' '}
         <a href="/button">Button</a>, the <a href="/select">Select</a>, the <a href="/date-picker">Calendar</a>, the{' '}
         <a href="/choice">Checkbox</a> and a <a href="/card">Card</a>. Press an event, or Tab to one and use the arrows:
@@ -686,8 +690,9 @@ export default function Page() {
         <code>resources</code> makes a column per person, headed by the <a href="/avatar">Avatar</a> and the name, and
         a <code>tone</code> on the resource paints every event in the column from the category palette: six hues, each
         the accent&rsquo;s own four stops, measured. An event names its own <code>tone</code> when it needs one. Léa
-        Martin starts at noon, so her <code>workingHours</code> band the morning. A week with several people is not
-        drawn and is not built; a week is a week of days.
+        Martin starts at noon, so her <code>workingHours</code> band the morning. A week with several people is drawn
+        and is not built; a week is a week of days (this said it was not drawn; corrected 2026-09-24, fidelity
+        audit).
       </p>
 
       <h2>Kinds, and the past</h2>
@@ -744,10 +749,11 @@ export default function Page() {
         by cell. Times are wall-clock strings with no zone, the time a receptionist reads off the wall, and the
         formatting is <code>Intl</code>&rsquo;s for the locale; the Calendar&rsquo;s rule that no <code>Date</code>
         leaves the component holds here, and so does its lesson about a runtime west of UTC. The now line is a prop,
-        so a page can pin it and a test can hold it. Dragging to create and to move is the second phase, with the
-        keyboard equivalents, once this is on main; a month view and an agenda list for a phone are not drawn, and a
-        phone here is the day with one column, as the drawing has it. The alternative to columns per person is a
-        filter that shows one person&rsquo;s week: both are the same component with a different <code>view</code>.
+        so a page can pin it and a test can hold it. Dragging to create and to move came as the second phase, with
+        the keyboard equivalents. A phone here is the day with one column, as the drawing has it; the agenda list
+        drawn for a phone is not built, nor a month view (this said the agenda list was not drawn; corrected
+        2026-09-24, fidelity audit). The alternative to columns per person is a filter that shows one person&rsquo;s
+        week: both are the same component with a different <code>view</code>.
       </p>
 
       <h2>Accessibility</h2>

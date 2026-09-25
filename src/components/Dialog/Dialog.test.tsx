@@ -177,6 +177,9 @@ describe('Dialog', () => {
     });
 
     it('gives the title two classes, so a page prose h2 rule cannot restyle it', () => {
+      // A consumer's `.prose h2` (a class and an element) outranks a lone
+      // class. The docs site's own prose rules weigh nothing since
+      // 2026-09-24, so this guards a consumer's page, not the docs.
       expect(css).toMatch(/\n\.dialog \.title\s*\{/);
     });
 

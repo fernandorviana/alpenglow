@@ -172,9 +172,15 @@ Selection`), not inferred.
 | Selection column | 56px wide | — |
 | Leading gutter | 20px wide | — |
 
-Type maps exactly; only the names differ (`paragraph/*` in Figma is `body/*` in
-code). The header is uppercased by the component, because the bound style is
-`caption/sm` at 11px rather than `caption/caps` at 10px.
+The type's tokens exist under other names (`paragraph/*` in Figma is
+`body/*` in code). The header is uppercased by the component, because the
+bound style is `caption/sm` at 11px rather than `caption/caps` at 10px.
+
+This paragraph said "Type maps exactly" (corrected 2026-09-24, fidelity
+audit). The header does; the cells do not. The build sets every cell in
+`body/md` at the regular weight, where the drawing has the primary text in
+`body/lg` Medium (16/24) and the secondary in `body/md` Medium (14/22). An
+unrecorded departure; the drawing is the default.
 
 ### Collision 1 — the header band is not `surface/sunken`
 
