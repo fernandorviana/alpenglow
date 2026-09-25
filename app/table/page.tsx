@@ -10,6 +10,7 @@ import { Button } from '@/components/Button';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { Table } from '@/components/Table';
 import type { Column, Sort } from '@/components/Table';
+import { toast } from '@/components/Toast';
 import type { DropdownMenuAction } from '@/components/DropdownMenu';
 import { resolve } from '@/tokens/contrast';
 import { Dense } from './Dense';
@@ -92,10 +93,22 @@ const FRAMES = [
   { value: '320', label: '320' },
 ];
 
+/**
+ * The row's actions, through the Table's own `rowActions`: Edit and Delete as
+ * icon buttons while there is room, Archive in the menu, and all three in
+ * "⋯" once they gather. Each one answers, as the Dense demo's bar does, with
+ * a toast.
+ */
 const clientActions = (c: Client): DropdownMenuAction[] => [
-  { id: 'edit', label: 'Edit', icon: <Edit size={16} /> },
-  { id: 'delete', label: 'Delete', icon: <TrashCan size={16} />, tone: 'danger' },
-  { id: 'archive', label: `Archive ${c.name}`, textValue: 'Archive' },
+  { id: 'edit', label: 'Edit', icon: <Edit size={16} />, onSelect: () => toast(`Editing ${c.name}`) },
+  {
+    id: 'delete',
+    label: 'Delete',
+    icon: <TrashCan size={16} />,
+    tone: 'danger',
+    onSelect: () => toast(`Deleted ${c.name}`),
+  },
+  { id: 'archive', label: `Archive ${c.name}`, textValue: 'Archive', onSelect: () => toast(`Archived ${c.name}`) },
 ];
 
 export default function Page() {
