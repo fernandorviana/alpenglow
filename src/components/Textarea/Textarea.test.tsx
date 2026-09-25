@@ -78,6 +78,14 @@ describe('Textarea.module.css', () => {
     expect(rule).not.toMatch(/(?:^|[\s;])(?:font(?:-family)?|color|letter-spacing)\s*:/);
   });
 
+  it('declares no property .control declares, as its header says: on one element, two such rules are settled by load order', () => {
+    const properties = (body: string) =>
+      new Set([...body.matchAll(/(?:^|[;{\s])([a-z-]+)\s*:/g)].map(([, name]) => name!).filter((name) => !name.startsWith('--')));
+    const control = properties(block(readCss('src/components/control.module.css'), '\n.control {'));
+    expect(control.size).toBeGreaterThan(5);
+    expect([...properties(rule)].filter((name) => control.has(name))).toEqual([]);
+  });
+
   it('colours its own placeholder — .field::placeholder is gone along with .field, and .control has no placeholder rule of its own', () => {
     expect(css).toMatch(/\.textarea::placeholder\s*\{[^}]*color:\s*var\(--ap-color-text-placeholder\)/);
     expect(block(css, '.textarea::placeholder {')).toMatch(/opacity:\s*1/);

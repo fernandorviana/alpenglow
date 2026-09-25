@@ -25,14 +25,10 @@
 
   min-height: 144px;
   padding: var(--ap-spacing-150) var(--ap-spacing-200);
-  /* Text starts at the top; the box does not centre a paragraph. This ties
-     with .control's align-items: center at equal specificity — the same
-     load-order hazard described above — but it is inert either way: a
-     textarea has no flex children for align-items to position. Left as a
-     statement of intent rather than removed, since a future change that
-     gives this element real flex children would need the tie resolved for
-     real. */
-  align-items: flex-start;
+  /* No align-items: .control's `center` reaches this element too, and does
+     nothing here — a textarea's text starts at the top whatever it says, and
+     it has no flex children to place. Declared here it would only tie with
+     .control on load order. */
   resize: vertical;
 
   /* .control supplies the visible focus border; the browser's own focus
