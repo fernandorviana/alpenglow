@@ -13,8 +13,12 @@
   font-family: var(--ap-font-sans);
 }
 
-/* The TopBar, then the main: the day bar and the body. */
+/* The TopBar, then the main: the day bar and the body. Always the last
+   track: below lg the SideNav is a closed sheet and no grid item, and
+   auto-placed the column fell into the `auto` track, sized to its content
+   (754 at 900 and at 1023), with the `1fr` beside it empty. */
 .column {
+  grid-column: -2 / -1;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);

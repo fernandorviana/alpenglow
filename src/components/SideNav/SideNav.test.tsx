@@ -71,6 +71,20 @@ describe('SideNav — wide', () => {
     }
   });
 
+  it('collapsed, puts each tooltip in an entry that centres it, so the wrapper is the item’s size', () => {
+    // The Tooltip's wrapper is inline-flex, the trigger's own box: at the
+    // start of a plain li it held the item to its 24 icon, a sliver at the
+    // rail's start edge. The entry centres it, and the tooltip opens 8 from
+    // the circle rather than from a wrapper as wide as the rail.
+    render(<SideNav items={items} footer={footer} collapsed />);
+    for (const link of screen.getAllByRole('link')) {
+      const entry = link.closest('li')!;
+      expect(entry, link.textContent!).toHaveClass(styles.entry!);
+      expect(link.parentElement, link.textContent!).not.toBe(entry);
+      expect(link.parentElement!.parentElement, link.textContent!).toBe(entry);
+    }
+  });
+
   it('renders no dialog on a wide screen', () => {
     const { container } = render(<SideNav items={items} open onClose={() => {}} />);
     expect(container.querySelector('dialog')).toBeNull();
@@ -167,6 +181,35 @@ describe('SideNav — stylesheet', () => {
     const item = block(css, '.item {');
     expect(item).toContain('min-block-size: var(--ap-density-nav-item);');
     expect(item).toContain('padding-block: calc((var(--ap-density-nav-item) - var(--ap-spacing-300)) / 2);');
+  });
+
+  it('collapsed, draws each item as a circle at the item’s height, centred in the rail', () => {
+    // Figma 157:9589 draws a 48 circle; the item's height is the density
+    // token, 40 comfortable and 32 compact, until the token moves to 48.
+    const collapsed = block(css, '.collapsed {');
+    expect(collapsed).toContain('--sidenav-item-width: var(--ap-density-nav-item);');
+    expect(collapsed).toContain('--sidenav-align: center;');
+    const root = block(css, '.sidenav {');
+    expect(root).toContain('--sidenav-item-width: auto;');
+    expect(root).toContain('--sidenav-align: stretch;');
+    const item = block(css, '.item {');
+    expect(item).toContain('inline-size: var(--sidenav-item-width);');
+    expect(item).toContain('border-radius: var(--ap-radius-full);');
+    expect(item).toContain('justify-content: var(--sidenav-justify);');
+    const entry = block(css, '.entry {');
+    expect(entry).toContain('display: flex;');
+    expect(entry).toContain('flex-direction: column;');
+    expect(entry).toContain('align-items: var(--sidenav-align);');
+  });
+
+  it('in the sheet, takes the height left under the close button and scrolls inside it', () => {
+    // .sidenav's min-block-size: 100% is the rail's, the page's height. In the
+    // sheet it is the dialog's, under a 48 close button: at 375×812 the
+    // content was 840 and Settings, at the foot, ended 16 past the edge.
+    const sheet = block(css, '\n.inSheet {');
+    expect(sheet).toContain('min-block-size: 0;');
+    expect(sheet).toContain('overflow-y: auto;');
+    expect(sheet).toMatch(/flex: 1 1 auto;/);
   });
 
   it('sets display on the sheet only while open, and the scrim on its backdrop', () => {

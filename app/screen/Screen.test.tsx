@@ -2,12 +2,14 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { axeViolations } from '@/test/axe';
+import { block, readCss } from '@/test/css';
 import { installDialogStub } from '@/test/dialog';
 import { installPopoverStub } from '@/test/popover';
 import { Toaster, toast } from '@/components/Toast';
 import { media } from '@/tokens/scale';
 import { Screen } from './Screen';
 import { initialState, reducer } from './state';
+import styles from './screen.module.css';
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/screen/full', useRouter: () => ({ push: () => {} }) }));
 
@@ -213,3 +215,24 @@ describe('the dense screen', () => {
   });
 });
 
+describe('the shell', () => {
+  it('puts the column in the last track, whether or not the navigation stands in the first', () => {
+    // Below lg the SideNav is a closed sheet, not a grid item. Auto-placed,
+    // the column fell into the `auto` track, which sized to its content — 754
+    // at 900 and at 1023 — and the `1fr` track beside it stayed empty.
+    const css = readCss('app/screen/screen.module.css');
+    expect(block(css, '.screen {')).toContain('grid-template-columns: auto minmax(0, 1fr);');
+    expect(block(css, '.column {')).toContain('grid-column: -2 / -1;');
+  });
+
+  it('below lg, holds the navigation in a sheet, so the column is the only thing in the grid', () => {
+    wide = false;
+    const { container } = render(<Screen />);
+    const shell = container.querySelector(`.${styles.screen}`)!;
+    const column = container.querySelector(`.${styles.column}`)!;
+    expect(column.parentElement).toBe(shell);
+    const dialog = within(shell as HTMLElement).getByRole('navigation', { name: 'Main', hidden: true }).closest('dialog');
+    expect(dialog).not.toBeNull();
+    expect(dialog).not.toHaveAttribute('open');
+  });
+});

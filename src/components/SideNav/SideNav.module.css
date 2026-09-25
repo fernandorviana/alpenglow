@@ -18,6 +18,8 @@
   --sidenav-justify: flex-start;
   --sidenav-inset-start: var(--ap-spacing-200);
   --sidenav-inset-end: var(--ap-spacing-250);
+  --sidenav-item-width: auto;
+  --sidenav-align: stretch;
 
   display: flex;
   flex-direction: column;
@@ -31,14 +33,18 @@
   transition: inline-size var(--ap-motion-duration-travel) var(--ap-motion-easing-standard);
 }
 
-/* Icons only: the item is a 48 circle around its 24 icon, the label gone and
-   the name in a tooltip. */
+/* Icons only: the item is a circle around its 24 icon, centred in the rail,
+   the label gone and the name in a tooltip. Drawn 48 (157:9589); here the
+   item's own height, the density token, 40 comfortable and 32 compact, until
+   the token moves to the drawn 48. */
 .collapsed {
   --sidenav-width: 80px;
   --sidenav-label: none;
   --sidenav-justify: center;
   --sidenav-inset-start: 0;
   --sidenav-inset-end: 0;
+  --sidenav-item-width: var(--ap-density-nav-item);
+  --sidenav-align: center;
 }
 
 .list {
@@ -48,6 +54,16 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* An item's place in the list. At 200 the item is the row; collapsed, the
+   Tooltip's wrapper, inline-flex and the trigger's own size, is centred, so
+   the circle sits in the middle of the rail and its tooltip opens 8 from it.
+   The Tooltip's own display is left alone: other triggers rely on it. */
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: var(--sidenav-align);
 }
 
 /* The drawn 40 above Settings, and the list takes the rest. */
@@ -65,6 +81,7 @@
   align-items: center;
   justify-content: var(--sidenav-justify);
   gap: var(--ap-spacing-200);
+  inline-size: var(--sidenav-item-width);
   min-block-size: var(--ap-density-nav-item);
   padding-block: calc((var(--ap-density-nav-item) - var(--ap-spacing-300)) / 2);
   padding-inline: var(--sidenav-inset-start) var(--sidenav-inset-end);
@@ -125,9 +142,16 @@
 
 .sheet::backdrop { background: var(--ap-color-surface-scrim); }
 
+/* The height left under the close button, and no more: .sidenav's
+   min-block-size of 100% is the rail's, and here it made the nav as tall as
+   the dialog, under the button, which put Settings, at the foot, 16 past the
+   sheet's bottom edge at 375×812. On a screen too short for the list, the
+   list scrolls inside the sheet. */
 .inSheet {
   flex: 1 1 auto;
   inline-size: 280px;
+  min-block-size: 0;
+  overflow-y: auto;
   border-inline-end: 0;
 }
 

@@ -89,7 +89,7 @@ export function SideNav({
           </Anchor>
         );
         return (
-          <li key={item.href}>
+          <li key={item.href} className={styles.entry}>
             {compact ? (
               <Tooltip content={item.label} purpose="label" placement="end">
                 {link}
