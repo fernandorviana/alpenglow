@@ -119,10 +119,30 @@ npm install
 npm run dev          # the documentation site at localhost:3000
 npm run build:css    # regenerate both stylesheets
 npm run check        # types, then every documented contrast ratio
+npm run build:docs   # the site as a static export, in out/
+npm run audit:responsive                               # the build, every route, five widths
+npm run audit:css-order -- --a <dev url> --b <built url>  # the same pages, dev against the build
 ```
 
 The site is a static export, so it hosts anywhere. Set `DOCS_BASE` if it is
 served from a subpath.
+
+The two audits are how a change is seen in the production build and not only
+in `next dev`, which loads CSS in a different order. `audit:responsive` serves
+`out/` itself and opens every route at 320, 375, 768, 1024 and 1440 (dark at
+375 and 1440 too), and reports a page that scrolls sideways, content that
+overflows with nothing clipping it, and content a box clips instead of
+wrapping; `--only /drawer,/table` narrows the routes, `--widths 320,375` the
+widths, and `--shots` keeps screenshots. `audit:css-order` measures every
+element's box under `<main>` on two servers of the same site, at 1440 and 375,
+and reports any that differ by more than 2px — a rule that wins on one side
+and loses on the other; it skips `/screen`, which frames `/screen/full`, and
+says so. Both exit 1 on a failure or a run that errored, and 2 when `--only`
+names a route the build does not have; both write to `.audit/`.
+
+They drive Google Chrome, headless, over the DevTools protocol — from its
+macOS path, or from `CHROME=/path/to/chrome` — and need Node 22 or later, for
+its global `WebSocket`.
 
 ## Licence
 
