@@ -5,7 +5,7 @@ import { render } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { readCss, block } from '@/test/css';
 import { layout } from '@/tokens/layout';
-import { minViewport } from '@/tokens/scale';
+import { minViewport, spacing } from '@/tokens/scale';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/',
@@ -157,6 +157,16 @@ describe.each(['layout', 'density'] as const)('the headers on /%s', (page) => {
         }
       }
     }
+  });
+
+  it('writes a minimum as a spacing token where one is exact, and a number only where none is', () => {
+    // A literal equal to a step of the scale is that token by another name.
+    // The numbers left — /layout's 136, /density's 120 — sit between two
+    // steps, each of which fails: the page says which.
+    const steps = new Set<number>(Object.values(spacing));
+    const source = readFileSync(`app/${page}/page.tsx`, 'utf8');
+    const literals = [...source.matchAll(/minWidth: (\d+)/g)].map(([, n]) => Number(n));
+    expect(literals.filter((n) => steps.has(n))).toEqual([]);
   });
 });
 

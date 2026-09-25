@@ -30,9 +30,10 @@ const COLUMNS: Column<Row>[] = [
   { key: 'token', header: 'Token', primary: true, minWidth: spacing[1300], cell: (r) => <span className="tokenName">density/{r.name}</span> },
   // minWidth said: at its default 96 the header "Comfortable" overflowed its
   // own end-aligned column once the Table narrowed past its Type column. It
-  // is 92, so 120 with the cell's 24 holds it — and leaves room beside the
-  // token's 160 at 320, where 128 put the pair 2px past the phone's 288 and
-  // the table showed its names alone.
+  // is 92, and needs 116 with the cell's 24. 120 is on no scale: the step
+  // below, 96, cuts the header, and the step above, 128, put the pair 2px
+  // past the phone's 288 beside the token's 160, and the table showed its
+  // names alone.
   { key: 'comfortable', header: 'Comfortable', align: 'end', minWidth: 120, cell: (r) => `${r.entry.comfortable}px` },
   { key: 'compact', header: 'Compact', align: 'end', cell: (r) => `${r.entry.compact}px` },
   { key: 'use', header: 'Read by', cell: (r) => r.entry.use },
