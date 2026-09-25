@@ -3,10 +3,16 @@ import Link from 'next/link';
 
 /**
  * A grid of cards, each a link to one page of the documentation. A list, so
- * a screen reader can say how many there are and step through them.
+ * a screen reader can say how many there are and step through them. The
+ * frame around it is the grid's container: the number of columns answers the
+ * width the cards have, which the viewport does not tell (`app/docs.css`).
  */
 export function Cards({ children }: { children: ReactNode }) {
-  return <ul className="cards">{children}</ul>;
+  return (
+    <div className="cardsFrame">
+      <ul className="cards">{children}</ul>
+    </div>
+  );
 }
 
 /**

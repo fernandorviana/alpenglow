@@ -980,16 +980,53 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* --- home: cards ---------------------------------------------------------- */
 
-/* One card per page, in the sidebar's groups. The grid fills the column at
-   whatever width it has, three across in the 832px column and one on a
-   phone. */
+/* One card per page, in the sidebar's groups, and every row full. The count
+   of columns answers the width the cards have — 656 at md, 852 at xl, 1032
+   at 1160 with the drawer shut, 740 beside the wide page's section list —
+   which the viewport does not tell, so the frame around the list is its
+   container. `auto-fill` counted columns from the track alone: at 768 every
+   three-card grid stood as two and one beside an empty cell, and at 1160
+   /components' 33 went four across and left the last alone.
+
+   One across below two cards of 232 and their gap (30rem); two across below
+   three (45.5rem), where the last of an odd count takes the row; three
+   across from there and never four, on six tracks so what the last row
+   holds shares it — two take half each, one takes it all. Three cards and
+   no more make one row of three from 40rem, each at least 202, rather than
+   two and one. The frame carries the margin: a container keeps its
+   children's margins inside it. */
+.cardsFrame {
+  container-type: inline-size;
+  margin: 0 0 var(--ap-spacing-400);
+}
+
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--ap-spacing-200);
-  margin: 0 0 var(--ap-spacing-400);
+  margin: 0;
   padding: 0;
   list-style: none;
+}
+
+@container (30rem <= width < 45.5rem) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+@container (width >= 45.5rem) {
+  .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .cards > * { grid-column: span 2; }
+
+  .cards > :nth-last-child(2):nth-child(3n + 1),
+  .cards > :last-child:nth-child(3n + 2) { grid-column: span 3; }
+
+  .cards > :last-child:nth-child(3n + 1) { grid-column: span 6; }
+}
+
+@container (40rem <= width < 45.5rem) {
+  .cards:has(> :last-child:nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cards:has(> :last-child:nth-child(3)) > :last-child { grid-column: auto; }
 }
 
 /* Concentric: the card's 2xl (16) is the visual's sm (4) plus the 12 of
