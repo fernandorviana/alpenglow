@@ -84,6 +84,60 @@ function limit(panel: HTMLElement, layered: boolean, minWidth: number, maxWidth:
   return Math.max(minWidth, Math.min(maxWidth ?? Infinity, room));
 }
 
+/** What never takes the focus or paints, and so has nothing to be inert about. */
+const UNRENDERED = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'LINK', 'META', 'NOSCRIPT']);
+
+/**
+ * Everything outside `panel` goes inert, as a modal dialog's page does, and
+ * comes back with the returned function. Kept alive: the panel, and every
+ * `<dialog>` — a Dialog the caller opens over the panel ("leave without
+ * saving?") is the page's, beside it, and must answer; a closed one shows
+ * nothing. The walk inerts the largest boxes that hold neither, and what the
+ * page adds beside them while the panel is open. What was inert already is
+ * left as it was, before and after.
+ */
+function inertOutside(panel: HTMLElement): () => void {
+  const added: Element[] = [];
+  const keep = (el: Element) => el === panel || el.tagName === 'DIALOG';
+  const holds = (el: Element) => el.contains(panel) || el.querySelector('dialog') !== null;
+  // A box that is kept alive for what it holds is watched for what is added
+  // to it; anything added inside an inert box is inert already.
+  const observer =
+    typeof MutationObserver === 'undefined'
+      ? undefined
+      : new MutationObserver((records) => {
+          for (const record of records) {
+            for (const node of record.addedNodes) if (node instanceof Element) seal(node);
+          }
+        });
+  function seal(el: Element) {
+    if (keep(el) || UNRENDERED.has(el.tagName)) return;
+    if (holds(el)) {
+      observer?.observe(el, { childList: true });
+      for (const child of el.children) seal(child);
+      return;
+    }
+    if (el.hasAttribute('inert')) return;
+    el.setAttribute('inert', '');
+    added.push(el);
+  }
+  seal(document.body);
+  return () => {
+    observer?.disconnect();
+    for (const el of added) el.removeAttribute('inert');
+  };
+}
+
+/** The panel's stops for Tab, in order: what can take the focus and is seen. */
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, iframe, [contenteditable]:not([contenteditable="false"]), [tabindex]';
+
+function stops(panel: HTMLElement) {
+  return [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+    (el) => el.tabIndex >= 0 && el.closest('[inert]') === null && el.checkVisibility?.() !== false,
+  );
+}
+
 /** Something inside with a popover open — a Select, a DatePicker — owns the Esc. */
 function hasOpenPopover(panel: HTMLElement) {
   try {
@@ -95,12 +149,21 @@ function hasOpenPopover(panel: HTMLElement) {
 }
 
 /**
- * A panel at the side of the page for a record's detail, a form, filters. Not
- * modal: the page beside it stays live, and a press there does nothing to it.
+ * A panel at the side of the page for a record's detail, a form, filters.
+ * From `md` up it is not modal: the page beside it stays live, and a press
+ * there does nothing to it. Below `md` it is over the content, the screen at a
+ * phone's width, and modal: the page outside it inert, `aria-modal`, Tab kept
+ * to it, and the focus back where it was on close.
  *
  * Over the content it is `popover="manual"`, which is the top layer with no
- * light dismiss and no inert page; in the flow it is an element like any
- * other. It is rendered only while open.
+ * light dismiss; in the flow it is an element like any other. It is rendered
+ * only while open.
+ *
+ * Modal by `inert`, not by `showModal()`: the element stays one popover on
+ * both sides of `md`, so crossing the line while open changes attributes and
+ * not the element — no second entrance, no focus moved by the platform, no
+ * backdrop — and Esc stays the Drawer's to hand to `onClose`, where a modal
+ * `<dialog>` turns it into a close of its own.
  */
 export function Drawer({
   open,
@@ -145,6 +208,8 @@ export function Drawer({
   // panel open at load is beside the content first and over it a moment later.
   const narrow = useMediaQuery(DRAWER_NARROW);
   const layered = mode === 'overlay' || expanded || narrow;
+  // Below md every Drawer is over the content, and modal.
+  const modal = narrow;
   const current = width ?? own;
   const start = defaultWidth ?? DRAWER_WIDTH[size];
 
@@ -152,6 +217,12 @@ export function Drawer({
   useEffect(() => {
     if (panel && layered) panel.togglePopover(true);
   }, [panel, layered]);
+
+  // The page outside, inert while the panel is modal. Returned before the
+  // focus goes back, which waits a task.
+  useEffect(() => {
+    if (panel && modal) return inertOutside(panel);
+  }, [panel, modal]);
 
   // The focus, in and back. What had it is read before the panel is there.
   useEffect(() => {
@@ -252,12 +323,29 @@ export function Drawer({
       id={panelId}
       popover={layered ? 'manual' : undefined}
       role={layered ? 'dialog' : 'region'}
+      aria-modal={modal || undefined}
       aria-labelledby={title && !header ? titleId : undefined}
       aria-label={title && !header ? undefined : (ariaLabel ?? title)}
       tabIndex={-1}
       className={classes.filter(Boolean).join(' ')}
       style={current === undefined ? undefined : ({ '--drawer-width': `${current}px` } as CSSProperties)}
       onKeyDown={(event) => {
+        if (event.key === 'Tab' && modal && !event.defaultPrevented) {
+          // The page outside is inert, and a Tab past either end would leave
+          // for the browser's own controls: it goes round instead.
+          const panelEl = event.currentTarget;
+          const all = stops(panelEl);
+          const first = all[0];
+          const last = all[all.length - 1];
+          const active = document.activeElement;
+          const round = event.shiftKey ? (active === first || active === panelEl ? last : undefined) : active === last ? first : undefined;
+          if (!first) event.preventDefault();
+          else if (round) {
+            event.preventDefault();
+            round.focus();
+          }
+          return;
+        }
         if (event.key !== 'Escape' || event.defaultPrevented || hasOpenPopover(event.currentTarget)) return;
         event.preventDefault();
         onClose();

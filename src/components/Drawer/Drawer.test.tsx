@@ -209,6 +209,139 @@ describe('Drawer — inline, on a phone', () => {
   });
 });
 
+/**
+ * Below md the Drawer is over the content, and at a phone's width it is the
+ * screen: a panel that let Tab and a screen reader reach the page it hides
+ * would fail WCAG 2.4.11 (ruling, 2026-09-25). There it is modal — the page
+ * outside inert, `aria-modal`, Tab kept to the panel, the focus back on
+ * close. From md up it is not, as its spec says. jsdom has no `inert`, so the
+ * attribute is what is asserted, and the Tab that would leave the panel is
+ * the Drawer's own to keep.
+ */
+describe('Drawer — on a phone, modal', () => {
+  afterEach(() => {
+    delete (window as { matchMedia?: unknown }).matchMedia;
+  });
+
+  function Phone({ initiallyOpen = false, ...props }: Partial<DrawerProps> & { initiallyOpen?: boolean }) {
+    const [open, setOpen] = useState(initiallyOpen);
+    return (
+      <>
+        <header>
+          <button onClick={() => setOpen(true)}>Open</button>
+        </header>
+        <main>
+          <p>The week</p>
+          <section>
+            <button>Another slot</button>
+            <dialog aria-label="Leave without saving?">
+              <button>Leave</button>
+            </dialog>
+          </section>
+        </main>
+        <Appointment
+          actions={<button>Save</button>}
+          {...props}
+          open={open}
+          onClose={() => setOpen(false)}
+          children={
+            <>
+              <input aria-label="Patient" />
+              <input aria-label="Location" />
+            </>
+          }
+        />
+      </>
+    );
+  }
+
+  it('is aria-modal, and everything outside it is inert but a dialog, which a Drawer may open over itself', () => {
+    mockMedia(true);
+    render(<Phone initiallyOpen />);
+    const panel = screen.getByRole('dialog', { name: 'New appointment' });
+    expect(panel).toHaveAttribute('aria-modal', 'true');
+    expect(panel.closest('[inert]')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Open' }).closest('[inert]')).not.toBeNull();
+    expect(screen.getByText('The week').closest('[inert]')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Another slot' }).closest('[inert]')).not.toBeNull();
+    // The Dialog that asks "leave without saving?" is the page's, beside the
+    // panel; it opens over it and must answer.
+    const asking = document.querySelector('dialog')!;
+    expect(asking.closest('[inert]')).toBeNull();
+  });
+
+  it('keeps Tab in the panel: from the last control to the first, and Shift+Tab back', async () => {
+    mockMedia(true);
+    const user = userEvent.setup();
+    render(<Phone initiallyOpen />);
+    screen.getByRole('button', { name: 'Save' }).focus();
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
+    // From the panel itself, where the focus lands on the way in.
+    act(() => screen.getByRole('dialog').focus());
+    await user.tab({ shift: true });
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
+  });
+
+  it('gives the page back on close, with the focus on what opened it, and leaves alone what was inert before', async () => {
+    mockMedia(true);
+    const user = userEvent.setup();
+    const { container } = render(<Phone />);
+    const before = document.createElement('div');
+    before.setAttribute('inert', '');
+    container.append(before);
+    const opener = screen.getByRole('button', { name: 'Open' });
+    await user.click(opener);
+    expect(opener.closest('[inert]')).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog', { name: 'New appointment' })).toBeNull();
+    expect([...document.querySelectorAll('[inert]')]).toEqual([before]);
+    await waitFor(() => expect(opener).toHaveFocus());
+  });
+
+  it('makes inert what the page adds beside it while it is open', async () => {
+    mockMedia(true);
+    const { container } = render(<Phone initiallyOpen />);
+    const late = document.createElement('button');
+    late.textContent = 'Late';
+    await act(async () => {
+      container.append(late);
+      // The observer reports as a microtask.
+      await Promise.resolve();
+    });
+    expect(late).toHaveAttribute('inert');
+  });
+
+  it('from md up is not modal: no aria-modal, nothing inert, and Tab goes on into the page', async () => {
+    const media = mockMedia(false);
+    const user = userEvent.setup();
+    render(<Phone initiallyOpen />);
+    const panel = screen.getByRole('dialog', { name: 'New appointment' });
+    expect(panel).not.toHaveAttribute('aria-modal');
+    expect(document.querySelector('[inert]')).toBeNull();
+    screen.getByRole('button', { name: 'Save' }).focus();
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Save' })).not.toHaveFocus();
+    expect(panel).not.toContainElement(document.activeElement as HTMLElement);
+    // Across the line while open, it follows.
+    media.set(true);
+    expect(panel).toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByRole('button', { name: 'Open' }).closest('[inert]')).not.toBeNull();
+    media.set(false);
+    expect(panel).not.toHaveAttribute('aria-modal');
+    expect(document.querySelector('[inert]')).toBeNull();
+  });
+
+  it('is modal below md in either mode, the inline one included', () => {
+    mockMedia(true);
+    render(<Phone initiallyOpen mode="inline" />);
+    expect(screen.getByRole('dialog', { name: 'New appointment' })).toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByText('The week').closest('[inert]')).not.toBeNull();
+  });
+});
+
 describe('Drawer — closing', () => {
   it('tells the caller and does not close itself', async () => {
     const onClose = vi.fn();

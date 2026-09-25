@@ -86,6 +86,20 @@ describe('the Scheduler page’s Try it', () => {
     expect(screen.queryByRole('dialog', { name: 'Calendar and filters' })).toBeNull();
   });
 
+  it('below md, the side column’s Drawer is modal: the grid under it is inert until it closes, and the focus goes back to its button', async () => {
+    width = 375;
+    render(<Page />);
+    await userEvent.click(sideButton()!);
+    const drawer = screen.getByRole('dialog', { name: 'Calendar and filters' });
+    expect(drawer).toHaveAttribute('aria-modal', 'true');
+    expect(grid().closest('[inert]')).not.toBeNull();
+    expect(sideButton()!.closest('[inert]')).not.toBeNull();
+    expect(drawer.closest('[inert]')).toBeNull();
+    await userEvent.click(within(drawer).getByRole('button', { name: 'Close' }));
+    expect(grid().closest('[inert]')).toBeNull();
+    await vi.waitFor(() => expect(sideButton()).toHaveFocus());
+  });
+
   it('below md, offers the views a phone has', async () => {
     width = 375;
     render(<Page />);

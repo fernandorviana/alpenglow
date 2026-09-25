@@ -90,7 +90,7 @@ const CHOICES: Choice[] = [
 type Key = { key: string; does: string };
 const KEYS: Key[] = [
   { key: 'Esc, inside the panel', does: 'Asks the caller to close. A Select or a DatePicker open inside takes it first.' },
-  { key: 'Tab', does: 'Goes through the panel and on into the page: nothing is inert.' },
+  { key: 'Tab', does: `From ${breakpoint.md} up, goes through the panel and on into the page: nothing is inert. Below it, goes round inside the panel: the page is inert.` },
   { key: 'Left, Right, on the handle', does: `Move the inner edge by ${spacing[200]}.` },
   { key: 'Home, End, on the handle', does: 'The least and the most.' },
   { key: 'Double click, on the handle', does: 'Back to the starting width.' },
@@ -320,10 +320,16 @@ export default function Page() {
       <p>
         The roadmap had this as a <code>dialog</code> element at the side, with the <a href="/dialog">Dialog</a>&rsquo;s
         rules. Decided on 2026-09-21: the rules stay and the element does not. In the product this was drawn for, the
-        calendar beside the panel stays live — another appointment is a press away — so there is no scrim and nothing
-        is inert. What stops a form from being lost is not the page being locked but the page being asked: Esc and the
-        close button call <code>onClose</code>, and the caller either closes it or opens a Dialog that says what will
-        be lost. A press outside does nothing, as on the Dialog.
+        calendar beside the panel stays live — another appointment is a press away — so from {breakpoint.md} up there
+        is no scrim and nothing is inert. What stops a form from being lost is not the page being locked but the page
+        being asked: Esc and the close button call <code>onClose</code>, and the caller either closes it or opens a
+        Dialog that says what will be lost. A press outside does nothing, as on the Dialog.
+      </p>
+      <p>
+        Below {breakpoint.md} there is no page beside it: the panel is over the content, and at a phone&rsquo;s width
+        it is the screen. There it is modal (2026-09-25): the page outside is inert, the panel is{' '}
+        <code>aria-modal</code>, Tab goes round inside it, and the focus goes back on close, so neither the keyboard
+        nor a screen reader wanders into what it hides. Still no scrim, and a Dialog opened from it still answers.
       </p>
       <p>
         Over the content it is <code>popover=&quot;manual&quot;</code>: the top layer, with no <code>z-index</code>,
@@ -352,8 +358,8 @@ export default function Page() {
 
       <h2>Accessibility</h2>
       <p>
-        Over the content it is a <code>dialog</code> that is never <code>aria-modal</code>; beside it, a named{' '}
-        <code>region</code>. The focus goes to <code>initialFocus</code> or to the panel on the way in, and on the way
+        Over the content it is a <code>dialog</code>, <code>aria-modal</code> only below {breakpoint.md}; beside
+        it, a named <code>region</code>. The focus goes to <code>initialFocus</code> or to the panel on the way in, and on the way
         out back to what had it — unless the reader has already gone somewhere else, where it is left. The handle is a{' '}
         <code>separator</code> with the width as its value, so a resize is not the pointer&rsquo;s alone.
       </p>

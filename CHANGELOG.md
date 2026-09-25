@@ -207,6 +207,15 @@ their type, under Breaking: the Table's `Column.width` and `bulkActions`.
   with `role="region"`, as before. A caller who put an inline Drawer beside
   the content at a phone's width now gets the layer. The query is
   `DRAWER_NARROW`, in rem.
+- **Below `md` every Drawer is modal.** There it is over the content, and
+  at a phone's width it is the screen, yet Tab and a screen reader went on
+  into the page it hid. Now the page outside the panel is `inert`, the panel
+  is `aria-modal="true"`, Tab goes round inside it, and the focus goes back
+  to what opened it on close. A `<dialog>` outside is left alive, so a
+  Dialog opened from the panel still answers. From 768 up nothing changes:
+  not modal, nothing inert. A caller who kept the page behind a phone's
+  Drawer in use — a list pressed while the panel was open — no longer can;
+  the panel closes first.
 - **In dark the SegmentedControl's thumb takes a `border/strong`
   hairline**, and so does the Tabs' segmented variant, which shares its
   stylesheet: the thumb's `surface/overlay` fill was nearly invisible on

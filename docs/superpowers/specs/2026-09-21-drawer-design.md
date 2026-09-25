@@ -34,6 +34,16 @@ the Accordion, the next piece of the roadmap.
    about: a modal "leave without saving?". So the panel never closes itself.
    Esc inside it and the close button call `onClose`, and the caller either
    sets `open` to false or opens a Dialog first. A press outside does nothing.
+   *Amended 2026-09-25:* from `md` up. Below `md` (`DRAWER_NARROW`) the panel
+   is over the content — at a phone's width it is the screen — and a panel
+   that let Tab and a screen reader reach the page it hides fails WCAG
+   2.4.11, so there it is modal: the page outside inert, `aria-modal="true"`,
+   Tab going round inside the panel, the focus back on close. Modal by
+   `inert` on the page rather than by `showModal()`: the element stays one
+   popover on both sides of the line, and Esc stays the Drawer's. A
+   `<dialog>` outside is left alive, so the "leave without saving?" Dialog
+   still opens over it. The agent's ruling, on the owner's rule of that day
+   (decision 4); it waits on Fernando's yes.
 3. **Expand is full screen**, as Asana's task pane: the panel covers the page.
    md and lg are the designer's choice of width and are not what the button
    changes.
@@ -52,11 +62,13 @@ the Accordion, the next piece of the roadmap.
 
 ## Shape
 
-One element, `role="dialog"` and never `aria-modal`, rendered only while `open`.
+One element, `role="dialog"`, rendered only while `open`; `aria-modal` only
+below `md` (decision 2, amended 2026-09-25).
 
 - **overlay**, and either kind while expanded: `popover="manual"`, shown once
-  mounted. The top layer without a z-index, no light dismiss, no inert page.
-  Fixed to the side, `100dvh` tall.
+  mounted. The top layer without a z-index, no light dismiss; from `md` up no
+  inert page, below it the page outside inert. Fixed to the side, `100dvh`
+  tall.
 - **inline**, from `md` up: no `popover`; in the flow, `role="region"`. The
   caller puts it beside the content in a flex row; it stretches to the row's
   height, and its body scrolls. Below `md` (`DRAWER_NARROW`) it is the
