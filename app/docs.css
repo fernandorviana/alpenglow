@@ -2098,10 +2098,12 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   color: var(--ap-color-text-secondary);
 }
 
-/* Each mark in the drawing's paint for its band: the crest the 2px ink
-   line, the paths dashed, the terrain the ground outlined, the contours
-   three lines with no fill, the outcrop and the bedrock the rock — the
-   outcrop only where it breaks the surface, at the end, as drawn. */
+/* Each mark in the drawing's paint for its band: the crest the ink line at
+   twice the hairline, as the drawing strokes it at 2 — the one 2px border
+   token is the focus ring's, not a line's — the paths dashed, the terrain
+   the ground outlined, the contours three hairlines 6 apart with no fill,
+   the outcrop and the bedrock the rock — the outcrop only where it breaks
+   the surface, at the end, as drawn. */
 .layersMark {
   grid-column: 2;
   grid-row: 1 / 3;
@@ -2111,7 +2113,7 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .layersBand[data-band='crest'] .layersMark {
   height: 0;
-  border-top: 2px solid var(--ap-color-text-primary);
+  border-top: calc(2 * var(--ap-border-width-hairline)) solid var(--ap-color-text-primary);
 }
 
 .layersBand[data-band='paths'] .layersMark {
@@ -2126,10 +2128,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 .layersBand[data-band='contours'] .layersMark {
   background: repeating-linear-gradient(
-    var(--ap-color-border-strong) 0 1px,
-    transparent 1px var(--ap-spacing-075)
+    var(--ap-color-border-strong) 0 var(--ap-border-width-hairline),
+    transparent var(--ap-border-width-hairline) var(--ap-spacing-075)
   );
-  height: 13px;
+  height: calc(2 * var(--ap-spacing-075) + var(--ap-border-width-hairline));
 }
 
 .layersBand[data-band='outcrop'] .layersMark,
@@ -2145,7 +2147,9 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 
 /* The light: a source in the corner, and a ray from it across the marks'
    column to the foot of the stack. On top, so it crosses the filled bands
-   rather than passing behind them. */
+   rather than passing behind them. The source is the drawing's r=5 circle
+   at 1:1, 10 across: the spacing scale steps from 8 to 12, so no token is
+   exact. */
 .layersStack::before,
 .layersStack::after {
   content: '';
@@ -2159,9 +2163,10 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   width: var(--ap-spacing-1000);
   background: linear-gradient(
     to bottom right,
-    transparent calc(50% - 0.5px),
-    var(--ap-color-text-tertiary) calc(50% - 0.5px) calc(50% + 0.5px),
-    transparent calc(50% + 0.5px)
+    transparent calc(50% - var(--ap-border-width-hairline) / 2),
+    var(--ap-color-text-tertiary) calc(50% - var(--ap-border-width-hairline) / 2)
+      calc(50% + var(--ap-border-width-hairline) / 2),
+    transparent calc(50% + var(--ap-border-width-hairline) / 2)
   );
 }
 

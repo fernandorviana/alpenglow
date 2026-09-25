@@ -154,4 +154,21 @@ describe('Layers', () => {
     }
     expect(texts).toBeGreaterThan(0);
   });
+
+  it('gives every band of the stack a mark of its own in the stylesheet', () => {
+    // The marks are painted by `data-band`, so a band added to LAYERS without
+    // a rule would stand in the stack with no mark and nothing would fail.
+    const css = readCss('app/docs.css');
+    for (const { id } of LAYERS) expect(css, id).toContain(`.layersBand[data-band='${id}'] .layersMark`);
+  });
+
+  it('sizes the stack from tokens, but for the light’s source, the drawing’s own 10', () => {
+    // The dot is the drawing's r=5 circle at 1:1; the spacing scale steps
+    // from 8 to 12, so no token is exact.
+    const rules = [...readCss('app/docs.css').matchAll(/([^{}]*\.layers[A-Z][^{}]*)\{([^{}]*)\}/g)];
+    const raw = rules.flatMap(([, selector, body]) =>
+      [...body!.replace(/var\([^)]*\)/g, '').matchAll(/\b\d+(?:\.\d+)?px\b/g)].map((m) => `${selector!.trim()}: ${m[0]}`),
+    );
+    expect(raw).toEqual(['.layersStack::after: 10px', '.layersStack::after: 10px']);
+  });
 });
