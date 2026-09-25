@@ -232,6 +232,55 @@ describe('Tooltip — opening and closing', () => {
     expect(isOpen(search!)).toBe(true);
   });
 
+  it('while `when` is false, opens on nothing, and so takes neither the one slot nor an Esc', () => {
+    // Filters' chip words: a Tooltip that says them whole only while they are
+    // cut short. A panel opened and then hidden by a rule would still be a
+    // shown popover — one a Drawer finds with :popover-open and gives its
+    // Esc to — and would still close a real tooltip elsewhere and cancel the
+    // next Esc at the document.
+    render(
+      <>
+        <Tooltip content="Copy link"><button type="button">Copy</button></Tooltip>
+        <Tooltip content="Status is Active" when={false}><button type="button">Status is Active</button></Tooltip>
+      </>,
+    );
+    const [copy, whole] = screen.getAllByRole('tooltip', { hidden: true });
+    const chip = screen.getByRole('button', { name: 'Status is Active' });
+    fireEvent.pointerEnter(screen.getByRole('button', { name: 'Copy' }).parentElement!, { pointerType: 'mouse' });
+    advance(TOOLTIP_OPEN_DELAY);
+    expect(isOpen(copy!)).toBe(true);
+    fireEvent.pointerEnter(chip.parentElement!, { pointerType: 'mouse' });
+    advance(TOOLTIP_OPEN_DELAY * 2);
+    expect(isOpen(whole!)).toBe(false);
+    expect(isOpen(copy!)).toBe(true);
+    fireEvent.pointerLeave(screen.getByRole('button', { name: 'Copy' }).parentElement!, { pointerType: 'mouse' });
+    advance(TOOLTIP_CLOSE_DELAY);
+    expect(isOpen(copy!)).toBe(false);
+    tabTo(chip);
+    expect(isOpen(whole!)).toBe(false);
+    const esc = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    chip.dispatchEvent(esc);
+    expect(esc.defaultPrevented).toBe(false);
+  });
+
+  it('closes when `when` turns false while it is open, and opens again once it is true', () => {
+    const Chip = ({ when }: { when: boolean }) => (
+      <Tooltip content="Status is Active or Invite pending" when={when}>
+        <button type="button">Status</button>
+      </Tooltip>
+    );
+    const { rerender } = render(<Chip when />);
+    const button = screen.getByRole('button');
+    tabTo(button);
+    expect(isOpen(panelOf())).toBe(true);
+    rerender(<Chip when={false} />);
+    expect(isOpen(panelOf())).toBe(false);
+    rerender(<Chip when />);
+    act(() => button.blur());
+    tabTo(button);
+    expect(isOpen(panelOf())).toBe(true);
+  });
+
   it('never shows a popover that is already showing', () => {
     // The platform throws InvalidStateError on a second showPopover; the stub
     // does not, so the call is counted.

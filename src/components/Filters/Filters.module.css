@@ -84,15 +84,11 @@
   vertical-align: top;
 }
 
-/* The Tooltip that says the words whole: always there, and shown only while
+/* The Tooltip that says the words whole: always there, and opened only while
    they are cut short (ChipWords). Its wrapper holds to the chip as the words
    do, so the ellipsis is the button's. */
 .tip {
   min-width: 0;
-}
-
-.tip:has(> .words:not([data-truncated])) > [role='tooltip'] {
-  display: none;
 }
 
 .words:hover { text-decoration: underline; }

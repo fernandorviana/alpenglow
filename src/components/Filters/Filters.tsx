@@ -54,27 +54,28 @@ const describeDefault = (field: FilterField, chosen: FilterOption[]) => (
  * A chip's words: the button that opens its values, ended with an ellipsis
  * when the chip is wider than the bar. The system's Tooltip says them whole
  * on hover and on keyboard focus, while they are cut short — measured, as
- * the button's scroll width past its own. The Tooltip is always there, so
- * the button is never remounted under the focus; while the words are whole
- * the rules keep its panel from showing. It names the button with the same
- * words, so the name does not change.
+ * the button's scroll width past its own — and opens on nothing while they
+ * are whole. The Tooltip is always there, so the button is never remounted
+ * under the focus, and it names the button with the same words, so the name
+ * does not change.
  */
 function ChipWords({ words, trigger }: { words: ReactNode; trigger: PopoverTriggerProps }) {
   const button = useRef<HTMLButtonElement>(null);
   const [cut, setCut] = useState(false);
+  // Once. New words or a narrower bar change the button's size, and the
+  // observer reads it again then; jsdom has none, and reads the first.
   useLayoutEffect(() => {
     const element = button.current;
     if (!element) return;
     const read = () => setCut(element.scrollWidth > element.clientWidth);
     read();
-    // Again as the bar narrows or widens. jsdom has none.
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(read);
     observer.observe(element);
     return () => observer.disconnect();
-  });
+  }, []);
   return (
-    <Tooltip content={words} purpose="label" className={styles.tip}>
+    <Tooltip content={words} purpose="label" when={cut} className={styles.tip}>
       <button ref={button} type="button" className={styles.words} data-truncated={cut || undefined} {...trigger}>
         {words}
       </button>

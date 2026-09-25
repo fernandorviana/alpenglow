@@ -1,10 +1,14 @@
-import { render, screen, within } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterAll, beforeAll, describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Filters } from './Filters';
 import type { FilterField, FilterValue } from './Filters';
 import styles from './Filters.module.css';
+import { Dialog } from '../Dialog/Dialog';
+import { Drawer } from '../Drawer/Drawer';
+import { TOOLTIP_OPEN_DELAY } from '../Tooltip/Tooltip';
 import { installPopoverStub } from '../../test/popover';
+import { installDialogStub } from '../../test/dialog';
 import { readCss, block } from '../../test/css';
 import { axeViolations } from '../../test/axe';
 
@@ -201,13 +205,25 @@ describe('Filters — stylesheet', () => {
     expect(words).toMatch(/white-space:\s*nowrap/);
   });
 
-  it('says a chip’s whole words in a Tooltip while they are cut short, and draws no Tooltip while they are not', () => {
+  it('says a chip’s whole words in a Tooltip while they are cut short, and opens no Tooltip while they are not', () => {
     // The words are a focusable button, so the system's Tooltip is how the
     // rest of them is seen: on hover and on keyboard focus. It names the
     // button with the same words, so the name does not change. Measured:
-    // cut short is the button's scroll width past its own.
+    // cut short is the button's scroll width past its own, read again when
+    // the observer says the button's size has changed.
     // jsdom has no layout: its widths are Element's, and these shadow them.
     let cut = true;
+    let resized: (() => void) | undefined;
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          resized = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
     Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, get() { return cut ? 300 : 120; } });
     Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get() { return 120; } });
     try {
@@ -217,15 +233,26 @@ describe('Filters — stylesheet', () => {
       const tip = document.getElementById(chip.getAttribute('aria-labelledby')!.split(' ').pop()!)!;
       expect(tip).toHaveAttribute('role', 'tooltip');
       expect(tip).toHaveTextContent('Status is Active or Invite pending');
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      act(() => chip.focus());
+      expect(tip.style.display).toBe('block');
+      act(() => chip.blur());
+      // Fewer words, and the button's size changes with them.
       cut = false;
       rerender(<Filters fields={fields} value={[{ key: 'status', values: ['active'] }]} onChange={() => {}} />);
+      act(() => resized!());
       const whole = screen.getByRole('button', { name: 'Status is Active' });
+      // The same button: the Tooltip stays in the tree, so it is never
+      // remounted under the focus; it only opens on nothing.
+      expect(whole).toBe(chip);
       expect(whole).not.toHaveAttribute('data-truncated');
-      // The Tooltip stays in the tree, so the button is never remounted
-      // under the focus; the rules keep its panel from showing.
-      const quiet = block(css, '.tip:has(> .words:not([data-truncated])) > [role=\'tooltip\'] {');
-      expect(quiet).toMatch(/display:\s*none/);
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+      act(() => whole.focus());
+      expect(tip.style.display).not.toBe('block');
+      // No rule hides a shown panel: hidden, it would still be a shown popover.
+      expect(css).not.toMatch(/\[role=.tooltip.\][^{]*\{[^}]*display:\s*none/);
     } finally {
+      vi.unstubAllGlobals();
       Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
       Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
     }
@@ -236,5 +263,86 @@ describe('Filters — stylesheet', () => {
     expect(words).toContain('font: inherit');
     expect(words).toContain('background: none');
     expect(block(css, '.words:focus-visible {')).toContain('outline:');
+  });
+});
+
+/**
+ * A chip whose words are whole has nothing for its Tooltip to say, so the
+ * Tooltip never opens. Opened and hidden by a rule, as it was, the panel was
+ * still a shown popover: a Drawer that finds `:popover-open` inside it leaves
+ * the Esc to it, the Tooltip's document handler cancelled that Esc, and a
+ * Dialog's close request never came — the first Esc on a chip did nothing
+ * that could be seen, in either. And a hover on a whole chip closed a real
+ * tooltip elsewhere, the one open at a time.
+ */
+describe('Filters — a chip whose words are whole', () => {
+  installDialogStub();
+
+  // jsdom's selector engine has no :popover-open. The stub marks a shown
+  // popover with an inline `display: block`, and this reads that mark where
+  // the Drawer asks the platform, as a browser would answer.
+  const querySelector = Element.prototype.querySelector;
+  beforeAll(() => {
+    Element.prototype.querySelector = function (this: Element, selectors: string) {
+      if (selectors !== ':popover-open') return querySelector.call(this, selectors);
+      return [...this.querySelectorAll<HTMLElement>('[popover]')].find((el) => el.style.display === 'block') ?? null;
+    } as typeof Element.prototype.querySelector;
+  });
+  afterAll(() => {
+    Element.prototype.querySelector = querySelector;
+  });
+
+  /** Focus as the keyboard gives it: jsdom's :focus-visible follows the last input it saw. */
+  const tabTo = (element: HTMLElement) => {
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+    act(() => element.focus());
+  };
+
+  const bar = <Filters fields={fields} value={[{ key: 'role', values: ['owner'] }]} onChange={() => {}} />;
+  const chip = () => screen.getByRole('button', { name: 'Role is Owner' });
+  const tipOf = (button: HTMLElement) => document.getElementById(button.getAttribute('aria-labelledby')!.split(' ').pop()!)!;
+
+  it('never shows its Tooltip, on hover or on keyboard focus', () => {
+    vi.useFakeTimers();
+    try {
+      render(bar);
+      const words = chip();
+      expect(words).not.toHaveAttribute('data-truncated');
+      fireEvent.pointerEnter(words.parentElement!, { pointerType: 'mouse' });
+      act(() => void vi.advanceTimersByTime(TOOLTIP_OPEN_DELAY * 2));
+      expect(tipOf(words).style.display).not.toBe('block');
+      tabTo(words);
+      expect(tipOf(words).style.display).not.toBe('block');
+      expect(document.body.querySelector(':popover-open')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('inside a Drawer, the first Esc closes the Drawer', () => {
+    const onClose = vi.fn();
+    render(
+      <Drawer open onClose={onClose} title="Staff">
+        {bar}
+      </Drawer>,
+    );
+    tabTo(chip());
+    fireEvent.keyDown(chip(), { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('inside a Dialog, the first Esc is a close request', () => {
+    const onClose = vi.fn();
+    render(
+      <Dialog open onClose={onClose} title="Staff">
+        {bar}
+      </Dialog>,
+    );
+    const dialog = screen.getByRole('dialog', { name: 'Staff' });
+    tabTo(chip());
+    // The platform's part, which the stub leaves out: an Esc nothing
+    // cancelled becomes `cancel` on the open modal dialog.
+    if (fireEvent.keyDown(chip(), { key: 'Escape' })) fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

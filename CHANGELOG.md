@@ -235,6 +235,13 @@ their type, under Breaking: the Table's `Column.width` and `bulkActions`.
   shared rule as a custom property (`--control-width`, `--choice-indent`)
   instead of competing with it, so no order undoes it. The Switch's root
   takes a class of its own.
+- **Filters** — Esc on a chip whose words are whole reaches what is around
+  the bar again: in a Drawer the first Esc closes it, in a Dialog it is the
+  close request. The chip's Tooltip opened on every hover and keyboard focus
+  and a rule hid it while the words were whole; hidden, it was still a shown
+  popover, so the Drawer left the Esc to it and its own handler cancelled
+  the Esc, and a hover on the chip closed a tooltip open elsewhere. It now
+  opens only while the words are cut short.
 - **Textarea** — draws its box again: the fill, the border, the padding,
   the focus border and the invalid state. The bare field class meant for
   Input's inner `input` sat on the textarea itself and, declared later,

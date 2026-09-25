@@ -1,6 +1,6 @@
 'use client';
 
-import { cloneElement, useEffect, useId, useRef } from 'react';
+import { cloneElement, useEffect, useId, useLayoutEffect, useRef } from 'react';
 import type { CSSProperties, FocusEvent, PointerEvent, ReactElement, ReactNode } from 'react';
 import styles from './Tooltip.module.css';
 
@@ -67,6 +67,22 @@ export type TooltipProps = {
   className?: string;
 };
 
+/**
+ * What only the system's own components pass. Not in `TooltipProps`, so not
+ * part of what the package documents.
+ */
+type TooltipInternals = {
+  /**
+   * False, it opens on nothing: no hover, no focus. The panel stays in the
+   * tree, so the trigger keeps its name and is never remounted under the
+   * focus. Filters' chip words, whose Tooltip has something to say only while
+   * they are cut short. A panel opened and hidden by a rule instead would
+   * still be a shown popover: it would take the one-at-a-time slot, and the
+   * Esc a Drawer or a Dialog around it was waiting for.
+   */
+  when?: boolean;
+};
+
 export function Tooltip({
   content,
   description,
@@ -76,7 +92,8 @@ export function Tooltip({
   purpose = 'describe',
   children,
   className,
-}: TooltipProps) {
+  when = true,
+}: TooltipProps & TooltipInternals) {
   const uid = useId();
   const id = `${uid}-tooltip`;
   // useId's output is valid in an id and not in a CSS identifier.
@@ -100,9 +117,13 @@ export function Tooltip({
     close();
   });
 
+  // Read when the open is asked for, not when it was scheduled: a hover's
+  // open runs a delay after the render that set it up.
+  const allowed = useRef(when);
+
   function open() {
     clearTimeout(timer.current);
-    if (shown.current || !panel.current) return;
+    if (shown.current || !panel.current || !allowed.current) return;
     claim(owner.current, close);
     shown.current = true;
     panel.current.showPopover();
@@ -117,6 +138,13 @@ export function Tooltip({
     panel.current.hidePopover();
     document.removeEventListener('keydown', onEscape.current);
   }
+
+  // Before the browser paints, so a panel that has nothing more to say is
+  // never seen for a frame.
+  useLayoutEffect(() => {
+    allowed.current = when;
+    if (!when) close();
+  }, [when]);
 
   useEffect(() => {
     const onKey = onEscape.current;
