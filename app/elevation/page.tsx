@@ -1,6 +1,8 @@
+import { Fragment } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
+import { Table, type Column } from '@/components/Table';
 import { theme, type ThemeTokenName, type Mode } from '@/tokens/theme';
 import { composite, contrast, hexToRgb, lightness, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
 import { elevation, type ElevationName } from '@/tokens/elevation';
@@ -29,67 +31,105 @@ function lift(token: ThemeTokenName, ground: ThemeTokenName, mode: Mode) {
   return lightness(resolve(token, mode, g)) - lightness(g);
 }
 
+/**
+ * The level names the row, with its use; its value in the mode ranks next,
+ * then the lightness from the level below — the instrument this page argues
+ * for — and the WCAG ratio, which cannot see the step, leaves first. Each
+ * column holds its header ("WCAG from below", 124, and the cell's 24): a 320
+ * screen keeps the level and its value, a 375 the lightness too.
+ */
 function Ladder({ mode }: { mode: Mode }) {
+  const levels = [...LADDER].reverse();
+  const below = (token: (typeof LADDER)[number]) => levels[levels.indexOf(token) + 1];
+  const columns: Column<(typeof LADDER)[number]>[] = [
+    {
+      key: 'level',
+      header: 'Level',
+      primary: true,
+      minWidth: 124,
+      cell: (token) => (
+        <>
+          <div className="tokenName">{short(token)}</div>
+          <div className="alias">{theme[token].use}</div>
+        </>
+      ),
+    },
+    {
+      key: 'value',
+      header: mode,
+      priority: 1,
+      minWidth: 88,
+      cell: (token) => {
+        const hex = resolve(token, mode);
+        return (
+          <div className="swatchValue">
+            <Swatch value={hex} />
+            <div className="alias">{theme[token][mode]} {hex}</div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'dl',
+      header: 'ΔL from below',
+      priority: 2,
+      minWidth: 128,
+      cell: (token) => {
+        const under = below(token);
+        return <span className="ratioLine">{under ? f3(lightness(resolve(token, mode)) - lightness(resolve(under, mode))) : '—'}</span>;
+      },
+    },
+    {
+      key: 'wcag',
+      header: 'WCAG from below',
+      priority: 3,
+      minWidth: 148,
+      cell: (token) => {
+        const under = below(token);
+        return <span className="ratioLine">{under ? `${f2(contrast(resolve(token, mode), resolve(under, mode)))}:1` : '—'}</span>;
+      },
+    },
+  ];
   return (
-    <div className="tableScroll">
-      <table className="tokens">
-        <thead>
-          <tr>
-            <th>Level</th>
-            <th colSpan={2}>{mode}</th>
-            <th>ΔL from below</th>
-            <th>WCAG from below</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...LADDER].reverse().map((token, i, all) => {
-            const below = all[i + 1];
-            const hex = resolve(token, mode);
-            return (
-              <tr key={token}>
-                <td>
-                  <div className="tokenName">{short(token)}</div>
-                  <div className="alias">{theme[token].use}</div>
-                </td>
-                <td><Swatch value={hex} /></td>
-                <td><div className="alias">{theme[token][mode]} {hex}</div></td>
-                <td className="ratioLine">{below ? f3(lightness(hex) - lightness(resolve(below, mode))) : '—'}</td>
-                <td className="ratioLine">{below ? `${f2(contrast(hex, resolve(below, mode)))}:1` : '—'}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="specimen">
+      <Table caption={`The ladder, ${mode}`} density="compact" columns={columns} rows={levels} getRowId={(token) => token} />
     </div>
   );
 }
 
+/**
+ * The surface names the row; hover ranks next and pressed leaves first. A
+ * wash's cell is its swatch, its value and lift, and tertiary text on it,
+ * which stack at the column's narrowest: its header, "wash-pressed", 99 and
+ * the cell's 24. A 320 screen keeps the surface and hover, a 375 both.
+ */
 function WashTable({ mode }: { mode: Mode }) {
+  const columns: Column<(typeof SURFACES)[number]>[] = [
+    {
+      key: 'over',
+      header: 'Over',
+      primary: true,
+      minWidth: 76,
+      cell: (surface) => (
+        <>
+          <div className="tokenName">{short(surface)}</div>
+          <div className="alias">{resolve(surface, mode)}</div>
+        </>
+      ),
+    },
+    ...WASH.map(
+      (wash, i): Column<(typeof SURFACES)[number]> => ({
+        key: wash,
+        header: short(wash),
+        priority: i + 1,
+        minWidth: 124,
+        cell: (surface) => <WashCell wash={wash} surface={surface} mode={mode} />,
+      }),
+    ),
+  ];
   return (
-    <div className="tableScroll">
-      <table className="tokens">
-        <thead>
-          <tr>
-            <th>Over</th>
-            {WASH.map((w) => (
-              <th key={w} colSpan={3}>{short(w)}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {SURFACES.map((surface) => (
-            <tr key={surface}>
-              <td>
-                <div className="tokenName">{short(surface)}</div>
-                <div className="alias">{resolve(surface, mode)}</div>
-              </td>
-              {WASH.map((wash) => (
-                <WashCell key={wash} wash={wash} surface={surface} mode={mode} />
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="specimen">
+      <Table caption={`The wash, ${mode}`} density="compact" columns={columns} rows={[...SURFACES]} getRowId={(surface) => surface} />
     </div>
   );
 }
@@ -98,50 +138,55 @@ function WashCell({ wash, surface, mode }: { wash: (typeof WASH)[number]; surfac
   const ground = resolve(surface, mode);
   const hex = resolve(wash, mode, ground);
   return (
-    <>
-      <td><Swatch value={hex} /></td>
-      <td>
+    <div className="swatchValue">
+      <Swatch value={hex} />
+      <div>
         <div className="alias">{hex}</div>
         <div className="ratioLine">ΔL {f3(lightness(hex) - lightness(ground))}</div>
-      </td>
-      <td>
+      </div>
+      <div>
         <div className="alias">tertiary text</div>
         <Ratio fg={resolve('text/tertiary', mode)} bg={hex} />
-      </td>
-    </>
+      </div>
+    </div>
   );
 }
 
+/**
+ * The surface names the row, and its header says what is measured over it,
+ * "border/subtle over", 138 and the cell's 24. Each mode's reading holds its
+ * longest word and the 24 — `alpha/ink-08`, 89, in light; `alpha/white-16`,
+ * 104, in dark — so a 320 screen keeps the surface and light. Dark leaves
+ * first, and on a phone.
+ */
+const BORDER_COLUMNS: Column<(typeof SURFACES)[number]>[] = [
+  { key: 'surface', header: 'border/subtle over', primary: true, minWidth: 164, cell: (surface) => <div className="tokenName">{short(surface)}</div> },
+  ...MODES.map(
+    (mode, i): Column<(typeof SURFACES)[number]> => ({
+      key: mode,
+      header: mode === 'light' ? 'Light' : 'Dark',
+      priority: i + 1,
+      minWidth: mode === 'light' ? 116 : 132,
+      cell: (surface) => {
+        const ground = resolve(surface, mode);
+        const hex = resolve('border/subtle', mode, ground);
+        return (
+          <div className="swatchValue">
+            <Swatch value={hex} />
+            <span className="ratioLine">
+              {theme['border/subtle'][mode]} → {hex} · {f2(contrast(hex, ground))}:1
+            </span>
+          </div>
+        );
+      },
+    }),
+  ),
+];
+
 function BorderTable() {
   return (
-    <div className="tableScroll">
-      <table className="tokens">
-        <thead>
-          <tr>
-            <th>border/subtle over</th>
-            <th colSpan={2}>Light</th>
-            <th colSpan={2}>Dark</th>
-          </tr>
-        </thead>
-        <tbody>
-          {SURFACES.map((surface) => (
-            <tr key={surface}>
-              <td><div className="tokenName">{short(surface)}</div></td>
-              {MODES.map((mode) => {
-                const ground = resolve(surface, mode);
-                const hex = resolve('border/subtle', mode, ground);
-                return (
-                  <td key={mode} colSpan={2}>
-                    <span className="ratioLine">
-                      <Swatch value={hex} /> {theme['border/subtle'][mode]} → {hex} · {f2(contrast(hex, ground))}:1
-                    </span>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="specimen">
+      <Table caption="Borders" density="compact" columns={BORDER_COLUMNS} rows={[...SURFACES]} getRowId={(surface) => surface} />
     </div>
   );
 }
@@ -156,37 +201,77 @@ function shadowOn(name: ElevationName, mode: Mode) {
   return contrast(rgbToHex(composite(hexToRgb(hex), hexToRgb(ground), alpha)), ground);
 }
 
+/**
+ * Readings joined as the text always read — "10 / 32 / -4 · 6 / 14 / -6",
+ * "ink-10, ink-12" — with each kept whole, so a narrow cell breaks between
+ * two layers or two inks and not inside one ("ink-" over "12").
+ */
+function readings(items: string[], separator: string) {
+  return items.map((item, i) => (
+    <Fragment key={i}>
+      {i > 0 && ' '}
+      <span className="unbroken">
+        {item}
+        {i < items.length - 1 && separator}
+      </span>
+    </Fragment>
+  ));
+}
+
+/**
+ * The step names the row. Its layers are the shadow and rank next, then the
+ * inks, light before dark; the darkest point, a figure derived from them,
+ * leaves first. The widest layer with its separator, "14 / 64 / -4 ·", is
+ * 95, and the Layers column 120 with the cell's 24. A phone keeps the step,
+ * its layers and the light ink.
+ */
+const SHADOW_COLUMNS: Column<ElevationName>[] = [
+  { key: 'step', header: 'Step', primary: true, minWidth: 56, cell: (name) => <div className="tokenName">{name}</div> },
+  {
+    key: 'layers',
+    header: 'Layers',
+    priority: 1,
+    minWidth: 120,
+    cell: (name) => <div className="alias">{readings(elevation[name].light.map((l) => `${l.y} / ${l.blur} / ${l.spread}`), ' ·')}</div>,
+  },
+  {
+    key: 'light',
+    header: 'Light ink',
+    priority: 2,
+    minWidth: 88,
+    cell: (name) => <div className="alias">{readings(elevation[name].light.map((l) => l.colour.split('/')[1]!), ',')}</div>,
+  },
+  {
+    key: 'dark',
+    header: 'Dark ink',
+    priority: 3,
+    minWidth: 88,
+    cell: (name) => <div className="alias">{readings(elevation[name].dark.map((l) => l.colour.split('/')[1]!), ',')}</div>,
+  },
+  {
+    key: 'darkest',
+    header: 'Darkest point, light · dark',
+    priority: 4,
+    // The header, 189 and the cell's 24: a header does not wrap.
+    minWidth: 216,
+    cell: (name) => (
+      <span className="ratioLine">
+        {f2(shadowOn(name, 'light'))}:1 · {f2(shadowOn(name, 'dark'))}:1
+      </span>
+    ),
+  },
+];
+
 function ShadowTable() {
   return (
-    <div className="tableScroll">
-      <table className="tokens">
-        <thead>
-          <tr>
-            <th>Step</th>
-            <th>Layers</th>
-            <th>Light ink</th>
-            <th>Dark ink</th>
-            <th>Darkest point, light · dark</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(Object.keys(elevation) as ElevationName[]).map((name) => (
-            <tr key={name}>
-              <td><div className="tokenName">{name}</div></td>
-              <td>
-                <div className="alias">
-                  {elevation[name].light.map((l) => `${l.y} / ${l.blur} / ${l.spread}`).join(' · ')}
-                </div>
-              </td>
-              <td><div className="alias">{elevation[name].light.map((l) => l.colour.split('/')[1]).join(', ')}</div></td>
-              <td><div className="alias">{elevation[name].dark.map((l) => l.colour.split('/')[1]).join(', ')}</div></td>
-              <td className="ratioLine">
-                {f2(shadowOn(name, 'light'))}:1 · {f2(shadowOn(name, 'dark'))}:1
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="specimen">
+      <Table
+        caption="Shadows"
+        density="compact"
+        columns={SHADOW_COLUMNS}
+        rows={Object.keys(elevation) as ElevationName[]}
+        getRowId={(name) => name}
+      />
     </div>
   );
 }
@@ -211,6 +296,22 @@ const SURVEY = [
   { system: 'Discord', layers: 'opaque — #1e1f22, #2b2d31, #313338', states: 'rgba(78,80,88,.3) hover, .6 selected', borders: 'white at 6%' },
   { system: 'Material 3', layers: 'opaque tonal roles: surface-container lowest…highest at N4 / N10 / N12 / N17 / N22', states: 'state layers: the content colour at a fixed opacity', borders: '—' },
 ] as const;
+
+type SurveyRow = (typeof SURVEY)[number];
+
+/**
+ * The system names the row, and wraps at its spaces. Layers — opaque in
+ * every one, the finding this page acts on — rank next, then the states,
+ * and the borders leave first. The states hold their header, "Hover, pressed,
+ * selected", 176 and the cell's 24, which also holds an unbroken
+ * `rgba(141,141,141,.16)`. A phone keeps the system and its layers.
+ */
+const SURVEY_COLUMNS: Column<SurveyRow>[] = [
+  { key: 'system', header: 'System', primary: true, minWidth: 96, cell: (r) => <div className="tokenName wraps">{r.system}</div> },
+  { key: 'layers', header: 'Layers', priority: 1, minWidth: 160, cell: (r) => <div className="alias">{r.layers}</div> },
+  { key: 'states', header: 'Hover, pressed, selected', priority: 2, minWidth: 200, cell: (r) => <div className="alias">{r.states}</div> },
+  { key: 'borders', header: 'Borders', priority: 3, minWidth: 104, cell: (r) => <div className="alias">{r.borders}</div> },
+];
 
 export default function Page() {
   const darkCard = resolve('surface/raised', 'dark');
@@ -410,27 +511,8 @@ export default function Page() {
         mid grey or a tinted near-white in most; borders are moving to alpha. Material 3
         dropped Material 2&rsquo;s white overlay per elevation for opaque tonal roles.
       </p>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>System</th>
-              <th>Layers</th>
-              <th>Hover, pressed, selected</th>
-              <th>Borders</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SURVEY.map((row) => (
-              <tr key={row.system}>
-                <td><div className="tokenName">{row.system}</div></td>
-                <td><div className="alias" style={{ whiteSpace: 'normal' }}>{row.layers}</div></td>
-                <td><div className="alias" style={{ whiteSpace: 'normal' }}>{row.states}</div></td>
-                <td><div className="alias" style={{ whiteSpace: 'normal' }}>{row.borders}</div></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="What the references do" density="compact" columns={SURVEY_COLUMNS} rows={[...SURVEY]} getRowId={(r) => r.system} />
       </div>
 
       <h2>What it cost</h2>

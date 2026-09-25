@@ -4,6 +4,7 @@ import { Add, ArrowRight, Search, TrashCan } from '@carbon/icons-react';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { Table, type Column } from '@/components/Table';
 import * as Icons from '@/icons/index';
 import { resolve } from '@/tokens/contrast';
 import { spacing } from '@/tokens/scale';
@@ -47,6 +48,27 @@ const SIZES = [
   { size: 24, where: 'in a header, a navigation rail, an icon-only button' },
   { size: 32, where: 'an empty state, a feature mark' },
 ] as const;
+
+/**
+ * The size names the row and where it goes is the rest. The size is two
+ * digits; the minimums are in proportion, so where each size goes takes
+ * most of the width.
+ */
+const SIZE_COLUMNS: Column<(typeof SIZES)[number]>[] = [
+  { key: 'size', header: 'Size', primary: true, minWidth: 56, cell: ({ size }) => <span className="tokenName">{size}</span> },
+  { key: 'where', header: 'Where', minWidth: 224, cell: ({ where }) => where },
+];
+
+/**
+ * The design file's name names the row; Carbon's is what a reader came
+ * for. Carbon's keeps to one line, `DirectionRight_01`, 126 and the cell's
+ * 24, so the design's name wraps after its double hyphens instead:
+ * `notifications`, 97 and the 24, is its longest part.
+ */
+const RENAMED_COLUMNS: Column<(typeof RENAMED)[number]>[] = [
+  { key: 'design', header: 'In the design', primary: true, minWidth: 124, cell: ([from]) => <span className="tokenName wraps">{from}</span> },
+  { key: 'carbon', header: 'In Carbon', minWidth: 152, cell: ([, to]) => <span className="tokenName">{to}</span> },
+];
 
 function Grid({ group }: { group: 'ui' | 'domain' }) {
   return (
@@ -150,23 +172,8 @@ export default function Page() {
         state, as <code>UserVerified</code> and <code>UserVerifiedOutline</code> do, so a state
         never needs a second asset, only a second glyph.
       </p>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Size</th>
-              <th>Where</th>
-            </tr>
-          </thead>
-          <tbody>
-            {SIZES.map(({ size, where }) => (
-              <tr key={size}>
-                <td className="tokenName">{size}</td>
-                <td>{where}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="Icon sizes, and where each goes" density="compact" columns={SIZE_COLUMNS} rows={[...SIZES]} getRowId={({ size }) => String(size)} />
       </div>
 
       <h2>Drawn here</h2>
@@ -197,23 +204,8 @@ export default function Page() {
         These are the ones that cost time. The name in the design file is not the name in
         the package, so the import fails or lands on the wrong icon.
       </p>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>In the design</th>
-              <th>In Carbon</th>
-            </tr>
-          </thead>
-          <tbody>
-            {RENAMED.map(([from, to]) => (
-              <tr key={from}>
-                <td className="tokenName">{from}</td>
-                <td className="tokenName">{to}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="Eight that Carbon has under another name" density="compact" columns={RENAMED_COLUMNS} rows={[...RENAMED]} getRowId={([from]) => from} />
       </div>
 
       <h2>Using them</h2>

@@ -4,9 +4,10 @@ import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
 import { Badge } from '@/components/Badge';
 import { Button } from '@/components/Button';
+import { Table, type Column } from '@/components/Table';
 import { resolve } from '@/tokens/contrast';
 import { elevation } from '@/tokens/elevation';
-import { theme, type ThemeTokenName } from '@/tokens/theme';
+import { theme, type ThemeTokenName, type Mode } from '@/tokens/theme';
 
 /** The tokens that show what the light does: the ladder inverts, the labels turn, one border stays. */
 const MOVED: ThemeTokenName[] = [
@@ -17,6 +18,44 @@ const MOVED: ThemeTokenName[] = [
   'interactive/accent',
   'interactive/on-accent',
   'border/strong',
+];
+
+/**
+ * The token names the row, with its use; then each mode's swatch and the
+ * primitive it points at. The name keeps to one line — the longest,
+ * `interactive/on-accent`, is 156 of the column's 176 — and a mode holds
+ * `twilight/600`, 82 of its 108. The two take 284 of a 320 screen's 288:
+ * room for one mode, not two. It is dark: this page is dark mode's, and the
+ * light values are the ones the rest of the site is read in. The light
+ * column is back from a 426 screen.
+ */
+const MOVED_COLUMNS: Column<ThemeTokenName>[] = [
+  {
+    key: 'token',
+    header: 'Token',
+    primary: true,
+    minWidth: 176,
+    cell: (token) => (
+      <>
+        <div className="tokenName">{token}</div>
+        <div className="alias">{theme[token].use}</div>
+      </>
+    ),
+  },
+  ...(['light', 'dark'] as const).map(
+    (mode: Mode): Column<ThemeTokenName> => ({
+      key: mode,
+      header: mode === 'light' ? 'Light' : 'Dark',
+      priority: mode === 'dark' ? 1 : 2,
+      minWidth: 108,
+      cell: (token) => (
+        <div className="swatchValue">
+          <Swatch value={resolve(token, mode)} />
+          <div className="alias">{theme[token][mode]}</div>
+        </div>
+      ),
+    }),
+  ),
 ];
 
 const themed = Object.keys(theme).length;
@@ -81,38 +120,8 @@ export default function DarkModePage() {
         fail at the hover step. One border stays: <code>border/strong</code> is the same
         primitive in both, the only stop that clears 3:1 on every surface either way.
       </p>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Token</th>
-              <th colSpan={2}>Light</th>
-              <th colSpan={2}>Dark</th>
-            </tr>
-          </thead>
-          <tbody>
-            {MOVED.map((token) => (
-              <tr key={token}>
-                <td>
-                  <div className="tokenName">{token}</div>
-                  <div className="alias">{theme[token].use}</div>
-                </td>
-                <td>
-                  <Swatch value={resolve(token, 'light')} />
-                </td>
-                <td>
-                  <div className="alias">{theme[token].light}</div>
-                </td>
-                <td>
-                  <Swatch value={resolve(token, 'dark')} />
-                </td>
-                <td>
-                  <div className="alias">{theme[token].dark}</div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="What changes with the light" density="compact" columns={MOVED_COLUMNS} rows={MOVED} getRowId={(token) => token} />
       </div>
 
       <h2>Choosing a default</h2>

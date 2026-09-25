@@ -363,7 +363,7 @@ export default function Page() {
           </Field>
         </div>
       </div>
-      <div className="tableScroll">
+      <div className="specimen">
         <Table
           caption="Reasons, and the messages this page writes for them"
           density="compact"
@@ -512,7 +512,7 @@ export default function Page() {
       </p>
 
       <h2>Props</h2>
-      <div className="tableScroll">
+      <div className="specimen">
         <Table
           caption="Calendar props"
           captionVisible
@@ -538,7 +538,7 @@ export default function Page() {
       </p>
 
       <p>The DatePicker takes every prop above, plus:</p>
-      <div className="tableScroll">
+      <div className="specimen">
         <Table
           caption="DatePicker props"
           captionVisible

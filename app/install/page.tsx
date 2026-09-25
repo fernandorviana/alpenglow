@@ -1,10 +1,42 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { CodeBlock } from '@ui/CodeBlock';
 import { DocPage } from '@ui/DocPage';
 import { Button } from '@/components/Button';
+import { Table, type Column } from '@/components/Table';
 import { tokenContrast } from '@/tokens/contrast';
 import { fontFamily } from '@/tokens/typography';
 import { ENTRY_POINTS, PEERS, VERSION } from '@ui/package';
+
+type ImportRow = { path: string; holds: ReactNode };
+const IMPORTS: ImportRow[] = [
+  { path: 'alpenglow', holds: 'The components, the drawn icons, and the tokens in TypeScript.' },
+  { path: 'alpenglow/styles.css', holds: <>The tokens and every component&apos;s styles. What almost every app imports.</> },
+  { path: 'alpenglow/tokens.css', holds: 'The custom properties alone, for the palette without the components.' },
+  { path: 'alpenglow/tailwind-theme.css', holds: <>The tokens as Tailwind v4 utilities, and a <code>dark:</code> that follows them.</> },
+];
+
+/**
+ * The import names the row and what it holds is the rest. On a phone an
+ * import wraps after its slash, so what it holds keeps a column a sentence
+ * can be read in; `alpenglow/`, 86 and the cell's 24, is the widest part
+ * left whole. A slash is not a place a line may break: the `<wbr>` offers
+ * one there, where a phone split `alpenglow/s` from `tyles.css`, and adds
+ * nothing to what is copied.
+ */
+const IMPORT_COLUMNS: Column<ImportRow>[] = [
+  {
+    key: 'path',
+    header: 'Import',
+    primary: true,
+    minWidth: 112,
+    cell: ({ path }) => {
+      const [name, file] = path.split('/');
+      return <code>{file ? <>{name}/<wbr />{file}</> : name}</code>;
+    },
+  },
+  { key: 'holds', header: 'Holds', minWidth: 160, cell: (r) => r.holds },
+];
 
 export default function InstallPage() {
   const secondaryOnRaised = tokenContrast('text/secondary', 'surface/raised', 'dark').toFixed(2);
@@ -158,33 +190,8 @@ import { Search } from '@carbon/icons-react';`}
       </p>
 
       <h2>What the package holds</h2>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Import</th>
-              <th>Holds</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>alpenglow</code></td>
-              <td>The components, the drawn icons, and the tokens in TypeScript.</td>
-            </tr>
-            <tr>
-              <td><code>alpenglow/styles.css</code></td>
-              <td>The tokens and every component&apos;s styles. What almost every app imports.</td>
-            </tr>
-            <tr>
-              <td><code>alpenglow/tokens.css</code></td>
-              <td>The custom properties alone, for the palette without the components.</td>
-            </tr>
-            <tr>
-              <td><code>alpenglow/tailwind-theme.css</code></td>
-              <td>The tokens as Tailwind v4 utilities, and a <code>dark:</code> that follows them.</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="What the package holds" density="compact" columns={IMPORT_COLUMNS} rows={IMPORTS} getRowId={(r) => r.path} />
       </div>
 
       <h2>Tokens in TypeScript</h2>

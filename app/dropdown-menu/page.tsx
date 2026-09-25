@@ -1,9 +1,10 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Button } from '@/components/Button/index';
-import { Table } from '@/components/Table/index';
+import { Table, type Column } from '@/components/Table/index';
 import { DropdownMenu } from '@/components/DropdownMenu/index';
 import type { DropdownMenuEntry } from '@/components/DropdownMenu/index';
 import { composite, contrast, hexToRgb, resolve, rgbToHex, tokenContrast } from '@/tokens/contrast';
@@ -32,6 +33,29 @@ const propColumns = [
   { key: 'prop', header: 'Prop', primary: true, cell: (r: PropRow) => <code>{r.prop}</code> },
   { key: 'type', header: 'Type', cell: (r: PropRow) => <span className="alias">{r.type}</span> },
   { key: 'default', header: 'Default', cell: (r: PropRow) => <span className="alias">{r.default}</span> },
+];
+
+type KeyRow = { key: string; trigger: ReactNode; menu: ReactNode };
+const KEYS: KeyRow[] = [
+  { key: 'Enter / Space', trigger: 'open, focus the first row', menu: 'activate, close' },
+  { key: '↓', trigger: 'open, focus the first row', menu: 'next, wrapping' },
+  { key: '↑', trigger: <>open, focus the <strong>last</strong> row</>, menu: 'previous, wrapping' },
+  { key: 'Home / End', trigger: '—', menu: 'first / last' },
+  { key: 'a–z', trigger: '—', menu: 'typeahead on the first character' },
+  { key: 'Esc', trigger: '—', menu: 'close, focus returns to the trigger' },
+  { key: 'Tab', trigger: '—', menu: 'close, tabbing continues' },
+];
+
+/**
+ * The key names the row. What it does in the menu ranks next — every key
+ * does something there — and what it does on the trigger, a dash for four
+ * of the seven, leaves first. Each column holds its header, "On the
+ * trigger" 104 and the cell's 24: a phone keeps the key and the menu.
+ */
+const KEY_COLUMNS: Column<KeyRow>[] = [
+  { key: 'key', header: 'Key', primary: true, minWidth: 120, cell: (r) => <span className="tokenName">{r.key}</span> },
+  { key: 'trigger', header: 'On the trigger', priority: 2, minWidth: 128, cell: (r) => r.trigger },
+  { key: 'menu', header: 'In the menu', priority: 1, minWidth: 108, cell: (r) => r.menu },
 ];
 
 /** The drawn geometry: a 40px row, a 20px icon slot. The paddings and radii come from the scale. */
@@ -174,53 +198,8 @@ export default function Page() {
       </p>
 
       <h2>Keyboard</h2>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Key</th>
-              <th>On the trigger</th>
-              <th>In the menu</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="tokenName">Enter / Space</td>
-              <td>open, focus the first row</td>
-              <td>activate, close</td>
-            </tr>
-            <tr>
-              <td className="tokenName">↓</td>
-              <td>open, focus the first row</td>
-              <td>next, wrapping</td>
-            </tr>
-            <tr>
-              <td className="tokenName">↑</td>
-              <td>open, focus the <strong>last</strong> row</td>
-              <td>previous, wrapping</td>
-            </tr>
-            <tr>
-              <td className="tokenName">Home / End</td>
-              <td>—</td>
-              <td>first / last</td>
-            </tr>
-            <tr>
-              <td className="tokenName">a–z</td>
-              <td>—</td>
-              <td>typeahead on the first character</td>
-            </tr>
-            <tr>
-              <td className="tokenName">Esc</td>
-              <td>—</td>
-              <td>close, focus returns to the trigger</td>
-            </tr>
-            <tr>
-              <td className="tokenName">Tab</td>
-              <td>—</td>
-              <td>close, tabbing continues</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="Keyboard" density="compact" columns={KEY_COLUMNS} rows={KEYS} getRowId={(r) => r.key} />
       </div>
       <p>
         <code>popover=&quot;auto&quot;</code> already provides Esc, the outside click and focus

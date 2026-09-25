@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
 import { DocPage } from '@ui/DocPage';
-import { theme, type ThemeTokenName, type Mode } from '@/tokens/theme';
+import { Table, type Column } from '@/components/Table';
+import type { ThemeTokenName, Mode } from '@/tokens/theme';
 import { resolve, contrast } from '@/tokens/contrast';
 
 /** Opaque grounds a component can sit on. Scrim is a wash, not a ground. */
@@ -33,48 +35,125 @@ function Cell({ ratio, threshold }: { ratio: number; threshold: number }) {
   );
 }
 
+const MODES: Mode[] = ['light', 'dark'];
+const MODE_LABEL = { light: 'Light', dark: 'Dark' } as const;
+
+/**
+ * A token's worst case in each mode. The name never leaves; the modes leave
+ * by rank as the table narrows, dark first, so a phone keeps the name and its
+ * light figure. A mode column holds its header, 150 with the cell's padding,
+ * unless a name as long as `interactive/on-accent` (180) sits beside it: the
+ * two would not fit a 320 screen's 288, so there the column takes its
+ * figure's width, 104, and the header truncates.
+ */
 function WorstCaseTable({
+  caption,
   tokens,
   grounds,
   threshold,
+  nameWidth,
+  modeWidth = 152,
 }: {
+  caption: string;
   tokens: readonly ThemeTokenName[];
   grounds: readonly ThemeTokenName[];
   threshold: number;
+  nameWidth: number;
+  modeWidth?: number;
 }) {
+  const columns: Column<ThemeTokenName>[] = [
+    { key: 'token', header: 'Token', primary: true, minWidth: nameWidth, cell: (token) => <span className="tokenName">{token}</span> },
+    ...MODES.map(
+      (mode, i): Column<ThemeTokenName> => ({
+        key: mode,
+        header: `${MODE_LABEL[mode]}, worst case`,
+        priority: i + 1,
+        minWidth: modeWidth,
+        cell: (token) => {
+          const low = worst(token, grounds, mode);
+          return (
+            <>
+              <Cell ratio={low.ratio} threshold={threshold} />
+              <div className="alias">on {low.ground.split('/')[1]}</div>
+            </>
+          );
+        },
+      }),
+    ),
+  ];
   return (
-    <div className="tableScroll">
-      <table className="tokens">
-        <thead>
-          <tr>
-            <th>Token</th>
-            <th>Light, worst case</th>
-            <th>Dark, worst case</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tokens.map((token) => {
-            const light = worst(token, grounds, 'light');
-            const dark = worst(token, grounds, 'dark');
-            return (
-              <tr key={token}>
-                <td className="tokenName">{token}</td>
-                <td>
-                  <Cell ratio={light.ratio} threshold={threshold} />
-                  <div className="alias">on {light.ground.split('/')[1]}</div>
-                </td>
-                <td>
-                  <Cell ratio={dark.ratio} threshold={threshold} />
-                  <div className="alias">on {dark.ground.split('/')[1]}</div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="specimen">
+      <Table caption={caption} density="compact" columns={columns} rows={[...tokens]} getRowId={(token) => token} />
     </div>
   );
 }
+
+/**
+ * The pairs under the line on purpose. The pair names the row; the two
+ * figures rank next and the reason leaves first, so a phone keeps the name
+ * and both figures. A pair of names wraps at its spaces and never inside a
+ * name: the longest, `text/placeholder`, is 119 of the column's 144, and the
+ * cell pads 24.
+ */
+type Exception = { pair: string; light: number; dark: number; why: ReactNode };
+const EXCEPTION_COLUMNS: Column<Exception>[] = [
+  { key: 'pair', header: 'Token', primary: true, minWidth: 144, cell: (r) => <span className="tokenName wraps">{r.pair}</span> },
+  { key: 'light', header: 'Light', priority: 1, minWidth: 56, cell: (r) => <span className="ratio">{r.light.toFixed(2)}</span> },
+  { key: 'dark', header: 'Dark', priority: 2, minWidth: 56, cell: (r) => <span className="ratio">{r.dark.toFixed(2)}</span> },
+  { key: 'why', header: 'Why', priority: 3, minWidth: 240, cell: (r) => r.why },
+];
+
+const pairOf = (fg: ThemeTokenName, bg: ThemeTokenName, mode: Mode) => contrast(resolve(fg, mode), resolve(bg, mode));
+
+const EXCEPTIONS: Exception[] = [
+  {
+    pair: 'text/placeholder',
+    light: worst('text/placeholder', SURFACES, 'light').ratio,
+    dark: worst('text/placeholder', SURFACES, 'dark').ratio,
+    why: (
+      <>
+        Placeholder text is a hint, never the only copy of a label. Darkening it far
+        enough to clear AA makes an empty field read as a filled one.
+      </>
+    ),
+  },
+  {
+    pair: 'on-success on success-pressed',
+    light: pairOf('interactive/on-success', 'interactive/success-pressed', 'light'),
+    dark: pairOf('interactive/on-success', 'interactive/success-pressed', 'dark'),
+    why: (
+      <>
+        Pressed is feedback after the decision, not information used to make it —
+        nobody reads a label while their finger is down. The green ramp has no third
+        step that keeps a dark label above 4.5, and a light label fails far worse.
+      </>
+    ),
+  },
+  {
+    pair: 'text/disabled',
+    light: worst('text/disabled', SURFACES, 'light').ratio,
+    dark: worst('text/disabled', SURFACES, 'dark').ratio,
+    why: (
+      <>
+        WCAG 2.1 exempts inactive components. Low contrast is what communicates that
+        the control cannot be used.
+      </>
+    ),
+  },
+  {
+    pair: 'text/inert on surface/overlay',
+    light: pairOf('text/inert', 'surface/overlay', 'light'),
+    dark: pairOf('text/inert', 'surface/overlay', 'dark'),
+    why: (
+      <>
+        The calendar&rsquo;s days from the adjacent months: not focusable, not
+        clickable, their numbers hidden from a screen reader. Decoration is exempt.
+        Kept quieter than <code>text/disabled</code> in both themes, so a day outside
+        the month never reads as more present than an unavailable one.
+      </>
+    ),
+  },
+];
 
 const BODY_TEXT = [
   'text/primary',
@@ -147,7 +226,7 @@ export default function Page() {
 
       <h3>Text</h3>
       <p>Against all four surfaces, in both themes. The threshold is 4.5:1.</p>
-      <WorstCaseTable tokens={BODY_TEXT} grounds={SURFACES} threshold={4.5} />
+      <WorstCaseTable caption="Text" tokens={BODY_TEXT} grounds={SURFACES} threshold={4.5} nameWidth={124} />
 
       <h3>Control borders</h3>
       <p>
@@ -157,9 +236,11 @@ export default function Page() {
         the same primitive in light and dark.
       </p>
       <WorstCaseTable
+        caption="Control borders"
         tokens={['border/strong', 'border/focus', 'border/danger'] as const}
         grounds={SURFACES}
         threshold={3}
+        nameWidth={124}
       />
 
       <h3>Button labels</h3>
@@ -169,14 +250,20 @@ export default function Page() {
         compensate — holding the label at white would put the hover step under AA.
       </p>
       <WorstCaseTable
+        caption="Button labels, on the accent fills"
         tokens={['interactive/on-accent'] as const}
         grounds={ACCENT_FILLS}
         threshold={4.5}
+        nameWidth={180}
+        modeWidth={104}
       />
       <WorstCaseTable
+        caption="Button labels, on the danger fills"
         tokens={['interactive/on-danger'] as const}
         grounds={DANGER_FILLS}
         threshold={4.5}
+        nameWidth={180}
+        modeWidth={104}
       />
 
       <h2>Where the system falls short, on purpose</h2>
@@ -185,80 +272,14 @@ export default function Page() {
         system that reports no exceptions is a system that has not looked.
       </p>
 
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Token</th>
-              <th>Light</th>
-              <th>Dark</th>
-              <th>Why</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="tokenName">text/placeholder</td>
-              <td className="ratio">
-                {worst('text/placeholder', SURFACES, 'light').ratio.toFixed(2)}
-              </td>
-              <td className="ratio">
-                {worst('text/placeholder', SURFACES, 'dark').ratio.toFixed(2)}
-              </td>
-              <td>
-                Placeholder text is a hint, never the only copy of a label. Darkening it far
-                enough to clear AA makes an empty field read as a filled one.
-              </td>
-            </tr>
-            <tr>
-              <td className="tokenName">on-success on success-pressed</td>
-              <td className="ratio">
-                {contrast(
-                  resolve('interactive/on-success', 'light'),
-                  resolve('interactive/success-pressed', 'light'),
-                ).toFixed(2)}
-              </td>
-              <td className="ratio">
-                {contrast(
-                  resolve('interactive/on-success', 'dark'),
-                  resolve('interactive/success-pressed', 'dark'),
-                ).toFixed(2)}
-              </td>
-              <td>
-                Pressed is feedback after the decision, not information used to make it —
-                nobody reads a label while their finger is down. The green ramp has no third
-                step that keeps a dark label above 4.5, and a light label fails far worse.
-              </td>
-            </tr>
-            <tr>
-              <td className="tokenName">text/disabled</td>
-              <td className="ratio">
-                {worst('text/disabled', SURFACES, 'light').ratio.toFixed(2)}
-              </td>
-              <td className="ratio">
-                {worst('text/disabled', SURFACES, 'dark').ratio.toFixed(2)}
-              </td>
-              <td>
-                WCAG 2.1 exempts inactive components. Low contrast is what communicates that
-                the control cannot be used.
-              </td>
-            </tr>
-            <tr>
-              <td className="tokenName">text/inert on surface/overlay</td>
-              <td className="ratio">
-                {contrast(resolve('text/inert', 'light'), resolve('surface/overlay', 'light')).toFixed(2)}
-              </td>
-              <td className="ratio">
-                {contrast(resolve('text/inert', 'dark'), resolve('surface/overlay', 'dark')).toFixed(2)}
-              </td>
-              <td>
-                The calendar&rsquo;s days from the adjacent months: not focusable, not
-                clickable, their numbers hidden from a screen reader. Decoration is exempt.
-                Kept quieter than <code>text/disabled</code> in both themes, so a day outside
-                the month never reads as more present than an unavailable one.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table
+          caption="Where the system falls short, on purpose"
+          density="compact"
+          columns={EXCEPTION_COLUMNS}
+          rows={EXCEPTIONS}
+          getRowId={(r) => r.pair}
+        />
       </div>
 
       <p>

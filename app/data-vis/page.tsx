@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
+import { Table, type Column } from '@/components/Table';
 import { theme, type ThemeTokenName, type Mode } from '@/tokens/theme';
 import { lightness, resolve } from '@/tokens/contrast';
 import { SEQUENTIAL, DIVERGING, type ChartStep, cssVar, recorded } from '@ui/chart';
@@ -267,59 +268,85 @@ function Figure({ children }: { children: ReactNode }) {
 
 // ---- the tables ----------------------------------------------------------
 
-function StepRow({ token, first, mode }: { token: ChartStep; first?: ChartStep; mode: Mode }) {
-  const hex = resolve(token, mode);
-  const label = LABEL[token][mode];
-  const dl = first ? Math.abs(lightness(hex) - lightness(resolve(first, mode))) : undefined;
-  return (
-    <tr>
-      <td>
-        <div className="tokenName">{short(token)}</div>
-      </td>
-      <td>
-        <Swatch value={hex} />
-      </td>
-      <td>
-        <div className="alias">{theme[token][mode]}</div>
-        {dl !== undefined && <div className="alias">ΔL {dl.toFixed(3)} from the step before</div>}
-      </td>
-      <td>
-        <Ratio fg={hex} bg={resolve('surface/base', mode)} threshold={3} recorded={recorded(token, mode)} />
-      </td>
-      <td>
-        <Ratio fg={hex} bg={resolve('surface/raised', mode)} threshold={3} recorded={recorded(token, mode)} />
-      </td>
-      <td>
-        <div className="alias">
-          {short(label.token)}
-          {label.large ? ', large text' : ''}
-        </div>
-        <Ratio fg={resolve(label.token, mode)} bg={hex} threshold={label.large ? 3 : 4.5} />
-      </td>
-    </tr>
-  );
+type StepRow = { token: ChartStep; before?: ChartStep };
+
+/**
+ * One mode's columns. The step names the row and its value ranks next —
+ * the swatch, the primitive, the lightness from the step before — then its
+ * figure on the canvas and on a card, and the text a value in it takes
+ * leaves first. The step keeps to one line, `sequential-1` at 89; the value
+ * holds `twilight/200`, 82, which would otherwise break mid-word; a figure is
+ * 104 at its widest, "recorded". On a 320 screen the step and its value fit,
+ * on a 375 its figure on the canvas too, and from a 1024 all five.
+ */
+function stepColumns(mode: Mode): Column<StepRow>[] {
+  return [
+    { key: 'step', header: 'Step', primary: true, minWidth: 108, cell: ({ token }) => <div className="tokenName">{short(token)}</div> },
+    {
+      key: 'value',
+      header: mode === 'light' ? 'Light' : 'Dark',
+      priority: 1,
+      minWidth: 108,
+      cell: ({ token, before }) => {
+        const hex = resolve(token, mode);
+        const dl = before ? Math.abs(lightness(hex) - lightness(resolve(before, mode))) : undefined;
+        return (
+          <div className="swatchValue">
+            <Swatch value={hex} />
+            <div>
+              <div className="alias">{theme[token][mode]}</div>
+              {dl !== undefined && <div className="alias">ΔL {dl.toFixed(3)} from the step before</div>}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'base',
+      header: 'On base',
+      priority: 2,
+      minWidth: 124,
+      cell: ({ token }) => (
+        <Ratio fg={resolve(token, mode)} bg={resolve('surface/base', mode)} threshold={3} recorded={recorded(token, mode)} />
+      ),
+    },
+    {
+      key: 'raised',
+      header: 'On raised',
+      priority: 3,
+      minWidth: 124,
+      cell: ({ token }) => (
+        <Ratio fg={resolve(token, mode)} bg={resolve('surface/raised', mode)} threshold={3} recorded={recorded(token, mode)} />
+      ),
+    },
+    {
+      key: 'label',
+      header: 'A value in the cell',
+      priority: 4,
+      // The header, 132 and the cell's 24: a header does not wrap.
+      minWidth: 156,
+      cell: ({ token }) => {
+        const label = LABEL[token][mode];
+        return (
+          <>
+            <div className="alias">
+              {short(label.token)}
+              {label.large ? ', large text' : ''}
+            </div>
+            <Ratio fg={resolve(label.token, mode)} bg={resolve(token, mode)} threshold={label.large ? 3 : 4.5} />
+          </>
+        );
+      },
+    },
+  ];
 }
 
 /** One table per mode: the step, its value, its figure on both grounds, and the text a value in it takes. */
-function RampTable({ steps }: { steps: readonly ChartStep[] }) {
+function RampTable({ name, steps }: { name: string; steps: readonly ChartStep[] }) {
+  const rows: StepRow[] = steps.map((token, i) => ({ token, before: i > 0 ? steps[i - 1] : undefined }));
   return MODES.map((mode) => (
-    <div className="tableScroll" key={mode}>
-      <table className="tokens">
-        <thead>
-          <tr>
-            <th>Step</th>
-            <th colSpan={2}>{mode === 'light' ? 'Light' : 'Dark'}</th>
-            <th>On base</th>
-            <th>On raised</th>
-            <th>A value in the cell</th>
-          </tr>
-        </thead>
-        <tbody>
-          {steps.map((token, i) => (
-            <StepRow key={token} token={token} first={i > 0 ? steps[i - 1] : undefined} mode={mode} />
-          ))}
-        </tbody>
-      </table>
+    <div className="specimen" key={mode}>
+      <Table caption={`${name}, ${mode}`} density="compact" columns={stepColumns(mode)} rows={rows} getRowId={({ token }) => token} />
     </div>
   ));
 }
@@ -428,7 +455,7 @@ export default function Page() {
         set as large text, which clears at 3:1, or sits beside the cell. The heatmap above keeps
         its values in the cells&rsquo; titles for that reason.
       </p>
-      <RampTable steps={SEQUENTIAL} />
+      <RampTable name="The sequential ramp" steps={SEQUENTIAL} />
 
       <h2>Which side: the diverging ramp</h2>
       <p>
@@ -448,7 +475,7 @@ export default function Page() {
       <Figure>
         <DivergingChart />
       </Figure>
-      <RampTable steps={DIVERGING} />
+      <RampTable name="The diverging ramp" steps={DIVERGING} />
 
       <h2>The rest of a chart</h2>
       <p>

@@ -1,6 +1,7 @@
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
 import { Badge, type BadgeTone } from '@/components/Badge/index';
+import { Table, type Column } from '@/components/Table';
 import type { ReactNode } from 'react';
 import { Checkmark, Time, Close } from '@carbon/icons-react';
 import { resolve } from '@/tokens/contrast';
@@ -18,6 +19,26 @@ const TONES: ReadonlyArray<{
   { tone: 'warning', label: 'Awaiting', fg: 'text/warning', bg: 'surface/warning-subtle' },
   { tone: 'danger', label: 'No-show', fg: 'text/danger', bg: 'surface/danger-subtle' },
   { tone: 'info', label: 'Rescheduled', fg: 'text/info', bg: 'surface/info-subtle' },
+];
+
+type Tone = (typeof TONES)[number];
+
+/**
+ * The tone names the row and each mode's figure ranks after it, light first.
+ * The widest figure, "12.63 AAA", is 76 and the cell pads 24, so on a 320
+ * screen the tone and both modes fit.
+ */
+const TONE_COLUMNS: Column<Tone>[] = [
+  { key: 'tone', header: 'Tone', primary: true, minWidth: 80, cell: ({ tone }) => <span className="tokenName">{tone}</span> },
+  ...(['light', 'dark'] as const).map(
+    (mode, i): Column<Tone> => ({
+      key: mode,
+      header: mode === 'light' ? 'Light' : 'Dark',
+      priority: i + 1,
+      minWidth: 100,
+      cell: ({ fg, bg }) => <Ratio fg={resolve(fg, mode)} bg={resolve(bg, mode)} />,
+    }),
+  ),
 ];
 
 export default function Page() {
@@ -75,29 +96,8 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Tone</th>
-              <th>Light</th>
-              <th>Dark</th>
-            </tr>
-          </thead>
-          <tbody>
-            {TONES.map(({ tone, fg, bg }) => (
-              <tr key={tone}>
-                <td className="tokenName">{tone}</td>
-                <td>
-                  <Ratio fg={resolve(fg, 'light')} bg={resolve(bg, 'light')} />
-                </td>
-                <td>
-                  <Ratio fg={resolve(fg, 'dark')} bg={resolve(bg, 'dark')} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="Tones" density="compact" columns={TONE_COLUMNS} rows={[...TONES]} getRowId={({ tone }) => tone} />
       </div>
 
       <h2>Sizes</h2>

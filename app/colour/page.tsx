@@ -4,8 +4,9 @@ import { Ratio } from '@ui/Ratio';
 import { Swatch } from '@ui/Swatch';
 import { tokenId } from '@ui/slug';
 import { recorded } from '@ui/chart';
+import { Table, type Column } from '@/components/Table';
 import { primitives, alphaPrimitives } from '@/tokens/primitives';
-import { theme, type ThemeTokenName } from '@/tokens/theme';
+import { theme, type ThemeTokenName, type Mode } from '@/tokens/theme';
 import { contrast, lightness, resolve } from '@/tokens/contrast';
 
 const RAMPS = ['glow', 'twilight', 'flare', 'glacier', 'stone', 'night', 'mist', 'ember', 'moss', 'amber'] as const;
@@ -76,72 +77,117 @@ function floor(token: ThemeTokenName, fallback: number): number {
 /** An alpha token has no colour of its own until it lands on something; here that is a card. */
 const isAlpha = (alias: string) => alias in alphaPrimitives;
 
-function TokenTable({ tokens, threshold }: { tokens: ThemeTokenName[]; threshold: number }) {
-  return (
-    <div className="tableScroll">
-    <table className="tokens">
-      <thead>
-        <tr>
-          <th>Token</th>
-          <th colSpan={2}>Light</th>
-          <th colSpan={2}>Dark</th>
-        </tr>
-      </thead>
-      <tbody>
-        {tokens.map((token) => {
-          const entry = theme[token];
-          const scrim = token === 'surface/scrim';
-          const wash = token.startsWith('interactive/wash-');
-          // The scrim is flattened over the canvas it covers; every other
-          // alpha — the wash, the subtle border — over the card it lands on.
-          const ground = (mode: 'light' | 'dark') =>
-            isAlpha(entry[mode]) ? resolve(scrim ? 'surface/base' : 'surface/raised', mode) : undefined;
-          const light = resolve(token, 'light', ground('light'));
-          const dark = resolve(token, 'dark', ground('dark'));
-          // A wash is a ground for text, not a figure against one; its
-          // readings are on the Elevation page.
-          // A category's tint is a ground, as a surface is.
-          const measurable =
-            !scrim && !wash && !token.startsWith('surface/') && !/^category\/\w+-subtle$/.test(token);
+const MODES: Mode[] = ['light', 'dark'];
 
-          return (
-            <tr key={token} id={tokenId(token)}>
-              <td>
-                <div className="tokenName">{token.split('/').slice(1).join('/')}</div>
-                <div className="alias">{entry.use}</div>
-              </td>
-              <td><Swatch value={light} /></td>
-              <td>
-                <div className="alias">{entry.light}</div>
-                {measurable && (
-                  <Ratio
-                    fg={light}
-                    bg={resolve(against(token), 'light')}
-                    threshold={floor(token, threshold)}
-                    recorded={recorded(token, 'light')}
-                  />
-                )}
-              </td>
-              <td><Swatch value={dark} /></td>
-              <td>
-                <div className="alias">{entry.dark}</div>
-                {measurable && (
-                  <Ratio
-                    fg={dark}
-                    bg={resolve(against(token), 'dark')}
-                    threshold={floor(token, threshold)}
-                    recorded={recorded(token, 'dark')}
-                  />
-                )}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+type TokenRow = { token: ThemeTokenName; light: string; dark: string; measurable: boolean };
+
+/**
+ * A group of theme tokens: the name and its use, then each mode's value —
+ * the swatch, the primitive it points at, and the pair it is measured in.
+ * The name never leaves and dark leaves first, so a phone keeps a token
+ * beside its light value. The name keeps to one line, and the column holds
+ * the longest, `tertiary-pressed`, 119 and the cell's 24; the use line
+ * under it wraps. A mode's narrowest is its widest reading, a recorded
+ * figure, 104 and the 24; there the swatch sits above the words.
+ */
+function TokenTable({ caption, tokens, threshold }: { caption: string; tokens: ThemeTokenName[]; threshold: number }) {
+  const rows: TokenRow[] = tokens.map((token) => {
+    const entry = theme[token];
+    const scrim = token === 'surface/scrim';
+    const wash = token.startsWith('interactive/wash-');
+    // The scrim is flattened over the canvas it covers; every other
+    // alpha — the wash, the subtle border — over the card it lands on.
+    const ground = (mode: Mode) =>
+      isAlpha(entry[mode]) ? resolve(scrim ? 'surface/base' : 'surface/raised', mode) : undefined;
+    // A wash is a ground for text, not a figure against one; its
+    // readings are on the Elevation page.
+    // A category's tint is a ground, as a surface is.
+    const measurable =
+      !scrim && !wash && !token.startsWith('surface/') && !/^category\/\w+-subtle$/.test(token);
+    return { token, light: resolve(token, 'light', ground('light')), dark: resolve(token, 'dark', ground('dark')), measurable };
+  });
+
+  const columns: Column<TokenRow>[] = [
+    {
+      key: 'token',
+      header: 'Token',
+      primary: true,
+      minWidth: 144,
+      // The id is the search's landing: a token hit points at
+      // `/colour#surface-raised`, and lands on the row, not on the group's heading.
+      cell: ({ token }) => (
+        <>
+          <div className="tokenName" id={tokenId(token)}>{token.split('/').slice(1).join('/')}</div>
+          <div className="alias">{theme[token].use}</div>
+        </>
+      ),
+    },
+    ...MODES.map(
+      (mode, i): Column<TokenRow> => ({
+        key: mode,
+        header: mode === 'light' ? 'Light' : 'Dark',
+        priority: i + 1,
+        minWidth: 128,
+        cell: (row) => (
+          <div className="swatchValue">
+            <Swatch value={row[mode]} />
+            <div>
+              <div className="alias">{theme[row.token][mode]}</div>
+              {row.measurable && (
+                <Ratio
+                  fg={row[mode]}
+                  bg={resolve(against(row.token), mode)}
+                  threshold={floor(row.token, threshold)}
+                  recorded={recorded(row.token, mode)}
+                />
+              )}
+            </div>
+          </div>
+        ),
+      }),
+    ),
+  ];
+
+  return (
+    <div className="specimen">
+      <Table caption={caption} density="compact" columns={columns} rows={rows} getRowId={({ token }) => token} />
     </div>
   );
 }
+
+type StopRow = { step: (typeof STEPS)[number]; guarantee?: Guarantee };
+const STOP_ROWS: StopRow[] = STEPS.filter((step) => step !== '925').map((step) => ({
+  step,
+  guarantee: GUARANTEES.find((g) => g.stop === step),
+}));
+
+/**
+ * The stop names the row. The tightest pair is the claim tested, so it ranks
+ * next, then what the stop carries; the lightness, the same in every family,
+ * leaves first. On a 320 screen the stop, the pair and the job fit.
+ */
+const STOP_COLUMNS: Column<StopRow>[] = [
+  { key: 'stop', header: 'Stop', primary: true, minWidth: 60, cell: ({ step }) => <span className="tokenName">{step}</span> },
+  { key: 'l', header: 'L', priority: 3, minWidth: 64, cell: ({ step }) => <span className="alias">{lightness(p[`stone/${step}`]!).toFixed(3)}</span> },
+  { key: 'carries', header: 'Carries', priority: 2, minWidth: 112, cell: ({ guarantee }) => guarantee?.carries ?? <span className="alias">—</span> },
+  {
+    key: 'tightest',
+    header: 'Tightest',
+    priority: 1,
+    minWidth: 104,
+    cell: ({ step, guarantee }) => {
+      const pair = guarantee && tightest(guarantee);
+      return (
+        pair && (
+          <>
+            <span className="alias">{pair.ramp} </span>
+            <Ratio fg={pair.fg} bg={pair.bg} threshold={step === '500' ? 3 : 4.5} />
+          </>
+        )
+      );
+    },
+  },
+];
 
 export default function Page() {
   const primitiveCount = Object.keys(primitives).length;
@@ -221,38 +267,8 @@ export default function Page() {
         within a thousandth of it. Each stop&rsquo;s job is measured across all ten families as
         the page renders, and the family shown is the one where the pair is tightest.
       </p>
-      <div className="tableScroll">
-        <table className="tokens">
-          <thead>
-            <tr>
-              <th>Stop</th>
-              <th>L</th>
-              <th>Carries</th>
-              <th>Tightest</th>
-            </tr>
-          </thead>
-          <tbody>
-            {STEPS.filter((step) => step !== '925').map((step) => {
-              const guarantee = GUARANTEES.find((g) => g.stop === step);
-              const pair = guarantee && tightest(guarantee);
-              return (
-                <tr key={step}>
-                  <td className="tokenName">{step}</td>
-                  <td className="alias">{lightness(p[`stone/${step}`]!).toFixed(3)}</td>
-                  <td>{guarantee?.carries ?? <span className="alias">—</span>}</td>
-                  <td>
-                    {pair && (
-                      <>
-                        <span className="alias">{pair.ramp} </span>
-                        <Ratio fg={pair.fg} bg={pair.bg} threshold={step === '500' ? 3 : 4.5} />
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="specimen">
+        <Table caption="One lightness per stop" density="compact" columns={STOP_COLUMNS} rows={STOP_ROWS} getRowId={({ step }) => step} />
       </div>
 
       <h2>Choosing a colour</h2>
@@ -290,7 +306,7 @@ export default function Page() {
         is deep on purpose: 700 to 950 sit at L .43, .33, .245, .205 and .16, so the dark
         canvas reads as night rather than slate. Alpha tokens are shown flattened over a card.
       </p>
-      <TokenTable tokens={group('surface/')} threshold={3} />
+      <TokenTable caption="Surfaces" tokens={group('surface/')} threshold={3} />
 
       <h2>Text</h2>
       <p>
@@ -299,7 +315,7 @@ export default function Page() {
         WCAG 2.1, and both are documented at their recorded value so a future edit cannot
         quietly make them worse.
       </p>
-      <TokenTable tokens={group('text/')} threshold={4.5} />
+      <TokenTable caption="Text" tokens={group('text/')} threshold={4.5} />
 
       <h2>Interactive</h2>
       <p>
@@ -309,7 +325,7 @@ export default function Page() {
         neutral button&rsquo;s own fill — and are shown here over a card; their readings are
         on the <a href="/elevation">Elevation page</a>.
       </p>
-      <TokenTable tokens={group('interactive/')} threshold={3} />
+      <TokenTable caption="Interactive" tokens={group('interactive/')} threshold={3} />
 
       <h2>Border</h2>
       <p>
@@ -318,7 +334,7 @@ export default function Page() {
         <code>default</code> outlines containers; and <code>strong</code> is the only tier
         that clears WCAG 1.4.11 — which is why every form control uses it.
       </p>
-      <TokenTable tokens={group('border/')} threshold={3} />
+      <TokenTable caption="Border" tokens={group('border/')} threshold={3} />
 
       <h2>Category</h2>
       <p>
@@ -330,7 +346,7 @@ export default function Page() {
         a card to 3:1. The tint is a ground, and is not measured. Not a status: a warning is
         not &ldquo;amber&rdquo;.
       </p>
-      <TokenTable tokens={group('category/')} threshold={3} />
+      <TokenTable caption="Category" tokens={group('category/')} threshold={3} />
 
       <h2>Chart</h2>
       <p>
@@ -344,7 +360,7 @@ export default function Page() {
         text a value inside a cell takes, and the rules are on{' '}
         <Link href="/data-vis">Data visualisation</Link>.
       </p>
-      <TokenTable tokens={group('chart/')} threshold={3} />
+      <TokenTable caption="Chart" tokens={group('chart/')} threshold={3} />
 
       <h2>Accessibility</h2>
       <p>
