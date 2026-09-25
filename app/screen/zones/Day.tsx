@@ -89,6 +89,8 @@ export function Day({ state, dispatch }: { state: ScreenState; dispatch: Dispatc
         locale={LOCALE}
         hours={HOURS}
         scrollTo={8}
+        // A day of people has no day's column to find: inert here until a week joins the screen.
+        scrollToDay
         resources={phone ? [one] : columns}
         events={visible(state).map(toEvent)}
         selectedId={state.currentId}

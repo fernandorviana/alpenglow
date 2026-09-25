@@ -99,6 +99,12 @@ export type SchedulerProps = {
   maxHeight?: number | string;
   /** The hour at the top when the region opens: `workingHours.start`, or the first event's, or `hours.start`. */
   scrollTo?: number;
+  /**
+   * The day in the middle when a week wider than the region opens: today's, or `date`'s when today is not in the
+   * week; `date`'s when `date` changes. Off when left out. A new number does it again: a Today button pressed on
+   * today.
+   */
+  scrollToDay?: boolean | number;
   /** Adds to the card, under the time. Seen, not read: the event's accessible name is its title, its time and its kind. */
   renderEvent?: (event: SchedulerEvent) => ReactNode;
   className?: string;
@@ -236,6 +242,7 @@ export function Scheduler({
   kindLabels,
   maxHeight,
   scrollTo,
+  scrollToDay,
   renderEvent,
   className,
   step = 15,
@@ -687,29 +694,40 @@ export function Scheduler({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, date, resources?.length]);
 
-  // And, when a week is wider than the region, at today's column, or the
-  // day's when today is not in the week: in the middle of what the sticky
-  // hours leave, so the days either side show. Measured rather than
-  // computed, so a right-to-left page, whose hours sit on the right, works
-  // the same. A day of people stays at its first person. Also when the clock
-  // arrives after hydration, which is when today is first known.
+  // With scrollToDay, a week wider than the region puts a day's column in
+  // the middle of what the sticky hours leave, so the days either side show.
+  // Today's when the region opens, the view changes, a new request comes or
+  // the clock first arrives after hydration; `date`'s when only `date`
+  // changes, so a day picked in the same week is the day shown. What was
+  // asked last is kept to tell the two apart. A day of people has no day to
+  // find and stays put. What the hours leave is measured from their width at
+  // the start edge, the right one on a right-to-left page.
+  const lastDay = useRef<{ view: SchedulerView; date: ISODate; today?: ISODate; request?: boolean | number } | null>(null);
   useEffect(() => {
+    const was = lastDay.current;
+    lastDay.current = { view, date, today: todayDate, request: scrollToDay };
+    if (scrollToDay === undefined || scrollToDay === false) return;
+    const toToday =
+      !was || was.view !== view || was.request !== scrollToDay || (was.today === undefined && todayDate !== undefined);
+    if (!toToday && was.date === date) return;
     const el = region.current;
     if (!el || el.scrollWidth <= el.clientWidth) return;
-    const at = columns.findIndex((c) => !c.resource && c.date === todayDate);
-    const target = at !== -1 ? at : columns.findIndex((c) => !c.resource && c.date === date);
+    const today = toToday ? columns.findIndex((c) => !c.resource && c.date === todayDate) : -1;
+    const target = today !== -1 ? today : columns.findIndex((c) => !c.resource && c.date === date);
     const column = el.querySelector<HTMLElement>(`section[data-column="${target}"]`);
     const hoursColumn = el.querySelector<HTMLElement>(`.${styles.hours}`);
     if (target === -1 || !column || !hoursColumn) return;
     const box = el.getBoundingClientRect();
     const start = box.left + el.clientLeft;
     const end = start + el.clientWidth;
-    const hoursBox = hoursColumn.getBoundingClientRect();
-    const [from, to] = hoursBox.left - start <= end - hoursBox.right ? [hoursBox.right, end] : [start, hoursBox.left];
+    const hoursWidth = hoursColumn.getBoundingClientRect().width;
+    const [from, to] = getComputedStyle(el).direction === 'rtl' ? [start, end - hoursWidth] : [start + hoursWidth, end];
     const c = column.getBoundingClientRect();
     el.scrollLeft += (c.left + c.right) / 2 - (from + to) / 2;
+    // The columns follow from these; a new object for `workingHours` on each
+    // render must not bring the reader back.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, date, resources?.length, todayDate]);
+  }, [view, date, todayDate, scrollToDay]);
 
   const labels = useMemo(() => hourLabels(locale, hours), [locale, hours.start, hours.end]); // eslint-disable-line react-hooks/exhaustive-deps
 

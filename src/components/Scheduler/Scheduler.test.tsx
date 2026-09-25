@@ -1,6 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { Scheduler, type SchedulerEvent, type SchedulerResource } from './Scheduler';
 import styles from './Scheduler.module.css';
 import { readCss, block } from '../../test/css';
@@ -476,6 +477,15 @@ describe('Scheduler — the stylesheet', () => {
     expect(css).not.toContain('max-content');
   });
 
+  it('keeps the hours column at the start while the columns scroll sideways under it', () => {
+    // A `position: relative` after the sticky rule had the hours scroll away
+    // under a corner and an All-day label that stayed.
+    for (const part of ['corner', 'hours', 'allDayLabel']) {
+      expect(declared(css, part, 'position'), part).toEqual(['sticky']);
+      expect(declared(css, part, 'inset-inline-start'), part).toEqual(['0']);
+    }
+  });
+
   it('gives the all-day chip the drawn row, its line inside it', () => {
     // Drawn 170 × 29 in a 28 row, radius 8, 12 SemiBold, the words 10 in.
     expect(block(css, '\n.root {')).toContain('--scheduler-all-day: calc(var(--ap-spacing-300) + var(--ap-spacing-050))');
@@ -500,61 +510,131 @@ describe('Scheduler — the stylesheet', () => {
   });
 });
 
-describe('Scheduler — opening at today', () => {
+describe('Scheduler — opening at a day', () => {
   /**
    * A week of seven 128 columns after the 80 hours in a region 400 wide:
-   * column n runs from 80 + 128n, and the hours cover 0 to 80.
+   * column n runs from 80 + 128n less the region's scroll, and the sticky
+   * hours cover 0 to 80. The region scrolls when its columns pass 400.
    */
   const region = () => screen.getByRole('region', { name: 'Agenda' });
   const rect = (left: number, width: number) =>
     ({ x: left, y: 0, left, top: 0, right: left + width, bottom: 100, width, height: 100, toJSON: () => ({}) }) as DOMRect;
+  /** The scroll that puts column n's middle at 240, the middle of 80 to 400. */
+  const centred = (n: number) => 80 + 128 * n + 64 - 240;
 
-  afterEach(() => vi.restoreAllMocks());
-
-  const lay = (scrollWidth: number) => {
+  beforeEach(() => {
+    const own = (el: Element) => el.closest<HTMLElement>('[role=region]')!;
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
       if (this.getAttribute('role') === 'region') return rect(0, 400);
       if (this.classList.contains(styles.hours!)) return rect(0, 80);
-      if (this.matches('section[data-column]')) return rect(80 + 128 * Number(this.dataset.column), 128);
+      if (this.matches('section[data-column]')) return rect(80 + 128 * Number(this.dataset.column) - own(this).scrollLeft, 128);
       return rect(0, 0);
     });
     vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
       return this.getAttribute('role') === 'region' ? 400 : 0;
     });
     vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockImplementation(function (this: Element) {
-      return this.getAttribute('role') === 'region' ? scrollWidth : 0;
+      return this.getAttribute('role') === 'region' ? 80 + 128 * this.querySelectorAll('section[data-column]').length : 0;
     });
-  };
-
-  it('scrolls a week wider than the region to put today in the middle of what the hours leave', () => {
-    lay(976);
-    render(<Scheduler label="Agenda" date="2023-04-20" events={[]} now="2023-04-20T11:16" />);
-    // Thursday, column 4: 592 to 720, its middle 656; the middle of 80 to 400 is 240.
-    expect(region().scrollLeft).toBe(416);
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
-  it('goes to the day asked for when today is not in the week, and stays put when the week fits', () => {
-    lay(976);
-    const { unmount } = render(<Scheduler label="Agenda" date="2023-04-25" events={[]} now="2023-04-20T11:16" />);
-    // Tuesday the 25th, column 2: 336 to 464, its middle 400.
-    expect(region().scrollLeft).toBe(160);
-    unmount();
-
-    lay(400);
+  it('stays where it starts unless asked', () => {
     render(<Scheduler label="Agenda" date="2023-04-20" events={[]} now="2023-04-20T11:16" />);
     expect(region().scrollLeft).toBe(0);
   });
 
-  it('leaves a day of people where it starts', () => {
-    lay(976);
+  it('asked, puts today in the middle of what the hours leave, or the day’s column when today is not in the week', () => {
+    const { unmount } = render(<Scheduler label="Agenda" date="2023-04-20" events={[]} now="2023-04-20T11:16" scrollToDay />);
+    // Thursday, column 4: 592 to 720, its middle 656; the middle of 80 to 400 is 240.
+    expect(region().scrollLeft).toBe(416);
+    expect(region().scrollLeft).toBe(centred(4));
+    unmount();
+    render(<Scheduler label="Agenda" date="2023-04-25" events={[]} now="2023-04-20T11:16" scrollToDay />);
+    // Tuesday the 25th, column 2.
+    expect(region().scrollLeft).toBe(centred(2));
+  });
+
+  it('goes to the day asked for in the same week, and to today again when the view changes', () => {
+    const at = (date: string, view: 'day' | 'week' = 'week') => (
+      <Scheduler label="Agenda" view={view} date={date} events={[]} now="2023-04-20T11:16" scrollToDay />
+    );
+    const { rerender } = render(at('2023-04-20'));
+    expect(region().scrollLeft).toBe(centred(4));
+    rerender(at('2023-04-18'));
+    expect(region().scrollLeft, 'Tuesday, not pulled back to today').toBe(centred(2));
+    rerender(at('2023-04-19'));
+    expect(region().scrollLeft).toBe(centred(3));
+    rerender(at('2023-04-19', 'day'));
+    rerender(at('2023-04-19'));
+    expect(region().scrollLeft, 'back to the week: today').toBe(centred(4));
+  });
+
+  it('does it again for a new number, with the date already today', () => {
+    const at = (request: number) => <Scheduler label="Agenda" date="2023-04-20" events={[]} now="2023-04-20T11:16" scrollToDay={request} />;
+    const { rerender } = render(at(0));
+    expect(region().scrollLeft, 'a 0 is a request too').toBe(centred(4));
+    region().scrollLeft = 0;
+    rerender(at(0));
+    expect(region().scrollLeft, 'the same number: the reader’s scroll stays').toBe(0);
+    rerender(at(1));
+    expect(region().scrollLeft).toBe(centred(4));
+  });
+
+  it('goes to today when the clock first arrives after hydration', async () => {
+    // The server has no clock, so hydration opens at the day asked for; today
+    // is known a render later, and the region goes to it once.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2023, 3, 20, 11, 16));
+    const ui = <Scheduler label="Agenda" date="2023-04-18" events={[]} scrollToDay />;
+    const container = document.body.appendChild(document.createElement('div'));
+    container.innerHTML = renderToString(ui);
+    const setter = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollLeft')!.set!;
+    const seen: number[] = [];
+    vi.spyOn(Element.prototype, 'scrollLeft', 'set').mockImplementation(function (this: Element, value: number) {
+      if (this.getAttribute('role') === 'region') seen.push(value);
+      setter.call(this, value);
+    });
+    render(ui, { container, hydrate: true });
+    expect(seen, 'Tuesday while today is unknown, then Thursday').toEqual([centred(2), centred(4)]);
+    expect(region().scrollLeft).toBe(centred(4));
+  });
+
+  it('measures what the hours leave by their width, not where they are drawn', () => {
+    // Were the hours to scroll with the columns, their box would move and the
+    // middle with it; the width from the start edge is the same either way.
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const own = this.closest<HTMLElement>('[role=region]')!;
+      if (this === own) return rect(0, 400);
+      if (this.classList.contains(styles.hours!)) return rect(-own.scrollLeft, 80);
+      if (this.matches('section[data-column]')) return rect(80 + 128 * Number(this.dataset.column) - own.scrollLeft, 128);
+      return rect(0, 0);
+    });
+    const at = (date: string) => <Scheduler label="Agenda" date={date} events={[]} now="2023-04-20T11:16" scrollToDay />;
+    const { rerender } = render(at('2023-04-20'));
+    expect(region().scrollLeft).toBe(centred(4));
+    rerender(at('2023-04-22'));
+    expect(region().scrollLeft).toBe(centred(6));
+    rerender(at('2023-04-20'));
+    expect(region().scrollLeft).toBe(centred(4));
+  });
+
+  it('stays put when the week fits, and in a day of people', () => {
+    const { unmount } = render(<Scheduler label="Agenda" date="2023-04-20" days={2} events={[]} now="2023-04-20T11:16" scrollToDay />);
+    expect(region().scrollLeft).toBe(0);
+    unmount();
     render(
       <Scheduler
         label="Agenda"
         view="day"
         date="2023-04-20"
-        resources={[{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }]}
+        resources={['A', 'B', 'C', 'D'].map((id) => ({ id, name: id }))}
         events={[]}
         now="2023-04-20T11:16"
+        scrollToDay
       />,
     );
     expect(region().scrollLeft).toBe(0);

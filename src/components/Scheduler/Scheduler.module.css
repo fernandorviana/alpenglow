@@ -211,8 +211,9 @@
   position: relative;
 }
 
+/* Sticky, from the rule above, which also places the now time: a
+   `position: relative` here had the hours scroll away sideways. */
 .hours {
-  position: relative;
   padding-block-start: var(--scheduler-pad);
 }
 

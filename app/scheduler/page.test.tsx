@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { installPopoverStub } from '@/test/popover';
@@ -10,23 +10,34 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-/** The window's width, which every `(width < …rem)` and `(width >= …rem)` query is answered from. */
+/**
+ * The window's width, which every `(width < …rem)` and `(width >= …rem)`
+ * query is answered from; `resize` changes it and tells every listener, as a
+ * rotated phone would.
+ */
 let width = 1440;
+const listeners = new Set<() => void>();
 window.matchMedia = (query: string) => {
   const range = /\(width (<|>=) ([\d.]+)rem\)/.exec(query);
   const px = range ? Number(range[2]) * 16 : 0;
   return {
     matches: range ? (range[1] === '<' ? width < px : width >= px) : false,
     media: query,
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    addEventListener: (_: string, listener: () => void) => listeners.add(listener),
+    removeEventListener: (_: string, listener: () => void) => listeners.delete(listener),
   } as unknown as MediaQueryList;
 };
+const resize = (next: number) =>
+  act(() => {
+    width = next;
+    listeners.forEach((listener) => listener());
+  });
 
 installPopoverStub();
 
 afterEach(() => {
   width = 1440;
+  vi.restoreAllMocks();
 });
 
 const view = () => screen.getByRole('combobox', { name: 'View' });
@@ -105,6 +116,70 @@ describe('the Scheduler page’s Try it', () => {
     await vi.waitFor(() => expect(within(drawer).getByRole('textbox', { name: 'Title' })).toHaveFocus());
     await userEvent.click(within(drawer).getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('dialog', { name: 'Calendar and filters' })).toBeNull();
+  });
+
+  it('crossing md with the panel open closes it, keeps the focus in the side column, and does not reopen it coming back', async () => {
+    width = 375;
+    render(<Page />);
+    await userEvent.click(sideButton()!);
+    const drawer = screen.getByRole('dialog', { name: 'Calendar and filters' });
+    await vi.waitFor(() => expect(drawer).toContainElement(document.activeElement as HTMLElement));
+
+    resize(1024);
+    expect(screen.queryByRole('dialog', { name: 'Calendar and filters' })).toBeNull();
+    const side = document.querySelector('.schedulerScreen > .schedulerSide')!;
+    await vi.waitFor(() => expect(side).toContainElement(document.activeElement as HTMLElement));
+    expect(screen.getByRole('switch', { name: /Availability/ })).toHaveFocus();
+
+    resize(375);
+    expect(screen.queryByRole('dialog', { name: 'Calendar and filters' }), 'turned back: still closed').toBeNull();
+  });
+
+  it('crossing below md from the side column puts the focus on the button that opens it', async () => {
+    width = 1024;
+    render(<Page />);
+    screen.getByRole('switch', { name: /Availability/ }).focus();
+    resize(375);
+    await vi.waitFor(() => expect(sideButton()).toHaveFocus());
+  });
+
+  it('opts the grid in to opening at a day: a day picked in the week is the day shown, and Today brings today back', async () => {
+    // The Appointments region, laid out: 400 wide, the hours 0 to 80, column n
+    // from 80 + 128n less the scroll; a week starting Monday puts the 20th in column 3.
+    const rect = (left: number, w: number) =>
+      ({ x: left, y: 0, left, top: 0, right: left + w, bottom: 100, width: w, height: 100, toJSON: () => ({}) }) as DOMRect;
+    const inGrid = (el: Element) => el.closest('[role=region][aria-label="Appointments"]') as HTMLElement | null;
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const own = inGrid(this);
+      if (!own) return rect(0, 0);
+      if (this === own) return rect(0, 400);
+      if (this.matches('section[data-column]')) return rect(80 + 128 * Number(this.dataset.column) - own.scrollLeft, 128);
+      if (this.parentElement?.firstElementChild === this && this.parentElement.querySelector('section')) return rect(0, 80);
+      return rect(0, 0);
+    });
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(function (this: Element) {
+      return this.matches('[role=region][aria-label="Appointments"]') ? 400 : 0;
+    });
+    vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockImplementation(function (this: Element) {
+      return this.matches('[role=region][aria-label="Appointments"]') ? 80 + 128 * this.querySelectorAll('section').length : 0;
+    });
+    const centred = (n: number) => 80 + 128 * n + 64 - 240;
+
+    width = 1024;
+    render(<Page />);
+    expect(grid().scrollLeft, 'today, Thursday').toBe(centred(3));
+    await userEvent.click(screen.getByRole('button', { name: 'Tuesday, April 18, 2023' }));
+    expect(grid().scrollLeft, 'the day picked, not today').toBe(centred(1));
+    await userEvent.click(screen.getByRole('button', { name: 'Today' }));
+    expect(grid().scrollLeft).toBe(centred(3));
+    grid().scrollLeft = 0;
+    await userEvent.click(screen.getByRole('button', { name: 'Today' }));
+    expect(grid().scrollLeft, 'on today already, Today still brings it back').toBe(centred(3));
+  });
+
+  it('lists the prop that opens at a day', () => {
+    render(<Page />);
+    expect(screen.getByRole('table', { name: 'Scheduler props' })).toHaveTextContent('scrollToDay');
   });
 
   it('below md, closes the panel on the day a reader picks, and shows it', async () => {

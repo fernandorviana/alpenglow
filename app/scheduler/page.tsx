@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DocPage } from '@ui/DocPage';
 import { Ratio } from '@ui/Ratio';
@@ -277,6 +277,7 @@ const PROPS: PropRow[] = [
   { prop: 'kindLabels', type: 'Partial<Record<SchedulerKind, string>>', default: 'Confirmed, Pending approval, …' },
   { prop: 'maxHeight', type: 'number | string', default: '—' },
   { prop: 'scrollTo', type: 'number (an hour)', default: 'workingHours.start, or the first event' },
+  { prop: 'scrollToDay', type: 'boolean | number — a week wider than the region opens with today, or date, in the middle; date when it changes; a new number again', default: 'off' },
   { prop: 'renderEvent', type: '(event) => ReactNode', default: '—' },
   { prop: 'onCreate', type: '(draft: { start, end, resourceId?, title?, from? }) => void', default: '— (arms press, drag, Enter, paste, duplicate)' },
   { prop: 'onMove / onResize', type: '(event, next: { start, end, resourceId? }) => void', default: '— (arms the drag, the handle, Shift+arrows)' },
@@ -321,6 +322,44 @@ export default function Page() {
     setSideOpen(true);
   };
   const doneSide = () => setSideOpen(false);
+  // Crossing md with the panel open closes it, so turning back does not open
+  // it again; the focus it had goes to the side column, now in the page. The
+  // other way, focus in the side column goes to the button that opens it.
+  const sideColumn = useRef<HTMLDivElement>(null);
+  const sideButton = useRef<HTMLButtonElement>(null);
+  const focusInSide = useRef(false);
+  const [wasNarrow, setWasNarrow] = useState(narrow);
+  const [refocus, setRefocus] = useState(0);
+  if (narrow !== wasNarrow) {
+    setWasNarrow(narrow);
+    if (!narrow && sideOpen) {
+      setSideOpen(false);
+      setRefocus((n) => n + 1);
+    }
+  }
+  useEffect(() => {
+    if (refocus === 0) return;
+    // A task later, after the Drawer has tried to give the focus back to what
+    // opened it, which at this width may be gone.
+    const timer = setTimeout(() => {
+      const active = document.activeElement;
+      if (active && active !== document.body && active.isConnected) return;
+      sideColumn.current?.querySelector<HTMLElement>('input:not(:disabled), button:not(:disabled)')?.focus();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [refocus]);
+  useEffect(() => {
+    if (!narrow || !focusInSide.current) return;
+    focusInSide.current = false;
+    const timer = setTimeout(() => {
+      const active = document.activeElement;
+      if (active && active !== document.body && active.isConnected) return;
+      sideButton.current?.focus();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [narrow]);
+  // Today again, for the grid's scrollToDay, when the date is already today.
+  const [toToday, setToToday] = useState(0);
 
   const effective: SchedulerView = narrow || view !== 'week' ? 'day' : 'week';
   const byPerson = view === 'staff';
@@ -509,7 +548,13 @@ export default function Page() {
         `}</style>
         <div className="schedulerToolbar">
           <h3>{heading}</h3>
-          <Button variant="outline" onClick={() => setDate(TODAY)}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setDate(TODAY);
+              setToToday((n) => n + 1);
+            }}
+          >
             Today
           </Button>
           <Button variant="outline" onClick={() => setDate((d) => addDays(d, -step))}>
@@ -524,7 +569,13 @@ export default function Page() {
             <Select options={narrow ? PHONE_VIEWS : VIEWS} value={shownView} onChange={setView} />
           </Field>
           {narrow && (
-            <Button variant="outline" aria-haspopup="dialog" aria-expanded={sideOpen} onClick={() => openSide('button')}>
+            <Button
+              ref={sideButton}
+              variant="outline"
+              aria-haspopup="dialog"
+              aria-expanded={sideOpen}
+              onClick={() => openSide('button')}
+            >
               Calendar and filters
             </Button>
           )}
@@ -543,6 +594,7 @@ export default function Page() {
             now={NOW}
             zoneLabel="WET"
             maxHeight={600}
+            scrollToDay={toToday}
             selectedId={selected?.id ?? null}
             onSelect={(event) => {
               setSelected(event);
@@ -555,7 +607,20 @@ export default function Page() {
             onResize={change('resized')}
             onRemove={onRemove}
           />
-          {!narrow && <div className="schedulerSide">{side}</div>}
+          {!narrow && (
+            <div
+              ref={sideColumn}
+              className="schedulerSide"
+              onFocus={() => {
+                focusInSide.current = true;
+              }}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) focusInSide.current = false;
+              }}
+            >
+              {side}
+            </div>
+          )}
         </div>
         <Drawer
           open={narrow && sideOpen}
@@ -569,7 +634,8 @@ export default function Page() {
       </div>
       <p className="alias">
         The now line is pinned to the drawn 11:16 on the 20th of April 2023 so the page holds still; left out, the
-        component reads the clock, and a week wider than its region opens with today in the middle. Below{' '}
+        component reads the clock. With <code>scrollToDay</code> a week wider than its region opens with today in
+        the middle, a day picked in the same week is the day shown, and Today brings today back. Below{' '}
         <code>md</code>, 768, the week gives way to the day, as the phone drawing has it, and the grid has the width:
         the calendar and the filters open over it from a button, as a <a href="/drawer">Drawer</a>, and so do a new
         event and a pressed one. From <code>md</code> they sit under the grid, and beside it only where the

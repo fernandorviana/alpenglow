@@ -105,6 +105,12 @@ the Table's `Column.width`, under Breaking.
   and all of them gather into "⋯" before any column leaves.
 - **Button** — `icon`, an icon-only form: square, the icon alone, and
   `aria-label` required by the types.
+- **Scheduler** — `scrollToDay`: a week wider than its region opens with a
+  day's column in the middle of what the hours leave, today's, or `date`'s
+  when today is not in the week, and goes to `date`'s when `date` changes,
+  so a day picked in the same week is the day shown. Off unless given, so
+  nothing moves for a Scheduler that does not ask; a new number does it
+  again, for a Today button pressed on today. A day of people stays put.
 
 ### Changed
 
