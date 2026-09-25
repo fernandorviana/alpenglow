@@ -81,19 +81,23 @@ function useWeekdayNames(locale: string, weekStartsOn: number) {
 }
 
 /**
- * The chevrons as drawn: a 1.5px stroke on a 12 x 9.33 path inside a 40px box.
- * 1.5 is `border-width/control`, which is what the drawing bound here. Drawn
- * inline from the file's own geometry rather than pulled from Carbon — the
- * same choice `Select` made for its own chevron, and it keeps the library
- * from importing an icon package for two glyphs.
+ * The chevrons as drawn (246:11091 "Date Picker Month Pagination"): each
+ * 40x40 arrow component holds a 16x16 "chevron--right" icon frame, and the
+ * vector inside that frame is 4.67 x 9.33 at a 1.5px stroke. 1.5 is
+ * `border-width/control`, which is what the drawing bound here. The viewBox
+ * is the 16px frame itself, not the 40px component — `.page svg` renders it
+ * at that size, and the 32px circle plus the existing 4px margin already
+ * makes up the 40. Drawn inline from the file's own geometry rather than
+ * pulled from Carbon — the same choice `Select` made for its own chevron,
+ * and it keeps the library from importing an icon package for two glyphs.
  */
 function Chevron({ direction }: { direction: 'previous' | 'next' }) {
   const d =
     direction === 'previous'
-      ? 'M21.6 24.6667L16.9333 20L21.6 15.3333'
-      : 'M18.4 15.3333L23.0667 20L18.4 24.6667';
+      ? 'M10.3333 12.6667L5.6667 8L10.3333 3.3333'
+      : 'M5.6667 3.3333L10.3333 8L5.6667 12.6667';
   return (
-    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path
         d={d}
         stroke="currentColor"

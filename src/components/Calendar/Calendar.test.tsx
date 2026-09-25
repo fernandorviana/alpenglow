@@ -1057,6 +1057,25 @@ describe('Calendar stylesheet source', () => {
     expect(focus).not.toMatch(/border-color/);
   });
 
+  it('resets the button default padding on the pagination arrows', () => {
+    // Without this, the browser's own default button padding shrinks the
+    // content box the chevron svg renders into — 32px circle minus that
+    // padding left only 20px, so a 40px svg was squeezed to 20px wide and
+    // its chevron drew at roughly 2.3x4.7 instead of the drawn 4.67x9.33
+    // (246:11091 "Date Picker Month Pagination").
+    expect(block('.page')).toMatch(/(?:^|;)\s*padding:\s*0/);
+  });
+
+  it('sizes the chevron to its drawn 16px icon frame, not the full 40px component', () => {
+    // 246:11091: each arrow is a 40x40 component; the icon inside it is a
+    // 16x16 "chevron--right" frame holding a 4.67x9.33 vector at a 1.5
+    // stroke. The svg has to render at that 16px frame size, not the 40px
+    // component the 32px circle plus its 4px margin already accounts for.
+    const svg = block('.page svg');
+    expect(svg).toMatch(/(?:^|;)\s*width:\s*16px/);
+    expect(svg).toMatch(/(?:^|;)\s*height:\s*16px/);
+  });
+
   it('never paints a day hover with surface/sunken', () => {
     // In light the two tokens are byte-identical, so this cannot be caught by
     // looking at the result. In dark, sunken is darker than the panel and the
