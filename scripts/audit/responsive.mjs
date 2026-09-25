@@ -10,18 +10,24 @@
  *
  * With no --base, serves the build in `out/` itself (see serve.mjs). Routes
  * are discovered from `out/**\/index.html`, not hard-coded, so a new page
- * gets audited without editing this file.
+ * gets audited without editing this file. `--only` takes a route with or
+ * without its slashes (`/drawer/` is `/drawer`).
+ *
+ * Exits 1 when a route scrolls sideways or a run errored (a route that could
+ * not be audited did not pass), and 2 when `--only` names a route the build
+ * does not have or `--widths` leaves nothing to run.
  *
  * Writes .audit/responsive/probe.json (every run's full probe output) and,
  * with --shots, .audit/responsive/shots/<route>__<width>[d]__NN.png —
  * one screenshot per viewport-height segment of the page.
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { launch } from './cdp.mjs';
 import { serve } from './serve.mjs';
+import { discoverRoutes, exitCode, routesOrExit } from './routes.mjs';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const OUT_DIR = join(ROOT, '.audit', 'responsive');
@@ -50,23 +56,6 @@ const widthFilter = values.widths ? values.widths.split(',').map(Number) : null;
 const VIEWS = widthFilter ? ALL_VIEWS.filter((v) => widthFilter.includes(v.w)) : ALL_VIEWS;
 
 const CONCURRENCY = 5;
-
-/** Every route the static export produced, from disk rather than a hand-kept list. Skips Next internals (_next, _not-found) and the 404 page. */
-function discoverRoutes(outDir) {
-  const routes = [];
-  const walk = (dir, prefix) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name.startsWith('_')) continue;
-        walk(join(dir, entry.name), `${prefix}/${entry.name}`);
-      } else if (entry.name === 'index.html') {
-        routes.push(prefix || '/');
-      }
-    }
-  };
-  walk(outDir, '');
-  return routes.filter((r) => r !== '/404').sort();
-}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -162,7 +151,7 @@ function printSummary(results) {
   const withProblems = results.filter((r) => !r.error && (r.scrollWidth > r.vw || r.overflowCount > 0 || r.clipped.length > 0));
   const errors = results.filter((r) => r.error);
   console.log(`${results.length} runs, ${withProblems.length} with problems, ${sideways.length} scroll sideways, ${errors.length} errors`);
-  return sideways.length > 0 ? 1 : 0;
+  return exitCode({ failing: sideways.length, errors: errors.length });
 }
 
 async function main() {
@@ -172,17 +161,15 @@ async function main() {
     process.exit(2);
   }
 
-  const only = values.only ? values.only.split(',') : null;
-  const allRoutes = discoverRoutes(outDir);
-  const routes = only ? allRoutes.filter((r) => only.includes(r)) : allRoutes;
+  const routes = routesOrExit(discoverRoutes(outDir), values.only);
 
   mkdirSync(OUT_DIR, { recursive: true });
   if (values.shots) mkdirSync(SHOTS_DIR, { recursive: true });
 
   const jobs = routes.flatMap((r) => VIEWS.map((v) => [r, v]));
   if (jobs.length === 0) {
-    console.log('nothing to audit: no routes × views matched --only / --widths');
-    process.exit(0);
+    console.error(`nothing to audit: --widths ${values.widths} matches none of ${ALL_VIEWS.map((v) => v.w).join(', ')}`);
+    process.exit(2);
   }
 
   let server = null;

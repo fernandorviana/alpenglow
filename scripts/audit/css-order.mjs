@@ -11,12 +11,17 @@
  * responsive.mjs does it — this script only needs a fresh `out/` to know
  * which routes exist; --a and --b can point anywhere, including two remote
  * URLs. Writes .audit/css-order/report.json.
+ *
+ * Skips /screen, and says so: see SKIP. Exits 1 when a route differs or a
+ * run errored, and 2 when `--only` names a route the build does not have or
+ * nothing is left to compare.
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { launch } from './cdp.mjs';
+import { discoverRoutes, exitCode, routesOrExit } from './routes.mjs';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const OUT_DIR = join(ROOT, '.audit', 'css-order');
@@ -35,22 +40,16 @@ if (!values.a || !values.b) {
   process.exit(2);
 }
 
-/** Same route discovery as responsive.mjs: every out/**\/index.html, minus Next internals and 404. */
-function discoverRoutes(outDir) {
-  const routes = [];
-  const walk = (dir, prefix) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        if (entry.name.startsWith('_')) continue;
-        walk(join(dir, entry.name), `${prefix}/${entry.name}`);
-      } else if (entry.name === 'index.html') {
-        routes.push(prefix || '/');
-      }
-    }
-  };
-  walk(outDir, '');
-  return routes.filter((r) => r !== '/404').sort();
-}
+/**
+ * Routes this audit leaves out, and why. /screen frames /screen/full in an
+ * iframe: both sides load the framed app at once, and on one machine the
+ * frame's boxes are measured while the page inside is still settling — its
+ * diffs came and went with CPU load, and dev measured alone matched the
+ * build (2026-09-25). /screen/full, the same page unframed, is audited.
+ */
+const SKIP = new Map([
+  ['/screen', 'it frames /screen/full in an iframe, and its diffs are a measurement of CPU contention, not of CSS order; /screen/full is audited'],
+]);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -111,7 +110,7 @@ function printSummary(report) {
   const withDiffs = report.filter((r) => !r.error && r.diffCount > 0);
   const errors = report.filter((r) => r.error);
   console.log(`${report.length} runs, ${withDiffs.length} with diffs, ${errors.length} errors`);
-  return withDiffs.length > 0 ? 1 : 0;
+  return exitCode({ failing: withDiffs.length, errors: errors.length });
 }
 
 async function main() {
@@ -121,9 +120,15 @@ async function main() {
     process.exit(2);
   }
 
-  const only = values.only ? values.only.split(',') : null;
-  const allRoutes = discoverRoutes(outDir);
-  const routes = only ? allRoutes.filter((r) => only.includes(r)) : allRoutes;
+  const routes = routesOrExit(discoverRoutes(outDir), values.only).filter((route) => {
+    if (!SKIP.has(route)) return true;
+    console.log(`skipping ${route}: ${SKIP.get(route)}`);
+    return false;
+  });
+  if (routes.length === 0) {
+    console.error('nothing to compare');
+    process.exit(2);
+  }
 
   mkdirSync(OUT_DIR, { recursive: true });
 
