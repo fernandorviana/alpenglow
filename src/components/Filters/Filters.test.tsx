@@ -156,6 +156,51 @@ describe('Filters — stylesheet', () => {
     expect(bar).toContain('var(--ap-radius-xl)');
   });
 
+  it('flows the label and the chips on the bar’s own rows, with nothing that grows to fill one', () => {
+    // A box around the chips that took `flex: 1 1 auto` filled every row it
+    // was on, so the label sat alone above it and Clear alone below it: three
+    // rows at 375, four at 320. With no box of its own, a chip sits beside
+    // the label when it fits.
+    expect(block(css, '.chips {')).toMatch(/display:\s*contents/);
+    expect(css).not.toMatch(/flex:\s*1 1 auto/);
+    // 12 after the label, 8 between chips, as drawn, with one gap for the bar.
+    expect(block(css, '\n.filters {')).toMatch(/gap:\s*var\(--ap-spacing-100\)/);
+    expect(block(css, '\n.label {')).toMatch(/margin-inline-end:\s*var\(--ap-spacing-050\)/);
+  });
+
+  it('keeps Clear with the "+", after the last chip, so it never stands on a row alone', () => {
+    render(<Filters fields={fields} value={value} onChange={() => {}} />);
+    const add = screen.getByRole('button', { name: 'Add filter' });
+    const clear = screen.getByRole('button', { name: 'Clear' });
+    // One box holds both, and it wraps whole: Clear goes to a new row only
+    // with the "+" beside it.
+    const controls = add.closest(`.${styles.controls}`)!;
+    expect(controls).not.toBeNull();
+    expect(controls).toContainElement(clear);
+    expect(add.compareDocumentPosition(clear) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const box = block(css, '\n.controls {');
+    expect(box).toMatch(/display:\s*flex/);
+    expect(box).not.toMatch(/flex-wrap:\s*wrap/);
+    // It takes what is left of its row, so Clear sits at the bar's end, as drawn.
+    expect(box).toMatch(/flex:\s*1 0 auto/);
+    expect(block(css, '\n.clear {')).toMatch(/margin-inline-start:\s*auto/);
+    expect(clear).toHaveClass(styles.clear!);
+    // The chips come before it, in their own order.
+    const chip = screen.getByRole('button', { name: 'Status is Active or Invite pending' });
+    expect(chip.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('is never wider than the row it is put in: a long chip ends its words in an ellipsis', () => {
+    // Two chips in the scheduling screen's day bar at 320 made the bar 355
+    // wide and the page scroll: a flex item's least width is its content's.
+    expect(block(css, '\n.filters {')).toMatch(/min-width:\s*0/);
+    const words = block(css, '.words {');
+    expect(words).toMatch(/max-width:\s*100%/);
+    expect(words).toMatch(/overflow:\s*hidden/);
+    expect(words).toMatch(/text-overflow:\s*ellipsis/);
+    expect(words).toMatch(/white-space:\s*nowrap/);
+  });
+
   it('makes the words a button that looks like words, with a ring of its own', () => {
     const words = block(css, '.words {');
     expect(words).toContain('font: inherit');

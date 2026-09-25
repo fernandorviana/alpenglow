@@ -138,6 +138,8 @@ export function Filters({
             </Popover>
           </Tag>
         ))}
+      </div>
+      <div className={styles.controls}>
         <Popover
           aria-label={addLabel}
           onOpenChange={(open) => {
@@ -176,12 +178,12 @@ export function Filters({
             {pickedField && options(pickedField)}
           </div>
         </Popover>
+        {chips.length > 0 && (
+          <Button variant="ghost" tone="accent" size="sm" className={styles.clear} onClick={() => onChange([])}>
+            {clearLabel}
+          </Button>
+        )}
       </div>
-      {chips.length > 0 && (
-        <Button variant="ghost" tone="accent" size="sm" onClick={() => onChange([])}>
-          {clearLabel}
-        </Button>
-      )}
     </div>
   );
 }

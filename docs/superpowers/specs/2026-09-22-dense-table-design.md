@@ -82,10 +82,21 @@ div.root[.comfortable|.compact][aria-busy] (className, rest)
 ```
 div.filters
   span.label "Filters"
-  chips: Tag(onRemove) > Popover(trigger: button.words) > Checkbox list
-  Popover(trigger: Button "+" aria-label "Add filter") > fields, then values
-  Button ghost "Clear"   (with a value)
+  div.chips (display: contents)
+    Tag(onRemove) > Popover(trigger: button.words) > Checkbox list
+  div.controls                         wraps whole, takes the rest of its row
+    Popover(trigger: Button "+" aria-label "Add filter") > fields, then values
+    Button ghost "Clear"   (with a value; at the row's end)
 ```
+
+2026-09-25, at a narrow width: the chips' box took `flex: 1 1 auto`, so it
+filled its rows, leaving the label alone above it and Clear alone below it
+(three rows at 375, four at 320). The chips are now the bar's own items, and
+the "+" and Clear share a box that wraps whole: Clear never stands on a row
+alone, and the "+" stays beside the last chip whenever the two fit there
+(when only the "+" would, it goes down with Clear). The bar takes
+`min-width: 0` and a chip's words end in an ellipsis, so two long chips in
+the scheduling screen's day bar no longer push the page sideways at 320.
 
 ## API
 

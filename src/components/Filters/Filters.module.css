@@ -8,15 +8,21 @@
  * caption/md is kept, one chip in the system and not two.
  */
 
-.filters, .label, .chips, .words, .add, .fields, .field, .options, .legend {
+.filters, .label, .chips, .controls, .words, .add, .fields, .field, .options, .legend {
   box-sizing: border-box;
 }
 
+/* One flow of rows: the label, each chip, and the "+" with Clear. 8 apart,
+   the drawn space between chips, and 12 after the label by its margin. */
 .filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ap-spacing-150);
+  gap: var(--ap-spacing-100);
+  /* In a caller's flex or grid row the bar is never wider than the row: a
+     chip longer than the bar gives way inside it, where its words end in an
+     ellipsis, rather than pushing the page sideways. */
+  min-width: 0;
   padding: var(--ap-spacing-150) var(--ap-spacing-150) var(--ap-spacing-150) var(--ap-spacing-250);
   border: var(--ap-border-width-hairline) solid var(--ap-color-border-subtle);
   border-radius: var(--ap-radius-xl);
@@ -25,19 +31,34 @@
 }
 
 .label {
+  margin-inline-end: var(--ap-spacing-050);
   color: var(--ap-color-text-secondary);
   font-size: var(--ap-text-body-md-size);
   line-height: var(--ap-text-body-md-line-height);
   font-weight: var(--ap-font-weight-medium);
 }
 
+/* No box of its own: the chips are the bar's items, so the first sits
+   beside the label when it fits. A box that grew to fill its row left the
+   label alone above it and Clear alone below it, three rows at 375 and
+   four at 320. */
 .chips {
+  display: contents;
+}
+
+/* The "+" and Clear, together: they wrap as one, so Clear never stands on a
+   row alone, and the "+" stays beside the last chip whenever the two fit
+   there. The box takes what its row has left, and Clear keeps to its end,
+   where it is drawn. */
+.controls {
   display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
+  flex: 1 0 auto;
   align-items: center;
-  gap: var(--ap-spacing-100);
-  min-width: 0;
+  gap: var(--ap-spacing-150);
+}
+
+.clear {
+  margin-inline-start: auto;
 }
 
 /* The chip's words are the button that opens its values: it looks like
@@ -53,6 +74,14 @@
   letter-spacing: inherit;
   color: var(--ap-color-text-secondary);
   cursor: pointer;
+  /* A chip is never wider than the bar (the Tag's max-width), and its words
+     are a button, which an ellipsis on the Tag's label would hide whole: the
+     button ends its own words instead. The name is the whole of them. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top;
 }
 
 .words:hover { text-decoration: underline; }

@@ -125,6 +125,15 @@ the Table's `Column.width`, under Breaking.
 - **The Scheduler, the Table and the Slider isolate** (`isolation:
   isolate`): their z-indexes stay inside them, so a product's sticky bar at
   `z-index: 1` sits over the Scheduler's head. Nothing else changes.
+- **Filters keeps to fewer rows at a narrow width.** The chips are the
+  bar's own items (their box is `display: contents`), so a chip sits beside
+  the label when it fits, and the "+" and Clear share a box, `.controls`,
+  that wraps whole: Clear never stands on a row alone, and keeps to its
+  row's end. At 375 the drawn bar is two rows where it was three, at 320
+  three where it was four. **The DOM changes:** Clear is no longer the
+  bar's last child but the last child of that box, after the "+". The bar
+  takes `min-width: 0`, and a chip's words end in an ellipsis when the chip
+  is wider than the bar, where two long chips pushed a page sideways.
 - **The Table no longer collapses to a list under a 40rem container.** Its
   columns leave one by one instead, right to left unless priorities say
   otherwise. It lays out fixed, and flexible columns share by their
