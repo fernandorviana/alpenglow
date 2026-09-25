@@ -192,7 +192,8 @@ const STOP_COLUMNS: Column<StopRow>[] = [
 ];
 
 export default function Page() {
-  const primitiveCount = Object.keys(primitives).length;
+  // Opaque and alpha together, as the home page, Foundations and /why count them.
+  const primitiveCount = Object.keys(primitives).length + Object.keys(alphaPrimitives).length;
   const themeCount = Object.keys(theme).length;
   return (
     <DocPage

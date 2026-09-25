@@ -160,4 +160,5 @@ nav entry (thirty); section card.
 it out: the track was 0 wide and the field 802 at every width, and the page
 scrolled sideways, because `control.module.css`'s `.control { width: 100% }`
 beat `.field` on the build's chunk order. The field's width is a custom
-property the shared rule reads since 89b3d8c (branch `fidelity-part-1`).
+property, `--control-width`, that the shared rule reads, since 2026-09-24
+(branch `fidelity-part-1`).

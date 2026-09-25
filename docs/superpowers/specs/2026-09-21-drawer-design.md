@@ -45,8 +45,9 @@ the Accordion, the next piece of the roadmap.
    abrir drawers ou navegação é com overlays." (on phones there is no drawer
    beside the content; the content is what shows, and drawers and navigation
    open as overlays). The line is `DRAWER_NARROW`, `media.down.md`, exported
-   from the root (5d00a74). His words set the behaviour; the line is the
-   agent's, chosen to match the SideNav's sheet, and waits on his yes.
+   from the root (2026-09-25, branch `fidelity-part-1`). Fernando's words
+   set the behaviour; the line is the agent's, chosen to match the
+   SideNav's sheet, and waits on Fernando's yes.
 5. **Resizable, both kinds**, off unless asked for.
 
 ## Shape

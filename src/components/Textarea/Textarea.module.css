@@ -11,10 +11,11 @@
  * font-family, font-size, line-height, letter-spacing, color — because two
  * rules of equal specificity on the same element are settled by stylesheet
  * load order, which next dev and the production build do not agree on
- * (89b3d8c). What is declared below is only what neither `.control` nor the
- * browser's own author-origin styles already supply: box geometry, the reset
- * of the native focus ring, and the placeholder colour that used to live on
- * `.field`, which this element no longer carries.
+ * (the Slider's field and the Switch's description, 2026-09-24). What is
+ * declared below is only what neither `.control` nor the browser's own
+ * author-origin styles already supply: box geometry, the reset of the native
+ * focus ring, and the placeholder colour that used to live on `.field`,
+ * which this element no longer carries.
  */
 
 /* Every size here includes padding and border. Declared, not left to the

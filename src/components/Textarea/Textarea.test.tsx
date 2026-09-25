@@ -74,7 +74,7 @@ describe('Textarea.module.css', () => {
     expect(rule).toMatch(/resize:\s*vertical/);
   });
 
-  it('does not redeclare font-family, color or letter-spacing — control.module.css already sets those on the same element, as an author rule, which beats the UA textarea default regardless of stylesheet order; a second declaration here would only fight .control instead of fighting the browser, the same failure mode 89b3d8c fixed for width and margin-left', () => {
+  it('does not redeclare font-family, color or letter-spacing — control.module.css already sets those on the same element, as an author rule, which beats the UA textarea default regardless of stylesheet order; a second declaration here would only fight .control instead of fighting the browser, the same failure mode fixed for width and margin-left on 2026-09-24', () => {
     expect(rule).not.toMatch(/(?:^|[\s;])(?:font(?:-family)?|color|letter-spacing)\s*:/);
   });
 

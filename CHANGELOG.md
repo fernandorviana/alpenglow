@@ -3,7 +3,9 @@
 What changed for someone who installs `alpenglow`. Kept from the first wave of
 the completeness roadmap (2026-09-18); `0.1.0` and `0.2.0` are summarised from
 the record in `MEMORY.md`. While the version is `0.x`, a minor version may
-break: a removed token or prop is named here under **Breaking**.
+break: a removed token or prop is named here under **Breaking**. A section
+headed **The site** records changes to the documentation site, which reach
+nothing in the package.
 
 ## Unreleased
 
@@ -12,7 +14,7 @@ and its third, the Table's columns giving way, and what it could not be
 finished without: density as a foundation, a current row on the Table, and
 the Link saying a new tab for an internal link. Then the first part of the
 fidelity audit of 2026-09-24, which compared the drawing with the
-production build at every width from 320 to 1440 in both modes: the bugs it
+production build at 320, 375, 768, 1024 and 1440 in both modes: the bugs it
 found, in the package and on the site (spec
 `docs/superpowers/specs/2026-09-24-fidelity-audit.md`). Two props change
 their type, under Breaking: the Table's `Column.width` and `bulkActions`.
@@ -37,9 +39,9 @@ their type, under Breaking: the Table's `Column.width` and `bulkActions`.
 ### Added
 
 - **Density** — a fourth token layer, `density/*`, in two modes:
-  comfortable, the default (what is drawn for the rows, the hour and the
-  button; the drawn field and navigation item are 48, a decision still
-  open), and compact, chosen by
+  comfortable, the default (what is drawn for the rows and the button; the
+  hour is 80 for the drawn 81, and the field and the navigation item are 40
+  where 48 is drawn), and compact, chosen by
   `data-density="compact"` on **any element** (custom properties inherit,
   so one region of a page can be compact while the rest is not). Five
   tokens, only what the screen proves: `density/control` 40 / 32,
@@ -208,8 +210,7 @@ their type, under Breaking: the Table's `Column.width` and `bulkActions`.
 - **In dark the SegmentedControl's thumb takes a `border/strong`
   hairline**, and so does the Tabs' segmented variant, which shares its
   stylesheet: the thumb's `surface/overlay` fill was nearly invisible on
-  its track. Light is unchanged. There is no dark drawing of the thumb, so
-  this is a proposal, not yet ruled on.
+  its track. Light is unchanged.
 
 ### Fixed
 
@@ -257,8 +258,8 @@ their type, under Breaking: the Table's `Column.width` and `bulkActions`.
   16 frame. The arrow button kept the browser's padding, which shrank them
   to about 2.3 × 4.7, a dot.
 - **SideNav** — collapsed, each item is a circle centred in the 80 rail, at
-  the item's height (`density/nav-item`, 40 comfortable; 48 is drawn and
-  waits for the token), where the Tooltip's wrapper had held it to a
+  the item's height (`density/nav-item`, 40 comfortable, where 48 is
+  drawn), where the Tooltip's wrapper had held it to a
   24-wide sliver at the rail's edge. In the sheet the nav takes the height
   left under the close button and scrolls, where the last item fell off a
   375 × 812 screen. **The DOM changes:** each `li` takes a class.
@@ -292,13 +293,13 @@ system is read, and the audit found most of its faults there.
   code.
 - **In dark, the theme toggle's track and inline code take
   `surface/overlay`**, a surface step above the rail and the canvas they
-  had matched. No dark drawing exists of either: a proposal, not yet ruled
-  on.
+  had matched.
 - **/screen** — from 768 to 1023 the column fills the width when the
   navigation is a sheet, where it stopped at 754.
 - **/scheduler** gives the week its room: the side column goes under the
-  grid, and on a phone opens as an overlay Drawer from a toolbar button
-  (a proposal); the View select says the view shown.
+  grid, and on a phone opens as an overlay Drawer from a toolbar button,
+  which a new or pressed event opens too; the View select says the view
+  shown.
 - **At a phone's width**: /why's Layers figure is the six bands as an HTML
   stack below 30rem of its own width, not the drawing scaled to 0.4; card
   grids fill their rows; /button's dialog-footer example stacks its actions
@@ -306,7 +307,7 @@ system is read, and the audit found most of its faults there.
   scrolls sideways with a fade instead of clipping the top bar; the
   /components Navigation card draws its side nav at every width; the
   /layout and /density table headers fit; the home Developers card shows
-  `npm i alpenglow` alone (a proposal).
+  `npm i alpenglow` alone.
 - **The Foundations data-visualisation card shows its ramp**, a long icon
   name no longer shrinks its icon, and the Table page's row actions each
   do something: Edit, Delete and Archive answer with a toast, and Undo puts
@@ -314,11 +315,12 @@ system is read, and the audit found most of its faults there.
 - **Records.** Claims about the drawing that were false are corrected where
   they stood, dated 2026-09-24: /avatar's Loader, /navigation's phone bars,
   /scheduler's week with several people, its phone agenda and its
-  quarter-hour card, /input and /decisions on the resting border. The
-  counts agree between pages: the home page's primitives count the alpha
-  ones, as /foundations and /why do (134), and /space counts `spacing/0`,
-  as /foundations and /tailwind do (22). /accessibility lists the two pairs
-  that are below 4.5:1, not four.
+  quarter-hour card, /input and /decisions on the resting border, /density
+  on which comfortable heights are drawn. The
+  counts agree between pages: the home page and /colour count the alpha
+  primitives, as /foundations and /why do (134, held by a test), and /space
+  counts `spacing/0`, as /foundations and /tailwind do (22). /accessibility
+  lists the two pairs that are below 4.5:1, not four.
 
 ## 0.5.0 — 2026-09-23
 

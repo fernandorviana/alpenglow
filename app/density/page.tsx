@@ -141,9 +141,10 @@ export default function Page() {
         with <code>data-density=&quot;comfortable&quot;</code>.
       </p>
       <p>
-        Comfortable is what is drawn for the row, its header, the hour and the button. The
-        drawn field is 48 at its default size and the drawn navigation item 48, where{' '}
-        <code>density/control</code> and <code>density/nav-item</code> give 40: this page said
+        Comfortable is what is drawn for the row, its header and the button; the hour is{' '}
+        {density.hour.comfortable} for the drawn 81. The drawn field is 48 at its default size
+        and the drawn navigation item 48, where <code>density/control</code> and{' '}
+        <code>density/nav-item</code> give {density.control.comfortable}: this page said
         comfortable was what is drawn (corrected 2026-09-24, fidelity audit), and which height
         stands is still to be decided.
       </p>

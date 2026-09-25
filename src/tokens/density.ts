@@ -6,10 +6,11 @@
  * element — custom properties inherit, so a part of a page can be compact
  * while the rest is not.
  *
- * Comfortable is what is drawn for the row, its header, the hour and the
- * button. The drawn field and navigation item are 48, where `control` and
- * `nav-item` give 40: a decision for the designer (corrected 2026-09-24,
- * fidelity audit; this said comfortable was what is drawn).
+ * Comfortable is what is drawn for the row, its header and the button; the
+ * hour is 80 for the drawn 81. The drawn field and navigation item are 48,
+ * where `control` and `nav-item` give 40: a decision for the designer
+ * (corrected 2026-09-24, fidelity audit; this said comfortable was what is
+ * drawn).
  *
  * Five tokens, only the ones the dense screen proves (spec 2026-09-23,
  * decision 14). Adding one is a decision, not a tidy-up: the Loader once grew

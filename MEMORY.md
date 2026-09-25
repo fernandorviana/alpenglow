@@ -573,7 +573,7 @@ caption).
 
 ```bash
 npm run check       # tsc --noEmit, the hooks lint on src/ and app/, then the full suite
-npm test            # 2486 tests across 112 files (fidelity-part-1, 2026-09-25)
+npm test            # 2491 tests across 113 files (fidelity-part-1, 2026-09-25)
 npm run build:css   # regenerate both stylesheets
 npm run build:docs  # static export (regenerates the search index first)
 npm run build:lib       # the package, in dist/
@@ -628,7 +628,7 @@ dark: spec `docs/superpowers/specs/2026-09-24-fidelity-audit.md` — the
 method, why it drifted (six causes), and about 150 findings, each marked
 **fix** (a bug), **drawing** (an unrecorded departure; the drawing wins),
 **decide** (a departure an agent recorded; Fernando rules) or **owner**
-(recorded as his). Part 1, the fixes, is branch `fidelity-part-1` (plan
+(recorded as Fernando's). Part 1, the fixes, is branch `fidelity-part-1` (plan
 `docs/superpowers/plans/2026-09-24-fidelity-part-1.md`), not yet on main;
 its last task runs the whole built site at the five widths and the CSS
 order against dev. Part 2, the drawing's rows, and the decide rows wait on
@@ -637,8 +637,8 @@ Fernando.
 **The rule, from 2026-09-24:**
 
 - The drawing is the default. A departure is a proposal to Fernando, named
-  as one, with the drawn value beside it, and it lands only with his yes,
-  recorded in his words with the date.
+  as one, with the drawn value beside it, and it lands only with
+  Fernando's yes, recorded in Fernando's words with the date.
 - "Not drawn" is written only after searching both Figma files.
 - Done means seen in the production build at 320, 375, 768, 1024 and 1440,
   light and dark (`npm run audit:responsive`; Verification, above).
@@ -646,7 +646,7 @@ Fernando.
   `.prose` rule is `:where(.prose) :where(…)` and weighs nothing
   (`app/ui/ProseScope.test.tsx`).
 
-**The owner's rule, 2026-09-25**, in his words: "Em telemóveis não há
+**The owner's rule, 2026-09-25**, in Fernando's words: "Em telemóveis não há
 drawer ao lado do conteúdo. O conteúdo é o que aparece e abrir drawers ou
 navegação é com overlays." (On phones there is no drawer beside the
 content. The content is what shows, and drawers and navigation open as
@@ -664,7 +664,8 @@ built.
 marked "corrected 2026-09-24, fidelity audit" where it stood: the Toast is
 drawn, tone-filled notifications with a close (`1219:21015`,
 `1219:20982`), and Fernando's inverse-surface ruling, taken on "not
-drawn", is **reopened, pending his ruling** — the component is unchanged;
+drawn", is **reopened, pending Fernando's ruling** — the component is
+unchanged;
 phone and tablet top bars (`116:9367`, `120:9434`, `2787:6033`) and a
 phone bottom bar (`638:10984`) are drawn; the SideNav item is drawn 48
 (`160:9623`), built 40; the Table's cells are not the drawn type (primary
@@ -679,10 +680,10 @@ Brought up to date as well: the /input lede, "breakpoints are not tokens
 yet" on /navigation and /screen, /accessibility's "four pairs below 4.5:1"
 (two; the placeholder and the pressed green clear AA), the stale
 `.prose`-outranks comments in five component files, and counts that
-disagreed between pages: primitives 134 everywhere (opaque and alpha),
-spacing 22 (with `0`), and the home card's "thirty-three components"
-against the 48 /components derives from the package — the card no longer
-states a number.
+disagreed between pages: primitives 134 everywhere, opaque and alpha,
+held by `app/primitive-count.test.tsx`; spacing 22 (with `0`); and the home
+card's "thirty-three components" against the 48 /components derives from
+the package — the card no longer states a number.
 
 **Waiting on Fernando** — taken on `fidelity-part-1` where nothing is
 drawn or the drawing left a choice; proposals, not settled:
@@ -1109,7 +1110,8 @@ Claimed components (add a line before starting; one per session and branch):
   overflow at 375 — not in the production build, where the track was 0 and
   the field 802 wide at every width and the page scrolled sideways, the
   shared `.control { width: 100% }` winning on chunk order (corrected
-  2026-09-24, fidelity audit; fixed on `fidelity-part-1`, 89b3d8c). Two
+  2026-09-24, fidelity audit; fixed 2026-09-24 on `fidelity-part-1`: the
+  field's width reaches the shared rule as `--control-width`). Two
   contrast cases (221). `/slider` page with every
   drawn usage and "Best practice, and the alternatives"; nav entry
   (thirty); section card. Not built, recorded: the tag-like balloon; a
@@ -1718,7 +1720,8 @@ Claimed components (add a line before starting; one per session and branch):
   notifications with a close (`1219:21015`, `1219:20982`). This entry said
   "It is not drawn" (corrected 2026-09-24, fidelity audit), and Fernando's
   decisions below were taken on that premise, so they are **reopened,
-  pending his ruling**; the component stands as built until he rules. What
+  pending Fernando's ruling**; the component stands as built until
+  Fernando rules. What
   the 2026-09-20 searches found: the
   published `Notification status` set on the Figma file's *Notifications*
   page is the inline **Alert** (880 by 56, a tinted status surface with a
@@ -1799,7 +1802,8 @@ Claimed components (add a line before starting; one per session and branch):
   `inline-flex` and does not stretch a `fullWidth` trigger; the site's rail
   Search still keeps ⌘K in a `title` (its tests assert it), which this
   component was partly built to replace; the Figma frames are bound to old
-  primitives, and the cover's title layer is still named "Australis".
+  primitives, and the cover's title layer still carries the name of the
+  original Figma file.
 - **Tabs** — built 2026-09-18, on main as `14c99ea`, unreleased. Spec
   `docs/superpowers/specs/2026-09-18-tabs-design.md`, plan
   `docs/superpowers/plans/2026-09-18-tabs.md`. `variant` is `underline`

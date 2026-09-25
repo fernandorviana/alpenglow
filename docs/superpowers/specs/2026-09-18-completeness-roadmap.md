@@ -46,9 +46,9 @@ sessions hold the same line.
    repository** — the file key is private and Fernando pastes it when a
    session needs it. First step of each spec: look. *Amended 2026-09-24
    (fidelity audit):* the drawing is the default; a departure is a proposal
-   to Fernando with the drawn value beside it, and lands only with his yes,
-   recorded in his words with the date. "Not drawn" is written only after
-   searching both Figma files.
+   to Fernando with the drawn value beside it, and lands only with
+   Fernando's yes, recorded in Fernando's words with the date. "Not drawn"
+   is written only after searching both Figma files.
 3. Native element or platform feature first (`<dialog>`, `popover`, CSS
    anchor positioning, `<details>`, `<progress>`, `<input type=range>`);
    a hand-built widget only with the reason recorded.

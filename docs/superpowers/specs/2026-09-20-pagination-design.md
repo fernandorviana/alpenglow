@@ -200,6 +200,6 @@ That last check did not hold in the production build (corrected
 2026-09-24, fidelity audit): at 320 the dense Table's footer, with a
 Pagination of eight places of 40, was 320 wide in a phone's 288 and pushed
 the page 16px sideways. The Table's one grid track was `auto`, as wide as
-the footer's least width; it is `minmax(0, 1fr)` since 7ba0764 (branch
-`fidelity-part-1`), so the places give way toward 24 as "Found in the
-browser" above means them to.
+the footer's least width; it is `minmax(0, 1fr)`, with `min-width: 0` on
+the footer, since 2026-09-25 (branch `fidelity-part-1`), so the places give
+way toward 24 as "Found in the browser" above means them to.
