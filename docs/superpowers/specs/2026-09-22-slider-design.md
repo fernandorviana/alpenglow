@@ -49,7 +49,11 @@ where the practice differs and what the alternatives are.
    `border/strong`, the fill `interactive/accent`, the thumb
    `surface/raised` with an `interactive/accent` edge of 2, the balloon
    `interactive/accent` with `interactive/on-accent` text. Disabled takes
-   `interactive/disabled` for the fill and the thumb's edge.
+   `interactive/disabled` for the line and `interactive/on-disabled` for the
+   fill and the thumb's edge, so the filled part stays the more of the two
+   (2026-09-25: the fill had been `interactive/disabled` on a `border/strong`
+   line, paler than the line in both modes, and read reversed; against a
+   card now 1.36 and 2.39 in light, 1.47 and 3.36 in dark).
 5. **Range: the nearer thumb is on top.** Two inputs overlap, and only the
    top one takes the pointer. As the pointer moves over the track the
    input whose thumb is nearer is raised, so either thumb can be dragged

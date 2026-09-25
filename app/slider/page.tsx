@@ -58,6 +58,10 @@ type Measure = { part: string; value: string };
 const MEASURES: Measure[] = [
   { part: 'Thumb', value: `${spacing[200]}, an edge of 2 in interactive/accent on surface/raised, elevation/sm` },
   { part: 'Line', value: `${spacing['050']} at radius full; border/strong empty, interactive/accent filled` },
+  {
+    part: 'Disabled',
+    value: 'interactive/disabled empty, interactive/on-disabled filled and on the thumb’s edge: the filled part stays the more',
+  },
   { part: 'Track box', value: `${spacing[300]} tall, so the ring fits; the line is inset by half a thumb` },
   {
     part: 'Balloon',

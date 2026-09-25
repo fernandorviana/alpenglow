@@ -134,6 +134,11 @@ the Table's `Column.width`, under Breaking.
   bar's last child but the last child of that box, after the "+". The bar
   takes `min-width: 0`, and a chip's words end in an ellipsis when the chip
   is wider than the bar, where two long chips pushed a page sideways.
+- **A disabled Slider keeps its filled part the stronger.** The line is
+  `interactive/disabled` and the fill and the thumb's edge
+  `interactive/on-disabled`; the fill was `interactive/disabled` on a
+  `border/strong` line, paler than the line in both modes, and read
+  reversed.
 - **The Table no longer collapses to a list under a 40rem container.** Its
   columns leave one by one instead, right to left unless priorities say
   otherwise. It lays out fixed, and flexible columns share by their

@@ -5,6 +5,8 @@ import styles from './Slider.module.css';
 import { installPopoverStub } from '../../test/popover';
 import { readCss, block } from '../../test/css';
 import { axeViolations } from '../../test/axe';
+import { contrast, resolve } from '../../tokens/contrast';
+import type { ThemeTokenName } from '../../tokens/theme';
 
 installPopoverStub();
 
@@ -254,6 +256,47 @@ describe('Slider — stylesheet', () => {
     expect(block(css, '.input::-moz-range-track')).toMatch(/background:\s*transparent/);
     expect(block(css, '\n.line {')).toContain('--ap-color-border-strong');
     expect(block(css, '\n.fill {')).toContain('--ap-color-interactive-accent');
+  });
+
+  it('keeps a disabled fill the more of the two parts, in both modes, and the thumb’s edge with the fill', () => {
+    // Disabled painted the fill interactive/disabled over a border/strong
+    // line: stone/200 on stone/500 in light, stone/800 on stone/500 in dark,
+    // so the part that was not chosen read as the part that was. A line and
+    // a fill are boundaries, measured on the WCAG ratio against the surface
+    // under them; exempt when disabled (1.4.11), so no floor, only an order.
+    const token = (rule: string) => {
+      const name = rule.match(/background:\s*var\(--ap-color-([a-z0-9-]+)\)/)?.[1];
+      expect(name, rule).toBeDefined();
+      return name!.replace('-', '/') as ThemeTokenName;
+    };
+    const line = token(block(css, '.disabled .line {'));
+    const fill = token(block(css, '.disabled .fill {'));
+    expect([line, fill]).toEqual(['interactive/disabled', 'interactive/on-disabled']);
+    const measured: Record<string, number[]> = {};
+    for (const mode of ['light', 'dark'] as const) {
+      for (const surface of ['surface/base', 'surface/raised', 'surface/overlay'] as const) {
+        const ground = resolve(surface, mode);
+        const empty = contrast(resolve(line, mode), ground);
+        const filled = contrast(resolve(fill, mode), ground);
+        expect(filled, `${mode} on ${surface}`).toBeGreaterThan(empty);
+        measured[`${mode} ${surface}`] = [Number(empty.toFixed(2)), Number(filled.toFixed(2))];
+      }
+    }
+    // Pinned, so a move in either token is a decision and not a drift.
+    expect(measured).toEqual({
+      'light surface/base': [1.27, 2.23],
+      'light surface/raised': [1.36, 2.39],
+      'light surface/overlay': [1.36, 2.39],
+      'dark surface/base': [1.58, 3.62],
+      'dark surface/raised': [1.47, 3.36],
+      'dark surface/overlay': [1.33, 3.03],
+    });
+    // The fill against the line it runs along.
+    expect(contrast(resolve(fill, 'light'), resolve(line, 'light'))).toBeCloseTo(1.75, 2);
+    expect(contrast(resolve(fill, 'dark'), resolve(line, 'dark'))).toBeCloseTo(2.28, 2);
+    // Enabled, the thumb's edge is the fill's colour; disabled, the same.
+    expect(block(css, '.input:disabled::-webkit-slider-thumb {')).toContain('--ap-color-interactive-on-disabled');
+    expect(block(css, '.input:disabled::-moz-range-thumb {')).toContain('--ap-color-interactive-on-disabled');
   });
 
   it('insets the line by half a thumb, so the fill meets the thumb’s centre', () => {

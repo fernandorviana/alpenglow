@@ -139,8 +139,19 @@
   background: var(--ap-color-interactive-accent);
 }
 
-.disabled .fill {
+/* Disabled, the two parts keep their order: the filled part is still the
+   more. The line steps down to interactive/disabled and the fill takes the
+   disabled ink, interactive/on-disabled — against a card 1.36 and 2.39 in
+   light, 1.47 and 3.36 in dark (Slider.test.tsx pins every surface). The
+   fill was interactive/disabled on a border/strong line, paler than the line
+   in both modes, and read as the part not chosen. The thumb's edge goes
+   with the fill, as it does enabled. */
+.disabled .line {
   background: var(--ap-color-interactive-disabled);
+}
+
+.disabled .fill {
+  background: var(--ap-color-interactive-on-disabled);
 }
 
 /* One mark per step, spread by the flex box so the positions are exact. */
@@ -273,7 +284,7 @@
 }
 
 .input:disabled::-webkit-slider-thumb {
-  border-color: var(--ap-color-interactive-disabled);
+  border-color: var(--ap-color-interactive-on-disabled);
   box-shadow: none;
 }
 
@@ -309,7 +320,7 @@
 }
 
 .input:disabled::-moz-range-thumb {
-  border-color: var(--ap-color-interactive-disabled);
+  border-color: var(--ap-color-interactive-on-disabled);
   box-shadow: none;
 }
 
