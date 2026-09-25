@@ -1236,6 +1236,14 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
   overscroll-behavior-inline: contain;
 }
 
+/* The site's ring sits outside, where the frame's overflow: hidden would cut
+   it: inside, as the Table's region, and round with the frame's corners. */
+.sidewaysScroll:focus-visible {
+  outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);
+  outline-offset: calc(var(--ap-border-width-ring) * -1);
+  border-radius: inherit;
+}
+
 .sidewaysContent { min-inline-size: max-content; }
 
 .sideways::before,
@@ -1268,6 +1276,16 @@ html[data-theme-swap] *:not(.themeToggle, .themeToggleKnob, .themeToggleIcon)::a
 .sideways[data-more-end]::after {
   opacity: 1;
 }
+
+/* Laid over the scroller, the fades would hide its ring at the sides: while
+   it is focused they move in by the ring's width, each from its own edge. */
+.sideways:has(.sidewaysScroll:focus-visible)::before,
+.sideways:has(.sidewaysScroll:focus-visible)::after {
+  inset-block: var(--ap-border-width-ring);
+}
+
+.sideways:has(.sidewaysScroll:focus-visible)::before { inset-inline-start: var(--ap-border-width-ring); }
+.sideways:has(.sidewaysScroll:focus-visible)::after { inset-inline-end: var(--ap-border-width-ring); }
 
 @media (prefers-reduced-motion: reduce) {
   .sideways::before,

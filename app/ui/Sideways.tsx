@@ -11,8 +11,23 @@ import type { CSSProperties, ReactNode } from 'react';
  * breakpoint: whether it overflows depends on the content as much as on the
  * width, and CSS cannot ask. Without a measurement, as on the server, no fade
  * shows and the scroll still works.
+ *
+ * The scroller is a named region in the tab order, as the Table's is: the
+ * keyboard reaches it whether or not what is inside can take focus, and a
+ * reader hears what it holds. The name is required, so no caller forgets it.
  */
-export function Sideways({ children, className, style }: { children: ReactNode; className?: string; style?: CSSProperties }) {
+export function Sideways({
+  label,
+  children,
+  className,
+  style,
+}: {
+  /** The region's name: what the specimen shows. */
+  label: string;
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}) {
   const scroller = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState({ start: false, end: false });
 
@@ -45,7 +60,7 @@ export function Sideways({ children, className, style }: { children: ReactNode; 
       data-more-start={more.start || undefined}
       data-more-end={more.end || undefined}
     >
-      <div ref={scroller} className="sidewaysScroll">
+      <div ref={scroller} className="sidewaysScroll" role="region" aria-label={label} tabIndex={0}>
         <div className="sidewaysContent">{children}</div>
       </div>
     </div>

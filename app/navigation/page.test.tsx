@@ -15,7 +15,7 @@ describe('the Navigation page', () => {
     const { container } = render(<Page />);
     const bar = container.querySelector('header')!;
     const scroller = bar.closest('.sidewaysScroll');
-    expect(scroller).not.toBeNull();
+    expect(scroller).toBe(screen.getByRole('region', { name: 'Try it: the top bar and the side nav' }));
     expect(scroller!.parentElement).toHaveClass('sideways', 'specimen');
     expect(scroller).toContainElement(screen.getByRole('navigation', { name: 'Main' }));
   });

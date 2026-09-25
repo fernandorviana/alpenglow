@@ -238,7 +238,11 @@ export default function Page() {
       </div>
       {/* The bar with its five actions is 636 wide and has no phone shape in the
           drawing: on a screen narrower than that the specimen scrolls. */}
-      <Sideways className="specimen" style={{ padding: 0, background: 'var(--ap-color-surface-base)' }}>
+      <Sideways
+        label="Try it: the top bar and the side nav"
+        className="specimen"
+        style={{ padding: 0, background: 'var(--ap-color-surface-base)' }}
+      >
         <TopBar
           brand={<strong style={{ fontSize: 'var(--ap-text-body-lg-size)' }}>Alpenglow</strong>}
           onMenu={() => (narrow ? setOpen(true) : setCollapsed((c) => !c))}

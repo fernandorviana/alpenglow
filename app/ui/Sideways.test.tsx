@@ -48,7 +48,7 @@ const parts = (container: HTMLElement) => {
 describe('Sideways', () => {
   it('holds its content in a scroller inside the frame, which takes the class and the style', () => {
     const { container, getByText } = render(
-      <Sideways className="specimen" style={{ padding: 0 }}>
+      <Sideways label="The bar" className="specimen" style={{ padding: 0 }}>
         <p>the bar</p>
       </Sideways>,
     );
@@ -60,9 +60,22 @@ describe('Sideways', () => {
     expect(getByText('the bar').parentElement).toHaveClass('sidewaysContent');
   });
 
+  it('is a named region the keyboard reaches, whatever is inside it', () => {
+    // A region with nothing focusable in it could not be scrolled from the
+    // keyboard at all; with a name, a reader hears what it is.
+    const { getByRole } = render(
+      <Sideways label="Try it: the top bar and the side nav">
+        <p>no controls</p>
+      </Sideways>,
+    );
+    const region = getByRole('region', { name: 'Try it: the top bar and the side nav' });
+    expect(region).toHaveClass('sidewaysScroll');
+    expect(region).toHaveAttribute('tabindex', '0');
+  });
+
   it('shows no fade when the content fits', () => {
     const { resize } = observeByHand();
-    const { container } = render(<Sideways>content</Sideways>);
+    const { container } = render(<Sideways label="The bar">content</Sideways>);
     const { frame, scroller } = parts(container);
     sized(scroller, { scrollWidth: 600, clientWidth: 600 });
     resize();
@@ -72,7 +85,7 @@ describe('Sideways', () => {
 
   it('shows the end’s fade while more waits there, and the start’s once it has scrolled', () => {
     const { resize } = observeByHand();
-    const { container } = render(<Sideways>content</Sideways>);
+    const { container } = render(<Sideways label="The bar">content</Sideways>);
     const { frame, scroller } = parts(container);
     sized(scroller, { scrollWidth: 636, clientWidth: 375 });
     resize();
@@ -92,7 +105,7 @@ describe('Sideways', () => {
 
   it('reads a right-to-left scroll, which runs negative from the start', () => {
     const { resize } = observeByHand();
-    const { container } = render(<Sideways>content</Sideways>);
+    const { container } = render(<Sideways label="The bar">content</Sideways>);
     const { frame, scroller } = parts(container);
     sized(scroller, { scrollWidth: 636, clientWidth: 375, scrollLeft: -261 });
     resize();
@@ -102,7 +115,7 @@ describe('Sideways', () => {
 
   it('watches the scroller and its content, since either can change the overflow', () => {
     const { observed } = observeByHand();
-    const { container } = render(<Sideways>content</Sideways>);
+    const { container } = render(<Sideways label="The bar">content</Sideways>);
     const { scroller } = parts(container);
     expect(observed).toEqual([scroller, scroller.firstElementChild]);
   });
@@ -110,7 +123,7 @@ describe('Sideways', () => {
   it('renders without a ResizeObserver, as under the axe suite, and has no violations', async () => {
     vi.stubGlobal('ResizeObserver', undefined);
     const { container } = render(
-      <Sideways>
+      <Sideways label="The bar">
         <button type="button">Create</button>
       </Sideways>,
     );
@@ -128,6 +141,26 @@ describe('Sideways — stylesheet', () => {
     expect(frame).toContain('overflow: hidden;');
     expect(frame).toContain('position: relative;');
     expect(frame).toContain('isolation: isolate;');
+  });
+
+  it('rings the scroller inside the frame, which clips anything outside, and the fades step off the ring', () => {
+    // The site's ring sits 2 outside; the frame's overflow: hidden would cut it.
+    const ring = block(css, '.sidewaysScroll:focus-visible {');
+    expect(ring).toContain('outline: var(--ap-border-width-ring) solid var(--ap-color-border-focus);');
+    expect(ring).toContain('outline-offset: calc(var(--ap-border-width-ring) * -1);');
+    expect(ring).toContain('border-radius: inherit;');
+    // The fades are laid over the scroller: focused, they move in by the ring.
+    const focused = block(css, '.sideways:has(.sidewaysScroll:focus-visible)::before,\n.sideways:has(.sidewaysScroll:focus-visible)::after {');
+    expect(focused).toContain('inset-block: var(--ap-border-width-ring);');
+    expect(focused).not.toMatch(/(^|\s)inset:/);
+    // Each from its own edge: `inset` would pin both, and a fixed width then
+    // sends the end's fade to the start.
+    expect(css).toMatch(
+      /\n\.sideways:has\(\.sidewaysScroll:focus-visible\)::before \{ inset-inline-start: var\(--ap-border-width-ring\); \}/,
+    );
+    expect(css).toMatch(
+      /\n\.sideways:has\(\.sidewaysScroll:focus-visible\)::after \{ inset-inline-end: var\(--ap-border-width-ring\); \}/,
+    );
   });
 
   it('lays the fades over the scroller, hidden until a side has more, and never in the pointer’s way', () => {
